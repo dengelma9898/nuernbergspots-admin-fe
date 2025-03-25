@@ -41,8 +41,6 @@ import { toast } from 'sonner';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
-import * as Icons from '@mui/icons-material';
-import { Icon } from '@mui/material';
 import { IconPicker } from '@/components/ui/icon-picker';
 import { KeywordSelector } from '@/components/ui/keyword-selector';
 
