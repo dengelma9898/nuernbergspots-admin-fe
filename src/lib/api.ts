@@ -31,12 +31,13 @@ export interface City {
 export const endpoints = {
   // User endpoints
   users: '/users',
-  userProfile: (id: string) => `/users/${id}/profile`,
+  userProfile: (id: string) => `/users/${id}`,
   businessUsers: '/users/business',
   businessUserById: (id: string) => `/users/business/${id}`,
   
   // Other endpoints
   businesses: '/businesses',
+  businessCategories: '/business-categories',
   cities: '/cities',
   events: '/events',
   keywords: '/keywords',
