@@ -1,0 +1,58 @@
+{
+  "rules": {
+    "typescript": {
+      "strict": true,
+      "noImplicitAny": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "forceConsistentCasingInFileNames": true
+    },
+    "react": {
+      "useHooks": true,
+      "preferFunctionComponents": true,
+      "noPropTypes": true,
+      "jsxSingleQuote": false
+    },
+    "imports": {
+      "order": [
+        "^react",
+        "^@chakra-ui/react",
+        "^@/lib/(.*)$",
+        "^@/services/(.*)$",
+        "^@/models/(.*)$",
+        "^@/components/(.*)$",
+        "^@/pages/(.*)$",
+        "^[./]"
+      ],
+      "newlinesBetweenGroups": 1
+    },
+    "naming": {
+      "components": "^[A-Z][a-zA-Z0-9]*$",
+      "hooks": "^use[A-Z][a-zA-Z0-9]*$",
+      "services": "^[a-z][a-zA-Z0-9]*Service$",
+      "types": "^[A-Z][a-zA-Z0-9]*$",
+      "interfaces": "^I[A-Z][a-zA-Z0-9]*$"
+    },
+    "fileStructure": {
+      "components": "src/components",
+      "pages": "src/pages",
+      "services": "src/services",
+      "models": "src/models",
+      "lib": "src/lib",
+      "hooks": "src/hooks",
+      "utils": "src/utils",
+      "assets": "src/assets"
+    },
+    "testing": {
+      "componentTests": "__tests__",
+      "testFiles": "*.test.tsx",
+      "coverageThreshold": 80
+    },
+    "git": {
+      "commitMessageFormat": "^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+$",
+      "branchNaming": "^(feature|bugfix|hotfix|release)/.+$"
+    }
+  }
+} 

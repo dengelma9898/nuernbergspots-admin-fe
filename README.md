@@ -1,54 +1,136 @@
-# React + TypeScript + Vite
+# NürnbergSpots Admin Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Das Admin-Dashboard für NürnbergSpots, entwickelt mit React, Vite und TypeScript.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 Firebase Authentication
+- 🎨 Chakra UI für moderne und responsive Designs
+- 📱 Mobile-First Ansatz
+- 🔄 TypeScript für typsichere Entwicklung
+- 🧪 Jest und React Testing Library für Tests
+- 📦 Vite für schnelle Entwicklung und Builds
 
-## Expanding the ESLint configuration
+## 🛠️ Technologie-Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 18
+- Vite 5
+- TypeScript 5
+- Chakra UI 3
+- Firebase 10
+- React Router 6
+- Jest & React Testing Library
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 📋 Voraussetzungen
+
+- Node.js >= 18
+- npm >= 9
+
+## 🚀 Installation
+
+1. Repository klonen:
+```bash
+git clone https://github.com/yourusername/nuernbergspots-admin-fe.git
+cd nuernbergspots-admin-fe
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Abhängigkeiten installieren:
+```bash
+npm install
 ```
+
+3. Entwicklungsserver starten:
+```bash
+npm run dev
+```
+
+4. Produktions-Build erstellen:
+```bash
+npm run build
+```
+
+## 📁 Projektstruktur
+
+```
+src/
+├── assets/          # Statische Assets (Bilder, Fonts, etc.)
+├── components/      # Wiederverwendbare UI-Komponenten
+├── hooks/          # Custom React Hooks
+├── lib/            # Hilfsfunktionen und Konfigurationen
+├── models/         # TypeScript Interfaces und Types
+├── pages/          # Seiten-Komponenten
+├── services/       # API-Services
+└── utils/          # Utility-Funktionen
+```
+
+## 🧪 Tests
+
+Tests ausführen:
+```bash
+npm test
+```
+
+Coverage-Report generieren:
+```bash
+npm run test:coverage
+```
+
+## 📝 Entwicklungsrichtlinien
+
+### Code-Style
+
+- Verwende TypeScript für alle neuen Dateien
+- Nutze Funktionskomponenten mit Hooks
+- Folge den ESLint- und Prettier-Regeln
+- Schreibe aussagekräftige Commit-Nachrichten
+
+### Komponenten
+
+- Eine Komponente pro Datei
+- Verwende TypeScript Interfaces für Props
+- Dokumentiere Komponenten mit JSDoc
+- Teste Komponenten mit React Testing Library
+
+### State Management
+
+- Nutze React Context für globalen State
+- Verwende lokalen State mit useState
+- Komplexe State-Logik in Custom Hooks auslagern
+
+### API-Integration
+
+- Nutze die Service-Layer für API-Aufrufe
+- Implementiere Error Handling
+- Verwende TypeScript für API-Response-Typen
+
+### Performance
+
+- Lazy Loading für Routen
+- Memoization wo sinnvoll
+- Optimierte Bilder und Assets
+- Code-Splitting
+
+## 🔒 Umgebungsvariablen
+
+Erstelle eine `.env` Datei im Root-Verzeichnis:
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+```
+
+## 🤝 Beitragen
+
+1. Fork das Repository
+2. Erstelle einen Feature-Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit deine Änderungen (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push zum Branch (`git push origin feature/AmazingFeature`)
+5. Öffne einen Pull Request
+
+## 📄 Lizenz
+
+Dieses Projekt ist unter der MIT-Lizenz lizenziert - siehe die [LICENSE](LICENSE) Datei für Details.

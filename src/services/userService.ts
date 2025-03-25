@@ -1,17 +1,9 @@
 import { UserProfile, BusinessUser } from '../models/users';
 import { useApi, endpoints } from '../lib/api';
-
-interface ApiResponse<T> {
-  data: T;
-}
+import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useUserService() {
   const api = useApi();
-
-  // Hilfsfunktion zum Entpacken der Response
-  const unwrapData = <T>(response: ApiResponse<T>): T => {
-    return response.data;
-  };
 
   return {
     /**
