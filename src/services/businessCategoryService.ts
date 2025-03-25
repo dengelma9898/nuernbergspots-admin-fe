@@ -1,4 +1,4 @@
-import { BusinessCategory } from '../models/business-category';
+import { BusinessCategory, BusinessCategoryCreation } from '../models/business-category';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
@@ -10,7 +10,7 @@ export function useBusinessCategoryService() {
      * Lädt alle Business-Kategorien
      */
     getCategories: async (): Promise<BusinessCategory[]> => {
-      const response = await api.get<ApiResponse<BusinessCategory[]>>(endpoints.businessCategories);
+      const response = await api.get<ApiResponse<BusinessCategory[]>>(`${endpoints.businessCategories}/with-keywords`);
       return unwrapData(response);
     },
 
@@ -25,7 +25,7 @@ export function useBusinessCategoryService() {
     /**
      * Erstellt eine neue Business-Kategorie
      */
-    createCategory: async (category: Omit<BusinessCategory, 'id' | 'createdAt' | 'updatedAt'>): Promise<BusinessCategory> => {
+    createCategory: async (category: BusinessCategoryCreation): Promise<BusinessCategory> => {
       const response = await api.post<ApiResponse<BusinessCategory>>(endpoints.businessCategories, category);
       return unwrapData(response);
     },
@@ -33,8 +33,8 @@ export function useBusinessCategoryService() {
     /**
      * Aktualisiert eine Business-Kategorie
      */
-    updateCategory: async (categoryId: string, category: Partial<BusinessCategory>): Promise<BusinessCategory> => {
-      const response = await api.put<ApiResponse<BusinessCategory>>(`${endpoints.businessCategories}/${categoryId}`, category);
+    updateCategory: async (categoryId: string, category: Partial<BusinessCategoryCreation>): Promise<BusinessCategory> => {
+      const response = await api.patch<ApiResponse<BusinessCategory>>(`${endpoints.businessCategories}/${categoryId}`, category);
       return unwrapData(response);
     },
 
