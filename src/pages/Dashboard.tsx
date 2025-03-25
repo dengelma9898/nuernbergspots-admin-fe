@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Box, Button, Heading, Stack, Text, VStack } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,7 +9,9 @@ export function Dashboard() {
   const { logout, getUserId } = useAuth();
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const userService = useUserService();
+  const isInitialMount = useRef(true);
 
   const handleLogout = async () => {
     try {
@@ -20,22 +22,28 @@ export function Dashboard() {
     }
   };
 
-  useEffect(() => {
-    async function fetchCurrentUser() {
-      const userId = getUserId();
-      if (userId) {
-        try {
-          const userData = await userService.getUserProfile(userId);
-          setCurrentUser(userData);
-          console.log('User Profile Data:', userData); // Für Debugging
-        } catch (error) {
-          console.error('Fehler beim Laden der Benutzerdaten:', error);
-        }
-      }
-    }
+  const fetchCurrentUser = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId || isLoading) return;
 
-    fetchCurrentUser();
-  }, [userService, getUserId]);
+    try {
+      setIsLoading(true);
+      const userData = await userService.getUserProfile(userId);
+      setCurrentUser(userData);
+      console.log('User Profile Data:', userData); // Für Debugging
+    } catch (error) {
+      console.error('Fehler beim Laden der Benutzerdaten:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [getUserId, userService, isLoading]);
+
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchCurrentUser();
+    }
+  }, [fetchCurrentUser]);
 
   return (
     <Box p={8}>

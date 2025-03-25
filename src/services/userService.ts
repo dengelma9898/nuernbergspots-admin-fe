@@ -1,11 +1,12 @@
 import { UserProfile, BusinessUser } from '../models/users';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
+import { useMemo } from 'react';
 
 export function useUserService() {
   const api = useApi();
 
-  return {
+  return useMemo(() => ({
     /**
      * Lädt das Profil eines Benutzers
      */
@@ -90,5 +91,5 @@ export function useUserService() {
       const response = await api.put<ApiResponse<UserProfile>>(`${endpoints.userProfile(userId)}/preferences`, { preferences });
       return unwrapData(response);
     },
-  };
+  }), [api]);
 } 

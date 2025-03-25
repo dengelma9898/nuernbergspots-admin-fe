@@ -1,6 +1,7 @@
 import ApiClient from './api-client';
 import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users';
+import { useMemo } from 'react';
 
 // Hier die Backend-URL einfügen
 const API_BASE_URL = 'http://localhost:3000';
@@ -8,10 +9,10 @@ const API_BASE_URL = 'http://localhost:3000';
 export function useApi() {
   const { getToken } = useAuth();
   
-  return new ApiClient({
+  return useMemo(() => new ApiClient({
     baseUrl: API_BASE_URL,
     getToken,
-  });
+  }), [getToken]);
 }
 
 export interface Business {
@@ -31,7 +32,7 @@ export interface City {
 export const endpoints = {
   // User endpoints
   users: '/users',
-  userProfile: (id: string) => `/users/${id}`,
+  userProfile: (id: string) => `/users/${id}/profile`,
   businessUsers: '/users/business',
   businessUserById: (id: string) => `/users/business/${id}`,
   
