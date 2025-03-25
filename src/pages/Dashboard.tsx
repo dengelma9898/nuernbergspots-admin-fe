@@ -21,9 +21,48 @@ import {
   Heart,
   History,
   Settings,
-  LogOut
+  LogOut,
+  Tags,
+  Key,
+  ArrowRight
 } from 'lucide-react';
 import { toast } from "sonner";
+
+const NavigationCard = ({ 
+  icon: Icon, 
+  title, 
+  description, 
+  href 
+}: { 
+  icon: any, 
+  title: string, 
+  description: string, 
+  href: string 
+}) => {
+  const navigate = useNavigate();
+  
+  return (
+    <Card 
+      className="cursor-pointer hover:bg-accent/50 transition-colors group"
+      onClick={() => navigate(href)}
+    >
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <Icon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardDescription>{description}</CardDescription>
+            </div>
+          </div>
+          <ArrowRight className="h-5 w-5 text-primary transition-transform group-hover:translate-x-1" />
+        </div>
+      </CardHeader>
+    </Card>
+  );
+};
 
 export function Dashboard() {
   const { logout, getUserId } = useAuth();
@@ -94,6 +133,37 @@ export function Dashboard() {
             <LogOut className="mr-2 h-4 w-4" />
             Abmelden
           </Button>
+        </div>
+
+        {/* Management Navigation */}
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Management</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NavigationCard
+              icon={Store}
+              title="Geschäfte verwalten"
+              description="Geschäfte hinzufügen, bearbeiten und löschen"
+              href="/businesses"
+            />
+            <NavigationCard
+              icon={Tags}
+              title="Kategorien verwalten"
+              description="Geschäftskategorien und deren Zuordnungen verwalten"
+              href="/categories"
+            />
+            <NavigationCard
+              icon={Calendar}
+              title="Events verwalten"
+              description="Events und Veranstaltungen organisieren"
+              href="/events"
+            />
+            <NavigationCard
+              icon={Key}
+              title="Keywords verwalten"
+              description="Suchbegriffe und Tags für bessere Auffindbarkeit"
+              href="/keywords"
+            />
+          </div>
         </div>
 
         {/* Profile Section */}

@@ -1,45 +1,15 @@
-import { ChakraProvider, createSystem, defaultConfig } from '@chakra-ui/react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { AppRoutes } from './routes.tsx';
+import { Toaster } from 'sonner';
 
-const system = createSystem(defaultConfig, {
-  theme: {
-    tokens: {
-      colors: {
-        brand: { value: '#2B6CB0' },
-      },
-    },
-  },
-});
-
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  return user ? <>{children}</> : <Navigate to="/login" />;
-}
-
-function App() {
+export default function App() {
   return (
-    <ChakraProvider value={system}>
+    <BrowserRouter>
       <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </Router>
+        <AppRoutes />
+        <Toaster />
       </AuthProvider>
-    </ChakraProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;
