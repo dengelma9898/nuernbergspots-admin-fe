@@ -1,6 +1,6 @@
 # NürnbergSpots Admin Frontend
 
-Das Admin-Dashboard für NürnbergSpots, entwickelt mit React, Vite und TypeScript.
+Ein modernes Admin-Dashboard für NürnbergSpots, entwickelt mit React, TypeScript, Tailwind CSS und shadcn/ui.
 
 ## 🚀 Features
 
@@ -13,13 +13,14 @@ Das Admin-Dashboard für NürnbergSpots, entwickelt mit React, Vite und TypeScri
 
 ## 🛠️ Technologie-Stack
 
-- React 18
-- Vite 5
-- TypeScript 5
-- Chakra UI 3
-- Firebase 10
-- React Router 6
-- Jest & React Testing Library
+- **Framework**: React mit TypeScript
+- **Styling**: 
+  - Tailwind CSS für Utility-First CSS
+  - shadcn/ui für vorgefertigte, zugängliche Komponenten
+- **Routing**: React Router
+- **State Management**: React Context API
+- **Authentication**: Firebase Auth
+- **Build Tool**: Vite
 
 ## 📋 Voraussetzungen
 
@@ -53,14 +54,16 @@ npm run build
 
 ```
 src/
-├── assets/          # Statische Assets (Bilder, Fonts, etc.)
-├── components/      # Wiederverwendbare UI-Komponenten
-├── hooks/          # Custom React Hooks
-├── lib/            # Hilfsfunktionen und Konfigurationen
-├── models/         # TypeScript Interfaces und Types
-├── pages/          # Seiten-Komponenten
-├── services/       # API-Services
-└── utils/          # Utility-Funktionen
+├── components/
+│   ├── ui/          # shadcn/ui Komponenten
+│   └── ...          # Anwendungskomponenten
+├── pages/           # Seitenkomponenten
+├── services/        # API-Services
+├── models/          # TypeScript Interfaces/Types
+├── lib/             # Utilities und Konfigurationen
+├── hooks/           # Custom React Hooks
+├── utils/           # Hilfsfunktionen
+└── assets/          # Statische Assets
 ```
 
 ## 🧪 Tests

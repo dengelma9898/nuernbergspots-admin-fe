@@ -18,7 +18,7 @@
     "imports": {
       "order": [
         "^react",
-        "^@chakra-ui/react",
+        "^@/components/ui/(.*)$",
         "^@/lib/(.*)$",
         "^@/services/(.*)$",
         "^@/models/(.*)$",
@@ -43,7 +43,14 @@
       "lib": "src/lib",
       "hooks": "src/hooks",
       "utils": "src/utils",
-      "assets": "src/assets"
+      "assets": "src/assets",
+      "ui": "src/components/ui"
+    },
+    "styling": {
+      "framework": "tailwind",
+      "componentLibrary": "shadcn/ui",
+      "useTailwindClasses": true,
+      "preferShadcnComponents": true
     },
     "testing": {
       "componentTests": "__tests__",
