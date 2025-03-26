@@ -2,6 +2,7 @@ import { Business, BusinessResponse, BusinessStatus } from '../models/business';
 import { BusinessCategory } from '../models/business-category';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
+import { NuernbergspotsReview } from '@/models/business';
 
 export function useBusinessService() {
   const api = useApi();
@@ -35,7 +36,11 @@ export function useBusinessService() {
      * Aktualisiert ein Business
      */
     updateBusiness: async (businessId: string, business: Partial<Business>): Promise<BusinessResponse> => {
-      const response = await api.put<ApiResponse<BusinessResponse>>(`${endpoints.businesses}/${businessId}`, business);
+      console.log('updateBusiness: business', business);
+      const response = await api.patch<ApiResponse<BusinessResponse>>(
+        `${endpoints.businesses}/${businessId}`, 
+        { ...business }
+      );
       return unwrapData(response);
     },
 
@@ -43,15 +48,7 @@ export function useBusinessService() {
      * Löscht ein Business (Soft Delete)
      */
     deleteBusiness: async (businessId: string): Promise<void> => {
-      return api.delete(`${endpoints.businesses}/${businessId}`);
-    },
-
-    /**
-     * Aktualisiert den Status eines Businesses
-     */
-    updateBusinessStatus: async (businessId: string, status: BusinessStatus): Promise<BusinessResponse> => {
-      const response = await api.put<ApiResponse<BusinessResponse>>(`${endpoints.businesses}/${businessId}/status`, { status });
-      return unwrapData(response);
+      await api.delete(`${endpoints.businesses}/${businessId}`);
     },
 
     /**
@@ -105,6 +102,39 @@ export function useBusinessService() {
       const response = await api.put<ApiResponse<BusinessResponse>>(`${endpoints.businesses}/${businessId}/opening-hours`, {
         openingHours
       });
+      return unwrapData(response);
+    },
+
+    /**
+     * Aktualisiert die NuernbergspotsReview eines Businesses
+     */
+    updateNuernbergspotsReview: async (businessId: string, review: NuernbergspotsReview): Promise<BusinessResponse> => {
+      const response = await api.patch<ApiResponse<BusinessResponse>>(
+        `${endpoints.businesses}/${businessId}/nuernbergspots-review`,
+        {...review}
+      );
+      return unwrapData(response);
+    },
+
+    uploadReviewImages: async (businessId: string, images: File[]): Promise<BusinessResponse> => {
+      const formData = new FormData();
+      images.forEach(image => {
+        formData.append('images', image);
+      });
+
+      const response = await api.post<ApiResponse<BusinessResponse>>(
+        `${endpoints.businesses}/${businessId}/nuernbergspots-review/images`,
+        formData,
+        { isFormData: true }
+      );
+      return unwrapData(response);
+    },
+
+    deleteReviewImage: async (businessId: string, imageUrl: string): Promise<BusinessResponse> => {
+      const response = await api.delete<ApiResponse<BusinessResponse>>(
+        `${endpoints.businesses}/${businessId}/nuernbergspots-review/images`,
+        imageUrl
+      );
       return unwrapData(response);
     }
   };

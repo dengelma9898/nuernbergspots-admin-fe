@@ -5,7 +5,7 @@ import { BusinessList } from './pages/businesses/BusinessList';
 import { CategoryList } from './pages/categories/CategoryList';
 import { EventList } from './pages/events/EventList';
 import { KeywordList } from './pages/keywords/KeywordList';
-import { PrivateRoute } from './components/PrivateRoute';
+import { PrivateRoute } from './components/PrivateRoute.tsx';
 
 export function AppRoutes() {
   return (
