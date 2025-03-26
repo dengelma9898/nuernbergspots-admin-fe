@@ -34,7 +34,7 @@ export function useEventService() {
      * Aktualisiert ein Event
      */
     updateEvent: async (eventId: string, event: Partial<Event>): Promise<Event> => {
-      const response = await api.put<ApiResponse<Event>>(`${endpoints.events}/${eventId}`, event);
+      const response = await api.patch<ApiResponse<Event>>(`${endpoints.events}/${eventId}`, event);
       return unwrapData(response);
     },
 

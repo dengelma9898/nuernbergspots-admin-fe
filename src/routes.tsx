@@ -3,7 +3,8 @@ import { Dashboard } from './pages/Dashboard';
 import { Login } from './pages/Login';
 import { BusinessList } from './pages/businesses/BusinessList';
 import { CategoryList } from './pages/categories/CategoryList';
-import { EventList } from './pages/events/EventList';
+import { EventList } from '@/pages/events/EventList';
+import { EventDetail } from '@/pages/events/EventDetail';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from './components/PrivateRoute.tsx';
 
@@ -19,6 +20,7 @@ export function AppRoutes() {
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/events" element={<EventList />} />
         <Route path="/keywords" element={<KeywordList />} />
+        <Route path="/events/:id" element={<EventDetail />} />
       </Route>
 
       {/* Fallback */}

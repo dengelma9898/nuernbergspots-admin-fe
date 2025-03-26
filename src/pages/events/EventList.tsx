@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
   CardHeader, 
@@ -42,6 +43,7 @@ export const EventList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const eventService = useEventService();
+  const navigate = useNavigate();
 
   const loadEvents = async () => {
     try {
@@ -231,6 +233,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
+  const navigate = useNavigate();
   const getEventStatus = (event: Event) => {
     const now = new Date();
     const startDate = new Date(event.startDate);
@@ -345,7 +348,11 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
           Erstellt am {formatDate(event.createdAt)}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(`/events/${event.id}`)}
+          >
             Bearbeiten
           </Button>
           <Button 
