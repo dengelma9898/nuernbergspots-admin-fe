@@ -75,6 +75,9 @@ class ApiClient {
 
   async patch<T>(endpoint: string, data: any): Promise<T> {
     const headers = await this.getHeaders('application/json');
+
+    console.log('patch: data', JSON.stringify(data));
+    console.log('patch: headers', headers.get('Content-Type'));
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PATCH',
       headers,

@@ -110,8 +110,11 @@ export function useBusinessService() {
      */
     updateNuernbergspotsReview: async (businessId: string, review: NuernbergspotsReview): Promise<BusinessResponse> => {
       const response = await api.patch<ApiResponse<BusinessResponse>>(
-        `${endpoints.businesses}/${businessId}/nuernbergspots-review`,
-        {...review}
+         `${endpoints.businesses}/${businessId}/nuernbergspots-review`,
+        {
+            'reviewText': review.reviewText,
+            'reviewImageUrls': review.reviewImageUrls,
+        }
       );
       return unwrapData(response);
     },

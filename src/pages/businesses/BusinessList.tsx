@@ -46,6 +46,9 @@ import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/busines
 import { useBusinessService } from '@/services/businessService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -55,12 +58,14 @@ export const BusinessList: React.FC = () => {
   const [editStatus, setEditStatus] = useState<BusinessStatus | null>(null);
   const [editReview, setEditReview] = useState<NuernbergspotsReview>({
     reviewText: '',
-    reviewImageUrls: [],
-    updatedAt: new Date().toISOString()
+    reviewImageUrls: []
   });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showOnlyPending, setShowOnlyPending] = useState(false);
+  const [showOnlyWithoutReview, setShowOnlyWithoutReview] = useState(false);
   const businessService = useBusinessService();
 
   const loadBusinesses = async () => {
@@ -100,8 +105,7 @@ export const BusinessList: React.FC = () => {
     setEditStatus(business.status);
     setEditReview(business.nuernbergspotsReview || {
       reviewText: '',
-      reviewImageUrls: [],
-      updatedAt: new Date().toISOString()
+      reviewImageUrls: []
     });
     setNewImages([]);
     setImagesToDelete([]);
@@ -139,13 +143,15 @@ export const BusinessList: React.FC = () => {
       // 1. Review-Text und gefilterte Bilder aktualisieren
       const updatedReview: NuernbergspotsReview = {
         reviewText: editReview.reviewText,
-        reviewImageUrls: editReview.reviewImageUrls?.filter(url => !imagesToDelete.includes(url)) || [],
+        reviewImageUrls: editReview.reviewImageUrls?.filter(url => !imagesToDelete.includes(url)).filter(url => url.startsWith('http')) || []
       };
 
+      console.log('Sending review update:', updatedReview);
       await businessService.updateNuernbergspotsReview(editingBusiness.id, updatedReview);
 
       // 2. Wenn es neue Bilder gibt, diese hochladen
       if (newImages.length > 0) {
+        console.log('Uploading new images:', newImages.length);
         await businessService.uploadReviewImages(editingBusiness.id, newImages);
       }
       
@@ -159,6 +165,7 @@ export const BusinessList: React.FC = () => {
       setImagesToDelete([]);
       loadBusinesses();
     } catch (error) {
+      console.error('Error updating review:', error);
       toast.error("Fehler beim Aktualisieren", {
         description: "Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.",
       });
@@ -179,7 +186,6 @@ export const BusinessList: React.FC = () => {
     setEditReview(prev => ({
       ...prev,
       reviewImageUrls: [...(prev.reviewImageUrls || []), ...newImageUrls],
-      updatedAt: new Date().toISOString()
     }));
   };
 
@@ -202,7 +208,6 @@ export const BusinessList: React.FC = () => {
     setEditReview(prev => ({
       ...prev,
       reviewImageUrls: prev.reviewImageUrls?.filter(url => url !== imageUrl) || [],
-      updatedAt: new Date().toISOString()
     }));
   };
 
@@ -357,9 +362,17 @@ export const BusinessList: React.FC = () => {
     return <div className="flex justify-center items-center h-64">Lade Geschäfte...</div>;
   }
 
-  const activeBusinesses = businesses.filter(b => b.status === BusinessStatus.ACTIVE);
-  const pendingBusinesses = businesses.filter(b => b.status === BusinessStatus.PENDING);
-  const inactiveBusinesses = businesses.filter(b => b.status === BusinessStatus.INACTIVE);
+  const filteredBusinesses = businesses.filter(business => {
+    const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesPendingFilter = !showOnlyPending || business.status === BusinessStatus.PENDING;
+    const matchesReviewFilter = !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
+    
+    return matchesSearch && matchesPendingFilter && matchesReviewFilter;
+  });
+
+  const activeBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.ACTIVE);
+  const pendingBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.PENDING);
+  const inactiveBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.INACTIVE);
 
   return (
     <div className="container mx-auto py-6">
@@ -369,6 +382,42 @@ export const BusinessList: React.FC = () => {
           <Plus className="mr-2 h-4 w-4" />
           Neues Geschäft erstellen
         </Button>
+      </div>
+
+      <div className="space-y-6 mb-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Input
+                placeholder="Nach Geschäftsnamen suchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="max-w-sm"
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="pending-filter"
+                  checked={showOnlyPending}
+                  onCheckedChange={setShowOnlyPending}
+                />
+                <Label htmlFor="pending-filter">Nur ausstehende</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="review-filter"
+                  checked={showOnlyWithoutReview}
+                  onCheckedChange={setShowOnlyWithoutReview}
+                />
+                <Label htmlFor="review-filter">Ohne Review</Label>
+              </div>
+            </div>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {filteredBusinesses.length} Geschäfte gefunden
+          </div>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -414,7 +463,7 @@ export const BusinessList: React.FC = () => {
           </div>
         )}
 
-        {businesses.length === 0 && (
+        {filteredBusinesses.length === 0 && (
           <div className="text-center py-8">Keine Geschäfte gefunden.</div>
         )}
       </div>
@@ -494,7 +543,6 @@ export const BusinessList: React.FC = () => {
                     onChange={(e) => setEditReview(prev => ({
                       ...prev,
                       reviewText: e.target.value,
-                      updatedAt: new Date().toISOString()
                     }))}
                     placeholder="Geben Sie hier die Review ein..."
                     className="min-h-[100px]"

@@ -12,7 +12,6 @@ export enum BusinessStatus {
 export interface NuernbergspotsReview {
   reviewText?: string;
   reviewImageUrls?: string[];
-  updatedAt?: string;
 }
 
 export interface Business {
