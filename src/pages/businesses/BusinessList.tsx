@@ -49,6 +49,7 @@ import { de } from 'date-fns/locale';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useNavigate } from 'react-router-dom';
 
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -67,6 +68,7 @@ export const BusinessList: React.FC = () => {
   const [showOnlyPending, setShowOnlyPending] = useState(false);
   const [showOnlyWithoutReview, setShowOnlyWithoutReview] = useState(false);
   const businessService = useBusinessService();
+  const navigate = useNavigate();
 
   const loadBusinesses = async () => {
     try {
@@ -378,7 +380,7 @@ export const BusinessList: React.FC = () => {
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Geschäfte</h1>
-        <Button>
+        <Button onClick={() => navigate('/businesses/new')}>
           <Plus className="mr-2 h-4 w-4" />
           Neues Geschäft erstellen
         </Button>
