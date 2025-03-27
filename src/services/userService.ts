@@ -112,5 +112,14 @@ export function useUserService() {
       const response = await api.put<ApiResponse<UserProfile>>(`${endpoints.userProfile(userId)}/preferences`, { preferences });
       return unwrapData(response);
     },
+
+    /**
+     * Aktualisiert den Review-Status eines Business-Users
+     */
+    updateBusinessUserReviewStatus: async (userId: string, needsReview: boolean): Promise<void> => {
+      await api.patch(`${endpoints.users}/${userId}/business-profile/needs-review`, {
+        needsReview: needsReview,
+      });
+    },
   }), [api]);
 } 

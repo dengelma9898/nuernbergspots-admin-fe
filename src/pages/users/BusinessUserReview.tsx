@@ -51,7 +51,7 @@ export const BusinessUserReview: React.FC = () => {
 
   const handleApprove = async (userId: string) => {
     try {
-      await userService.updateBusinessUser(userId, { needsReview: false });
+      await userService.updateBusinessUserReviewStatus(userId, false);
       toast.success("Benutzer verifiziert", {
         description: "Der Benutzer wurde erfolgreich verifiziert.",
       });
@@ -65,7 +65,7 @@ export const BusinessUserReview: React.FC = () => {
 
   const handleReject = async (userId: string) => {
     try {
-      await userService.updateBusinessUser(userId, { needsReview: false });
+      await userService.updateBusinessUserReviewStatus(userId, false);
       toast.success("Benutzer abgelehnt", {
         description: "Der Benutzer wurde erfolgreich abgelehnt.",
       });
