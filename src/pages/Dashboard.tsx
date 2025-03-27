@@ -232,7 +232,7 @@ export function Dashboard() {
                     </div>
                   </div>
                   <Button
-                    onClick={() => navigate('/users/business?filter=review')}
+                    onClick={() => navigate('/users/business/review')}
                     className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
                   >
                     Jetzt prüfen

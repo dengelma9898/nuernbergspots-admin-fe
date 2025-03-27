@@ -54,4 +54,5 @@ export interface BusinessUser {
   isDeleted: boolean;
   needsReview: boolean;
   eventIds?: string[];
+  businessNames?: string[];
 } 

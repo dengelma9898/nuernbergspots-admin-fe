@@ -9,6 +9,7 @@ import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from './components/PrivateRoute.tsx';
 import { CreateEvent } from "@/pages/events/CreateEvent";
 import { CreateBusiness } from "@/pages/businesses/CreateBusiness";
+import { BusinessUserReview } from './pages/users/BusinessUserReview';
 
 export function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ export function AppRoutes() {
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/events/new" element={<CreateEvent />} />
         <Route path="/businesses/new" element={<CreateBusiness />} />
+        <Route path="/users/business/review" element={<BusinessUserReview />} />
       </Route>
 
       {/* Fallback */}
