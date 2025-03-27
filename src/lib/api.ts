@@ -3,8 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users';
 import { useMemo } from 'react';
 
-// Hier die Backend-URL einfügen
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export function useApi() {
   const { getToken } = useAuth();

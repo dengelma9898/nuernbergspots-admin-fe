@@ -1,8 +1,9 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { UserProfile } from '../models/users';
 import { useUserService } from '../services/userService';
+import { useBusinessService } from '../services/businessService';
 import { 
   Card,
   CardContent,
@@ -71,6 +72,8 @@ export function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const userService = useUserService();
   const isInitialMount = useRef(true);
+  const [pendingApprovals, setPendingApprovals] = useState<number>(0);
+  const businessService = useBusinessService();
 
   const handleLogout = async () => {
     try {
@@ -97,12 +100,22 @@ export function Dashboard() {
     }
   }, [getUserId, userService, isLoading]);
 
+  const fetchPendingApprovals = useCallback(async () => {
+    try {
+      const count = await businessService.getPendingApprovalsCount();
+      setPendingApprovals(count);
+    } catch (error) {
+      console.error('Fehler beim Laden der ausstehenden Genehmigungen:', error);
+    }
+  }, [businessService]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       fetchCurrentUser();
+      fetchPendingApprovals();
     }
-  }, [fetchCurrentUser]);
+  }, [fetchCurrentUser, fetchPendingApprovals]);
 
   const StatCard = ({ icon: Icon, label, value, helpText }: { icon: any, label: string, value: string | number, helpText?: string }) => (
     <Card className="hover:bg-accent/50 transition-colors">
@@ -123,21 +136,68 @@ export function Dashboard() {
     <div className="container mx-auto p-8 max-w-7xl">
       <div className="space-y-8">
         {/* Header Section */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <Button 
-            variant="outline" 
-            onClick={handleLogout}
-            className="hover:bg-destructive/10 hover:text-destructive"
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            Abmelden
-          </Button>
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="hover:bg-destructive/10 hover:text-destructive"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Abmelden
+            </Button>
+          </div>
+          <div className="text-lg text-muted-foreground">
+            Hi Sarah 👋, schön dass du wieder da bist ✨
+            {pendingApprovals > 0 && (
+              <span className="block mt-1">
+                {pendingApprovals > 10 
+                  ? "Da wartet eine Menge Arbeit auf dich! 💪"
+                  : "Es gibt ein bisschen was zu tun für dich 😊"
+                }
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Management Navigation */}
+        {/* Management Section */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Management</h2>
+          
+          {/* Pending Approvals Card */}
+          {pendingApprovals > 0 && (
+            <Card className="mb-4 bg-primary/5 border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center text-primary">
+                  <Store className="mr-2 h-5 w-5" />
+                  Ausstehende Genehmigungen ✍️
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-4xl font-bold text-primary">
+                    {pendingApprovals} {pendingApprovals > 10 ? '🔥' : '📝'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {pendingApprovals === 1 
+                      ? 'Neues Geschäft wartet auf Ihre Genehmigung'
+                      : 'Neue Geschäfte warten auf Ihre Genehmigung'
+                    }
+                  </div>
+                </div>
+                <Button
+                  onClick={() => navigate('/businesses?filter=pending')}
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
+                >
+                  Jetzt prüfen
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Management Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <NavigationCard
               icon={Store}

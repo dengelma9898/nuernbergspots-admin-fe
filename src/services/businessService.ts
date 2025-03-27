@@ -4,10 +4,23 @@ import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { NuernbergspotsReview } from '@/models/business';
 
+interface PendingApprovalsCount {
+  count: number;
+}
+
 export function useBusinessService() {
   const api = useApi();
 
   return {
+    /**
+     * Lädt die Anzahl der Geschäfte, die auf Genehmigung warten
+     */
+    getPendingApprovalsCount: async (): Promise<number> => {
+      const response = await api.get<ApiResponse<PendingApprovalsCount>>(`${endpoints.businesses}/pending-approvals/count`);
+      const result = unwrapData(response);
+      return result.count;
+    },
+
     /**
      * Lädt alle Businesses
      */

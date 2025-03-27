@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const HERE_APP_ID = 'pARpnYfYVGKeHzHHJUSZ';
-const HERE_API_KEY = 'Fu9TdGyntD2yW4fLr6FIjYw_yZByiUALQQrierDwcfM';
+const HERE_APP_ID = import.meta.env.VITE_HERE_APP_ID;
+const HERE_API_KEY = import.meta.env.VITE_HERE_API_KEY;
 
 export interface LocationResult {
   title: string;
