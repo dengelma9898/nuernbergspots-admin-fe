@@ -49,7 +49,7 @@ import { de } from 'date-fns/locale';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -67,8 +67,10 @@ export const BusinessList: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyPending, setShowOnlyPending] = useState(false);
   const [showOnlyWithoutReview, setShowOnlyWithoutReview] = useState(false);
+  const [showOnlyPendingPartners, setShowOnlyPendingPartners] = useState(false);
   const businessService = useBusinessService();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const loadBusinesses = async () => {
     try {
@@ -87,6 +89,23 @@ export const BusinessList: React.FC = () => {
   useEffect(() => {
     loadBusinesses();
   }, []);
+
+  useEffect(() => {
+    // URL-Parameter beim Laden der Komponente auslesen
+    const filter = searchParams.get('filter');
+    if (filter === 'pending') {
+      setShowOnlyPendingPartners(true);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    // URL-Parameter aktualisieren, wenn sich Filter ändern
+    if (showOnlyPendingPartners) {
+      setSearchParams({ filter: 'pending' });
+    } else {
+      setSearchParams({});
+    }
+  }, [showOnlyPendingPartners, setSearchParams]);
 
   const handleDelete = async (businessId: string) => {
     try {
@@ -368,8 +387,10 @@ export const BusinessList: React.FC = () => {
     const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPendingFilter = !showOnlyPending || business.status === BusinessStatus.PENDING;
     const matchesReviewFilter = !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
+    const matchesPendingPartnersFilter = !showOnlyPendingPartners || 
+      (business.status === BusinessStatus.PENDING && business.hasAccount === true);
     
-    return matchesSearch && matchesPendingFilter && matchesReviewFilter;
+    return matchesSearch && matchesPendingFilter && matchesReviewFilter && matchesPendingPartnersFilter;
   });
 
   const activeBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.ACTIVE);
@@ -414,6 +435,14 @@ export const BusinessList: React.FC = () => {
                 />
                 <Label htmlFor="review-filter">Ohne Review</Label>
               </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="pending-partners-filter"
+                  checked={showOnlyPendingPartners}
+                  onCheckedChange={setShowOnlyPendingPartners}
+                />
+                <Label htmlFor="pending-partners-filter">Ausstehende Partner mit Konto</Label>
+              </div>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
@@ -441,7 +470,7 @@ export const BusinessList: React.FC = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <AlertCircle className="mr-2 h-5 w-5 text-yellow-500" />
-              Ausstehende Geschäfte ({pendingBusinesses.length})
+              Ausstehende Partner ({pendingBusinesses.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {pendingBusinesses.map(business => (
@@ -455,7 +484,7 @@ export const BusinessList: React.FC = () => {
           <div>
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <XCircle className="mr-2 h-5 w-5 text-red-500" />
-              Inaktive Geschäfte ({inactiveBusinesses.length})
+              Inaktive Partner ({inactiveBusinesses.length})
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {inactiveBusinesses.map(business => (
@@ -466,7 +495,7 @@ export const BusinessList: React.FC = () => {
         )}
 
         {filteredBusinesses.length === 0 && (
-          <div className="text-center py-8">Keine Geschäfte gefunden.</div>
+          <div className="text-center py-8">Keine Partner gefunden.</div>
         )}
       </div>
 
@@ -486,9 +515,9 @@ export const BusinessList: React.FC = () => {
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Geschäft bearbeiten</DialogTitle>
+            <DialogTitle>Partner bearbeiten</DialogTitle>
             <DialogDescription>
-              Bearbeiten Sie den Status und die Review des Geschäfts
+              Bearbeiten Sie den Status und die Review des Partners
             </DialogDescription>
           </DialogHeader>
 

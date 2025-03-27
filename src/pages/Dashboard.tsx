@@ -70,10 +70,11 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const userService = useUserService();
-  const isInitialMount = useRef(true);
   const [pendingApprovals, setPendingApprovals] = useState<number>(0);
+  const [usersInReview, setUsersInReview] = useState<number>(0);
+  const userService = useUserService();
   const businessService = useBusinessService();
+  const isInitialMount = useRef(true);
 
   const handleLogout = async () => {
     try {
@@ -109,13 +110,23 @@ export function Dashboard() {
     }
   }, [businessService]);
 
+  const fetchUsersInReview = useCallback(async () => {
+    try {
+      const count = await userService.getBusinessUsersInReviewCount();
+      setUsersInReview(count);
+    } catch (error) {
+      console.error('Fehler beim Laden der zu überprüfenden Benutzer:', error);
+    }
+  }, [userService]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       fetchCurrentUser();
       fetchPendingApprovals();
+      fetchUsersInReview();
     }
-  }, [fetchCurrentUser, fetchPendingApprovals]);
+  }, [fetchCurrentUser, fetchPendingApprovals, fetchUsersInReview]);
 
   const StatCard = ({ icon: Icon, label, value, helpText }: { icon: any, label: string, value: string | number, helpText?: string }) => (
     <Card className="hover:bg-accent/50 transition-colors">
@@ -150,9 +161,9 @@ export function Dashboard() {
           </div>
           <div className="text-lg text-muted-foreground">
             Hi Sarah 👋, schön dass du wieder da bist ✨
-            {pendingApprovals > 0 && (
+            {(pendingApprovals > 0 || usersInReview > 0) && (
               <span className="block mt-1">
-                {pendingApprovals > 10 
+                {pendingApprovals + usersInReview > 10 
                   ? "Da wartet eine Menge Arbeit auf dich! 💪"
                   : "Es gibt ein bisschen was zu tun für dich 😊"
                 }
@@ -165,44 +176,79 @@ export function Dashboard() {
         <div>
           <h2 className="text-2xl font-bold mb-4">Management</h2>
           
-          {/* Pending Approvals Card */}
-          {pendingApprovals > 0 && (
-            <Card className="mb-4 bg-primary/5 border-primary/20">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg flex items-center text-primary">
-                  <Store className="mr-2 h-5 w-5" />
-                  Ausstehende Genehmigungen ✍️
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="text-4xl font-bold text-primary">
-                    {pendingApprovals} {pendingApprovals > 10 ? '🔥' : '📝'}
+          {/* Pending Reviews Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Pending Business Approvals Card */}
+            {pendingApprovals > 0 && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center text-primary">
+                    <Store className="mr-2 h-5 w-5" />
+                    Ausstehende Partner ✍️
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-4xl font-bold text-primary">
+                      {pendingApprovals} {pendingApprovals > 10 ? '🔥' : '📝'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {pendingApprovals === 1 
+                        ? 'Neues Geschäft wartet auf Ihre Genehmigung'
+                        : 'Neue Geschäfte warten auf Ihre Genehmigung'
+                      }
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {pendingApprovals === 1 
-                      ? 'Neues Geschäft wartet auf Ihre Genehmigung'
-                      : 'Neue Geschäfte warten auf Ihre Genehmigung'
-                    }
+                  <Button
+                    onClick={() => navigate('/businesses?filter=pending')}
+                    className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
+                  >
+                    Jetzt prüfen
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Business Users in Review Card */}
+            {usersInReview > 0 && (
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center text-primary">
+                    <User className="mr-2 h-5 w-5" />
+                    Geschäftsinhaber prüfen 🔍
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-4xl font-bold text-primary">
+                      {usersInReview} {usersInReview > 10 ? '🔥' : '👤'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {usersInReview === 1 
+                        ? 'Geschäftsinhaber wartet auf Verifizierung'
+                        : 'Geschäftsinhaber warten auf Verifizierung'
+                      }
+                    </div>
                   </div>
-                </div>
-                <Button
-                  onClick={() => navigate('/businesses?filter=pending')}
-                  className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
-                >
-                  Jetzt prüfen
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+                  <Button
+                    onClick={() => navigate('/users/business?filter=review')}
+                    className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
+                  >
+                    Jetzt prüfen
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           {/* Management Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <NavigationCard
               icon={Store}
-              title="Geschäfte verwalten"
-              description="Geschäfte hinzufügen, bearbeiten und löschen"
+              title="Partner verwalten"
+              description="Partner hinzufügen, bearbeiten und löschen"
               href="/businesses"
             />
             <NavigationCard

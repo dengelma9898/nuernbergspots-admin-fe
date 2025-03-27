@@ -3,10 +3,31 @@ import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { useMemo } from 'react';
 
+interface BusinessUsersInReview {
+  count: number;
+}
+
 export function useUserService() {
   const api = useApi();
 
   return useMemo(() => ({
+    /**
+     * Lädt die Anzahl der Business-User, die auf Überprüfung warten
+     */
+    getBusinessUsersInReviewCount: async (): Promise<number> => {
+      const response = await api.get<ApiResponse<BusinessUsersInReview>>(`${endpoints.users}/business-users/needs-review/count`);
+      const result = unwrapData(response);
+      return result.count;
+    },
+
+        /**
+     * Lädt die Anzahl der Business-User, die auf Überprüfung warten
+     */
+    getBusinessUsersInReview: async (): Promise<BusinessUser[]> => {
+        const response = await api.get<ApiResponse<BusinessUser[]>>(`${endpoints.users}/business-users/needs-review`);
+        return unwrapData(response);
+    },
+
     /**
      * Lädt das Profil eines Benutzers
      */

@@ -17,21 +17,29 @@ export interface NuernbergspotsReview {
 export interface Business {
   id: string;
   name: string;
-  contact: BusinessContact;
-  address: BusinessAddress;
-  categoryId: string;
-  keywordIds?: string[];
   description: string;
-  logoUrl?: string;
-  imageUrls?: string[];
-  nuernbergspotsReview?: NuernbergspotsReview;
+  categoryId: string;
+  address: {
+    street: string;
+    houseNumber: string;
+    postalCode: string;
+    city: string;
+    latitude: number;
+    longitude: number;
+  };
+  contact: {
+    phoneNumber?: string;
+    email?: string;
+    website?: string;
+  };
   openingHours: Record<string, string>;
+  status: BusinessStatus;
+  imageUrls: string[];
+  keywordIds: string[];
+  nuernbergspotsReview?: NuernbergspotsReview;
   createdAt: string;
   updatedAt: string;
-  isDeleted: boolean;
-  status: BusinessStatus;
-  benefit: string;
-  customers: BusinessCustomer[];
+  isAdmin: boolean;
   hasAccount: boolean;
 }
 
