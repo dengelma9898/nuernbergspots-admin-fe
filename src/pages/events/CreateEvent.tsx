@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { LocationSearch, LocationResult } from "@/components/ui/OpenStreetMapAutocomplete";
+import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 
 export const CreateEvent: React.FC = () => {
   const navigate = useNavigate();

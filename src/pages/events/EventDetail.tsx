@@ -24,7 +24,7 @@ import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { LocationSearch, LocationResult } from "@/components/ui/OpenStreetMapAutocomplete";
+import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 
 interface LocationValue {
   display_name: string;

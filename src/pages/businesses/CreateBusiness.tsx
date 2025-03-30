@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, Facebook, Instagram, Twitter } from 'lucide-react';
-import { LocationSearch, LocationResult } from "@/components/ui/OpenStreetMapAutocomplete";
+import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 import {
   Select,
   SelectContent,
