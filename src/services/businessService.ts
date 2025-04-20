@@ -1,8 +1,9 @@
-import { Business, BusinessResponse, BusinessStatus } from '../models/business';
+import { Business, BusinessResponse, BusinessCustomerScans } from '../models/business';
 import { BusinessCategory } from '../models/business-category';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { NuernbergspotsReview } from '@/models/business';
+import { useMemo } from 'react';
 
 interface PendingApprovalsCount {
   count: number;
@@ -11,7 +12,7 @@ interface PendingApprovalsCount {
 export function useBusinessService() {
   const api = useApi();
 
-  return {
+  return useMemo(() => ({
     /**
      * Lädt die Anzahl der Geschäfte, die auf Genehmigung warten
      */
@@ -49,7 +50,6 @@ export function useBusinessService() {
      * Aktualisiert ein Business
      */
     updateBusiness: async (businessId: string, business: Partial<Business>): Promise<BusinessResponse> => {
-      console.log('updateBusiness: business', business);
       const response = await api.patch<ApiResponse<BusinessResponse>>(
         `${endpoints.businesses}/${businessId}`, 
         { ...business }
@@ -152,6 +152,14 @@ export function useBusinessService() {
         imageUrl
       );
       return unwrapData(response);
-    }
-  };
+    },
+
+    /**
+     * Lädt die Kundenscans aller Geschäfte
+     */
+    getCustomerScans: async (): Promise<BusinessCustomerScans[]> => {
+      const response = await api.get<ApiResponse<BusinessCustomerScans[]>>(`${endpoints.businesses}/customer-scans`);
+      return unwrapData(response);
+    },
+  }), [api]);
 } 

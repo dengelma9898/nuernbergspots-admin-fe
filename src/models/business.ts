@@ -1,6 +1,3 @@
-import { BusinessCategory } from './business-category';
-import { BusinessContact } from './business-contact';
-import { BusinessAddress } from './business-address';
 import { BusinessCustomer } from './business-customer';
 
 export enum BusinessStatus {
@@ -55,4 +52,114 @@ export interface BusinessResponse extends Business {
     iconName: string;
   };
   keywordNames: string[];
+}
+
+export interface CustomerScan {
+  /**
+   * Die Kunden-ID aus dem Benutzerprofil
+   */
+  customerId: string;
+
+  /**
+   * ISO-String des Zeitpunkts, zu dem der Kunde gescannt wurde
+   */
+  scannedAt: string;
+
+  /**
+   * Optionaler Preis, der bezahlt wurde
+   */
+  price?: number | null;
+
+  /**
+   * Optionale Anzahl der Personen
+   */
+  numberOfPeople?: number | null;
+
+  /**
+   * Optionale Zusatzinformationen
+   */
+  additionalInfo?: string | null;
+
+  /**
+   * Das aktuelle Benefit des Businesses zum Zeitpunkt des Scans
+   */
+  benefit: string;
+
+  /**
+   * Der Name des Businesses, bei dem der Scan durchgeführt wurde
+   */
+  businessName: string;
+}
+
+export interface BusinessCustomerScans {
+  /**
+   * Der Name des Businesses, bei dem der Scan durchgeführt wurde
+   */
+  businessName: string;
+
+  scans: CustomerScan[];
+
+}
+
+export interface BusinessAnalytics {
+  businessName: string;
+  totalScans: number;
+  weeklyScans: number;
+  monthlyScans: number;
+  yearlyScans: number;
+  averagePrice: number;
+  averageNumberOfPeople: number;
+  uniqueCustomers: number;
+  customerScans: CustomerScan[];
+  weeklyTrend: number;
+  monthlyTrend: number;
+  revenueData: {
+    total: number;
+    weekly: number;
+    monthly: number;
+    yearly: number;
+  };
+  customerRetention: {
+    returningCustomers: number;
+    retentionRate: number;
+  };
+  peakTimes: {
+    dayOfWeek: string;
+    timeOfDay: string;
+  };
+}
+
+export interface DashboardAnalytics {
+  businesses: BusinessAnalytics[];
+  totalScans: number;
+  totalCustomers: number;
+  averageScansPerBusiness: number;
+  topBusinesses: BusinessAnalytics[];
+  weeklyTrend: number;
+  monthlyTrend: number;
+  revenueData: {
+    total: number;
+    weekly: number;
+    monthly: number;
+    yearly: number;
+    averagePerScan: number;
+    projectedMonthly: number;
+  };
+  customerData: {
+    total: number;
+    averagePerBusiness: number;
+    averageGroupSize: number;
+    newCustomersThisMonth: number;
+    returningCustomersRate: number;
+  };
+  timeAnalysis: {
+    peakDays: string[];
+    peakHours: string[];
+    averageVisitDuration: number;
+  };
+  categoryAnalysis: {
+    mostPopularDay: string;
+    mostPopularTime: string;
+    averageVisitsPerDay: number;
+  };
 } 

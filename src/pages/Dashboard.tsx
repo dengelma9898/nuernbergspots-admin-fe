@@ -4,32 +4,32 @@ import { useAuth } from '../contexts/AuthContext';
 import { UserProfile } from '../models/users';
 import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
+import { useAnalyticsService } from '../services/analyticsService';
+import { BusinessCustomerWithBusinessName, DashboardAnalytics, BusinessAnalytics } from '../models/business';
 import { 
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { 
   User,
   Calendar,
-  MapPin,
   Store,
-  Heart,
-  History,
-  Settings,
   LogOut,
   Tags,
   Key,
   ArrowRight,
-  Users,
   Tag,
-  CheckSquare
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Scan,
+  BarChart,
+  Euro
 } from 'lucide-react';
 import { toast } from "sonner";
 
@@ -69,11 +69,106 @@ const NavigationCard = ({
   );
 };
 
+const AnalyticsCard = ({ 
+  icon: Icon,
+  title,
+  value,
+  trend,
+  description,
+  trendDescription
+}: {
+  icon: any;
+  title: string;
+  value: string | number;
+  trend?: number;
+  description?: string;
+  trendDescription?: string;
+}) => (
+  <Card>
+    <CardHeader className="pb-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <div className="p-2 bg-primary/10 rounded-lg">
+            <Icon className="h-5 w-5 text-primary" />
+          </div>
+          <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        </div>
+        {trend !== undefined && (
+          <div className={`flex items-center ${trend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+            {trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            <span className="ml-1 text-sm">{Math.abs(trend).toFixed(1)}%</span>
+          </div>
+        )}
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-1">
+        <div className="text-2xl font-bold">{value}</div>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+        {trendDescription && (
+          <p className="text-xs text-muted-foreground">{trendDescription}</p>
+        )}
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const BusinessAnalyticsCard = ({ business }: { business: BusinessAnalytics }) => (
+  <Card>
+    <CardHeader className="pb-2">
+      <div className="flex items-center justify-between">
+        <CardTitle className="text-sm font-medium">{business.businessName}</CardTitle>
+        <div className="flex items-center space-x-2">
+          <Users className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">{business.uniqueCustomers}</span>
+        </div>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="space-y-2">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Gesamtscans</span>
+          <span className="font-medium">{business.totalScans}</span>
+        </div>
+        <Progress value={(business.totalScans / business.yearlyScans) * 100} className="h-2" />
+        <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+          <div>
+            <div className="font-medium text-foreground">{business.weeklyScans}</div>
+            Woche
+          </div>
+          <div>
+            <div className="font-medium text-foreground">{business.monthlyScans}</div>
+            Monat
+          </div>
+          <div>
+            <div className="font-medium text-foreground">{business.yearlyScans}</div>
+            Jahr
+          </div>
+        </div>
+        <div className="pt-2 border-t flex justify-between text-xs text-muted-foreground">
+          <div>
+            <span>Ø Preis:</span>
+            <span className="ml-1 font-medium text-foreground">
+              {business.averagePrice.toFixed(2)}€
+            </span>
+          </div>
+          <div>
+            <span>Ø Personen:</span>
+            <span className="ml-1 font-medium text-foreground">
+              {business.averageNumberOfPeople.toFixed(1)}
+            </span>
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
 export function Dashboard() {
-  const { logout, getUserId } = useAuth();
+  const { logout } = useAuth();
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState<number>(0);
   const [usersInReview, setUsersInReview] = useState<number>(0);
   const userService = useUserService();
@@ -88,22 +183,6 @@ export function Dashboard() {
       console.error('Fehler beim Logout:', error);
     }
   };
-
-  const fetchCurrentUser = useCallback(async () => {
-    const userId = getUserId();
-    if (!userId || isLoading) return;
-
-    try {
-      setIsLoading(true);
-      const userData = await userService.getUserProfile(userId);
-      setCurrentUser(userData);
-    } catch (error) {
-      console.error('Fehler beim Laden der Benutzerdaten:', error);
-      toast.error('Die Benutzerdaten konnten nicht geladen werden.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [getUserId, userService, isLoading]);
 
   const fetchPendingApprovals = useCallback(async () => {
     try {
@@ -126,26 +205,10 @@ export function Dashboard() {
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      fetchCurrentUser();
       fetchPendingApprovals();
       fetchUsersInReview();
     }
-  }, [fetchCurrentUser, fetchPendingApprovals, fetchUsersInReview]);
-
-  const StatCard = ({ icon: Icon, label, value, helpText }: { icon: any, label: string, value: string | number, helpText?: string }) => (
-    <Card className="hover:bg-accent/50 transition-colors">
-      <CardContent className="pt-6">
-        <div className="flex items-center space-x-4">
-          <Icon className="h-8 w-8 text-primary" />
-          <div>
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="text-2xl font-bold">{value}</p>
-            {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+  }, [fetchPendingApprovals, fetchUsersInReview]);
 
   return (
     <div className="container mx-auto p-8 max-w-7xl">
@@ -287,6 +350,12 @@ export function Dashboard() {
               title="Event-Kategorien verwalten"
               description="Event-Kategorien hinzufügen und bearbeiten"
               href="/event-categories"
+            />
+            <NavigationCard
+              icon={BarChart}
+              title="Analytics Dashboard"
+              description="Detaillierte Einblicke in die Performance deiner Partner"
+              href="/analytics"
             />
           </div>
         </div>
