@@ -11,6 +11,7 @@ import { CreateEvent } from "@/pages/events/CreateEvent";
 import { CreateBusiness } from "@/pages/businesses/CreateBusiness";
 import { BusinessUserReview } from './pages/users/BusinessUserReview';
 import { EventCategoryList } from '@/pages/events/EventCategoryList';
+import { Profile } from './pages/Profile';
 
 export function AppRoutes() {
   return (
@@ -29,6 +30,7 @@ export function AppRoutes() {
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route path="/users/business/review" element={<BusinessUserReview />} />
         <Route path="/event-categories" element={<EventCategoryList />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
 
       {/* Fallback */}

@@ -154,14 +154,23 @@ export function Dashboard() {
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <Button 
-              variant="outline" 
-              onClick={handleLogout}
-              className="hover:bg-destructive/10 hover:text-destructive"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Abmelden
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/profile')}
+                className="hover:bg-primary/10"
+              >
+                <User className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Abmelden
+              </Button>
+            </div>
           </div>
           <div className="text-lg text-muted-foreground">
             Hi Sarah 👋, schön dass du wieder da bist ✨
@@ -281,139 +290,6 @@ export function Dashboard() {
             />
           </div>
         </div>
-
-        {/* Profile Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={currentUser?.profilePictureUrl} />
-                <AvatarFallback>
-                  {currentUser?.name?.charAt(0) || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle>{currentUser?.name || 'Benutzer'}</CardTitle>
-                <Badge variant="secondary">{currentUser?.userType}</Badge>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <StatCard
-                icon={User}
-                label="E-Mail"
-                value={currentUser?.email || '-'}
-                helpText="Hauptkontakt"
-              />
-              <StatCard
-                icon={Store}
-                label="Management ID"
-                value={currentUser?.managementId || '-'}
-                helpText="Business Identifikation"
-              />
-              <StatCard
-                icon={MapPin}
-                label="Stadt"
-                value={currentUser?.currentCityId || '-'}
-                helpText="Aktueller Standort"
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            icon={Store}
-            label="Besuchte Geschäfte"
-            value={currentUser?.businessHistory?.length || 0}
-            helpText="Gesamtbesuche"
-          />
-          <StatCard
-            icon={Heart}
-            label="Favorisierte Events"
-            value={currentUser?.favoriteEventIds?.length || 0}
-            helpText="Interessante Events"
-          />
-          <StatCard
-            icon={Store}
-            label="Favorisierte Businesses"
-            value={currentUser?.favoriteBusinessIds?.length || 0}
-            helpText="Lieblingsgeschäfte"
-          />
-          <StatCard
-            icon={Calendar}
-            label="Mitglied seit"
-            value={currentUser?.memberSince ? new Date(currentUser.memberSince).toLocaleDateString() : '-'}
-            helpText="Registrierungsdatum"
-          />
-        </div>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <History className="h-5 w-5 text-primary" />
-              <CardTitle>Letzte Aktivitäten</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {currentUser?.businessHistory?.slice(0, 5).map((visit, index) => (
-                <div 
-                  key={index}
-                  className="p-4 border rounded-lg hover:bg-accent/50 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <p className="font-medium">{visit.businessName}</p>
-                      <p className="text-sm text-muted-foreground">Benefit: {visit.benefit}</p>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(visit.visitedAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {(!currentUser?.businessHistory || currentUser.businessHistory.length === 0) && (
-                <p className="text-center text-muted-foreground">Keine Aktivitäten vorhanden</p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Preferences Section */}
-        {(currentUser?.preferences?.length || currentUser?.language) && (
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-2">
-                <Settings className="h-5 w-5 text-primary" />
-                <CardTitle>Präferenzen</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {currentUser.language && (
-                  <div>
-                    <p className="font-medium mb-2">Sprache</p>
-                    <Badge variant="secondary">{currentUser.language}</Badge>
-                  </div>
-                )}
-                {currentUser.preferences?.length && currentUser.preferences.length > 0 && (
-                  <div>
-                    <p className="font-medium mb-2">Interessen</p>
-                    <div className="flex flex-wrap gap-2">
-                      {currentUser.preferences.map((pref, index) => (
-                        <Badge key={index} variant="outline">{pref}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
