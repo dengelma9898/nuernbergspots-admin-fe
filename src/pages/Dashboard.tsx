@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -25,7 +26,10 @@ import {
   LogOut,
   Tags,
   Key,
-  ArrowRight
+  ArrowRight,
+  Users,
+  Tag,
+  CheckSquare
 } from 'lucide-react';
 import { toast } from "sonner";
 
@@ -268,6 +272,12 @@ export function Dashboard() {
               title="Keywords verwalten"
               description="Suchbegriffe und Tags für bessere Auffindbarkeit"
               href="/keywords"
+            />
+            <NavigationCard
+              icon={Tag}
+              title="Event-Kategorien verwalten"
+              description="Event-Kategorien hinzufügen und bearbeiten"
+              href="/event-categories"
             />
           </div>
         </div>

@@ -13,22 +13,28 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { 
   MapPin, 
-  Calendar, 
   Image as ImageIcon,
   Heart, 
   Ticket, 
   Euro,
-  Plus,
   Clock,
   CheckCircle2,
   AlertCircle,
-  Search
+  Search,
+  ArrowLeft,
+  Tag,
+  Star,
+  StarOff,
+  Plus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Event } from '@/models/events';
+import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { convertFFToHex } from '@/utils/colorUtils';
 import {
   Select,
   SelectContent,
@@ -36,23 +42,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getIconComponent } from '@/utils/iconUtils';
 
 export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const eventService = useEventService();
+  const eventCategoryService = useEventCategoryService();
   const navigate = useNavigate();
 
-  const loadEvents = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const fetchedEvents = await eventService.getEvents();
+      const [fetchedEvents, fetchedCategories] = await Promise.all([
+        eventService.getEvents(),
+        eventCategoryService.getCategories()
+      ]);
       setEvents(fetchedEvents);
+      setCategories(fetchedCategories);
     } catch (error) {
-      toast.error("Fehler beim Laden der Events", {
-        description: "Die Events konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error("Fehler beim Laden der Daten", {
+        description: "Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
       });
     } finally {
       setLoading(false);
@@ -60,7 +73,7 @@ export const EventList: React.FC = () => {
   };
 
   useEffect(() => {
-    loadEvents();
+    loadData();
   }, []);
 
   const handleDelete = async (eventId: string) => {
@@ -69,7 +82,7 @@ export const EventList: React.FC = () => {
       toast.success("Event gelöscht", {
         description: "Das Event wurde erfolgreich gelöscht.",
       });
-      loadEvents();
+      loadData();
     } catch (error) {
       toast.error("Fehler beim Löschen", {
         description: "Das Event konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
@@ -154,12 +167,18 @@ export const EventList: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Events</h1>
-        <Button onClick={() => navigate('/events/new')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Neues Event erstellen
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Zurück zum Dashboard
         </Button>
+        <h1 className="text-2xl font-bold">Events</h1>
+        <div className="ml-auto">
+          <Button onClick={() => navigate('/create-event')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Event hinzufügen
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -194,7 +213,12 @@ export const EventList: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Laufende Events</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedEvents.running.map((event) => (
-                  <EventCard key={event.id} event={event} onDelete={handleDelete} />
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    category={categories.find(cat => cat.id === event.categoryId)}
+                    onDelete={handleDelete} 
+                  />
                 ))}
               </div>
             </div>
@@ -205,7 +229,12 @@ export const EventList: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Zukünftige Events</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedEvents.future.map((event) => (
-                  <EventCard key={event.id} event={event} onDelete={handleDelete} />
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    category={categories.find(cat => cat.id === event.categoryId)}
+                    onDelete={handleDelete} 
+                  />
                 ))}
               </div>
             </div>
@@ -216,7 +245,12 @@ export const EventList: React.FC = () => {
               <h2 className="text-xl font-semibold mb-4">Vergangene Events</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {groupedEvents.past.map((event) => (
-                  <EventCard key={event.id} event={event} onDelete={handleDelete} />
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    category={categories.find(cat => cat.id === event.categoryId)}
+                    onDelete={handleDelete} 
+                  />
                 ))}
               </div>
             </div>
@@ -229,10 +263,11 @@ export const EventList: React.FC = () => {
 
 interface EventCardProps {
   event: Event;
+  category?: EventCategory;
   onDelete: (id: string) => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
+const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
   const navigate = useNavigate();
   const getEventStatus = (event: Event) => {
     const now = new Date();
@@ -302,12 +337,46 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
               +{event.imageUrls.length - 1}
             </Badge>
           )}
+          {event.isPromoted && (
+            <Badge 
+              className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"
+            >
+              <Star className="mr-1 h-3 w-3 fill-current" />
+              Promoted
+            </Badge>
+          )}
         </div>
       )}
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl">{event.title}</CardTitle>
+            <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-1">
+                <CardTitle className="text-xl">{event.title}</CardTitle>
+                {event.isPromoted && (
+                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                )}
+              </div>
+              {category ? (
+                <Badge 
+                  className="text-xs flex items-center"
+                  style={{
+                    backgroundColor: convertFFToHex(category.colorCode),
+                    color: '#fff'
+                  }}
+                >
+                  <span className="mr-1 flex items-center">
+                    {getIconComponent(category.iconName)}
+                  </span>
+                  {category.name}
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs flex items-center">
+                  <Tag className="w-3 h-3 mr-1" />
+                  Keine Kategorie
+                </Badge>
+              )}
+            </div>
             <CardDescription className="mt-1">
               {formatDateTime(event.startDate)}
             </CardDescription>
@@ -341,6 +410,19 @@ const EventCard: React.FC<EventCardProps> = ({ event, onDelete }) => {
               {formatPrice(event.price)}
             </div>
           )}
+          <div className="flex items-center text-sm">
+            {event.isPromoted ? (
+              <>
+                <Star className="mr-2 h-4 w-4 text-yellow-500 fill-current" />
+                <span className="text-yellow-500 font-medium">Promoted Event</span>
+              </>
+            ) : (
+              <>
+                <StarOff className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">Standard Event</span>
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">

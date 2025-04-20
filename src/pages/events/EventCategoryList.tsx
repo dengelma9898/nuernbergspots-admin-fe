@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import 'material-icons/iconfont/material-icons.css';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
   CardHeader, 
@@ -39,12 +39,11 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
-import { useBusinessCategoryService } from '@/services/businessCategoryService';
+import { EventCategory, EventCategoryCreation } from '@/models/event-category';
+import { useEventCategoryService } from '@/services/eventCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
 import { IconPicker } from '@/components/ui/icon-picker';
-import { KeywordSelector } from '@/components/ui/keyword-selector';
-import { useNavigate } from 'react-router-dom';
+import { convertFFToHex, convertHexToFF } from '@/utils/colorUtils';
 
 const toSnakeCase = (str: string): string => {
   return str
@@ -53,16 +52,16 @@ const toSnakeCase = (str: string): string => {
     .toLowerCase();
 };
 
-export function CategoryList() {
-  const businessCategoryService = useBusinessCategoryService();
-  const [categories, setCategories] = useState<BusinessCategory[]>([]);
+export function EventCategoryList() {
+  const eventCategoryService = useEventCategoryService();
+  const [categories, setCategories] = useState<EventCategory[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<BusinessCategory | null>(null);
-  const [newCategory, setNewCategory] = useState<BusinessCategoryCreation>({
+  const [editingCategory, setEditingCategory] = useState<EventCategory | null>(null);
+  const [newCategory, setNewCategory] = useState<EventCategoryCreation>({
     name: '',
     description: '',
-    iconName: '',
-    keywordIds: []
+    colorCode: '#000000',
+    iconName: ''
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -74,7 +73,7 @@ export function CategoryList() {
   const loadCategories = async () => {
     try {
       setIsLoading(true);
-      const data = await businessCategoryService.getCategories();
+      const data = await eventCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
       toast.error('Fehler beim Laden der Kategorien');
@@ -93,15 +92,16 @@ export function CategoryList() {
     try {
       const categoryToSave = {
         ...newCategory,
-        iconName: toSnakeCase(newCategory.iconName)
+        iconName: toSnakeCase(newCategory.iconName),
+        colorCode: convertHexToFF(newCategory.colorCode)
       };
-      const category = await businessCategoryService.createCategory(categoryToSave);
+      const category = await eventCategoryService.createCategory(categoryToSave);
       setCategories([...categories, category]);
       setNewCategory({
         name: '',
         description: '',
-        iconName: '',
-        keywordIds: []
+        colorCode: '#000000',
+        iconName: ''
       });
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
@@ -111,13 +111,13 @@ export function CategoryList() {
     }
   };
 
-  const handleEditCategory = (category: BusinessCategory) => {
+  const handleEditCategory = (category: EventCategory) => {
     setEditingCategory(category);
     setNewCategory({
       name: category.name,
       description: category.description,
-      iconName: category.iconName,
-      keywordIds: category.keywords?.map(k => k.id) || []
+      colorCode: convertFFToHex(category.colorCode),
+      iconName: category.iconName
     });
     setIsDialogOpen(true);
   };
@@ -131,14 +131,20 @@ export function CategoryList() {
     try {
       const categoryToUpdate = {
         ...newCategory,
-        iconName: toSnakeCase(newCategory.iconName)
+        iconName: toSnakeCase(newCategory.iconName),
+        colorCode: convertHexToFF(newCategory.colorCode)
       };
-      const updatedCategory = await businessCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
+      const updatedCategory = await eventCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
       setCategories(categories.map(cat => 
         cat.id === editingCategory.id ? updatedCategory : cat
       ));
       setEditingCategory(null);
-      setNewCategory({ name: '', description: '', iconName: '', keywordIds: [] });
+      setNewCategory({
+        name: '',
+        description: '',
+        colorCode: '#000000',
+        iconName: ''
+      });
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
@@ -149,7 +155,7 @@ export function CategoryList() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
-      await businessCategoryService.deleteCategory(categoryId);
+      await eventCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
       toast.success('Kategorie gelöscht');
     } catch (error) {
@@ -163,8 +169,8 @@ export function CategoryList() {
     setNewCategory({
       name: '',
       description: '',
-      iconName: '',
-      keywordIds: []
+      colorCode: '#000000',
+      iconName: ''
     });
   };
 
@@ -183,11 +189,12 @@ export function CategoryList() {
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zum Dashboard
         </Button>
-        <h1 className="text-2xl font-bold">Kategorien verwalten</h1>
+        <h1 className="text-2xl font-bold">Event-Kategorien verwalten</h1>
       </div>
+
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Kategorien verwalten</CardTitle>
+          <CardTitle>Event-Kategorien</CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
             <DialogTrigger asChild>
               <Button onClick={resetModalState}>
@@ -206,7 +213,7 @@ export function CategoryList() {
                   <label className="text-sm font-medium">Name</label>
                   <Input
                     value={newCategory.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, name: e.target.value })}
+                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
                     placeholder="Kategoriename"
                   />
                 </div>
@@ -221,15 +228,16 @@ export function CategoryList() {
                   <label className="text-sm font-medium">Beschreibung</label>
                   <Input
                     value={newCategory.description}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, description: e.target.value })}
-                    placeholder="Beschreibung (optional)"
+                    onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                    placeholder="Beschreibung der Kategorie"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Keywords</label>
-                  <KeywordSelector
-                    selectedIds={newCategory.keywordIds}
-                    onChange={(ids) => setNewCategory({ ...newCategory, keywordIds: ids })}
+                  <label className="text-sm font-medium">Farbe</label>
+                  <Input
+                    type="color"
+                    value={newCategory.colorCode}
+                    onChange={(e) => setNewCategory({ ...newCategory, colorCode: e.target.value })}
                   />
                 </div>
                 <div className="flex justify-end space-x-2">
@@ -253,7 +261,7 @@ export function CategoryList() {
                 <TableHead>Name</TableHead>
                 <TableHead>Icon</TableHead>
                 <TableHead>Beschreibung</TableHead>
-                <TableHead>Keywords</TableHead>
+                <TableHead>Farbe</TableHead>
                 <TableHead>Erstellt am</TableHead>
                 <TableHead>Aktualisiert am</TableHead>
                 <TableHead className="w-[100px]">Aktionen</TableHead>
@@ -281,20 +289,16 @@ export function CategoryList() {
                     </TableCell>
                     <TableCell>{category.description || '-'}</TableCell>
                     <TableCell>
-                      {category.keywords && category.keywords.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {category.keywords.map((keyword) => (
-                            <span 
-                              key={keyword.name} 
-                              className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
-                            >
-                              {keyword.name}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        '-'
-                      )}
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-6 h-6 rounded-full border border-border hover:scale-150 transition-transform cursor-help"
+                          style={{ backgroundColor: convertFFToHex(category.colorCode) }}
+                          title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
+                        />
+                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                          {convertFFToHex(category.colorCode)}
+                        </code>
+                      </div>
                     </TableCell>
                     <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>

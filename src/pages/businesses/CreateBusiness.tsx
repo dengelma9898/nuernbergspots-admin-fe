@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Facebook, Instagram, Twitter } from 'lucide-react';
+import { ArrowLeft, Trash2 } from 'lucide-react';
 import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 import {
   Select,
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+
 
 const WEEKDAYS = {
   monday: 'Montag',
@@ -36,10 +37,11 @@ const WEEKDAYS = {
 
 type WeekdayKey = keyof typeof WEEKDAYS;
 
-interface OpeningHours {
-  isOpen: boolean;
+interface TimeSlot {
+  id: string;
   openTime: string;
   closeTime: string;
+  days: WeekdayKey[];
 }
 
 export const CreateBusiness: React.FC = () => {
@@ -59,26 +61,28 @@ export const CreateBusiness: React.FC = () => {
     benefit: '',
     latitude: 0,
     longitude: 0,
-    phoneNumber: '',
-    email: '',
-    website: '',
-    facebook: '',
-    instagram: '',
-    twitter: '',
-    openingHours: {} as Record<string, string>,
+    contact: {
+      phoneNumber: '',
+      email: '',
+      website: '',
+      instagram: '',  
+      facebook: '',
+      tiktok: ''
+    },
+    openingHours: {} as Record<string, string>, 
     status: BusinessStatus.PENDING,
     imageUrls: [] as string[],
-    keywordIds: [] as string[]
+    keywordIds: [] as string[],
+    isPromoted: false
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
-  const [openingHours, setOpeningHours] = useState<Record<WeekdayKey, OpeningHours>>({
-    monday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-    tuesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-    wednesday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-    thursday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-    friday: { isOpen: true, openTime: '09:00', closeTime: '18:00' },
-    saturday: { isOpen: false, openTime: '10:00', closeTime: '16:00' },
-    sunday: { isOpen: false, openTime: '10:00', closeTime: '16:00' }
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
+    { id: '1', openTime: '09:00', closeTime: '18:00', days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] }
+  ]);
+  const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
+    openTime: '09:00',
+    closeTime: '18:00',
+    days: []
   });
 
   useEffect(() => {
@@ -147,18 +151,48 @@ export const CreateBusiness: React.FC = () => {
     });
   };
 
-  const handleOpeningHoursChange = (
-    day: WeekdayKey,
-    field: keyof OpeningHours,
-    value: string | boolean
-  ) => {
-    setOpeningHours(prev => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        [field]: value
+  const handleTimeSlotChange = (id: string, field: keyof Omit<TimeSlot, 'id'>, value: any) => {
+    setTimeSlots(prev => prev.map(slot => 
+      slot.id === id ? { ...slot, [field]: value } : slot
+    ));
+  };
+
+  const addTimeSlot = () => {
+    if (newTimeSlot.days.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Tag aus", {
+        description: "Ein Zeitraum muss für mindestens einen Tag gelten.",
+      });
+      return;
+    }
+
+    const id = Date.now().toString();
+    setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
+    setNewTimeSlot({ openTime: '09:00', closeTime: '18:00', days: [] });
+  };
+
+  const removeTimeSlot = (id: string) => {
+    setTimeSlots(prev => prev.filter(slot => slot.id !== id));
+  };
+
+  const toggleDayForTimeSlot = (day: WeekdayKey, slotId: string) => {
+    setTimeSlots(prev => prev.map(slot => {
+      if (slot.id === slotId) {
+        const days = slot.days.includes(day)
+          ? slot.days.filter(d => d !== day)
+          : [...slot.days, day];
+        return { ...slot, days };
       }
+      return slot;
     }));
+  };
+
+  const toggleDayForNewTimeSlot = (day: WeekdayKey) => {
+    setNewTimeSlot(prev => {
+      const days = prev.days.includes(day)
+        ? prev.days.filter(d => d !== day)
+        : [...prev.days, day];
+      return { ...prev, days };
+    });
   };
 
   const handleSubmit = async () => {
@@ -181,13 +215,28 @@ export const CreateBusiness: React.FC = () => {
 
       // Formatiere Öffnungszeiten für die API
       const formattedOpeningHours: Record<string, string> = {};
-      Object.entries(openingHours).forEach(([day, hours]) => {
-        if (hours.isOpen) {
-          formattedOpeningHours[day] = `${hours.openTime}-${hours.closeTime}`;
-        } else {
-          formattedOpeningHours[day] = 'closed';
-        }
+      
+      // Initialisiere alle Tage als geschlossen
+      Object.keys(WEEKDAYS).forEach(day => {
+        formattedOpeningHours[day] = 'closed';
       });
+      
+      // Setze die Öffnungszeiten basierend auf den Zeiträumen
+      timeSlots.forEach(slot => {
+        slot.days.forEach(day => {
+          formattedOpeningHours[day] = `${slot.openTime}-${slot.closeTime}`;
+        });
+      });
+
+      // Bereinige die Kontaktdaten - leere Strings werden zu undefined
+      const cleanedContact = {
+        email: newBusiness.contact.email || undefined,
+        phoneNumber: newBusiness.contact.phoneNumber || undefined,
+        website: newBusiness.contact.website || undefined,
+        instagram: newBusiness.contact.instagram || undefined,
+        facebook: newBusiness.contact.facebook || undefined,
+        tiktok: newBusiness.contact.tiktok || undefined
+      };
 
       const businessToCreate = {
         ...newBusiness,
@@ -201,16 +250,7 @@ export const CreateBusiness: React.FC = () => {
           latitude: newBusiness.latitude,
           longitude: newBusiness.longitude
         },
-        contact: {
-          phoneNumber: newBusiness.phoneNumber,
-          email: newBusiness.email,
-          website: newBusiness.website,
-          socialMedia: {
-            facebook: newBusiness.facebook,
-            instagram: newBusiness.instagram,
-            twitter: newBusiness.twitter
-          }
-        },
+        contact: cleanedContact,
         openingHours: formattedOpeningHours,
         keywordIds: selectedKeywords
       };
@@ -222,8 +262,9 @@ export const CreateBusiness: React.FC = () => {
       });
       navigate('/businesses');
     } catch (error) {
-      toast.error("Fehler beim Erstellen", {
-        description: "Das Geschäft konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.",
+      console.error('Error creating business:', error);
+      toast.error("Fehler beim Erstellen des Geschäfts", {
+        description: "Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.",
       });
     } finally {
       setLoading(false);
@@ -356,108 +397,205 @@ export const CreateBusiness: React.FC = () => {
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label>Kontaktinformationen</Label>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="phoneNumber">Telefon</Label>
-                <Input
-                  id="phoneNumber"
-                  value={newBusiness.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  placeholder="+49 911 12345678"
-                />
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Kontaktinformationen</h3>
+            <p className="text-sm text-muted-foreground">
+              Diese Informationen sind optional und können später vom Geschäftsinhaber ergänzt werden.
+            </p>
+
+            <div className="flex items-center space-x-2 mb-4">
+              <Switch
+                id="isPromoted"
+                checked={newBusiness.isPromoted}
+                onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
+                <p className="text-sm text-muted-foreground">
+                  {newBusiness.isPromoted 
+                    ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                    : 'Markiere diesen Partner als Highlight'}
+                </p>
               </div>
-              <div>
-                <Label htmlFor="email">E-Mail</Label>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">E-Mail (optional)</Label>
                 <Input
                   id="email"
                   type="email"
-                  value={newBusiness.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  value={newBusiness.contact.email}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, email: e.target.value }
+                  })}
                   placeholder="kontakt@beispiel.de"
                 />
               </div>
-            </div>
-            <div>
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
-                value={newBusiness.website}
-                onChange={(e) => handleInputChange('website', e.target.value)}
-                placeholder="https://www.beispiel.de"
-              />
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Geben Sie die Kontaktmöglichkeiten des Geschäfts an. Mindestens eine Kontaktmöglichkeit sollte angegeben werden.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Social Media</Label>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Facebook className="h-5 w-5" />
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefon (optional)</Label>
                 <Input
-                  value={newBusiness.facebook}
-                  onChange={(e) => handleInputChange('facebook', e.target.value)}
-                  placeholder="Facebook URL"
+                  id="phone"
+                  type="tel"
+                  value={newBusiness.contact.phoneNumber}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, phoneNumber: e.target.value }
+                  })}
+                  placeholder="+49 123 456789"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Instagram className="h-5 w-5" />
+              <div className="space-y-2">
+                <Label htmlFor="website">Website (optional)</Label>
                 <Input
-                  value={newBusiness.instagram}
-                  onChange={(e) => handleInputChange('instagram', e.target.value)}
-                  placeholder="Instagram URL"
+                  id="website"
+                  type="url"
+                  value={newBusiness.contact.website}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, website: e.target.value }
+                  })}
+                  placeholder="https://www.beispiel.de"
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <Twitter className="h-5 w-5" />
+              <div className="space-y-2">
+                <Label htmlFor="instagram">Instagram (optional)</Label>
                 <Input
-                  value={newBusiness.twitter}
-                  onChange={(e) => handleInputChange('twitter', e.target.value)}
-                  placeholder="Twitter URL"
+                  id="instagram"
+                  value={newBusiness.contact.instagram}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, instagram: e.target.value }
+                  })}
+                  placeholder="@beispiel"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="facebook">Facebook (optional)</Label>
+                <Input
+                  id="facebook"
+                  value={newBusiness.contact.facebook}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, facebook: e.target.value }
+                  })}
+                  placeholder="beispiel"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="tiktok">TikTok (optional)</Label>
+                <Input
+                  id="tiktok"
+                  value={newBusiness.contact.tiktok}
+                  onChange={(e) => setNewBusiness({
+                    ...newBusiness,
+                    contact: { ...newBusiness.contact, tiktok: e.target.value }
+                  })}
+                  placeholder="@beispiel"
                 />
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Fügen Sie die Social-Media-Profile des Geschäfts hinzu.
-            </p>
           </div>
 
           <div className="space-y-2">
             <Label>Öffnungszeiten</Label>
             <div className="space-y-4 border rounded-lg p-4">
-              {(Object.entries(WEEKDAYS) as [WeekdayKey, string][]).map(([day, dayName]) => (
-                <div key={day} className="grid grid-cols-[auto_1fr_1fr] gap-4 items-center">
-                  <div className="flex items-center gap-2 min-w-[200px]">
-                    <Switch
-                      checked={openingHours[day].isOpen}
-                      onCheckedChange={(checked) => handleOpeningHoursChange(day, 'isOpen', checked)}
-                    />
-                    <Label>{dayName}</Label>
+              {timeSlots.map(slot => (
+                <div key={slot.id} className="border rounded-md p-4 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Zeitraum</h4>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => removeTimeSlot(slot.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="time"
-                      value={openingHours[day].openTime}
-                      onChange={(e) => handleOpeningHoursChange(day, 'openTime', e.target.value)}
-                      disabled={!openingHours[day].isOpen}
-                    />
-                    <span>bis</span>
-                    <Input
-                      type="time"
-                      value={openingHours[day].closeTime}
-                      onChange={(e) => handleOpeningHoursChange(day, 'closeTime', e.target.value)}
-                      disabled={!openingHours[day].isOpen}
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Von</Label>
+                      <Input
+                        type="time"
+                        value={slot.openTime}
+                        onChange={(e) => handleTimeSlotChange(slot.id, 'openTime', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Bis</Label>
+                      <Input
+                        type="time"
+                        value={slot.closeTime}
+                        onChange={(e) => handleTimeSlotChange(slot.id, 'closeTime', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Gültig an</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                        <Badge
+                          key={day}
+                          variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                          className="cursor-pointer"
+                          onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                        >
+                          {dayName}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               ))}
+              
+              <div className="border rounded-md p-4 space-y-4">
+                <h4 className="font-medium">Neuer Zeitraum</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Von</Label>
+                    <Input
+                      type="time"
+                      value={newTimeSlot.openTime}
+                      onChange={(e) => setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bis</Label>
+                    <Input
+                      type="time"
+                      value={newTimeSlot.closeTime}
+                      onChange={(e) => setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Gültig an</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                      <Badge
+                        key={day}
+                        variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
+                      >
+                        {dayName}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <Button 
+                  onClick={addTimeSlot} 
+                  className="w-full"
+                  disabled={newTimeSlot.days.length === 0}
+                >
+                  Zeitraum hinzufügen
+                </Button>
+              </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              Legen Sie die Öffnungszeiten für jeden Tag fest. Deaktivieren Sie den Schalter für geschlossene Tage.
+              Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten sollen.
             </p>
           </div>
 

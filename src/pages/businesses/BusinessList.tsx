@@ -39,7 +39,8 @@ import {
   Tag,
   Pencil,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  ArrowLeft
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
@@ -288,8 +289,16 @@ export const BusinessList: React.FC = () => {
             />
             {business.imageUrls.length > 1 && (
               <Badge variant="secondary" className="absolute top-2 right-2">
-                <Globe className="mr-1 h-3 w-3" />
+                <ImageIcon className="mr-1 h-3 w-3" />
                 +{business.imageUrls.length - 1}
+              </Badge>
+            )}
+            {business.isPromoted && (
+              <Badge 
+                className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"
+              >
+                <Star className="mr-1 h-3 w-3 fill-current" />
+                Highlight
               </Badge>
             )}
           </div>
@@ -349,10 +358,18 @@ export const BusinessList: React.FC = () => {
                 {business.keywordIds.length} Keywords
               </div>
             )}
-            {business.nuernbergspotsReview?.reviewText && (
+            <div className="flex items-center text-sm">
+              {business.nuernbergspotsReview?.reviewText && (
+                <div className="flex items-center text-sm">
+                  <Star className="mr-2 h-4 w-4 text-yellow-400" />
+                  Nuernbergspots Review vorhanden
+                </div>
+              )}
+            </div>
+            {business.isPromoted && (
               <div className="flex items-center text-sm">
-                <Star className="mr-2 h-4 w-4 text-yellow-400" />
-                Nuernbergspots Review vorhanden
+                <Star className="mr-2 h-4 w-4 text-yellow-500 fill-current" />
+                <span className="text-yellow-500 font-medium">Highlight Partner</span>
               </div>
             )}
           </div>
@@ -399,12 +416,18 @@ export const BusinessList: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Geschäfte</h1>
-        <Button onClick={() => navigate('/businesses/new')}>
-          <Plus className="mr-2 h-4 w-4" />
-          Neues Geschäft erstellen
+      <div className="flex items-center gap-4 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Zurück zum Dashboard
         </Button>
+        <h1 className="text-2xl font-bold">Geschäfte</h1>
+        <div className="ml-auto">
+          <Button onClick={() => navigate('/create-business')}>
+            <Plus className="mr-2 h-4 w-4" />
+            Partner hinzufügen
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-6 mb-8">
@@ -564,6 +587,42 @@ export const BusinessList: React.FC = () => {
                     <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isPromoted"
+                  checked={editingBusiness?.isPromoted || false}
+                  onCheckedChange={async (checked) => {
+                    if (!editingBusiness) return;
+                    try {
+                      await businessService.updateBusiness(editingBusiness.id, {
+                        isPromoted: checked
+                      });
+                      setEditingBusiness({
+                        ...editingBusiness,
+                        isPromoted: checked
+                      });
+                      toast.success("Highlight-Status aktualisiert", {
+                        description: checked 
+                          ? "Der Partner wurde als Highlight markiert." 
+                          : "Der Highlight-Status wurde entfernt.",
+                      });
+                    } catch (error) {
+                      toast.error("Fehler beim Aktualisieren", {
+                        description: "Der Highlight-Status konnte nicht aktualisiert werden.",
+                      });
+                    }
+                  }}
+                />
+                <div className="space-y-1">
+                  <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {editingBusiness?.isPromoted 
+                      ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                      : 'Markiere diesen Partner als Highlight'}
+                  </p>
+                </div>
               </div>
 
               <div>

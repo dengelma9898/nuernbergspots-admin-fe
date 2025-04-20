@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Event } from '@/models/events';
+import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,13 +20,23 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  ArrowLeft
+  ArrowLeft,
+  Star
 } from 'lucide-react';
 import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
+import { convertFFToHex } from '@/utils/colorUtils';
+import { getIconComponent } from '@/utils/iconUtils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface LocationValue {
   display_name: string;
@@ -44,7 +56,9 @@ export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const eventService = useEventService();
+  const eventCategoryService = useEventCategoryService();
   const [event, setEvent] = useState<Event | null>(null);
+  const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editedEvent, setEditedEvent] = useState<Partial<Event>>({});
@@ -52,7 +66,7 @@ export const EventDetail: React.FC = () => {
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
 
   useEffect(() => {
-    loadEvent();
+    loadData();
   }, [id]);
 
   useEffect(() => {
@@ -82,12 +96,16 @@ export const EventDetail: React.FC = () => {
     }
   }, [event]);
 
-  const loadEvent = async () => {
+  const loadData = async () => {
     if (!id) return;
     try {
       setLoading(true);
-      const fetchedEvent = await eventService.getEvent(id);
+      const [fetchedEvent, fetchedCategories] = await Promise.all([
+        eventService.getEvent(id),
+        eventCategoryService.getCategories()
+      ]);
       setEvent(fetchedEvent);
+      setCategories(fetchedCategories);
     } catch (error) {
       toast.error("Fehler beim Laden des Events", {
         description: "Das Event konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
@@ -111,7 +129,7 @@ export const EventDetail: React.FC = () => {
         description: "Das Event wurde erfolgreich aktualisiert.",
       });
       setIsEditing(false);
-      loadEvent();
+      loadData();
     } catch (error) {
       toast.error("Fehler beim Aktualisieren", {
         description: "Das Event konnte nicht aktualisiert werden. Bitte versuchen Sie es später erneut.",
@@ -221,10 +239,32 @@ export const EventDetail: React.FC = () => {
           <CardHeader>
             <div className="flex justify-between items-start">
               <CardTitle>Event Informationen</CardTitle>
-              <Badge variant={status.variant}>
-                {status.icon}
-                <span className="ml-1">{status.label}</span>
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={status.variant}>
+                  {status.icon}
+                  <span className="ml-1">{status.label}</span>
+                </Badge>
+                {event.isPromoted && (
+                  <Badge className="bg-yellow-500/90 text-white border-yellow-600">
+                    <Star className="mr-1 h-4 w-4 fill-current" />
+                    Highlight
+                  </Badge>
+                )}
+                {event.categoryId && categories.find(cat => cat.id === event.categoryId) && (
+                  <Badge 
+                    className="text-xs flex items-center"
+                    style={{
+                      backgroundColor: convertFFToHex(categories.find(cat => cat.id === event.categoryId)!.colorCode),
+                      color: '#fff'
+                    }}
+                  >
+                    <span className="mr-1 flex items-center">
+                      {getIconComponent(categories.find(cat => cat.id === event.categoryId)!.iconName)}
+                    </span>
+                    {categories.find(cat => cat.id === event.categoryId)!.name}
+                  </Badge>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -338,6 +378,54 @@ export const EventDetail: React.FC = () => {
                 onCheckedChange={(checked) => handleInputChange('ticketsNeeded', checked)}
               />
               <Label htmlFor="ticketsNeeded">Tickets erforderlich</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isPromoted"
+                checked={isEditing ? editedEvent.isPromoted : event.isPromoted}
+                onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+                disabled={!isEditing}
+              />
+              <div className="space-y-1">
+                <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
+                <p className="text-sm text-muted-foreground">
+                  {event.isPromoted ? 'Dieses Event wird als Highlight angezeigt ✨' : 'Markiere dieses Event als Highlight'}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Kategorie</Label>
+              {isEditing ? (
+                <Select
+                  value={editedEvent.categoryId || categories[0]?.id}
+                  onValueChange={(value) => handleInputChange('categoryId', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Kategorie auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center">
+                            {getIconComponent(category.iconName)}
+                          </span>
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <span className="flex items-center">
+                    {getIconComponent(categories.find(cat => cat.id === event.categoryId)?.iconName || '')}
+                  </span>
+                  {categories.find(cat => cat.id === event.categoryId)?.name}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

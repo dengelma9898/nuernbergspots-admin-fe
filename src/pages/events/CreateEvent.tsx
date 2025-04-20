@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Event } from '@/models/events';
+import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +13,46 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
+import { getIconComponent } from '@/utils/iconUtils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface NewEvent {
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  price: number | null;
+  ticketsNeeded: boolean;
+  imageUrls: string[];
+  favoriteCount: number;
+  isPromoted: boolean;
+  categoryId: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
+  website: string | null;
+  socialMedia: {
+    instagram: string | null;
+    facebook: string | null;
+    tiktok: string | null;
+  };
+}
 
 export const CreateEvent: React.FC = () => {
   const navigate = useNavigate();
   const eventService = useEventService();
+  const eventCategoryService = useEventCategoryService();
   const [loading, setLoading] = useState(false);
-  const [newEvent, setNewEvent] = useState({
+  const [categories, setCategories] = useState<EventCategory[]>([]);
+  const [newEvent, setNewEvent] = useState<NewEvent>({
     title: '',
     description: '',
     startDate: '',
@@ -24,12 +60,43 @@ export const CreateEvent: React.FC = () => {
     address: '',
     latitude: 0,
     longitude: 0,
-    price: 0,
+    price: null,
     ticketsNeeded: false,
-    imageUrls: [] as string[],
-    favoriteCount: 0
+    imageUrls: [],
+    favoriteCount: 0,
+    isPromoted: false,
+    categoryId: null,
+    contactEmail: null,
+    contactPhone: null,
+    website: null,
+    socialMedia: {
+      instagram: null,
+      facebook: null,
+      tiktok: null
+    }
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      const fetchedCategories = await eventCategoryService.getCategories();
+      setCategories(fetchedCategories);
+      if (fetchedCategories.length > 0) {
+        setNewEvent(prev => ({
+          ...prev,
+          categoryId: fetchedCategories[0].id
+        }));
+      }
+    } catch (error) {
+      toast.error("Fehler beim Laden der Kategorien", {
+        description: "Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      });
+    }
+  };
 
   const handleInputChange = (field: keyof typeof newEvent, value: any) => {
     setNewEvent(prev => ({
@@ -178,6 +245,33 @@ export const CreateEvent: React.FC = () => {
             </p>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="category">Kategorie</Label>
+            <Select
+              value={newEvent.categoryId || ''}
+              onValueChange={(value) => handleInputChange('categoryId', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Kategorie auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center">
+                        {getIconComponent(category.iconName)}
+                      </span>
+                      {category.name}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-sm text-muted-foreground">
+              Wählen Sie eine passende Kategorie für Ihr Event aus.
+            </p>
+          </div>
+
           <div className="flex items-center space-x-2">
             <Switch
               id="ticketsNeeded"
@@ -188,6 +282,20 @@ export const CreateEvent: React.FC = () => {
               <Label htmlFor="ticketsNeeded">Tickets erforderlich</Label>
               <p className="text-sm text-muted-foreground">
                 Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="isPromoted"
+              checked={newEvent.isPromoted}
+              onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+            />
+            <div className="space-y-1">
+              <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
+              <p className="text-sm text-muted-foreground">
+                Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
               </p>
             </div>
           </div>

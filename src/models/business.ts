@@ -41,6 +41,7 @@ export interface Business {
   updatedAt: string;
   isAdmin: boolean;
   hasAccount: boolean;
+  isPromoted: boolean;
 }
 
 /**
