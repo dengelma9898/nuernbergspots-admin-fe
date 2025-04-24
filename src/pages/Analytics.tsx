@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 import { PricingCalculator } from "@/components/PricingCalculator";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const AnalyticsCard = ({ 
   icon: Icon,
@@ -282,6 +283,49 @@ const CustomerRetentionCard = ({ analytics, isLoading }: { analytics: DashboardA
   </Card>
 );
 
+const BusinessDetails = ({ business, isLoading }: { business: BusinessAnalytics | null, isLoading: boolean }) => {
+  if (!business) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Detaillierte Business-Analyse</CardTitle>
+        <CardDescription>Ausführliche Statistiken für {business.businessName}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h3 className="font-medium">Scans</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Gesamt</p>
+                <p className="text-lg font-bold">{business.totalScans}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Diese Woche</p>
+                <p className="text-lg font-bold">{business.weeklyScans}</p>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-medium">Kunden</h3>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-sm text-muted-foreground">Unique Kunden</p>
+                <p className="text-lg font-bold">{business.uniqueCustomers}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Ø Scans/Kunde</p>
+                <p className="text-lg font-bold">{business.totalScans / business.uniqueCustomers}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export function Analytics() {
   const navigate = useNavigate();
   const [analytics, setAnalytics] = useState<DashboardAnalytics | null>(null);
@@ -289,6 +333,7 @@ export function Analytics() {
   const businessService = useBusinessService();
   const analyticsService = useAnalyticsService();
   const isInitialMount = useRef(true);
+  const [selectedBusiness, setSelectedBusiness] = useState<string>('');
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -464,6 +509,46 @@ export function Analytics() {
         {!isLoading && analytics?.businesses && (
           <PricingCalculator analytics={analytics.businesses} />
         )}
+
+        {/* New Business Selection and Details Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">Business-Details</h2>
+            <Select
+              value={selectedBusiness}
+              onValueChange={setSelectedBusiness}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Business auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {analytics?.businesses?.map((business) => (
+                  <SelectItem key={business.businessName} value={business.businessName}>
+                    {business.businessName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {selectedBusiness && analytics?.businesses && (
+            <BusinessDetails
+              business={analytics.businesses.find(b => b.businessName === selectedBusiness) || null}
+              isLoading={isLoading}
+            />
+          )}
+        </div>
+
+        {/* Existing business cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {analytics?.businesses.map((business) => (
+            <BusinessAnalyticsCard
+              key={business.businessName}
+              business={business}
+              isLoading={isLoading}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

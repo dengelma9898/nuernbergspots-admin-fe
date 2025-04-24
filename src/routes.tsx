@@ -14,7 +14,7 @@ import { EventCategoryList } from '@/pages/events/EventCategoryList';
 import { Profile } from './pages/Profile';
 import { ContactRequests } from './pages/contacts/ContactRequests.tsx';
 import { ContactRequestDetail } from './pages/contacts/ContactRequestDetail.tsx';
-
+import { Analytics } from './pages/Analytics.tsx';
 export function AppRoutes() {
   return (
     <Routes>
@@ -34,6 +34,7 @@ export function AppRoutes() {
         <Route path="/contacts" element={<ContactRequests />} />
         <Route path="/contacts/:id" element={<ContactRequestDetail />} />
         <Route path="/event-categories" element={<EventCategoryList />} />
+        <Route path="/analytics" element={<Analytics />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
 
