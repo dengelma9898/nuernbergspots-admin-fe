@@ -1,11 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { UserProfile } from '../models/users';
 import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
-import { useAnalyticsService } from '../services/analyticsService';
-import { BusinessCustomerWithBusinessName, DashboardAnalytics, BusinessAnalytics } from '../models/business';
+import { useContactService } from '../services/contactService';
+import { BusinessAnalytics } from '../models/business';
 import { 
   Card,
   CardContent,
@@ -29,9 +28,10 @@ import {
   Users,
   Scan,
   BarChart,
-  Euro
+  Euro,
+  MessageSquare
 } from 'lucide-react';
-import { toast } from "sonner";
+
 
 const NavigationCard = ({ 
   icon: Icon, 
@@ -115,64 +115,15 @@ const AnalyticsCard = ({
   </Card>
 );
 
-const BusinessAnalyticsCard = ({ business }: { business: BusinessAnalytics }) => (
-  <Card>
-    <CardHeader className="pb-2">
-      <div className="flex items-center justify-between">
-        <CardTitle className="text-sm font-medium">{business.businessName}</CardTitle>
-        <div className="flex items-center space-x-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm text-muted-foreground">{business.uniqueCustomers}</span>
-        </div>
-      </div>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Gesamtscans</span>
-          <span className="font-medium">{business.totalScans}</span>
-        </div>
-        <Progress value={(business.totalScans / business.yearlyScans) * 100} className="h-2" />
-        <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-          <div>
-            <div className="font-medium text-foreground">{business.weeklyScans}</div>
-            Woche
-          </div>
-          <div>
-            <div className="font-medium text-foreground">{business.monthlyScans}</div>
-            Monat
-          </div>
-          <div>
-            <div className="font-medium text-foreground">{business.yearlyScans}</div>
-            Jahr
-          </div>
-        </div>
-        <div className="pt-2 border-t flex justify-between text-xs text-muted-foreground">
-          <div>
-            <span>Ø Preis:</span>
-            <span className="ml-1 font-medium text-foreground">
-              {business.averagePrice.toFixed(2)}€
-            </span>
-          </div>
-          <div>
-            <span>Ø Personen:</span>
-            <span className="ml-1 font-medium text-foreground">
-              {business.averageNumberOfPeople.toFixed(1)}
-            </span>
-          </div>
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
 export function Dashboard() {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [pendingApprovals, setPendingApprovals] = useState<number>(0);
   const [usersInReview, setUsersInReview] = useState<number>(0);
+  const [openContactRequests, setOpenContactRequests] = useState<number>(0);
   const userService = useUserService();
   const businessService = useBusinessService();
+  const contactService = useContactService();
   const isInitialMount = useRef(true);
 
   const handleLogout = async () => {
@@ -202,13 +153,23 @@ export function Dashboard() {
     }
   }, [userService]);
 
+  const fetchOpenContactRequests = useCallback(async () => {
+    try {
+      const openContactRequests = await contactService.getOpenContactRequestsCount();
+      setOpenContactRequests(openContactRequests);
+    } catch (error) {
+      console.error('Fehler beim Laden der offenen Kontaktanfragen:', error);
+    }
+  }, [contactService]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       fetchPendingApprovals();
       fetchUsersInReview();
+      fetchOpenContactRequests();
     }
-  }, [fetchPendingApprovals, fetchUsersInReview]);
+  }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests]);
 
   return (
     <div className="container mx-auto p-8 max-w-7xl">
@@ -237,9 +198,9 @@ export function Dashboard() {
           </div>
           <div className="text-lg text-muted-foreground">
             Hi Sarah 👋, schön dass du wieder da bist ✨
-            {(pendingApprovals > 0 || usersInReview > 0) && (
+            {(pendingApprovals > 0 || usersInReview > 0 || openContactRequests > 0) && (
               <span className="block mt-1">
-                {pendingApprovals + usersInReview > 10 
+                {pendingApprovals + usersInReview + openContactRequests > 10 
                   ? "Da wartet eine Menge Arbeit auf dich! 💪"
                   : "Es gibt ein bisschen was zu tun für dich 😊"
                 }
@@ -253,7 +214,7 @@ export function Dashboard() {
           <h2 className="text-2xl font-bold mb-4">Management</h2>
           
           {/* Pending Reviews Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
             {/* Pending Business Approvals Card */}
             {pendingApprovals > 0 && (
               <Card className="bg-primary/5 border-primary/20">
@@ -317,6 +278,36 @@ export function Dashboard() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Open Contact Requests Card */}
+            <Card className="bg-primary/5 border-primary/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center text-primary">
+                  <MessageSquare className="mr-2 h-5 w-5" />
+                  Offene Kontaktanfragen 📧
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-4xl font-bold text-primary">
+                    {openContactRequests} {openContactRequests > 10 ? '📬' : '✉️'}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {openContactRequests === 1 
+                      ? 'Neue Kontaktanfrage wartet auf Bearbeitung'
+                      : 'Neue Kontaktanfragen warten auf Bearbeitung'
+                    }
+                  </div>
+                </div>
+                <Button
+                  onClick={() => navigate('/contacts?filter=pending')}
+                  className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20"
+                >
+                  Jetzt prüfen
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Management Navigation Grid */}

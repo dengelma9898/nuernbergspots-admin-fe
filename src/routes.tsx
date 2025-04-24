@@ -12,7 +12,8 @@ import { CreateBusiness } from "@/pages/businesses/CreateBusiness";
 import { BusinessUserReview } from './pages/users/BusinessUserReview';
 import { EventCategoryList } from '@/pages/events/EventCategoryList';
 import { Profile } from './pages/Profile';
-import { Analytics } from './pages/Analytics.tsx';
+import { ContactRequests } from './pages/contacts/ContactRequests.tsx';
+import { ContactRequestDetail } from './pages/contacts/ContactRequestDetail.tsx';
 
 export function AppRoutes() {
   return (
@@ -30,9 +31,10 @@ export function AppRoutes() {
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route path="/users/business/review" element={<BusinessUserReview />} />
+        <Route path="/contacts" element={<ContactRequests />} />
+        <Route path="/contacts/:id" element={<ContactRequestDetail />} />
         <Route path="/event-categories" element={<EventCategoryList />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/analytics" element={<Analytics />} />
       </Route>
 
       {/* Fallback */}
