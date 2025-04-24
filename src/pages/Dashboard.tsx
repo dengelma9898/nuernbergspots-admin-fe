@@ -343,6 +343,12 @@ export function Dashboard() {
               href="/event-categories"
             />
             <NavigationCard
+              icon={Users}
+              title="Business-User verwalten"
+              description="Business-User und deren Berechtigungen verwalten"
+              href="/business-users"
+            />
+            <NavigationCard
               icon={BarChart}
               title="Analytics Dashboard"
               description="Detaillierte Einblicke in die Performance deiner Partner"
