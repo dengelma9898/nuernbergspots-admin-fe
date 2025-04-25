@@ -7,8 +7,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, AlertCircle, Trash2, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Trash2, ArrowLeft, Plus } from 'lucide-react';
 import { Business } from '@/models/business';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from 'sonner';
 
 export function EditBusinessUser() {
   const { id } = useParams<{ id: string }>();
@@ -16,6 +25,9 @@ export function EditBusinessUser() {
   const [businessUser, setBusinessUser] = useState<BusinessUser | null>(null);
   const [availableBusinesses, setAvailableBusinesses] = useState<Business[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedBusiness, setSelectedBusiness] = useState<Business | null>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [isAddingBusiness, setIsAddingBusiness] = useState(false);
   const businessUserService = useBusinessUserService();
   const businessService = useBusinessService();
 
@@ -40,6 +52,35 @@ export function EditBusinessUser() {
 
     loadData();
   }, [id, businessUserService, businessService]);
+
+  const handleAddBusiness = async (business: Business) => {
+    if (!businessUser) return;
+
+    setSelectedBusiness(business);
+    setIsConfirmDialogOpen(true);
+  };
+
+  const confirmAddBusiness = async () => {
+    if (!selectedBusiness || !businessUser) return;
+
+    try {
+      setIsAddingBusiness(true);
+      await businessUserService.addBusinessToUser(businessUser.id, selectedBusiness.id);
+      
+      // Aktualisiere die Daten
+      const updatedUser = await businessUserService.getBusinessUser(businessUser.id);
+      setBusinessUser(updatedUser);
+      
+      toast.success(`${selectedBusiness.name} wurde erfolgreich zu ${businessUser.email} hinzugefügt.`);
+    } catch (error) {
+      console.error('Fehler beim Hinzufügen des Geschäfts:', error);
+      toast.error("Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.");
+    } finally {
+      setIsAddingBusiness(false);
+      setIsConfirmDialogOpen(false);
+      setSelectedBusiness(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -167,6 +208,7 @@ export function EditBusinessUser() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>ID</TableHead>
+                  <TableHead>Aktionen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -174,6 +216,16 @@ export function EditBusinessUser() {
                   <TableRow key={business.id}>
                     <TableCell>{business.name}</TableCell>
                     <TableCell>{business.id}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAddBusiness(business)}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Hinzufügen
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -181,6 +233,35 @@ export function EditBusinessUser() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Bestätigungs-Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Geschäft zuweisen</DialogTitle>
+            <DialogDescription>
+              Möchten Sie das Geschäft "{selectedBusiness?.name}" (ID: {selectedBusiness?.id}) wirklich dem Business-User "{businessUser.email}" zuweisen?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsConfirmDialogOpen(false);
+                setSelectedBusiness(null);
+              }}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={confirmAddBusiness}
+              disabled={isAddingBusiness}
+            >
+              {isAddingBusiness ? "Wird hinzugefügt..." : "Zuweisen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

@@ -37,5 +37,15 @@ export function useBusinessUserService() {
         return unwrapData(response);
     },
 
+    /**
+     * Fügt ein Geschäft zu einem Business-User hinzu
+     */
+    addBusinessToUser: async (businessUserId: string, businessId: string): Promise<void> => {
+      if (!user?.uid) {
+        throw new Error('Kein eingeloggter Benutzer gefunden');
+      }
+
+      await api.post(`/users/${businessUserId}/business-user/businesses/${businessId}`, {});
+    }
   }), [api, user?.uid]);
 } 
