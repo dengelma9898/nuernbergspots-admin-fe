@@ -30,6 +30,12 @@ export function useBusinessUserService() {
       
       const response = await api.get<ApiResponse<BusinessUser[]>>(`/users/${user.uid}/business-users`);
       return unwrapData(response);
-    }
+    },
+
+    getBusinessUser: async (businessUserId: string): Promise<BusinessUser> => {
+        const response = await api.get<ApiResponse<BusinessUser>>(`/users/${businessUserId}/profile`);
+        return unwrapData(response);
+    },
+
   }), [api, user?.uid]);
 } 
