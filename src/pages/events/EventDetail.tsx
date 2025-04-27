@@ -21,7 +21,9 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowLeft,
-  Star
+  Star,
+  Trash2,
+  Upload
 } from 'lucide-react';
 import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -37,6 +39,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface LocationValue {
   display_name: string;
@@ -64,6 +74,11 @@ export const EventDetail: React.FC = () => {
   const [editedEvent, setEditedEvent] = useState<Partial<Event>>({});
   const [searchAddress, setSearchAddress] = useState('');
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [imageToDelete, setImageToDelete] = useState<string | null>(null);
+  const [isDeletingImage, setIsDeletingImage] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -176,6 +191,88 @@ export const EventDetail: React.FC = () => {
       }
     }));
     setSearchValue(location);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      console.log('Selected files:', files);
+      setSelectedFiles(files);
+      
+      // Erstelle Vorschau-URLs für die ausgewählten Bilder
+      const urls: string[] = [];
+      files.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          urls.push(reader.result as string);
+          if (urls.length === files.length) {
+            setPreviewUrls(urls);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleUploadImages = async () => {
+    if (selectedFiles.length === 0 || !event) return;
+
+    try {
+      setIsUploading(true);
+      console.log('Uploading files:', selectedFiles);
+      const imageUrls = await eventService.uploadEventImages(event.id, selectedFiles);
+      
+      const updatedEvent = {
+        ...event,
+        imageUrls: [...(event.imageUrls || []), ...imageUrls]
+      };
+      
+      await eventService.updateEvent(event.id, updatedEvent);
+      setEvent(updatedEvent);
+      setSelectedFiles([]);
+      setPreviewUrls([]);
+      
+      toast.success(`${imageUrls.length} Bilder erfolgreich hochgeladen`);
+    } catch (error) {
+      console.error('Fehler beim Hochladen der Bilder:', error);
+      toast.error("Fehler beim Hochladen der Bilder");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removePreview = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleDeleteImage = async (imageUrl: string) => {
+    setImageToDelete(imageUrl);
+  };
+
+  const confirmDeleteImage = async () => {
+    if (!event || !event.imageUrls || !imageToDelete) return;
+
+    try {
+      setIsDeletingImage(true);
+      await eventService.removeEventImage(event.id, imageToDelete);
+      
+      const updatedEvent = {
+        ...event,
+        imageUrls: event.imageUrls.filter(url => url !== imageToDelete)
+      };
+      
+      await eventService.updateEvent(event.id, updatedEvent);
+      setEvent(updatedEvent);
+      
+      toast.success("Bild erfolgreich entfernt");
+    } catch (error) {
+      console.error('Fehler beim Entfernen des Bildes:', error);
+      toast.error("Fehler beim Entfernen des Bildes");
+    } finally {
+      setIsDeletingImage(false);
+      setImageToDelete(null);
+    }
   };
 
   if (loading) {
@@ -435,15 +532,70 @@ export const EventDetail: React.FC = () => {
             <CardTitle>Bilder</CardTitle>
           </CardHeader>
           <CardContent>
+            {isEditing && (
+              <div className="mb-4 space-y-4">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="max-w-xs"
+                      multiple
+                    />
+                    <Button
+                      onClick={handleUploadImages}
+                      disabled={selectedFiles.length === 0 || isUploading}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {isUploading ? "Wird hochgeladen..." : "Bilder hochladen"}
+                    </Button>
+                  </div>
+                  
+                  {previewUrls.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {previewUrls.map((url, index) => (
+                        <div key={index} className="relative w-full aspect-square border rounded-lg overflow-hidden">
+                          <img
+                            src={url}
+                            alt={`Vorschau ${index + 1}`}
+                            className="object-cover w-full h-full"
+                          />
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-2 right-2"
+                            onClick={() => removePreview(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
             {event.imageUrls && event.imageUrls.length > 0 ? (
               <div className="grid grid-cols-2 gap-4">
                 {event.imageUrls.map((url, index) => (
-                  <div key={index} className="relative aspect-video">
+                  <div key={index} className="relative group">
                     <img
                       src={url}
                       alt={`Event Bild ${index + 1}`}
-                      className="object-cover w-full h-full rounded-lg"
+                      className="object-cover w-full h-48 rounded-lg"
                     />
+                    {isEditing && (
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleDeleteImage(url)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -477,6 +629,33 @@ export const EventDetail: React.FC = () => {
           </>
         )}
       </div>
+
+      <Dialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bild entfernen</DialogTitle>
+            <DialogDescription>
+              Möchten Sie dieses Bild wirklich entfernen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setImageToDelete(null)}
+              disabled={isDeletingImage}
+            >
+              Abbrechen
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteImage}
+              disabled={isDeletingImage}
+            >
+              {isDeletingImage ? "Wird entfernt..." : "Entfernen"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }; 

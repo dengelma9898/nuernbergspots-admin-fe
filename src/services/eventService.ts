@@ -95,6 +95,35 @@ export function useEventService() {
         titleImageUrl
       });
       return unwrapData(response);
+    },
+
+    /**
+     * Lädt Bilder für ein Event hoch
+     */
+    uploadEventImages: async (eventId: string, files: File[]): Promise<string[]> => {
+      const formData = new FormData();
+      console.log('Uploading files:', files);
+      files.forEach((file, index) => {
+        console.log(`Adding file ${index}:`, file.name, file.type, file.size);
+        formData.append('images', file);
+      });
+
+      const response = await api.patch<ApiResponse<{ urls: string[] }>>(
+        `${endpoints.events}/${eventId}/images`,
+        formData,
+        { isFormData: true }
+      );
+
+      return unwrapData(response).urls;
+    },
+
+    /**
+     * Entfernt ein Bild von einem Event
+     */
+    removeEventImage: async (eventId: string, imageUrl: string): Promise<void> => {
+      await api.patch(`${endpoints.events}/${eventId}/images/remove`, {
+        imageUrl
+      });
     }
   };
 } 

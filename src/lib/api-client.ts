@@ -73,15 +73,14 @@ class ApiClient {
     return response.json();
   }
 
-  async patch<T>(endpoint: string, data: any): Promise<T> {
-    const headers = await this.getHeaders('application/json');
+  async patch<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
+    const headers = await this.getHeaders(options.isFormData ? undefined : 'application/json');
+    const body = options.isFormData ? data : JSON.stringify(data);
 
-    console.log('patch: data', JSON.stringify(data));
-    console.log('patch: headers', headers.get('Content-Type'));
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PATCH',
       headers,
-      body: JSON.stringify(data),
+      body,
     });
 
     if (!response.ok) {

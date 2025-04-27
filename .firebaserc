@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "citylife-fe75a"
+    "default": "citylife-fe75a",
+    "dev": "citylife-fe75a",
+    "prd": "nuernbergspots-b460a"
   }
 }

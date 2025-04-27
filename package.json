@@ -4,9 +4,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "start:dev": "vite --mode dev",
+    "start:prod": "vite --mode production",
     "build": "tsc && vite build",
-    "build:prod": "tsc && vite build --mode production",
+    "build:dev": "tsc && vite build --mode dev",
+    "build:prd": "tsc && vite build --mode production",
+    "deploy:dev": "npm run build:dev && firebase deploy --project dev",
+    "deploy:prd": "npm run build:prd && firebase deploy --project prd",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
