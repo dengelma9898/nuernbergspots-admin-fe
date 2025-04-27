@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch: # Ermöglicht manuelles Auslösen
+  workflow_dispatch:
 
 jobs:
   build-and-deploy-dev:
@@ -43,11 +43,9 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
   build-and-deploy-prd:
-    if: github.event_name == 'workflow_dispatch' # Nur bei manuellem Start
     runs-on: ubuntu-latest
     environment:
       name: prd
-      url: ${{ steps.deployment.outputs.page_url }}
     needs: build-and-deploy-dev
     steps:
       - name: Checkout Repository
