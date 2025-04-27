@@ -24,8 +24,7 @@ jobs:
       - name: Install Firebase Tools
         run: npm install -g firebase-tools
 
-      - name: Login to Firebase
-        run: firebase login --no-localhost --token ${{ secrets.FIREBASE_TOKEN }}
-
       - name: Deploy to Firebase Dev
-        run: npm run deploy:dev 
+        run: npm run deploy:dev
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }} 
