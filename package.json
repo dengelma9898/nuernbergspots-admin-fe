@@ -11,6 +11,8 @@
     "build:prd": "tsc && vite build --mode production",
     "deploy:dev": "npm run build:dev && firebase deploy --project dev",
     "deploy:prd": "npm run build:prd && firebase deploy --project prd",
+    "deploy:ci:dev": "npm run build:dev && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project dev",
+    "deploy:ci:prd": "npm run build:prd && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project prd",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
