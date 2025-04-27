@@ -31,6 +31,9 @@ jobs:
           credentials_json: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
       - name: Deploy to Firebase Dev
-        run: npm run deploy:ci:dev
+        run: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS > $RUNNER_TEMP/account.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/account.json
+          npm run deploy:ci:dev
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }} 
