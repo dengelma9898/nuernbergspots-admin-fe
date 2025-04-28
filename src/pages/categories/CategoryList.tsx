@@ -222,7 +222,7 @@ export function CategoryList() {
                   <Input
                     value={newCategory.description}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, description: e.target.value })}
-                    placeholder="Beschreibung (optional)"
+                    placeholder="Beschreibung"
                   />
                 </div>
                 <div className="space-y-2">
