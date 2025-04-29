@@ -150,7 +150,8 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
             className="space-y-4 rounded-lg overflow-hidden mt-12" 
             style={{
               backgroundColor: 'rgba(155, 27, 26, 1)',
-              padding: '1.5rem'
+              padding: '1.5rem',
+              paddingBottom: '1rem'
             }}
           >
             {groupedEvents.map((group, groupIndex) => {
@@ -186,18 +187,21 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
               );
             })}
           </div>
-        </div>
         
-        <div className="mt-8 flex justify-end items-center gap-2">
-          <img 
-            src={LogoImage} 
-            alt="nuernbergspots.com" 
-            className="h-12 w-12"
-            style={{
-              filter: 'brightness(0)',
-              opacity: 0.4
-            }}
-          />
+          <div className="mt-4 flex justify-center items-center">
+            <div 
+              className="w-20 h-20 rounded-full bg-black flex items-center justify-center overflow-hidden"
+            >
+              <img 
+                src={LogoImage} 
+                alt="nuernbergspots.com" 
+                className="w-18 h-18"
+                style={{
+                  opacity: 0.9
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 

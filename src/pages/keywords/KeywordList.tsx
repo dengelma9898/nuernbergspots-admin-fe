@@ -175,7 +175,7 @@ export function KeywordList() {
                   <Input
                     value={newKeyword.description}
                     onChange={(e) => setNewKeyword({ ...newKeyword, description: e.target.value })}
-                    placeholder="Beschreibung (optional)"
+                    placeholder="Beschreibung"
                   />
                 </div>
                 <div className="flex justify-end space-x-2">

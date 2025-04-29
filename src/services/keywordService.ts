@@ -34,7 +34,7 @@ export function useKeywordService() {
      * Aktualisiert ein Keyword
      */
     updateKeyword: async (keywordId: string, keyword: Partial<Keyword>): Promise<Keyword> => {
-      const response = await api.put<ApiResponse<Keyword>>(`${endpoints.keywords}/${keywordId}`, keyword);
+      const response = await api.patch<ApiResponse<Keyword>>(`${endpoints.keywords}/${keywordId}`, keyword);
       return unwrapData(response);
     },
 
