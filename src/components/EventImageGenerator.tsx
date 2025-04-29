@@ -25,14 +25,28 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
 
   const formatDate = (date: string) => {
     const eventDate = new Date(date);
-    const dayStr = format(eventDate, 'EEEEEE', { locale: de });
+    // Deutscher Wochentag mit Punkt (Mo., Di., etc.)
+    const dayStr = format(eventDate, 'EEEEEE', { locale: de }).replace(/^(.)(.?)$/, '$1$2.');
     const dateStr = format(eventDate, 'dd.MM.', { locale: de });
     const timeStr = format(eventDate, 'HH:mm', { locale: de });
     return {
-      day: dayStr,
-      date: dateStr,
+      dayDate: `${dayStr} ${dateStr}`,
       time: timeStr ? `${timeStr} Uhr` : '',
+      dayOnly: dayStr,
+      dateOnly: dateStr
     };
+  };
+
+  const formatEventTitle = (event: Event) => {
+    const startDate = new Date(event.startDate);
+    const endDate = new Date(event.endDate);
+    
+    if (!isSameDay(startDate, endDate)) {
+      const { dayOnly, dateOnly } = formatDate(event.endDate);
+      return `${event.title} (bis ${dayOnly} ${dateOnly})`;
+    }
+    
+    return event.title;
   };
 
   const formatAddress = (address: string) => {
@@ -140,27 +154,27 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
             }}
           >
             {groupedEvents.map((group, groupIndex) => {
-              const { day, date } = formatDate(group.date.toISOString());
+              const { dayDate } = formatDate(group.date.toISOString());
               return (
-                <div key={groupIndex} className="space-y-3">
-                  <div className="font-medium text-lg text-white">
-                    {day}, {date}
+                <div key={groupIndex} className="space-y-2">
+                  <div className="font-medium text-base text-white">
+                    {dayDate}
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     {group.events.map((event) => {
                       const { time } = formatDate(event.startDate);
                       return (
                         <div key={event.id} className="ml-4">
                           {time && (
-                            <span className="text-sm text-white/80 inline-block min-w-[80px]">
+                            <span className="text-xs text-white/80 inline-block min-w-[70px]">
                               {time}
                             </span>
                           )}
-                          <span className="text-white">
-                            {event.title}
+                          <span className="text-sm text-white">
+                            {formatEventTitle(event)}
                           </span>
                           {event.location.address && (
-                            <div className="text-sm text-white/70 ml-[80px]">
+                            <div className="text-xs text-white/70 ml-[70px]">
                               {formatAddress(event.location.address)}
                             </div>
                           )}
