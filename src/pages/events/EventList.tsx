@@ -43,6 +43,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getIconComponent } from '@/utils/iconUtils';
+import { CalendarWeekSelect } from '@/components/ui/calendar-week-select';
 
 export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -50,6 +51,9 @@ export const EventList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [timeFilter, setTimeFilter] = useState<string>('all');
+  const [selectedWeek, setSelectedWeek] = useState<string>('');
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
   const navigate = useNavigate();
@@ -150,7 +154,14 @@ export const EventList: React.FC = () => {
         end: new Date(event.endDate) })) ||
       (statusFilter === 'future' && isFuture(new Date(event.startDate)));
     
-    return matchesSearch && matchesStatus;
+    const matchesCategory = categoryFilter === 'all' || event.categoryId === categoryFilter;
+
+    const eventDate = new Date(event.startDate);
+    const eventWeek = format(eventDate, 'w', { locale: de });
+    const matchesTime = timeFilter === 'all' || 
+      (timeFilter === 'week' && selectedWeek === eventWeek);
+    
+    return matchesSearch && matchesStatus && matchesCategory && matchesTime;
   });
 
   const groupedEvents = {
@@ -202,6 +213,31 @@ export const EventList: React.FC = () => {
             <SelectItem value="future">Zukünftige Events</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Kategorie filtern" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Kategorien</SelectItem>
+            {categories.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={timeFilter} onValueChange={setTimeFilter}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Zeitraum filtern" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Zeiträume</SelectItem>
+            <SelectItem value="week">Kalenderwoche</SelectItem>
+          </SelectContent>
+        </Select>
+        {timeFilter === 'week' && (
+          <CalendarWeekSelect value={selectedWeek} onChange={setSelectedWeek} />
+        )}
       </div>
 
       {filteredEvents.length === 0 ? (
