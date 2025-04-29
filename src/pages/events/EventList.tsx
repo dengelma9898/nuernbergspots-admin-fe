@@ -44,6 +44,14 @@ import {
 } from "@/components/ui/select";
 import { getIconComponent } from '@/utils/iconUtils';
 import { CalendarWeekSelect } from '@/components/ui/calendar-week-select';
+import { EventImageGenerator } from '@/components/EventImageGenerator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -184,7 +192,32 @@ export const EventList: React.FC = () => {
           Zurück zum Dashboard
         </Button>
         <h1 className="text-2xl font-bold">Events</h1>
-        <div className="ml-auto">
+        <div className="ml-auto flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" className="gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Bild generieren
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>Event-Bild generieren</DialogTitle>
+              </DialogHeader>
+              <div className="py-4">
+                <EventImageGenerator
+                  events={filteredEvents}
+                  categoryName={
+                    categoryFilter !== 'all' 
+                      ? categories.find(cat => cat.id === categoryFilter)?.name || ''
+                      : categories.length > 0 
+                        ? categories[0].name 
+                        : ''
+                  }
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
           <Button onClick={() => navigate('/create-event')}>
             <Plus className="mr-2 h-4 w-4" />
             Event hinzufügen
