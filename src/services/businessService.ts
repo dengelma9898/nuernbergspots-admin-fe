@@ -161,5 +161,25 @@ export function useBusinessService() {
       const response = await api.get<ApiResponse<BusinessCustomerScans[]>>(`${endpoints.businesses}/customer-scans`);
       return unwrapData(response);
     },
+
+    uploadLogo: async (businessId: string, file: File): Promise<BusinessResponse> => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.post<ApiResponse<BusinessResponse>>(`${endpoints.businesses}/${businessId}/logo`, formData, {
+        isFormData: true
+      });
+      return unwrapData(response);
+    },
+
+    uploadBusinessImages: async (businessId: string, files: File[]): Promise<BusinessResponse> => {
+      const formData = new FormData();
+      files.forEach(file => {
+        formData.append('images', file);
+      });
+      const response = await api.post<ApiResponse<BusinessResponse>>(`${endpoints.businesses}/${businessId}/images`, formData, {
+        isFormData: true
+      });
+      return unwrapData(response);
+    },
   }), [api]);
-} 
+}

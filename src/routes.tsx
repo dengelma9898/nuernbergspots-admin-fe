@@ -17,6 +17,7 @@ import { ContactRequestDetail } from './pages/contacts/ContactRequestDetail.tsx'
 import { Analytics } from './pages/Analytics.tsx';
 import { BusinessUserList } from './pages/users/BusinessUserList';
 import { EditBusinessUser } from './pages/users/EditBusinessUser';
+import { EditBusiness } from './pages/businesses/EditBusiness';
 
 export function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export function AppRoutes() {
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/businesses" element={<BusinessList />} />
+        <Route path="/businesses/:id/edit" element={<EditBusiness />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/events" element={<EventList />} />
         <Route path="/keywords" element={<KeywordList />} />

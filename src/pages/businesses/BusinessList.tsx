@@ -55,16 +55,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingBusiness, setEditingBusiness] = useState<Business | null>(null);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editStatus, setEditStatus] = useState<BusinessStatus | null>(null);
-  const [editReview, setEditReview] = useState<NuernbergspotsReview>({
-    reviewText: '',
-    reviewImageUrls: []
-  });
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyPending, setShowOnlyPending] = useState(false);
   const [showOnlyWithoutReview, setShowOnlyWithoutReview] = useState(false);
@@ -92,7 +82,6 @@ export const BusinessList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // URL-Parameter beim Laden der Komponente auslesen
     const filter = searchParams.get('filter');
     if (filter === 'pending') {
       setShowOnlyPendingPartners(true);
@@ -100,7 +89,6 @@ export const BusinessList: React.FC = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    // URL-Parameter aktualisieren, wenn sich Filter ändern
     if (showOnlyPendingPartners) {
       setSearchParams({ filter: 'pending' });
     } else {
@@ -123,114 +111,7 @@ export const BusinessList: React.FC = () => {
   };
 
   const handleEditClick = (business: Business) => {
-    setEditingBusiness(business);
-    setEditStatus(business.status);
-    setEditReview(business.nuernbergspotsReview || {
-      reviewText: '',
-      reviewImageUrls: []
-    });
-    setNewImages([]);
-    setImagesToDelete([]);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleStatusChange = async (value: BusinessStatus) => {
-    if (!editingBusiness) return;
-
-    try {
-      const updateData = {
-        status: value,
-      };
-      
-      console.log('Sending update data:', updateData);
-      await businessService.updateBusiness(editingBusiness.id, updateData);
-      setEditStatus(value);
-      toast.success("Status aktualisiert", {
-        description: "Der Status wurde erfolgreich aktualisiert.",
-      });
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast.error("Fehler beim Aktualisieren des Status", {
-        description: "Der Status konnte nicht aktualisiert werden. Bitte versuchen Sie es später erneut.",
-      });
-    }
-  };
-
-  const handleUpdateBusiness = async () => {
-    if (!editingBusiness) return;
-
-    try {
-      setIsSaving(true);
-
-      // 1. Review-Text und gefilterte Bilder aktualisieren
-      const updatedReview: NuernbergspotsReview = {
-        reviewText: editReview.reviewText,
-        reviewImageUrls: editReview.reviewImageUrls?.filter(url => !imagesToDelete.includes(url)).filter(url => url.startsWith('http')) || []
-      };
-
-      console.log('Sending review update:', updatedReview);
-      await businessService.updateNuernbergspotsReview(editingBusiness.id, updatedReview);
-
-      // 2. Wenn es neue Bilder gibt, diese hochladen
-      if (newImages.length > 0) {
-        console.log('Uploading new images:', newImages.length);
-        await businessService.uploadReviewImages(editingBusiness.id, newImages);
-      }
-      
-      toast.success("Review aktualisiert", {
-        description: "Die Änderungen wurden erfolgreich gespeichert.",
-      });
-      
-      setIsEditDialogOpen(false);
-      setEditingBusiness(null);
-      setNewImages([]);
-      setImagesToDelete([]);
-      loadBusinesses();
-    } catch (error) {
-      console.error('Error updating review:', error);
-      toast.error("Fehler beim Aktualisieren", {
-        description: "Die Änderungen konnten nicht gespeichert werden. Bitte versuchen Sie es später erneut.",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const fileArray = Array.from(files);
-    setNewImages(prev => [...prev, ...fileArray]);
-    
-    // Lokale Vorschau der Bilder
-    const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
-    setEditReview(prev => ({
-      ...prev,
-      reviewImageUrls: [...(prev.reviewImageUrls || []), ...newImageUrls],
-    }));
-  };
-
-  const handleRemoveImage = (imageUrl: string) => {
-    // Wenn es eine URL vom Server ist, zur Löschliste hinzufügen
-    if (imageUrl.startsWith('http')) {
-      setImagesToDelete(prev => [...prev, imageUrl]);
-    }
-    
-    // Wenn es ein lokales Bild ist, aus newImages entfernen
-    if (imageUrl.startsWith('blob:')) {
-      const index = editReview.reviewImageUrls?.indexOf(imageUrl) || -1;
-      if (index >= 0) {
-        URL.revokeObjectURL(imageUrl); // Speicher freigeben
-        setNewImages(prev => prev.filter((_, i) => i !== index));
-      }
-    }
-
-    // Aus der Vorschau entfernen
-    setEditReview(prev => ({
-      ...prev,
-      reviewImageUrls: prev.reviewImageUrls?.filter(url => url !== imageUrl) || [],
-    }));
+    navigate(`/businesses/${business.id}/edit`);
   };
 
   const formatDate = (date: string) => {
@@ -270,7 +151,8 @@ export const BusinessList: React.FC = () => {
     return `${address.street} ${address.houseNumber}, ${address.postalCode} ${address.city}`;
   };
 
-  const formatOpeningHours = (hours: Record<string, string>) => {
+  const formatOpeningHours = (hours: Record<string, Array<{ from: string; to: string }>>) => {
+    if (!hours) return 'Keine Öffnungszeiten angegeben';
     const days = Object.keys(hours);
     if (days.length === 0) return 'Keine Öffnungszeiten angegeben';
     return `${days.length} Tage mit Öffnungszeiten`;
@@ -350,7 +232,7 @@ export const BusinessList: React.FC = () => {
             )}
             <div className="flex items-center text-sm">
               <Clock className="mr-2 h-4 w-4" />
-              {formatOpeningHours(business.openingHours)}
+              {formatOpeningHours(business.detailedOpeningHours)}
             </div>
             {business.keywordIds && business.keywordIds.length > 0 && (
               <div className="flex items-center text-sm">
@@ -358,14 +240,12 @@ export const BusinessList: React.FC = () => {
                 {business.keywordIds.length} Keywords
               </div>
             )}
-            <div className="flex items-center text-sm">
-              {business.nuernbergspotsReview?.reviewText && (
-                <div className="flex items-center text-sm">
-                  <Star className="mr-2 h-4 w-4 text-yellow-400" />
-                  Nuernbergspots Review vorhanden
-                </div>
-              )}
-            </div>
+            {business.nuernbergspotsReview?.reviewText && (
+              <div className="flex items-center text-sm">
+                <Star className="mr-2 h-4 w-4 text-yellow-400" />
+                Nuernbergspots Review vorhanden
+              </div>
+            )}
             {business.isPromoted && (
               <div className="flex items-center text-sm">
                 <Star className="mr-2 h-4 w-4 text-yellow-500 fill-current" />
@@ -521,206 +401,6 @@ export const BusinessList: React.FC = () => {
           <div className="text-center py-8">Keine Partner gefunden.</div>
         )}
       </div>
-
-      <Dialog 
-        open={isEditDialogOpen} 
-        onOpenChange={(open) => {
-          if (!open) {
-            // Beim Schließen des Dialogs alle lokalen Bild-URLs aufräumen
-            editReview.reviewImageUrls?.forEach(url => {
-              if (url.startsWith('blob:')) {
-                URL.revokeObjectURL(url);
-              }
-            });
-          }
-          setIsEditDialogOpen(open);
-        }}
-      >
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Partner bearbeiten</DialogTitle>
-            <DialogDescription>
-              Bearbeiten Sie den Status und die Review des Partners
-            </DialogDescription>
-          </DialogHeader>
-
-          {editingBusiness && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium mb-2">Name</h3>
-                  <p className="text-sm text-muted-foreground">{editingBusiness.name}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Kategorie</h3>
-                  <p className="text-sm text-muted-foreground">ID: {editingBusiness.categoryId}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Adresse</h3>
-                  <p className="text-sm text-muted-foreground">{formatAddress(editingBusiness.address)}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Kontakt</h3>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    {editingBusiness.contact.email && (
-                      <p>{editingBusiness.contact.email}</p>
-                    )}
-                    {editingBusiness.contact.phoneNumber && (
-                      <p>{editingBusiness.contact.phoneNumber}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Status</h3>
-                <Select 
-                  value={editStatus || ''} 
-                  onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status auswählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={BusinessStatus.ACTIVE}>Aktiv</SelectItem>
-                    <SelectItem value={BusinessStatus.PENDING}>Ausstehend</SelectItem>
-                    <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="isPromoted"
-                  checked={editingBusiness?.isPromoted || false}
-                  onCheckedChange={async (checked) => {
-                    if (!editingBusiness) return;
-                    try {
-                      await businessService.updateBusiness(editingBusiness.id, {
-                        isPromoted: checked
-                      });
-                      setEditingBusiness({
-                        ...editingBusiness,
-                        isPromoted: checked
-                      });
-                      toast.success("Highlight-Status aktualisiert", {
-                        description: checked 
-                          ? "Der Partner wurde als Highlight markiert." 
-                          : "Der Highlight-Status wurde entfernt.",
-                      });
-                    } catch (error) {
-                      toast.error("Fehler beim Aktualisieren", {
-                        description: "Der Highlight-Status konnte nicht aktualisiert werden.",
-                      });
-                    }
-                  }}
-                />
-                <div className="space-y-1">
-                  <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
-                  <p className="text-sm text-muted-foreground">
-                    {editingBusiness?.isPromoted 
-                      ? 'Dieser Partner wird als Highlight angezeigt ✨' 
-                      : 'Markiere diesen Partner als Highlight'}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Nuernbergspots Review</h3>
-                <div className="space-y-4">
-                  <Textarea
-                    value={editReview.reviewText || ''}
-                    onChange={(e) => setEditReview(prev => ({
-                      ...prev,
-                      reviewText: e.target.value,
-                    }))}
-                    placeholder="Geben Sie hier die Review ein..."
-                    className="min-h-[100px]"
-                  />
-                  
-                  <div>
-                    <h4 className="text-sm font-medium mb-2">Review Bilder</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {editReview.reviewImageUrls?.map((url, index) => (
-                        <div key={url} className="relative group">
-                          <img
-                            src={url}
-                            alt={`Review Bild ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => handleRemoveImage(url)}
-                            className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                        <ImageIcon className="mr-2 h-4 w-4" />
-                        Bilder hinzufügen
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsEditDialogOpen(false)}
-              disabled={isSaving}
-            >
-              Abbrechen
-            </Button>
-            <Button 
-              onClick={handleUpdateBusiness}
-              disabled={isSaving}
-              className={`min-w-[120px] relative transition-all duration-200 ${isSaving ? 'pl-3' : ''}`}
-            >
-              <span className={`flex items-center justify-center transition-opacity duration-200 ${isSaving ? 'opacity-0' : 'opacity-100'}`}>
-                Review speichern
-              </span>
-              {isSaving && (
-                <span className="absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-200">
-                  <svg 
-                    className="animate-spin h-5 w-5 text-white" 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24"
-                  >
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
-                      strokeWidth="4"
-                    />
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  <span>Speichert...</span>
-                </span>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }; 

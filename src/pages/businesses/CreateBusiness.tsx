@@ -26,13 +26,13 @@ import { Switch } from "@/components/ui/switch";
 
 
 const WEEKDAYS = {
-  monday: 'Montag',
-  tuesday: 'Dienstag',
-  wednesday: 'Mittwoch',
-  thursday: 'Donnerstag',
-  friday: 'Freitag',
-  saturday: 'Samstag',
-  sunday: 'Sonntag'
+  Montag: 'Montag',
+  Dienstag: 'Dienstag',
+  Mittwoch: 'Mittwoch',
+  Donnerstag: 'Donnerstag',
+  Freitag: 'Freitag',
+  Samstag: 'Samstag',
+  Sonntag: 'Sonntag'
 } as const;
 
 type WeekdayKey = keyof typeof WEEKDAYS;
@@ -42,6 +42,13 @@ interface TimeSlot {
   openTime: string;
   closeTime: string;
   days: WeekdayKey[];
+}
+
+interface DetailedTimeSlot {
+  id: string;
+  from: string;
+  to: string;
+  day: WeekdayKey;
 }
 
 export const CreateBusiness: React.FC = () => {
@@ -77,12 +84,18 @@ export const CreateBusiness: React.FC = () => {
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
-    { id: '1', openTime: '09:00', closeTime: '18:00', days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'] }
+    { id: '1', openTime: '09:00', closeTime: '18:00', days: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'] }
   ]);
   const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
     openTime: '09:00',
     closeTime: '18:00',
     days: []
+  });
+  const [detailedTimeSlots, setDetailedTimeSlots] = useState<DetailedTimeSlot[]>([]);
+  const [newDetailedTimeSlot, setNewDetailedTimeSlot] = useState<Omit<DetailedTimeSlot, 'id'>>({
+    from: '09:00',
+    to: '18:00',
+    day: 'Montag'
   });
 
   useEffect(() => {
@@ -195,6 +208,27 @@ export const CreateBusiness: React.FC = () => {
     });
   };
 
+  const addDetailedTimeSlot = () => {
+    if (!newDetailedTimeSlot.day) {
+      toast.error("Bitte wählen Sie einen Tag aus", {
+        description: "Ein Zeitraum muss für einen Tag gelten.",
+      });
+      return;
+    }
+
+    const id = Date.now().toString();
+    setDetailedTimeSlots(prev => [...prev, { ...newDetailedTimeSlot, id }]);
+    setNewDetailedTimeSlot({
+      from: '09:00',
+      to: '18:00',
+      day: 'Montag'
+    });
+  };
+
+  const removeDetailedTimeSlot = (id: string) => {
+    setDetailedTimeSlots(prev => prev.filter(slot => slot.id !== id));
+  };
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -213,18 +247,19 @@ export const CreateBusiness: React.FC = () => {
       const postalAndCity = addressParts[1]?.trim().split(' ') || [];
       const postalCode = postalAndCity[0] || '';
 
-      // Formatiere Öffnungszeiten für die API
-      const formattedOpeningHours: Record<string, string> = {};
-      
-      // Initialisiere alle Tage als geschlossen
-      Object.keys(WEEKDAYS).forEach(day => {
-        formattedOpeningHours[day] = 'closed';
-      });
+      // Formatiere detaillierte Öffnungszeiten
+      const formattedDetailedOpeningHours: Record<string, Array<{ from: string; to: string }>> = {};
       
       // Setze die Öffnungszeiten basierend auf den Zeiträumen
       timeSlots.forEach(slot => {
         slot.days.forEach(day => {
-          formattedOpeningHours[day] = `${slot.openTime}-${slot.closeTime}`;
+          if (!formattedDetailedOpeningHours[day]) {
+            formattedDetailedOpeningHours[day] = [];
+          }
+          formattedDetailedOpeningHours[day].push({
+            from: slot.openTime,
+            to: slot.closeTime
+          });
         });
       });
 
@@ -251,7 +286,7 @@ export const CreateBusiness: React.FC = () => {
           longitude: newBusiness.longitude
         },
         contact: cleanedContact,
-        openingHours: formattedOpeningHours,
+        detailedOpeningHours: formattedDetailedOpeningHours,
         keywordIds: selectedKeywords
       };
       
@@ -500,103 +535,111 @@ export const CreateBusiness: React.FC = () => {
 
           <div className="space-y-2">
             <Label>Öffnungszeiten</Label>
-            <div className="space-y-4 border rounded-lg p-4">
-              {timeSlots.map(slot => (
-                <div key={slot.id} className="border rounded-md p-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Zeitraum</h4>
+            <Card>
+              <CardHeader>
+                <CardTitle>Öffnungszeiten</CardTitle>
+                <CardDescription>
+                  Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten sollen.
+                  Sie können mehrere Zeiträume für den gleichen Tag hinzufügen.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  {timeSlots.map(slot => (
+                    <div key={slot.id} className="border rounded-md p-4 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-medium">Zeitraum</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeTimeSlot(slot.id)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>Von</Label>
+                          <Input
+                            type="time"
+                            value={slot.openTime}
+                            onChange={(e) => handleTimeSlotChange(slot.id, 'openTime', e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Bis</Label>
+                          <Input
+                            type="time"
+                            value={slot.closeTime}
+                            onChange={(e) => handleTimeSlotChange(slot.id, 'closeTime', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Gültig an</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                            <Badge
+                              key={day}
+                              variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                              className="cursor-pointer"
+                              onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                            >
+                              {dayName}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="border rounded-md p-4 space-y-4">
+                    <h4 className="font-medium">Neuer Zeitraum</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Von</Label>
+                        <Input
+                          type="time"
+                          value={newTimeSlot.openTime}
+                          onChange={(e) => setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Bis</Label>
+                        <Input
+                          type="time"
+                          value={newTimeSlot.closeTime}
+                          onChange={(e) => setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Gültig an</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                          <Badge
+                            key={day}
+                            variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                            className="cursor-pointer"
+                            onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
+                          >
+                            {dayName}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
                     <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => removeTimeSlot(slot.id)}
-                      className="text-destructive"
+                      onClick={addTimeSlot} 
+                      className="w-full"
+                      disabled={newTimeSlot.days.length === 0}
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Zeitraum hinzufügen
                     </Button>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Von</Label>
-                      <Input
-                        type="time"
-                        value={slot.openTime}
-                        onChange={(e) => handleTimeSlotChange(slot.id, 'openTime', e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Bis</Label>
-                      <Input
-                        type="time"
-                        value={slot.closeTime}
-                        onChange={(e) => handleTimeSlotChange(slot.id, 'closeTime', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Gültig an</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                        <Badge
-                          key={day}
-                          variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
-                          className="cursor-pointer"
-                          onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
-                        >
-                          {dayName}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-              ))}
-              
-              <div className="border rounded-md p-4 space-y-4">
-                <h4 className="font-medium">Neuer Zeitraum</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Von</Label>
-                    <Input
-                      type="time"
-                      value={newTimeSlot.openTime}
-                      onChange={(e) => setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Bis</Label>
-                    <Input
-                      type="time"
-                      value={newTimeSlot.closeTime}
-                      onChange={(e) => setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Gültig an</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                      <Badge
-                        key={day}
-                        variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
-                      >
-                        {dayName}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <Button 
-                  onClick={addTimeSlot} 
-                  className="w-full"
-                  disabled={newTimeSlot.days.length === 0}
-                >
-                  Zeitraum hinzufügen
-                </Button>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten sollen.
-            </p>
+              </CardContent>
+            </Card>
           </div>
 
           <div className="flex justify-end gap-4 pt-4">

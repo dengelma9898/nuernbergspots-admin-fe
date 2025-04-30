@@ -25,13 +25,18 @@ export interface Business {
     longitude: number;
   };
   contact: {
-    phoneNumber?: string;
     email?: string;
+    phoneNumber?: string;
     website?: string;
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
   };
   openingHours: Record<string, string>;
+  detailedOpeningHours: Record<string, Array<{ from: string; to: string }>>;
   status: BusinessStatus;
   imageUrls: string[];
+  logoUrl?: string;
   keywordIds: string[];
   nuernbergspotsReview?: NuernbergspotsReview;
   createdAt: string;
