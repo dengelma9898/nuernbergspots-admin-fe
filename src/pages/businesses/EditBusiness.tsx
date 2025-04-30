@@ -17,6 +17,26 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+
+const WEEKDAYS = {
+  Montag: 'Montag',
+  Dienstag: 'Dienstag',
+  Mittwoch: 'Mittwoch',
+  Donnerstag: 'Donnerstag',
+  Freitag: 'Freitag',
+  Samstag: 'Samstag',
+  Sonntag: 'Sonntag'
+} as const;
+
+type WeekdayKey = keyof typeof WEEKDAYS;
+
+interface TimeSlot {
+  id: string;
+  from: string;
+  to: string;
+  days: WeekdayKey[];
+}
 
 export const EditBusiness: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +56,12 @@ export const EditBusiness: React.FC = () => {
   const [businessImages, setBusinessImages] = useState<string[]>([]);
   const [newBusinessImages, setNewBusinessImages] = useState<File[]>([]);
   const [businessImagesToDelete, setBusinessImagesToDelete] = useState<string[]>([]);
+  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
+  const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
+    from: '09:00',
+    to: '18:00',
+    days: []
+  });
 
   useEffect(() => {
     if (id) {
@@ -48,6 +74,31 @@ export const EditBusiness: React.FC = () => {
       setLoading(true);
       const fetchedBusiness = await businessService.getBusiness(businessId);
       setBusiness(fetchedBusiness);
+      
+      // Konvertiere detailedOpeningHours in TimeSlots
+      if (fetchedBusiness.detailedOpeningHours) {
+        const slots: TimeSlot[] = [];
+        Object.entries(fetchedBusiness.detailedOpeningHours).forEach(([day, timeRanges]) => {
+          timeRanges.forEach((range, index) => {
+            const existingSlot = slots.find(slot => 
+              slot.from === range.from && slot.to === range.to
+            );
+            
+            if (existingSlot) {
+              existingSlot.days.push(day as WeekdayKey);
+            } else {
+              slots.push({
+                id: `${day}-${index}`,
+                from: range.from,
+                to: range.to,
+                days: [day as WeekdayKey]
+              });
+            }
+          });
+        });
+        setTimeSlots(slots);
+      }
+      
       setEditReview(fetchedBusiness.nuernbergspotsReview || {
         reviewText: '',
         reviewImageUrls: []
@@ -152,6 +203,54 @@ export const EditBusiness: React.FC = () => {
     }));
   };
 
+  const addTimeSlot = () => {
+    if (newTimeSlot.days.length === 0) {
+      toast.error("Bitte wählen Sie mindestens einen Tag aus", {
+        description: "Ein Zeitraum muss für mindestens einen Tag gelten.",
+      });
+      return;
+    }
+
+    const id = Date.now().toString();
+    setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
+    setNewTimeSlot({
+      from: '09:00',
+      to: '18:00',
+      days: []
+    });
+  };
+
+  const removeTimeSlot = (id: string) => {
+    setTimeSlots(prev => prev.filter(slot => slot.id !== id));
+  };
+
+  const handleTimeSlotChange = (id: string, field: keyof Omit<TimeSlot, 'id'>, value: any) => {
+    setTimeSlots(prev => prev.map(slot => 
+      slot.id === id ? { ...slot, [field]: value } : slot
+    ));
+  };
+
+  const toggleDayForTimeSlot = (day: WeekdayKey, slotId: string) => {
+    setTimeSlots(prev => prev.map(slot => {
+      if (slot.id === slotId) {
+        const days = slot.days.includes(day)
+          ? slot.days.filter(d => d !== day)
+          : [...slot.days, day];
+        return { ...slot, days };
+      }
+      return slot;
+    }));
+  };
+
+  const toggleDayForNewTimeSlot = (day: WeekdayKey) => {
+    setNewTimeSlot(prev => {
+      const days = prev.days.includes(day)
+        ? prev.days.filter(d => d !== day)
+        : [...prev.days, day];
+      return { ...prev, days };
+    });
+  };
+
   const handleUpdateBusiness = async () => {
     if (!business) return;
 
@@ -183,6 +282,25 @@ export const EditBusiness: React.FC = () => {
       if (newImages.length > 0) {
         await businessService.uploadReviewImages(business.id, newImages);
       }
+
+      // 4. Öffnungszeiten aktualisieren
+      const formattedDetailedOpeningHours: Record<string, Array<{ from: string; to: string }>> = {};
+      
+      timeSlots.forEach(slot => {
+        slot.days.forEach(day => {
+          if (!formattedDetailedOpeningHours[day]) {
+            formattedDetailedOpeningHours[day] = [];
+          }
+          formattedDetailedOpeningHours[day].push({
+            from: slot.from,
+            to: slot.to
+          });
+        });
+      });
+
+      await businessService.updateBusiness(business.id, {
+        detailedOpeningHours: formattedDetailedOpeningHours
+      });
       
       toast.success("Änderungen gespeichert", {
         description: "Alle Änderungen wurden erfolgreich gespeichert.",
@@ -207,209 +325,357 @@ export const EditBusiness: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/businesses')}>
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex items-center gap-4 mb-8">
+        <Button variant="ghost" onClick={() => navigate('/businesses')} className="hover:bg-accent">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zur Übersicht
         </Button>
-        <h1 className="text-2xl font-bold">Partner bearbeiten</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Partner bearbeiten</h1>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{business.name}</CardTitle>
-          <CardDescription>
-            Bearbeiten Sie die Details des Partners
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-medium mb-2">Name</h3>
-              <p className="text-sm text-muted-foreground">{business.name}</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Kategorie</h3>
-              <p className="text-sm text-muted-foreground">ID: {business.categoryId}</p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Adresse</h3>
-              <p className="text-sm text-muted-foreground">
-                {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-medium mb-2">Kontakt</h3>
-              <div className="text-sm text-muted-foreground space-y-1">
-                {business.contact.email && <p>{business.contact.email}</p>}
-                {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-medium mb-2">Logo</h3>
-            <div className="flex items-center gap-4">
-              <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-                <img
-                  src={logoPreview || business.logoUrl}
-                  alt="Logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Logo hochladen
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleLogoUpload}
-                  />
-                </label>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Empfohlene Größe: 512x512 Pixel
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-medium mb-2">Geschäftsbilder</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {businessImages.map((url, index) => (
-                <div key={url} className="relative group">
-                  <img
-                    src={url}
-                    alt={`Geschäftsbild ${index + 1}`}
-                    className="w-full h-32 object-cover rounded-lg"
-                  />
-                  <button
-                    onClick={() => handleRemoveBusinessImage(url)}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Linke Spalte - Basisinformationen */}
+        <div className="lg:col-span-1 space-y-6">
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Basisinformationen</CardTitle>
+              <CardDescription>Grundlegende Informationen zum Partner</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Name</h3>
+                  <p className="text-sm text-muted-foreground">{business.name}</p>
                 </div>
-              ))}
-            </div>
-            <div className="mt-4">
-              <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                <ImageIcon className="mr-2 h-4 w-4" />
-                Bilder hinzufügen
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleBusinessImageUpload}
-                />
-              </label>
-              <p className="text-sm text-muted-foreground mt-2">
-                Empfohlene Größe: 1200x800 Pixel
-              </p>
-            </div>
-          </div>
+                <div>
+                  <h3 className="font-medium mb-2">Kategorie</h3>
+                  <p className="text-sm text-muted-foreground">ID: {business.categoryId}</p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Adresse</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Kontakt</h3>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    {business.contact.email && <p>{business.contact.email}</p>}
+                    {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div>
-            <h3 className="font-medium mb-2">Status</h3>
-            <Select 
-              value={business.status} 
-              onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Status auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={BusinessStatus.ACTIVE}>Aktiv</SelectItem>
-                <SelectItem value={BusinessStatus.PENDING}>Ausstehend</SelectItem>
-                <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Status & Highlight</CardTitle>
+              <CardDescription>Partner-Status und Sichtbarkeit</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Status</h3>
+                  <Select 
+                    value={business.status} 
+                    onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Status auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={BusinessStatus.ACTIVE}>Aktiv</SelectItem>
+                      <SelectItem value={BusinessStatus.PENDING}>Ausstehend</SelectItem>
+                      <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isPromoted"
+                    checked={business.isPromoted}
+                    onCheckedChange={async (checked) => {
+                      try {
+                        await businessService.updateBusiness(business.id, {
+                          isPromoted: checked
+                        });
+                        setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
+                        toast.success("Highlight-Status aktualisiert", {
+                          description: checked 
+                            ? "Der Partner wurde als Highlight markiert." 
+                            : "Der Highlight-Status wurde entfernt.",
+                        });
+                      } catch (error) {
+                        toast.error("Fehler beim Aktualisieren", {
+                          description: "Der Highlight-Status konnte nicht aktualisiert werden.",
+                        });
+                      }
+                    }}
+                  />
+                  <div className="space-y-1">
+                    <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
+                    <p className="text-sm text-muted-foreground">
+                      {business.isPromoted 
+                        ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                        : 'Markiere diesen Partner als Highlight'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isPromoted"
-              checked={business.isPromoted}
-              onCheckedChange={async (checked) => {
-                try {
-                  await businessService.updateBusiness(business.id, {
-                    isPromoted: checked
-                  });
-                  setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
-                  toast.success("Highlight-Status aktualisiert", {
-                    description: checked 
-                      ? "Der Partner wurde als Highlight markiert." 
-                      : "Der Highlight-Status wurde entfernt.",
-                  });
-                } catch (error) {
-                  toast.error("Fehler beim Aktualisieren", {
-                    description: "Der Highlight-Status konnte nicht aktualisiert werden.",
-                  });
-                }
-              }}
-            />
-            <div className="space-y-1">
-              <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
-              <p className="text-sm text-muted-foreground">
-                {business.isPromoted 
-                  ? 'Dieser Partner wird als Highlight angezeigt ✨' 
-                  : 'Markiere diesen Partner als Highlight'}
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="font-medium mb-2">Nuernbergspots Review</h3>
-            <div className="space-y-4">
-              <Textarea
-                value={editReview.reviewText || ''}
-                onChange={(e) => setEditReview(prev => ({
-                  ...prev,
-                  reviewText: e.target.value,
-                }))}
-                placeholder="Geben Sie hier die Review ein..."
-                className="min-h-[100px]"
-              />
-              
-              <div>
-                <h4 className="text-sm font-medium mb-2">Review Bilder</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {editReview.reviewImageUrls?.map((url, index) => (
-                    <div key={url} className="relative group">
+        {/* Rechte Spalte - Medien & Öffnungszeiten */}
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Medien</CardTitle>
+              <CardDescription>Logo und Geschäftsbilder</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Logo</h3>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-muted">
                       <img
-                        src={url}
-                        alt={`Review Bild ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg"
+                        src={logoPreview || business.logoUrl}
+                        alt="Logo"
+                        className="w-full h-full object-cover"
                       />
-                      <button
-                        onClick={() => handleRemoveImage(url)}
-                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 disabled:opacity-50"
+                    </div>
+                    <div>
+                      <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Logo hochladen
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleLogoUpload}
+                        />
+                      </label>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Empfohlene Größe: 512x512 Pixel
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-medium mb-2">Geschäftsbilder</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {businessImages.map((url, index) => (
+                      <div key={url} className="relative group">
+                        <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-muted">
+                          <img
+                            src={url}
+                            alt={`Geschäftsbild ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          onClick={() => handleRemoveBusinessImage(url)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="aspect-video rounded-lg border-2 border-dashed border-muted flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <div className="text-center">
+                        <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleBusinessImageUpload}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Empfohlene Größe: 1200x800 Pixel
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Öffnungszeiten</CardTitle>
+              <CardDescription>Definieren Sie die Öffnungszeiten des Partners</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-4">
+                {timeSlots.map(slot => (
+                  <div key={slot.id} className="border rounded-lg p-4 space-y-4 bg-card">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium">Zeitraum</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => removeTimeSlot(slot.id)}
+                        className="text-destructive hover:text-destructive/90"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     </div>
-                  ))}
-                </div>
-                <div className="mt-4">
-                  <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                    <ImageIcon className="mr-2 h-4 w-4" />
-                    Bilder hinzufügen
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageUpload}
-                    />
-                  </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Von</Label>
+                        <Input
+                          type="time"
+                          value={slot.from}
+                          onChange={(e) => handleTimeSlotChange(slot.id, 'from', e.target.value)}
+                          className="bg-background"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Bis</Label>
+                        <Input
+                          type="time"
+                          value={slot.to}
+                          onChange={(e) => handleTimeSlotChange(slot.id, 'to', e.target.value)}
+                          className="bg-background"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Gültig an</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                          <Badge
+                            key={day}
+                            variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                            className="cursor-pointer hover:bg-primary/10"
+                            onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                          >
+                            {dayName}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <div className="border rounded-lg p-4 space-y-4 bg-card">
+                  <h4 className="font-medium">Neuer Zeitraum</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Von</Label>
+                      <Input
+                        type="time"
+                        value={newTimeSlot.from}
+                        onChange={(e) => 
+                          setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
+                        }
+                        className="bg-background"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Bis</Label>
+                      <Input
+                        type="time"
+                        value={newTimeSlot.to}
+                        onChange={(e) => 
+                          setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))
+                        }
+                        className="bg-background"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Gültig an</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                        <Badge
+                          key={day}
+                          variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                          className="cursor-pointer hover:bg-primary/10"
+                          onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
+                        >
+                          {dayName}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={addTimeSlot} 
+                    className="w-full"
+                    disabled={newTimeSlot.days.length === 0}
+                  >
+                    Zeitraum hinzufügen
+                  </Button>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Nuernbergspots Review</CardTitle>
+              <CardDescription>Bewertung und Bilder des Partners</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Review Text</Label>
+                  <Textarea
+                    value={editReview.reviewText || ''}
+                    onChange={(e) => setEditReview(prev => ({
+                      ...prev,
+                      reviewText: e.target.value,
+                    }))}
+                    placeholder="Geben Sie hier die Review ein..."
+                    className="min-h-[100px] bg-background"
+                  />
+                </div>
+                
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Review Bilder</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {editReview.reviewImageUrls?.map((url, index) => (
+                      <div key={url} className="relative group">
+                        <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-muted">
+                          <img
+                            src={url}
+                            alt={`Review Bild ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <button
+                          onClick={() => handleRemoveImage(url)}
+                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="aspect-video rounded-lg border-2 border-dashed border-muted flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                      <div className="text-center">
+                        <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <div className="flex justify-end gap-4 pt-4">
             <Button variant="outline" onClick={() => navigate('/businesses')}>
@@ -419,8 +685,8 @@ export const EditBusiness: React.FC = () => {
               {isSaving ? 'Speichert...' : 'Änderungen speichern'}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }; 

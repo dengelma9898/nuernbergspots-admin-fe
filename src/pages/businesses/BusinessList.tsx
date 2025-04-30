@@ -187,11 +187,22 @@ export const BusinessList: React.FC = () => {
         )}
         <CardHeader>
           <div className="flex justify-between items-start">
-            <div>
-              <CardTitle className="text-xl">{business.name}</CardTitle>
-              <CardDescription className="mt-1">
-                Kategorie ID: {business.categoryId}
-              </CardDescription>
+            <div className="flex items-start gap-3">
+              {business.logoUrl && (
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-muted">
+                  <img
+                    src={business.logoUrl}
+                    alt={`${business.name} Logo`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+              <div>
+                <CardTitle className="text-xl">{business.name}</CardTitle>
+                <CardDescription className="mt-1">
+                  Kategorie ID: {business.categoryId}
+                </CardDescription>
+              </div>
             </div>
             <Badge variant={status.variant}>
               {status.icon}
