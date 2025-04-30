@@ -5,6 +5,7 @@ import { BusinessList } from './pages/businesses/BusinessList';
 import { CategoryList } from './pages/categories/CategoryList';
 import { EventList } from '@/pages/events/EventList';
 import { EventDetail } from '@/pages/events/EventDetail';
+import { EventImageEditor } from '@/pages/events/EventImageEditor';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from './components/PrivateRoute.tsx';
 import { CreateEvent } from "@/pages/events/CreateEvent";
@@ -31,9 +32,11 @@ export function AppRoutes() {
         <Route path="/businesses/:id/edit" element={<EditBusiness />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/events" element={<EventList />} />
+        <Route path="/events/:id" element={<EventDetail />} />
+        <Route path="/events/image-editor" element={<EventImageEditor />} />
+        <Route path="/events/:id/image-editor" element={<EventImageEditor />} />
         <Route path="/keywords" element={<KeywordList />} />
         <Route path="/create-event" element={<CreateEvent />} />
-        <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route path="/users/business/review" element={<BusinessUserReview />} />
         <Route path="/business-users" element={<BusinessUserList />} />

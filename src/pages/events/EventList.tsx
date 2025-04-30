@@ -180,6 +180,19 @@ export const EventList: React.FC = () => {
     future: filteredEvents.filter(event => isFuture(new Date(event.startDate)))
   };
 
+  const handleGenerateImage = () => {
+    navigate('/events/image-editor', { 
+      state: { 
+        events: filteredEvents,
+        categoryName: categoryFilter !== 'all' 
+          ? categories.find(cat => cat.id === categoryFilter)?.name || ''
+          : categories.length > 0 
+            ? categories[0].name 
+            : ''
+      } 
+    });
+  };
+
   if (loading) {
     return <div className="flex justify-center items-center h-64">Lade Events...</div>;
   }
@@ -193,31 +206,10 @@ export const EventList: React.FC = () => {
         </Button>
         <h1 className="text-2xl font-bold">Events</h1>
         <div className="ml-auto flex gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
-                <ImageIcon className="h-4 w-4" />
-                Bild generieren
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl">
-              <DialogHeader>
-                <DialogTitle>Event-Bild generieren</DialogTitle>
-              </DialogHeader>
-              <div className="py-4">
-                <EventImageGenerator
-                  events={filteredEvents}
-                  categoryName={
-                    categoryFilter !== 'all' 
-                      ? categories.find(cat => cat.id === categoryFilter)?.name || ''
-                      : categories.length > 0 
-                        ? categories[0].name 
-                        : ''
-                  }
-                />
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button variant="outline" onClick={handleGenerateImage} className="gap-2">
+            <ImageIcon className="h-4 w-4" />
+            Bild generieren
+          </Button>
           <Button onClick={() => navigate('/create-event')}>
             <Plus className="mr-2 h-4 w-4" />
             Event hinzufügen
