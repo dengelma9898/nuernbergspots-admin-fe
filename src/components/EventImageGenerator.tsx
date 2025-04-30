@@ -38,11 +38,11 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
   };
 
   const formatEventTitle = (event: Event) => {
-    const startDate = new Date(event.startDate);
-    const endDate = new Date(event.endDate);
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
     
-    if (!isSameDay(startDate, endDate)) {
-      const { dayOnly, dateOnly } = formatDate(event.endDate);
+    if (firstSlot.date !== lastSlot.date) {
+      const { dayOnly, dateOnly } = formatDate(lastSlot.date);
       return `${event.title} (bis ${dayOnly} ${dateOnly})`;
     }
     
@@ -63,16 +63,17 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
   };
 
   const groupEventsByDate = (events: Event[]): GroupedEvent[] => {
-    // Sortiere Events nach Startdatum
-    const sortedEvents = [...events].sort((a, b) => 
-      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    );
+    const sortedEvents = [...events].sort((a, b) => {
+      const aDate = new Date(a.dailyTimeSlots[0].date);
+      const bDate = new Date(b.dailyTimeSlots[0].date);
+      return aDate.getTime() - bDate.getTime();
+    });
 
     const groupedEvents: { [key: string]: Event[] } = {};
     
     sortedEvents.forEach(event => {
-      const startDate = new Date(event.startDate);
-      const dateKey = format(startDate, 'yyyy-MM-dd');
+      const firstSlot = event.dailyTimeSlots[0];
+      const dateKey = format(new Date(firstSlot.date), 'yyyy-MM-dd');
       
       if (!groupedEvents[dateKey]) {
         groupedEvents[dateKey] = [];
@@ -163,7 +164,9 @@ export const EventImageGenerator: React.FC<EventImageGeneratorProps> = ({
                   </div>
                   <div className="space-y-1">
                     {group.events.map((event) => {
-                      const { time } = formatDate(event.startDate);
+                      const time = event.dailyTimeSlots[0].from 
+                        ? `${event.dailyTimeSlots[0].from} Uhr`
+                        : '';
                       return (
                         <div key={event.id} className="ml-4">
                           {time && (

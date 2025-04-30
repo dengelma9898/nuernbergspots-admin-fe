@@ -13,8 +13,6 @@ export interface Event {
     latitude: number;
     longitude: number;
   };
-  startDate: string;
-  endDate: string;
   titleImageUrl?: string;
   imageUrls?: string[];
   createdAt: string;
@@ -24,5 +22,5 @@ export interface Event {
   price?: number;
   categoryId?: string;
   isPromoted?: boolean;
-  dailyTimeSlots?: DailyTimeSlot[];
+  dailyTimeSlots: DailyTimeSlot[];
 } 

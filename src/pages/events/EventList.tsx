@@ -122,67 +122,43 @@ export const EventList: React.FC = () => {
   };
 
   const getEventStatus = (event: Event) => {
+    if (!event.dailyTimeSlots?.length) {
+      return {
+        label: 'Unbekannt',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'secondary' as const
+      };
+    }
+
     const now = new Date();
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
     
-    // Wenn dailyTimeSlots vorhanden sind, verwende diese
-    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
-      const firstDate = new Date(firstSlot.date);
-      const lastDate = new Date(lastSlot.date);
-      
-      if (isPast(lastDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
+    const firstDate = new Date(firstSlot.date);
+    const lastDate = new Date(lastSlot.date);
 
-      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
+    if (isPast(lastDate)) {
+      return {
+        label: 'Beendet',
+        icon: <CheckCircle2 className="h-4 w-4" />,
+        variant: 'secondary' as const
+      };
+    }
 
-      if (isFuture(firstDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
-    } else {
-      // Fallback auf die alten Datumsfelder
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
+    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+      return {
+        label: 'Läuft jetzt',
+        icon: <Clock className="h-4 w-4" />,
+        variant: 'default' as const
+      };
+    }
 
-      if (isPast(endDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
-
-      if (isWithinInterval(now, { start: startDate, end: endDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
-
-      if (isFuture(startDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
+    if (isFuture(firstDate)) {
+      return {
+        label: 'Kommend',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'outline' as const
+      };
     }
 
     return {
@@ -192,37 +168,41 @@ export const EventList: React.FC = () => {
     };
   };
 
+  const getEventDateTime = (event: Event) => {
+    if (!event.dailyTimeSlots?.length) return 'Kein Datum';
+
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+    
+    if (firstSlot.date === lastSlot.date) {
+      return formatDate(firstSlot.date);
+    }
+    return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
+  };
+
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Status-Filterung basierend auf dailyTimeSlots oder alten Datumsfeldern
+    if (!event.dailyTimeSlots?.length) return false;
+
+    // Status-Filterung
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+    const firstDate = new Date(firstSlot.date);
+    const lastDate = new Date(lastSlot.date);
+
     const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'past' && (
-        (event.dailyTimeSlots && event.dailyTimeSlots.length > 0 && isPast(new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date))) ||
-        (!event.dailyTimeSlots && isPast(new Date(event.endDate)))
-      )) ||
-      (statusFilter === 'running' && (
-        (event.dailyTimeSlots && event.dailyTimeSlots.length > 0 && isWithinInterval(new Date(), { 
-          start: new Date(event.dailyTimeSlots[0].date), 
-          end: new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date) 
-        })) ||
-        (!event.dailyTimeSlots && isWithinInterval(new Date(), { 
-          start: new Date(event.startDate), 
-          end: new Date(event.endDate) 
-        }))
-      )) ||
-      (statusFilter === 'future' && (
-        (event.dailyTimeSlots && event.dailyTimeSlots.length > 0 && isFuture(new Date(event.dailyTimeSlots[0].date))) ||
-        (!event.dailyTimeSlots && isFuture(new Date(event.startDate)))
-      ));
+      (statusFilter === 'past' && isPast(lastDate)) ||
+      (statusFilter === 'running' && isWithinInterval(new Date(), { 
+        start: firstDate, 
+        end: lastDate 
+      })) ||
+      (statusFilter === 'future' && isFuture(firstDate));
     
     const matchesCategory = categoryFilter === 'all' || event.categoryId === categoryFilter;
 
-    // Zeitfilter basierend auf dailyTimeSlots oder alten Datumsfeldern
-    const eventDate = event.dailyTimeSlots && event.dailyTimeSlots.length > 0 
-      ? new Date(event.dailyTimeSlots[0].date)
-      : new Date(event.startDate);
-    const eventWeek = format(eventDate, 'w', { locale: de });
+    // Zeitfilter
+    const eventWeek = format(firstDate, 'w', { locale: de });
     const matchesTime = timeFilter === 'all' || 
       (timeFilter === 'week' && selectedWeek === eventWeek);
     
@@ -231,28 +211,23 @@ export const EventList: React.FC = () => {
 
   const groupedEvents = {
     past: filteredEvents.filter(event => {
-      if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-        return isPast(new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date));
-      }
-      return isPast(new Date(event.endDate));
+      if (!event.dailyTimeSlots?.length) return false;
+      const lastDate = new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date);
+      return isPast(lastDate);
     }),
     running: filteredEvents.filter(event => {
-      if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-        return isWithinInterval(new Date(), { 
-          start: new Date(event.dailyTimeSlots[0].date), 
-          end: new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date) 
-        });
-      }
+      if (!event.dailyTimeSlots?.length) return false;
+      const firstDate = new Date(event.dailyTimeSlots[0].date);
+      const lastDate = new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date);
       return isWithinInterval(new Date(), { 
-        start: new Date(event.startDate), 
-        end: new Date(event.endDate) 
+        start: firstDate, 
+        end: lastDate 
       });
     }),
     future: filteredEvents.filter(event => {
-      if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-        return isFuture(new Date(event.dailyTimeSlots[0].date));
-      }
-      return isFuture(new Date(event.startDate));
+      if (!event.dailyTimeSlots?.length) return false;
+      const firstDate = new Date(event.dailyTimeSlots[0].date);
+      return isFuture(firstDate);
     })
   };
 
@@ -431,84 +406,55 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
   };
 
   const getEventDateTime = (event: Event) => {
-    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
-      if (firstSlot.date === lastSlot.date) {
-        return formatDate(firstSlot.date);
-      }
-      return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
-    }
-    const startDate = formatDate(event.startDate);
-    const endDate = formatDate(event.endDate);
+    if (!event.dailyTimeSlots?.length) return 'Kein Datum';
+
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
     
-    if (startDate === endDate) {
-      return startDate;
+    if (firstSlot.date === lastSlot.date) {
+      return formatDate(firstSlot.date);
     }
-    return `${startDate} - ${endDate}`;
+    return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
   };
 
   const getEventStatus = (event: Event) => {
+    if (!event.dailyTimeSlots?.length) {
+      return {
+        label: 'Unbekannt',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'secondary' as const
+      };
+    }
+
     const now = new Date();
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
     
-    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
-      const firstDate = new Date(firstSlot.date);
-      const lastDate = new Date(lastSlot.date);
+    const firstDate = new Date(firstSlot.date);
+    const lastDate = new Date(lastSlot.date);
 
-      if (isPast(lastDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
+    if (isPast(lastDate)) {
+      return {
+        label: 'Beendet',
+        icon: <CheckCircle2 className="h-4 w-4" />,
+        variant: 'secondary' as const
+      };
+    }
 
-      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
+    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+      return {
+        label: 'Läuft jetzt',
+        icon: <Clock className="h-4 w-4" />,
+        variant: 'default' as const
+      };
+    }
 
-      if (isFuture(firstDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
-    } else {
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
-
-      if (isPast(endDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
-
-      if (isWithinInterval(now, { start: startDate, end: endDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
-
-      if (isFuture(startDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
+    if (isFuture(firstDate)) {
+      return {
+        label: 'Kommend',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'outline' as const
+      };
     }
 
     return {

@@ -201,15 +201,15 @@ export const EventImageEditor: React.FC = () => {
 
   const groupEventsByDate = (events: Event[]): GroupedEvent[] => {
     const sortedEvents = [...events].sort((a, b) => {
-      const aDate = a.dailyTimeSlots?.[0]?.date || a.startDate;
-      const bDate = b.dailyTimeSlots?.[0]?.date || b.startDate;
+      const aDate = a.dailyTimeSlots?.[0]?.date;
+      const bDate = b.dailyTimeSlots?.[0]?.date;
       return new Date(aDate).getTime() - new Date(bDate).getTime();
     });
 
     const groupedEvents: { [key: string]: Event[] } = {};
     
     sortedEvents.forEach(event => {
-      const eventDate = event.dailyTimeSlots?.[0]?.date || event.startDate;
+      const eventDate = event.dailyTimeSlots?.[0]?.date;
       const startDate = new Date(eventDate);
       const dateKey = format(startDate, 'yyyy-MM-dd');
       
@@ -599,7 +599,7 @@ export const EventImageEditor: React.FC = () => {
                             : '';
                           return (
                             <div key={event.id} className="ml-4">
-                              <div className="flex">
+                              <div className="flex items-baseline">
                                 <span 
                                   className={`inline-block min-w-[70px] ${
                                     settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
@@ -609,10 +609,11 @@ export const EventImageEditor: React.FC = () => {
                                   style={{
                                     color: settings.time.color,
                                     fontSize: `${settings.time.fontSize}px`,
-                                    fontWeight: settings.content.fontWeight
+                                    fontWeight: settings.content.fontWeight,
+                                    visibility: time ? 'visible' : 'hidden'
                                   }}
                                 >
-                                  {time}
+                                  {time || '00:00 Uhr'}
                                 </span>
                                 <div className="flex-1">
                                   <span 

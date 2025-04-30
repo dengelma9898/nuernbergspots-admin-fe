@@ -287,63 +287,34 @@ export const EventDetail: React.FC = () => {
   const getEventStatus = (event: Event) => {
     const now = new Date();
     
-    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
-      const firstDate = new Date(firstSlot.date);
-      const lastDate = new Date(lastSlot.date);
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+    
+    const firstDate = new Date(firstSlot.date);
+    const lastDate = new Date(lastSlot.date);
 
-      if (isPast(lastDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
+    if (isPast(lastDate)) {
+      return {
+        label: 'Beendet',
+        icon: <CheckCircle2 className="h-4 w-4" />,
+        variant: 'secondary' as const
+      };
+    }
 
-      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
+    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+      return {
+        label: 'Läuft jetzt',
+        icon: <Clock className="h-4 w-4" />,
+        variant: 'default' as const
+      };
+    }
 
-      if (isFuture(firstDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
-    } else {
-      const startDate = new Date(event.startDate);
-      const endDate = new Date(event.endDate);
-
-      if (isPast(endDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const
-        };
-      }
-
-      if (isWithinInterval(now, { start: startDate, end: endDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const
-        };
-      }
-
-      if (isFuture(startDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
-        };
-      }
+    if (isFuture(firstDate)) {
+      return {
+        label: 'Kommend',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'outline' as const
+      };
     }
 
     return {
@@ -370,16 +341,13 @@ export const EventDetail: React.FC = () => {
   };
 
   const getEventDateTime = (event: Event) => {
-    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
-      if (firstSlot.from && lastSlot.to) {
-        return `${formatDate(firstSlot.date)} ${firstSlot.from} - ${lastSlot.to}`;
-      }
-      return formatDate(firstSlot.date);
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+    
+    if (firstSlot.from && lastSlot.to) {
+      return `${formatDate(firstSlot.date)} ${firstSlot.from} - ${lastSlot.to}`;
     }
-    return formatDateTime(event.startDate);
+    return formatDate(firstSlot.date);
   };
 
   const status = getEventStatus(event);
