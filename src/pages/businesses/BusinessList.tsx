@@ -154,6 +154,7 @@ export const BusinessList: React.FC = () => {
   const formatOpeningHours = (hours: Record<string, Array<{ from: string; to: string }>>) => {
     if (!hours) return 'Keine Öffnungszeiten angegeben';
     const days = Object.keys(hours);
+    console.log(days);
     if (days.length === 0) return 'Keine Öffnungszeiten angegeben';
     return `${days.length} Tage mit Öffnungszeiten`;
   };

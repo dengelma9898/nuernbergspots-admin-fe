@@ -1,3 +1,9 @@
+export interface DailyTimeSlot {
+  date: string;  // ISO date string (YYYY-MM-DD)
+  from?: string; // Optional time (HH:mm)
+  to?: string;   // Optional time (HH:mm)
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -18,4 +24,5 @@ export interface Event {
   price?: number;
   categoryId?: string;
   isPromoted?: boolean;
+  dailyTimeSlots?: DailyTimeSlot[];
 } 

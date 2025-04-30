@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Event } from '@/models/events';
+import { Event, DailyTimeSlot } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
@@ -10,10 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 import { getIconComponent } from '@/utils/iconUtils';
+import { format, eachDayOfInterval, parseISO } from 'date-fns';
+import { de } from 'date-fns/locale';
 import {
   Select,
   SelectContent,
@@ -44,6 +46,7 @@ interface NewEvent {
     facebook: string | null;
     tiktok: string | null;
   };
+  dailyTimeSlots: DailyTimeSlot[];
 }
 
 export const CreateEvent: React.FC = () => {
@@ -73,7 +76,8 @@ export const CreateEvent: React.FC = () => {
       instagram: null,
       facebook: null,
       tiktok: null
-    }
+    },
+    dailyTimeSlots: []
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
 
@@ -128,7 +132,7 @@ export const CreateEvent: React.FC = () => {
           longitude: newEvent.longitude
         }
       };
-      
+      console.log('eventToCreate', eventToCreate);
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
       await eventService.createEvent(eventToCreate);
       toast.success("Event erstellt", {
@@ -142,6 +146,39 @@ export const CreateEvent: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateDailyTimeSlots = () => {
+    if (!newEvent.startDate || !newEvent.endDate) return;
+
+    const days = eachDayOfInterval({
+      start: parseISO(newEvent.startDate),
+      end: parseISO(newEvent.endDate)
+    });
+
+    const newTimeSlots = days.map(day => ({
+      date: format(day, 'yyyy-MM-dd'),
+      from: undefined,
+      to: undefined
+    }));
+    console.log('newTimeSlots', newTimeSlots);
+    setNewEvent(prev => ({
+      ...prev,
+      dailyTimeSlots: newTimeSlots
+    }));
+  };
+
+  useEffect(() => {
+    generateDailyTimeSlots();
+  }, [newEvent.startDate, newEvent.endDate]);
+
+  const updateTimeSlot = (date: string, field: 'from' | 'to', value: string) => {
+    setNewEvent(prev => ({
+      ...prev,
+      dailyTimeSlots: prev.dailyTimeSlots.map(slot =>
+        slot.date === date ? { ...slot, [field]: value } : slot
+      )
+    }));
   };
 
   return (
@@ -191,30 +228,54 @@ export const CreateEvent: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Startdatum und -zeit</Label>
+              <Label htmlFor="startDate">Startdatum</Label>
               <Input
                 id="startDate"
-                type="datetime-local"
-                value={newEvent.startDate}
+                type="date"
+                value={newEvent.startDate.split('T')[0]}
                 onChange={(e) => handleInputChange('startDate', e.target.value)}
               />
-              <p className="text-sm text-muted-foreground">
-                Wann beginnt das Event?
-              </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">Enddatum und -zeit</Label>
+              <Label htmlFor="endDate">Enddatum</Label>
               <Input
                 id="endDate"
-                type="datetime-local"
-                value={newEvent.endDate}
+                type="date"
+                value={newEvent.endDate.split('T')[0]}
                 onChange={(e) => handleInputChange('endDate', e.target.value)}
               />
-              <p className="text-sm text-muted-foreground">
-                Wann endet das Event?
-              </p>
             </div>
           </div>
+
+          {newEvent.dailyTimeSlots.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Tägliche Zeitangaben (optional)</Label>
+              </div>
+              
+              <div className="space-y-4">
+                {newEvent.dailyTimeSlots.map((slot) => (
+                  <div key={slot.date} className="grid grid-cols-3 gap-4 items-center">
+                    <div className="font-medium">
+                      {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
+                    </div>
+                    <Input
+                      type="time"
+                      value={slot.from || ''}
+                      onChange={(e) => updateTimeSlot(slot.date, 'from', e.target.value)}
+                      placeholder="Von"
+                    />
+                    <Input
+                      type="time"
+                      value={slot.to || ''}
+                      onChange={(e) => updateTimeSlot(slot.date, 'to', e.target.value)}
+                      placeholder="Bis"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Adresse</Label>

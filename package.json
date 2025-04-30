@@ -6,10 +6,11 @@
   "scripts": {
     "start:dev": "vite --mode dev",
     "start:dev:local": "vite --mode dev-local",
-    "start:prod": "vite --mode production",
+    "start:prod": "vite --mode prd",
+    "start:prd:local": "vite --mode prd-local",
     "build": "tsc && vite build",
     "build:dev": "tsc && vite build --mode dev",
-    "build:prd": "tsc && vite build --mode production",
+    "build:prd": "tsc && vite build --mode prd",
     "deploy:dev": "npm run build:dev && firebase deploy --project dev",
     "deploy:prd": "npm run build:prd && firebase deploy --project prd",
     "deploy:ci:dev": "npm run build:dev && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project dev --non-interactive",

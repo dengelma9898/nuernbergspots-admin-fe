@@ -157,27 +157,38 @@ export const EventImageEditor: React.FC = () => {
   }, [id, eventService, categoryService, navigate, location.state]);
 
   const formatDate = (date: string) => {
-    const eventDate = new Date(date);
-    const dayStr = format(eventDate, 'EEEEEE', { locale: de }).replace(/^(.)(.?)$/, '$1$2.');
-    const dateStr = format(eventDate, 'dd.MM.', { locale: de });
-    const timeStr = format(eventDate, 'HH:mm', { locale: de });
-    return {
-      dayDate: `${dayStr} ${dateStr}`,
-      time: timeStr ? `${timeStr} Uhr` : '',
-      dayOnly: dayStr,
-      dateOnly: dateStr
-    };
+    try {
+      const eventDate = new Date(date);
+      const dayStr = format(eventDate, 'EEEEEE', { locale: de }).replace(/^(.)(.?)$/, '$1$2.');
+      const dateStr = format(eventDate, 'dd.MM.', { locale: de });
+      const timeStr = format(eventDate, 'HH:mm', { locale: de });
+      return {
+        dayDate: `${dayStr} ${dateStr}`,
+        time: timeStr ? `${timeStr} Uhr` : '',
+        dayOnly: dayStr,
+        dateOnly: dateStr
+      };
+    } catch (error) {
+      console.error('Fehler beim Formatieren des Datums:', error);
+      return {
+        dayDate: 'Ungültiges Datum',
+        time: '',
+        dayOnly: '',
+        dateOnly: ''
+      };
+    }
   };
 
   const formatEventTitle = (event: Event) => {
-    const startDate = new Date(event.startDate);
-    const endDate = new Date(event.endDate);
-    
-    if (!isSameDay(startDate, endDate)) {
-      const { dayOnly, dateOnly } = formatDate(event.endDate);
-      return `${event.title} (bis ${dayOnly} ${dateOnly})`;
+    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+      
+      if (firstSlot.date !== lastSlot.date) {
+        const { dayOnly, dateOnly } = formatDate(lastSlot.date);
+        return `${event.title} (bis ${dayOnly} ${dateOnly})`;
+      }
     }
-    
     return event.title;
   };
 
@@ -189,14 +200,17 @@ export const EventImageEditor: React.FC = () => {
   };
 
   const groupEventsByDate = (events: Event[]): GroupedEvent[] => {
-    const sortedEvents = [...events].sort((a, b) => 
-      new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    );
+    const sortedEvents = [...events].sort((a, b) => {
+      const aDate = a.dailyTimeSlots?.[0]?.date || a.startDate;
+      const bDate = b.dailyTimeSlots?.[0]?.date || b.startDate;
+      return new Date(aDate).getTime() - new Date(bDate).getTime();
+    });
 
     const groupedEvents: { [key: string]: Event[] } = {};
     
     sortedEvents.forEach(event => {
-      const startDate = new Date(event.startDate);
+      const eventDate = event.dailyTimeSlots?.[0]?.date || event.startDate;
+      const startDate = new Date(eventDate);
       const dateKey = format(startDate, 'yyyy-MM-dd');
       
       if (!groupedEvents[dateKey]) {
@@ -580,10 +594,12 @@ export const EventImageEditor: React.FC = () => {
                       </div>
                       <div className="space-y-1">
                         {group.events.map((event) => {
-                          const { time } = formatDate(event.startDate);
+                          const time = event.dailyTimeSlots?.[0]?.from 
+                            ? `${event.dailyTimeSlots[0].from} Uhr`
+                            : '';
                           return (
                             <div key={event.id} className="ml-4">
-                              {time && (
+                              <div className="flex">
                                 <span 
                                   className={`inline-block min-w-[70px] ${
                                     settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
@@ -598,37 +614,39 @@ export const EventImageEditor: React.FC = () => {
                                 >
                                   {time}
                                 </span>
-                              )}
-                              <span 
-                                className={
-                                  settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                  settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                  'font-sans'
-                                }
-                                style={{
-                                  color: settings.event.color,
-                                  fontSize: `${settings.event.fontSize}px`,
-                                  fontWeight: settings.content.fontWeight
-                                }}
-                              >
-                                {formatEventTitle(event)}
-                              </span>
-                              {event.location.address && (
-                                <div 
-                                  className={`ml-[70px] ${
-                                    settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                    settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                    'font-sans'
-                                  }`}
-                                  style={{
-                                    color: settings.location.color,
-                                    fontSize: `${settings.location.fontSize}px`,
-                                    fontWeight: settings.content.fontWeight
-                                  }}
-                                >
-                                  {formatAddress(event.location.address)}
+                                <div className="flex-1">
+                                  <span 
+                                    className={
+                                      settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                      settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                      'font-sans'
+                                    }
+                                    style={{
+                                      color: settings.event.color,
+                                      fontSize: `${settings.event.fontSize}px`,
+                                      fontWeight: settings.content.fontWeight
+                                    }}
+                                  >
+                                    {formatEventTitle(event)}
+                                  </span>
+                                  {event.location.address && (
+                                    <div 
+                                      className={`${
+                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                        'font-sans'
+                                      }`}
+                                      style={{
+                                        color: settings.location.color,
+                                        fontSize: `${settings.location.fontSize}px`,
+                                        fontWeight: settings.content.fontWeight
+                                      }}
+                                    >
+                                      {formatAddress(event.location.address)}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           );
                         })}

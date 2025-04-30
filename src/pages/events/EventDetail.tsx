@@ -23,7 +23,8 @@ import {
   ArrowLeft,
   Star,
   Trash2,
-  Upload
+  Upload,
+  Plus
 } from 'lucide-react';
 import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -285,31 +286,64 @@ export const EventDetail: React.FC = () => {
 
   const getEventStatus = (event: Event) => {
     const now = new Date();
-    const startDate = new Date(event.startDate);
-    const endDate = new Date(event.endDate);
+    
+    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+      
+      const firstDate = new Date(firstSlot.date);
+      const lastDate = new Date(lastSlot.date);
 
-    if (isPast(endDate)) {
-      return {
-        label: 'Beendet',
-        icon: <CheckCircle2 className="h-4 w-4" />,
-        variant: 'secondary' as const
-      };
-    }
+      if (isPast(lastDate)) {
+        return {
+          label: 'Beendet',
+          icon: <CheckCircle2 className="h-4 w-4" />,
+          variant: 'secondary' as const
+        };
+      }
 
-    if (isWithinInterval(now, { start: startDate, end: endDate })) {
-      return {
-        label: 'Läuft jetzt',
-        icon: <Clock className="h-4 w-4" />,
-        variant: 'default' as const
-      };
-    }
+      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+        return {
+          label: 'Läuft jetzt',
+          icon: <Clock className="h-4 w-4" />,
+          variant: 'default' as const
+        };
+      }
 
-    if (isFuture(startDate)) {
-      return {
-        label: 'Kommend',
-        icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'outline' as const
-      };
+      if (isFuture(firstDate)) {
+        return {
+          label: 'Kommend',
+          icon: <AlertCircle className="h-4 w-4" />,
+          variant: 'outline' as const
+        };
+      }
+    } else {
+      const startDate = new Date(event.startDate);
+      const endDate = new Date(event.endDate);
+
+      if (isPast(endDate)) {
+        return {
+          label: 'Beendet',
+          icon: <CheckCircle2 className="h-4 w-4" />,
+          variant: 'secondary' as const
+        };
+      }
+
+      if (isWithinInterval(now, { start: startDate, end: endDate })) {
+        return {
+          label: 'Läuft jetzt',
+          icon: <Clock className="h-4 w-4" />,
+          variant: 'default' as const
+        };
+      }
+
+      if (isFuture(startDate)) {
+        return {
+          label: 'Kommend',
+          icon: <AlertCircle className="h-4 w-4" />,
+          variant: 'outline' as const
+        };
+      }
     }
 
     return {
@@ -317,6 +351,35 @@ export const EventDetail: React.FC = () => {
       icon: <AlertCircle className="h-4 w-4" />,
       variant: 'secondary' as const
     };
+  };
+
+  const formatDateTime = (date: string) => {
+    try {
+      return format(new Date(date), 'dd. MMMM yyyy HH:mm', { locale: de });
+    } catch (error) {
+      return format(new Date(date), 'dd. MMMM yyyy', { locale: de });
+    }
+  };
+
+  const formatDate = (date: string) => {
+    try {
+      return format(new Date(date), 'dd. MMMM yyyy', { locale: de });
+    } catch (error) {
+      return 'Ungültiges Datum';
+    }
+  };
+
+  const getEventDateTime = (event: Event) => {
+    if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+      
+      if (firstSlot.from && lastSlot.to) {
+        return `${formatDate(firstSlot.date)} ${firstSlot.from} - ${lastSlot.to}`;
+      }
+      return formatDate(firstSlot.date);
+    }
+    return formatDateTime(event.startDate);
   };
 
   const status = getEventStatus(event);
@@ -392,32 +455,82 @@ export const EventDetail: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Zeitraum</Label>
+              <Label>Zeitfenster</Label>
               {isEditing ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="startDate">Start</Label>
-                    <Input
-                      id="startDate"
-                      type="datetime-local"
-                      value={editedEvent.startDate ? new Date(editedEvent.startDate).toISOString().slice(0, 16) : ''}
-                      onChange={(e) => handleInputChange('startDate', e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="endDate">Ende</Label>
-                    <Input
-                      id="endDate"
-                      type="datetime-local"
-                      value={editedEvent.endDate ? new Date(editedEvent.endDate).toISOString().slice(0, 16) : ''}
-                      onChange={(e) => handleInputChange('endDate', e.target.value)}
-                    />
-                  </div>
+                <div className="space-y-4">
+                  {editedEvent.dailyTimeSlots && editedEvent.dailyTimeSlots.length > 0 && (
+                    <div className="space-y-2">
+                      {editedEvent.dailyTimeSlots.map((slot, index) => (
+                        <div key={index} className="grid grid-cols-3 gap-2 items-end">
+                          <div>
+                            <Label>Datum</Label>
+                            <Input
+                              type="date"
+                              value={slot.date}
+                              onChange={(e) => {
+                                const newSlots = [...editedEvent.dailyTimeSlots!];
+                                newSlots[index] = { ...slot, date: e.target.value };
+                                handleInputChange('dailyTimeSlots', newSlots);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Label>Von</Label>
+                            <Input
+                              type="time"
+                              value={slot.from || ''}
+                              onChange={(e) => {
+                                const newSlots = [...editedEvent.dailyTimeSlots!];
+                                newSlots[index] = { ...slot, from: e.target.value };
+                                handleInputChange('dailyTimeSlots', newSlots);
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <Label>Bis</Label>
+                            <Input
+                              type="time"
+                              value={slot.to || ''}
+                              onChange={(e) => {
+                                const newSlots = [...editedEvent.dailyTimeSlots!];
+                                newSlots[index] = { ...slot, to: e.target.value };
+                                handleInputChange('dailyTimeSlots', newSlots);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const newSlots = [...editedEvent.dailyTimeSlots!, { date: '', from: '', to: '' }];
+                          handleInputChange('dailyTimeSlots', newSlots);
+                        }}
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Zeitfenster hinzufügen
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="flex items-center text-muted-foreground">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  {format(new Date(event.startDate), 'dd. MMMM yyyy HH:mm', { locale: de })} - {format(new Date(event.endDate), 'dd. MMMM yyyy HH:mm', { locale: de })}
+                <div className="space-y-2">
+                  {event.dailyTimeSlots && event.dailyTimeSlots.length > 0 && (
+                    <div className="space-y-2">
+                      {event.dailyTimeSlots.map((slot, index) => (
+                        <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(slot.date)}</span>
+                          {slot.from && slot.to && (
+                            <span className="ml-2">
+                              {slot.from} - {slot.to}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
