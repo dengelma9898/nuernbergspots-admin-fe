@@ -361,6 +361,96 @@ export const CreateEvent: React.FC = () => {
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label>Kontaktinformationen</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="contactEmail">E-Mail</Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  value={newEvent.contactEmail || ''}
+                  onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                  placeholder="kontakt@beispiel.de"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="contactPhone">Telefon</Label>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  value={newEvent.contactPhone || ''}
+                  onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                  placeholder="+49 123 4567890"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  type="url"
+                  value={newEvent.website || ''}
+                  onChange={(e) => handleInputChange('website', e.target.value)}
+                  placeholder="https://www.beispiel.de"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <Label>Social Media</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <div className="space-y-2">
+                  <Label htmlFor="instagram">Instagram</Label>
+                  <Input
+                    id="instagram"
+                    value={newEvent.socialMedia.instagram || ''}
+                    onChange={(e) => setNewEvent(prev => ({
+                      ...prev,
+                      socialMedia: {
+                        ...prev.socialMedia,
+                        instagram: e.target.value
+                      }
+                    }))}
+                    placeholder="@benutzername"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="facebook">Facebook</Label>
+                  <Input
+                    id="facebook"
+                    value={newEvent.socialMedia.facebook || ''}
+                    onChange={(e) => setNewEvent(prev => ({
+                      ...prev,
+                      socialMedia: {
+                        ...prev.socialMedia,
+                        facebook: e.target.value
+                      }
+                    }))}
+                    placeholder="@seitename"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Input
+                    id="tiktok"
+                    value={newEvent.socialMedia.tiktok || ''}
+                    onChange={(e) => setNewEvent(prev => ({
+                      ...prev,
+                      socialMedia: {
+                        ...prev.socialMedia,
+                        tiktok: e.target.value
+                      }
+                    }))}
+                    placeholder="@benutzername"
+                  />
+                </div>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu, die Sie öffentlich teilen möchten.
+            </p>
+          </div>
+
           <div className="flex justify-end gap-4 pt-4">
             <Button variant="outline" onClick={() => navigate('/events')}>
               Abbrechen

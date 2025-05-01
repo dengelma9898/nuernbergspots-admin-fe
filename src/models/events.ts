@@ -23,4 +23,12 @@ export interface Event {
   categoryId?: string;
   isPromoted?: boolean;
   dailyTimeSlots: DailyTimeSlot[];
+  contactEmail?: string;
+  contactPhone?: string;
+  website?: string;
+  socialMedia?: {
+    instagram?: string;
+    facebook?: string;
+    tiktok?: string;
+  };
 } 
