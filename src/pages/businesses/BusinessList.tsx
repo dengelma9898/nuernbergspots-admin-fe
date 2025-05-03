@@ -51,6 +51,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { BusinessCategory } from '@/models/business-category';
+import { useBusinessCategoryService } from '@/services/businessCategoryService';
 
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -62,6 +64,8 @@ export const BusinessList: React.FC = () => {
   const businessService = useBusinessService();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const categoryService = useBusinessCategoryService();
+  const [categories, setCategories] = useState<BusinessCategory[]>([]);
 
   const loadBusinesses = async () => {
     try {
@@ -95,6 +99,20 @@ export const BusinessList: React.FC = () => {
       setSearchParams({});
     }
   }, [showOnlyPendingPartners, setSearchParams]);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const fetchedCategories = await categoryService.getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        toast.error('Fehler beim Laden der Kategorien', {
+          description: 'Die Kategorien konnten nicht geladen werden.',
+        });
+      }
+    };
+    loadCategories();
+  }, []);
 
   const handleDelete = async (businessId: string) => {
     try {
@@ -154,9 +172,18 @@ export const BusinessList: React.FC = () => {
   const formatOpeningHours = (hours: Record<string, Array<{ from: string; to: string }>>) => {
     if (!hours) return 'Keine Öffnungszeiten angegeben';
     const days = Object.keys(hours);
-    console.log(days);
     if (days.length === 0) return 'Keine Öffnungszeiten angegeben';
     return `${days.length} Tage mit Öffnungszeiten`;
+  };
+
+  const getCategoryNames = (categoryIds: string[]) => {
+    if (!Array.isArray(categoryIds) || !categories || categories.length === 0) {
+      return '–';
+    }
+    return categoryIds
+      .map(id => categories.find(cat => cat.id === id)?.name)
+      .filter(Boolean)
+      .join(', ');
   };
 
   const BusinessCard: React.FC<{ business: Business }> = ({ business }) => {
@@ -201,7 +228,7 @@ export const BusinessList: React.FC = () => {
               <div>
                 <CardTitle className="text-xl">{business.name}</CardTitle>
                 <CardDescription className="mt-1">
-                  Kategorie ID: {business.categoryId}
+                  Kategorien: {getCategoryNames(business.categoryIds)}
                 </CardDescription>
               </div>
             </div>

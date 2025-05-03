@@ -63,7 +63,7 @@ export const CreateBusiness: React.FC = () => {
   const [newBusiness, setNewBusiness] = useState({
     name: '',
     description: '',
-    categoryId: '',
+    categoryIds: [] as string[],
     address: '',
     benefit: '',
     latitude: 0,
@@ -103,10 +103,12 @@ export const CreateBusiness: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (newBusiness.categoryId) {
-      loadKeywordsForCategory(newBusiness.categoryId);
+    if (newBusiness.categoryIds.length > 0) {
+      loadKeywordsForCategories(newBusiness.categoryIds);
+    } else {
+      setKeywords([]);
     }
-  }, [newBusiness.categoryId]);
+  }, [newBusiness.categoryIds]);
 
   const loadCategories = async () => {
     try {
@@ -119,15 +121,30 @@ export const CreateBusiness: React.FC = () => {
     }
   };
 
-  const loadKeywordsForCategory = async (categoryId: string) => {
+  const loadKeywordsForCategories = async (categoryIds: string[]) => {
     try {
-      const category = categories.find(c => c.id === categoryId);
-      if (category && category.keywords) {
-        const keywordPromises = category.keywords.map(keyword => keywordService.getKeyword(keyword.id));
-        const fetchedKeywords = await Promise.all(keywordPromises);
-        setKeywords(fetchedKeywords);
-      }
+      // Lade die ausgewählten Kategorien
+      const selectedCategories = categories.filter(category => 
+        categoryIds.includes(category.id)
+      );
+
+      // Sammle alle Keyword-IDs aus den ausgewählten Kategorien
+      const keywordIds = selectedCategories
+        .flatMap(category => category.keywords || [])
+        .map(keyword => keyword.id);
+
+      // Entferne Duplikate
+      const uniqueKeywordIds = [...new Set(keywordIds)];
+
+      // Lade die Keywords
+      const keywordPromises = uniqueKeywordIds.map(id => 
+        keywordService.getKeyword(id)
+      );
+      
+      const fetchedKeywords = await Promise.all(keywordPromises);
+      setKeywords(fetchedKeywords);
     } catch (error) {
+      console.error('Fehler beim Laden der Keywords:', error);
       toast.error("Fehler beim Laden der Keywords", {
         description: "Die Keywords konnten nicht geladen werden.",
       });
@@ -160,6 +177,29 @@ export const CreateBusiness: React.FC = () => {
         return prev.filter(id => id !== keywordId);
       } else {
         return [...prev, keywordId];
+      }
+    });
+  };
+
+  const toggleCategory = (categoryId: string) => {
+    setNewBusiness(prev => {
+      const isSelected = prev.categoryIds.includes(categoryId);
+      if (isSelected) {
+        return {
+          ...prev,
+          categoryIds: prev.categoryIds.filter(id => id !== categoryId)
+        };
+      } else {
+        if (prev.categoryIds.length >= 3) {
+          toast.error("Maximale Anzahl an Kategorien erreicht", {
+            description: "Sie können maximal 3 Kategorien auswählen.",
+          });
+          return prev;
+        }
+        return {
+          ...prev,
+          categoryIds: [...prev.categoryIds, categoryId]
+        };
       }
     });
   };
@@ -352,24 +392,21 @@ export const CreateBusiness: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="categoryId">Kategorie</Label>
-            <Select
-              value={newBusiness.categoryId}
-              onValueChange={(value) => handleInputChange('categoryId', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Kategorie auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(category => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Kategorien (max. 3)</Label>
+            <div className="flex flex-wrap gap-2">
+              {categories.map(category => (
+                <Badge
+                  key={category.id}
+                  variant={newBusiness.categoryIds.includes(category.id) ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => toggleCategory(category.id)}
+                >
+                  {category.name}
+                </Badge>
+              ))}
+            </div>
             <p className="text-sm text-muted-foreground">
-              Wählen Sie die passendste Kategorie für das Geschäft.
+              Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
             </p>
           </div>
 

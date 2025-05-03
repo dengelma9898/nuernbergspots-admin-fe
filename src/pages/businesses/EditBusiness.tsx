@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
+import { BusinessCategory } from '@/models/business-category';
+import { Keyword } from '@/models/keyword';
 import { useBusinessService } from '@/services/businessService';
+import { useBusinessCategoryService } from '@/services/businessCategoryService';
+import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +46,8 @@ export const EditBusiness: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const businessService = useBusinessService();
+  const categoryService = useBusinessCategoryService();
+  const keywordService = useKeywordService();
   const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -62,18 +68,31 @@ export const EditBusiness: React.FC = () => {
     to: '18:00',
     days: []
   });
+  const [categories, setCategories] = useState<BusinessCategory[]>([]);
+  const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
       loadBusiness(id);
+      loadCategories();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (business?.categoryIds && business.categoryIds.length > 0) {
+      loadKeywordsForCategories(business.categoryIds);
+    } else {
+      setKeywords([]);
+    }
+  }, [business?.categoryIds]);
 
   const loadBusiness = async (businessId: string) => {
     try {
       setLoading(true);
       const fetchedBusiness = await businessService.getBusiness(businessId);
       setBusiness(fetchedBusiness);
+      setSelectedKeywords(fetchedBusiness.keywordIds);
       
       // Konvertiere detailedOpeningHours in TimeSlots
       if (fetchedBusiness.detailedOpeningHours) {
@@ -105,12 +124,49 @@ export const EditBusiness: React.FC = () => {
       });
       setBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
-      toast.error("Fehler beim Laden des Partners", {
-        description: "Der Partner konnte nicht geladen werden.",
+      toast.error("Fehler beim Laden des Geschäfts", {
+        description: "Das Geschäft konnte nicht geladen werden.",
       });
       navigate('/businesses');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const fetchedCategories = await categoryService.getCategories();
+      setCategories(fetchedCategories);
+    } catch (error) {
+      toast.error("Fehler beim Laden der Kategorien", {
+        description: "Die Kategorien konnten nicht geladen werden.",
+      });
+    }
+  };
+
+  const loadKeywordsForCategories = async (categoryIds: string[]) => {
+    try {
+      const selectedCategories = categories.filter(category => 
+        categoryIds.includes(category.id)
+      );
+
+      const keywordIds = selectedCategories
+        .flatMap(category => category.keywords || [])
+        .map(keyword => keyword.id);
+
+      const uniqueKeywordIds = [...new Set(keywordIds)];
+
+      const keywordPromises = uniqueKeywordIds.map(id => 
+        keywordService.getKeyword(id)
+      );
+      
+      const fetchedKeywords = await Promise.all(keywordPromises);
+      setKeywords(fetchedKeywords);
+    } catch (error) {
+      console.error('Fehler beim Laden der Keywords:', error);
+      toast.error("Fehler beim Laden der Keywords", {
+        description: "Die Keywords konnten nicht geladen werden.",
+      });
     }
   };
 
@@ -251,6 +307,45 @@ export const EditBusiness: React.FC = () => {
     });
   };
 
+  const toggleCategory = (categoryId: string) => {
+    if (!business) return;
+
+    const isSelected = business.categoryIds.includes(categoryId);
+    if (isSelected) {
+      const newCategoryIds = business.categoryIds.filter(id => id !== categoryId);
+      const allowedKeywordIds = categories
+        .filter(cat => newCategoryIds.includes(cat.id))
+        .flatMap(cat => cat.keywords?.map(k => k.id) || []);
+      setBusiness(prev => prev ? {
+        ...prev,
+        categoryIds: newCategoryIds,
+        keywordIds: prev.keywordIds.filter(id => allowedKeywordIds.includes(id)),
+      } : null);
+    } else {
+      if (business.categoryIds.length >= 3) {
+        toast.error("Maximale Anzahl an Kategorien erreicht", {
+          description: "Sie können maximal 3 Kategorien auswählen.",
+        });
+        return;
+      }
+      setBusiness(prev => prev ? {
+        ...prev,
+        categoryIds: [...prev.categoryIds, categoryId]
+      } : null);
+    }
+  };
+
+  const toggleKeyword = (keywordId: string) => {
+    if (!business) return;
+
+    setBusiness(prev => prev ? {
+      ...prev,
+      keywordIds: prev.keywordIds.includes(keywordId)
+        ? prev.keywordIds.filter(id => id !== keywordId)
+        : [...prev.keywordIds, keywordId]
+    } : null);
+  };
+
   const handleUpdateBusiness = async () => {
     if (!business) return;
 
@@ -299,7 +394,9 @@ export const EditBusiness: React.FC = () => {
       });
 
       await businessService.updateBusiness(business.id, {
-        detailedOpeningHours: formattedDetailedOpeningHours
+        detailedOpeningHours: formattedDetailedOpeningHours,
+        categoryIds: business.categoryIds,
+        keywordIds: business.keywordIds,
       });
       
       toast.success("Änderungen gespeichert", {
@@ -350,7 +447,9 @@ export const EditBusiness: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="font-medium mb-2">Kategorie</h3>
-                  <p className="text-sm text-muted-foreground">ID: {business.categoryId}</p>
+                  <div className="flex-grow">
+                    <p className="text-sm text-muted-foreground">Kategorie-IDs: {business.categoryIds.join(', ')}</p>
+                  </div>
                 </div>
                 <div>
                   <h3 className="font-medium mb-2">Adresse</h3>
@@ -424,6 +523,54 @@ export const EditBusiness: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-lg">
+            <CardHeader className="bg-primary/5 rounded-t-lg">
+              <CardTitle className="text-xl">Kategorien</CardTitle>
+              <CardDescription>Kategorien des Partners</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6 pt-6">
+              <div className="space-y-2">
+                <Label>Kategorien (max. 3)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map(category => (
+                    <Badge
+                      key={category.id}
+                      variant={business?.categoryIds.includes(category.id) ? "default" : "outline"}
+                      className="cursor-pointer"
+                      onClick={() => toggleCategory(category.id)}
+                    >
+                      {category.name}
+                    </Badge>
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
+                </p>
+              </div>
+
+              {keywords.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Keywords</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {keywords.map(keyword => (
+                      <Badge
+                        key={keyword.id}
+                        variant={business?.keywordIds.includes(keyword.id) ? "default" : "outline"}
+                        className="cursor-pointer"
+                        onClick={() => toggleKeyword(keyword.id)}
+                      >
+                        {keyword.name}
+                      </Badge>
+                    ))}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

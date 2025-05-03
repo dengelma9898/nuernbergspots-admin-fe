@@ -15,7 +15,7 @@ export interface Business {
   id: string;
   name: string;
   description: string;
-  categoryId: string;
+  categoryIds: string[];
   address: {
     street: string;
     houseNumber: string;
@@ -51,11 +51,11 @@ export interface Business {
  * die als Antwort an den Client gesendet wird
  */
 export interface BusinessResponse extends Business {
-  category: {
+  categories: Array<{
     id: string;
     name: string;
     iconName: string;
-  };
+  }>;
   keywordNames: string[];
 }
 
