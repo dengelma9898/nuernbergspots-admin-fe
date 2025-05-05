@@ -354,6 +354,12 @@ export function Dashboard() {
               description="Detaillierte Einblicke in die Performance deiner Partner"
               href="/analytics"
             />
+            <NavigationCard
+              icon={MessageSquare}
+              title="News Management"
+              description="Verwalte aktuelle News und Ankündigungen."
+              href="/news-management"
+            />
           </div>
         </div>
       </div>

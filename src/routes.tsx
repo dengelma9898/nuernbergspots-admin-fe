@@ -19,6 +19,7 @@ import { Analytics } from './pages/Analytics.tsx';
 import { BusinessUserList } from './pages/users/BusinessUserList';
 import { EditBusinessUser } from './pages/users/EditBusinessUser';
 import { EditBusiness } from './pages/businesses/EditBusiness';
+import NewsManagement from './pages/NewsManagement';
 
 export function AppRoutes() {
   return (
@@ -46,6 +47,7 @@ export function AppRoutes() {
         <Route path="/event-categories" element={<EventCategoryList />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/news-management" element={<NewsManagement />} />
       </Route>
 
       {/* Fallback */}
