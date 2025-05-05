@@ -83,6 +83,8 @@ export const EventDetail: React.FC = () => {
   const [selectedTitleImage, setSelectedTitleImage] = useState<File | null>(null);
   const [titleImagePreview, setTitleImagePreview] = useState<string | null>(null);
   const [isUploadingTitleImage, setIsUploadingTitleImage] = useState(false);
+  const [imagesChanged, setImagesChanged] = useState(false);
+  const [imageLimitError, setImageLimitError] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -198,45 +200,39 @@ export const EventDetail: React.FC = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
+    if (e.target.files && e.target.files.length > 0 && event) {
       const files = Array.from(e.target.files);
-      console.log('Selected files:', files);
+      const totalImages = (event.imageUrls?.length || 0) + files.length;
+      if (totalImages > 5) {
+        setImageLimitError('Maximal 5 Bilder erlaubt.');
+        return;
+      }
+      setImageLimitError(null);
       setSelectedFiles(files);
-      
-      // Erstelle Vorschau-URLs für die ausgewählten Bilder
-      const urls: string[] = [];
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          urls.push(reader.result as string);
-          if (urls.length === files.length) {
-            setPreviewUrls(urls);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      // Automatischer Upload
+      handleUploadImages(files);
     }
   };
 
   const handleTitleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && event) {
       setSelectedTitleImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setTitleImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+      // Automatischer Upload
+      handleUploadTitleImage(file);
     }
   };
 
-  const handleUploadTitleImage = async () => {
-    if (!selectedTitleImage || !event) return;
-
+  const handleUploadTitleImage = async (file: File = selectedTitleImage!) => {
+    if (!file || !event) return;
     try {
       setIsUploadingTitleImage(true);
-      const imageUrl = await eventService.uploadEventTitleImage(event.id, selectedTitleImage);
-      
+      const imageUrl = await eventService.uploadEventTitleImage(event.id, file);
       const updatedEvent = {
         ...event,
         titleImageUrl: imageUrl
@@ -245,6 +241,7 @@ export const EventDetail: React.FC = () => {
       setEvent(updatedEvent);
       setSelectedTitleImage(null);
       setTitleImagePreview(null);
+      setImagesChanged(true);
       toast.success("Titelbild erfolgreich aktualisiert");
     } catch (error) {
       console.error('Fehler beim Hochladen des Titelbildes:', error);
@@ -254,20 +251,17 @@ export const EventDetail: React.FC = () => {
     }
   };
 
-  const handleUploadImages = async () => {
-    if (selectedFiles.length === 0 || !event) return;
-
+  const handleUploadImages = async (files: File[] = selectedFiles) => {
+    if (files.length === 0 || !event) return;
     try {
       setIsUploading(true);
-      const imageUrls = await eventService.uploadEventImages(event.id, selectedFiles);
-      
-      // Die Backend-API aktualisiert automatisch die imageUrls des Events
+      await eventService.uploadEventImages(event.id, files);
       const updatedEvent = await eventService.getEvent(event.id);
       setEvent(updatedEvent);
       setSelectedFiles([]);
       setPreviewUrls([]);
-      
-      toast.success(`${imageUrls.length} Bilder erfolgreich hochgeladen`);
+      setImagesChanged(true);
+      toast.success(`Bilder erfolgreich hochgeladen`);
     } catch (error) {
       console.error('Fehler beim Hochladen der Bilder:', error);
       toast.error("Fehler beim Hochladen der Bilder");
@@ -291,11 +285,9 @@ export const EventDetail: React.FC = () => {
     try {
       setIsDeletingImage(true);
       await eventService.removeEventImage(event.id, imageToDelete);
-      
-      // Nach dem Löschen das aktualisierte Event vom Server holen
       const updatedEvent = await eventService.getEvent(event.id);
       setEvent(updatedEvent);
-      
+      setImagesChanged(true);
       toast.success("Bild erfolgreich entfernt");
     } catch (error) {
       console.error('Fehler beim Entfernen des Bildes:', error);
@@ -304,6 +296,26 @@ export const EventDetail: React.FC = () => {
       setIsDeletingImage(false);
       setImageToDelete(null);
     }
+  };
+
+  const handleConfirmImages = () => {
+    setImagesChanged(false);
+    setIsEditing(false);
+    loadData();
+    toast.success("Bilder aktualisiert und bestätigt.");
+  };
+
+  // Hilfsfunktion zum Vergleich von Event-Objekten
+  const isEventChanged = () => {
+    if (!event) return false;
+    // Vergleiche nur relevante Felder
+    const fieldsToCompare = [
+      'title', 'description', 'location', 'price', 'ticketsNeeded', 'isPromoted', 'categoryId', 'dailyTimeSlots'
+    ];
+    return fieldsToCompare.some(field => {
+      // @ts-ignore
+      return JSON.stringify(event[field]) !== JSON.stringify(editedEvent[field]);
+    });
   };
 
   if (loading) {
@@ -635,9 +647,21 @@ export const EventDetail: React.FC = () => {
                 </div>
               )}
             </div>
+
+            <div className="flex justify-end gap-4 mt-8">
+              {isEditing && (
+                <>
+                  <Button variant="outline" onClick={handleCancel}>
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleSave} disabled={!isEventChanged()}>
+                    Speichern
+                  </Button>
+                </>
+              )}
+            </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <CardTitle>Bilder</CardTitle>
@@ -646,6 +670,25 @@ export const EventDetail: React.FC = () => {
             {event.titleImageUrl && (
               <div className="mb-6">
                 <Label className="mb-2 block">Titelbild</Label>
+                {isEditing && (
+                  <div className="mb-2">
+                    <input
+                      id="title-image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleTitleImageChange}
+                      className="hidden"
+                    />
+                    <Button
+                      asChild
+                      disabled={isUploadingTitleImage}
+                    >
+                      <label htmlFor="title-image-upload" className="cursor-pointer m-0">
+                        Titelbild auswählen
+                      </label>
+                    </Button>
+                  </div>
+                )}
                 <div className="relative w-48 h-48 rounded-lg overflow-hidden border mx-auto">
                   <img
                     src={event.titleImageUrl}
@@ -665,72 +708,33 @@ export const EventDetail: React.FC = () => {
                 </div>
               </div>
             )}
-            
-            {event.imageUrls && event.imageUrls.length > 0 && (
-              <div className="mb-2">
-                <Label className="mb-2 block">Weitere Bilder</Label>
-              </div>
-            )}
+          
             {isEditing && (
               <div className="mb-8 space-y-4">
-                <div className="space-y-4">
-                  <Label>Titelbild</Label>
-                  <div className="flex items-center gap-4">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleTitleImageChange}
-                      className="max-w-xs"
-                    />
-                    <Button
-                      onClick={handleUploadTitleImage}
-                      disabled={!selectedTitleImage || isUploadingTitleImage}
-                    >
-                      <Upload className="mr-2 h-4 w-4" />
-                      {isUploadingTitleImage ? "Wird hochgeladen..." : "Titelbild hochladen"}
-                    </Button>
-                  </div>
-                  {titleImagePreview && (
-                    <div className="relative w-48 aspect-video border rounded-lg overflow-hidden">
-                      <img
-                        src={titleImagePreview}
-                        alt="Titelbild Vorschau"
-                        className="object-cover w-full h-full"
-                      />
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-2 right-2"
-                        onClick={() => {
-                          setSelectedTitleImage(null);
-                          setTitleImagePreview(null);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
 
                 <div className="space-y-4">
                   <Label>Weitere Bilder</Label>
                   <div className="flex items-center gap-4">
-                    <Input
+                    <input
+                      id="event-images-upload"
                       type="file"
                       accept="image/*"
                       onChange={handleFileChange}
-                      className="max-w-xs"
+                      className="hidden"
                       multiple
                     />
                     <Button
-                      onClick={handleUploadImages}
-                      disabled={selectedFiles.length === 0 || isUploading}
+                      asChild
+                      disabled={isUploading || (event.imageUrls?.length || 0) >= 5}
                     >
-                      <Upload className="mr-2 h-4 w-4" />
-                      {isUploading ? "Wird hochgeladen..." : "Bilder hochladen"}
+                      <label htmlFor="event-images-upload" className="cursor-pointer m-0">
+                        Bilder auswählen
+                      </label>
                     </Button>
                   </div>
-                  
+                  {imageLimitError && (
+                    <div className="text-red-500 text-sm mt-2">{imageLimitError}</div>
+                  )}
                   {previewUrls.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                       {previewUrls.map((url, index) => (
@@ -784,30 +788,26 @@ export const EventDetail: React.FC = () => {
               </div>
             )}
           </CardContent>
+          {isEditing && imagesChanged && (
+            <div className="flex justify-end gap-4 mt-8 mb-2 mr-4">
+              <Button onClick={handleConfirmImages}>
+                Bestätigen
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
 
-      <div className="flex justify-end gap-4 mt-6">
-        {isEditing ? (
-          <>
-            <Button variant="outline" onClick={handleCancel}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleSave}>
-              Speichern
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="destructive" onClick={handleDelete}>
-              Löschen
-            </Button>
-            <Button onClick={handleEdit}>
-              Bearbeiten
-            </Button>
-          </>
-        )}
-      </div>
+      {!isEditing && (
+        <div className="flex justify-end gap-4 mt-6">
+          <Button variant="destructive" onClick={handleDelete}>
+            Löschen
+          </Button>
+          <Button onClick={handleEdit}>
+            Bearbeiten
+          </Button>
+        </div>
+      )}
 
       <Dialog open={!!imageToDelete} onOpenChange={() => setImageToDelete(null)}>
         <DialogContent>
