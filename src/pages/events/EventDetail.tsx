@@ -80,6 +80,9 @@ export const EventDetail: React.FC = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [imageToDelete, setImageToDelete] = useState<string | null>(null);
   const [isDeletingImage, setIsDeletingImage] = useState(false);
+  const [selectedTitleImage, setSelectedTitleImage] = useState<File | null>(null);
+  const [titleImagePreview, setTitleImagePreview] = useState<string | null>(null);
+  const [isUploadingTitleImage, setIsUploadingTitleImage] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -215,20 +218,51 @@ export const EventDetail: React.FC = () => {
     }
   };
 
+  const handleTitleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedTitleImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setTitleImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadTitleImage = async () => {
+    if (!selectedTitleImage || !event) return;
+
+    try {
+      setIsUploadingTitleImage(true);
+      const imageUrl = await eventService.uploadEventTitleImage(event.id, selectedTitleImage);
+      
+      const updatedEvent = {
+        ...event,
+        titleImageUrl: imageUrl
+      };
+      await eventService.updateEvent(event.id, updatedEvent);
+      setEvent(updatedEvent);
+      setSelectedTitleImage(null);
+      setTitleImagePreview(null);
+      toast.success("Titelbild erfolgreich aktualisiert");
+    } catch (error) {
+      console.error('Fehler beim Hochladen des Titelbildes:', error);
+      toast.error("Fehler beim Hochladen des Titelbildes");
+    } finally {
+      setIsUploadingTitleImage(false);
+    }
+  };
+
   const handleUploadImages = async () => {
     if (selectedFiles.length === 0 || !event) return;
 
     try {
       setIsUploading(true);
-      console.log('Uploading files:', selectedFiles);
       const imageUrls = await eventService.uploadEventImages(event.id, selectedFiles);
       
-      const updatedEvent = {
-        ...event,
-        imageUrls: [...(event.imageUrls || []), ...imageUrls]
-      };
-      
-      await eventService.updateEvent(event.id, updatedEvent);
+      // Die Backend-API aktualisiert automatisch die imageUrls des Events
+      const updatedEvent = await eventService.getEvent(event.id);
       setEvent(updatedEvent);
       setSelectedFiles([]);
       setPreviewUrls([]);
@@ -258,12 +292,8 @@ export const EventDetail: React.FC = () => {
       setIsDeletingImage(true);
       await eventService.removeEventImage(event.id, imageToDelete);
       
-      const updatedEvent = {
-        ...event,
-        imageUrls: event.imageUrls.filter(url => url !== imageToDelete)
-      };
-      
-      await eventService.updateEvent(event.id, updatedEvent);
+      // Nach dem Löschen das aktualisierte Event vom Server holen
+      const updatedEvent = await eventService.getEvent(event.id);
       setEvent(updatedEvent);
       
       toast.success("Bild erfolgreich entfernt");
@@ -613,9 +643,77 @@ export const EventDetail: React.FC = () => {
             <CardTitle>Bilder</CardTitle>
           </CardHeader>
           <CardContent>
+            {event.titleImageUrl && (
+              <div className="mb-6">
+                <Label className="mb-2 block">Titelbild</Label>
+                <div className="relative w-48 h-48 rounded-lg overflow-hidden border mx-auto">
+                  <img
+                    src={event.titleImageUrl}
+                    alt="Titelbild"
+                    className="object-cover w-full h-full"
+                  />
+                  {isEditing && (
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleDeleteImage(event.titleImageUrl!)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            {event.imageUrls && event.imageUrls.length > 0 && (
+              <div className="mb-2">
+                <Label className="mb-2 block">Weitere Bilder</Label>
+              </div>
+            )}
             {isEditing && (
-              <div className="mb-4 space-y-4">
-                <div className="flex flex-col gap-4">
+              <div className="mb-8 space-y-4">
+                <div className="space-y-4">
+                  <Label>Titelbild</Label>
+                  <div className="flex items-center gap-4">
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleTitleImageChange}
+                      className="max-w-xs"
+                    />
+                    <Button
+                      onClick={handleUploadTitleImage}
+                      disabled={!selectedTitleImage || isUploadingTitleImage}
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {isUploadingTitleImage ? "Wird hochgeladen..." : "Titelbild hochladen"}
+                    </Button>
+                  </div>
+                  {titleImagePreview && (
+                    <div className="relative w-48 aspect-video border rounded-lg overflow-hidden">
+                      <img
+                        src={titleImagePreview}
+                        alt="Titelbild Vorschau"
+                        className="object-cover w-full h-full"
+                      />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          setSelectedTitleImage(null);
+                          setTitleImagePreview(null);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <Label>Weitere Bilder</Label>
                   <div className="flex items-center gap-4">
                     <Input
                       type="file"
@@ -682,7 +780,7 @@ export const EventDetail: React.FC = () => {
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-8">
-                Keine Bilder vorhanden
+                Keine weiteren Bilder vorhanden
               </div>
             )}
           </CardContent>

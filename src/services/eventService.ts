@@ -118,6 +118,20 @@ export function useEventService() {
     },
 
     /**
+     * Lädt ein einzelnes Bild (Titelbild) für ein Event hoch
+     */
+    uploadEventTitleImage: async (eventId: string, file: File): Promise<string> => {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await api.patch<ApiResponse<{ url: string }>>(
+        `${endpoints.events}/${eventId}/title-image`,
+        formData,
+        { isFormData: true }
+      );
+      return unwrapData(response).url;
+    },
+
+    /**
      * Entfernt ein Bild von einem Event
      */
     removeEventImage: async (eventId: string, imageUrl: string): Promise<void> => {

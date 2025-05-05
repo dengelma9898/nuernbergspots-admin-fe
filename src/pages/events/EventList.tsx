@@ -468,7 +468,20 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
   
   return (
     <Card className="flex flex-col">
-      {event.imageUrls && event.imageUrls.length > 0 && (
+      {event.titleImageUrl ? (
+        <div className="relative h-48 w-full">
+          <img
+            src={event.titleImageUrl}
+            alt={event.title}
+            className="object-cover w-full h-full rounded-t-lg"
+          />
+          {event.imageUrls && event.imageUrls.length > 0 && (
+            <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+              +{event.imageUrls.length} weitere Bilder
+            </div>
+          )}
+        </div>
+      ) : event.imageUrls && event.imageUrls.length > 0 ? (
         <div className="relative h-48 w-full">
           <img
             src={event.imageUrls[0]}
@@ -490,7 +503,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
             </Badge>
           )}
         </div>
-      )}
+      ) : null}
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
