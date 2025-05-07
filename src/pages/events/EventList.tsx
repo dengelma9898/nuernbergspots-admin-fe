@@ -464,7 +464,14 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
     };
   };
 
+  const getRandomFallbackImage = (category?: EventCategory): string | undefined => {
+    if (!category?.fallbackImages?.length) return undefined;
+    const randomIndex = Math.floor(Math.random() * category.fallbackImages.length);
+    return category.fallbackImages[randomIndex];
+  };
+
   const status = getEventStatus(event);
+  const fallbackImage = getRandomFallbackImage(category);
   
   return (
     <Card className="flex flex-col">
@@ -494,6 +501,26 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
               +{event.imageUrls.length - 1}
             </Badge>
           )}
+          {event.isPromoted && (
+            <Badge 
+              className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"
+            >
+              <Star className="mr-1 h-3 w-3 fill-current" />
+              Promoted
+            </Badge>
+          )}
+        </div>
+      ) : fallbackImage ? (
+        <div className="relative h-48 w-full">
+          <img
+            src={fallbackImage}
+            alt={`${event.title} - Kategoriebild`}
+            className="object-cover w-full h-full rounded-t-lg opacity-80"
+          />
+          <Badge variant="secondary" className="absolute top-2 right-2">
+            <ImageIcon className="mr-1 h-3 w-3" />
+            Kategoriebild
+          </Badge>
           {event.isPromoted && (
             <Badge 
               className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"

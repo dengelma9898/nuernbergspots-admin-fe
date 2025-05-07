@@ -36,7 +36,8 @@ import {
   Trash2,
   Check,
   X,
-  ArrowLeft
+  ArrowLeft,
+  ImagePlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
@@ -65,6 +66,10 @@ export function EventCategoryList() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadCategories();
@@ -90,10 +95,12 @@ export function EventCategoryList() {
     }
 
     try {
+      setIsSaving(true);
       const categoryToSave = {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
-        colorCode: convertHexToFF(newCategory.colorCode)
+        colorCode: convertHexToFF(newCategory.colorCode),
+        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http'))
       };
       const category = await eventCategoryService.createCategory(categoryToSave);
       setCategories([...categories, category]);
@@ -103,11 +110,15 @@ export function EventCategoryList() {
         colorCode: '#000000',
         iconName: ''
       });
+      setSelectedImages([]);
+      setPreviewUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
       toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -119,6 +130,18 @@ export function EventCategoryList() {
       colorCode: convertFFToHex(category.colorCode),
       iconName: category.iconName
     });
+    
+    // Setze die vorhandenen Fallback-Bilder
+    if (category.fallbackImages && category.fallbackImages.length > 0) {
+      setPreviewUrls(category.fallbackImages);
+      // Da wir die URLs haben, aber keine File-Objekte, setzen wir selectedImages auf ein leeres Array
+      // Die URLs werden direkt vom Backend verwendet
+      setSelectedImages([]);
+    } else {
+      setPreviewUrls([]);
+      setSelectedImages([]);
+    }
+    
     setIsDialogOpen(true);
   };
 
@@ -129,15 +152,27 @@ export function EventCategoryList() {
     }
 
     try {
+      setIsSaving(true);
       const categoryToUpdate = {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
-        colorCode: convertHexToFF(newCategory.colorCode)
+        colorCode: convertHexToFF(newCategory.colorCode),
+        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http'))
       };
       const updatedCategory = await eventCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
-      setCategories(categories.map(cat => 
-        cat.id === editingCategory.id ? updatedCategory : cat
-      ));
+      
+      // Wenn neue Bilder ausgewählt wurden, lade diese hoch
+      if (selectedImages.length > 0) {
+        const categoryWithImages = await eventCategoryService.updateFallbackImages(editingCategory.id, selectedImages);
+        setCategories(categories.map(cat => 
+          cat.id === editingCategory.id ? categoryWithImages : cat
+        ));
+      } else {
+        setCategories(categories.map(cat => 
+          cat.id === editingCategory.id ? updatedCategory : cat
+        ));
+      }
+      
       setEditingCategory(null);
       setNewCategory({
         name: '',
@@ -145,11 +180,15 @@ export function EventCategoryList() {
         colorCode: '#000000',
         iconName: ''
       });
+      setSelectedImages([]);
+      setPreviewUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
       toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -179,6 +218,49 @@ export function EventCategoryList() {
     if (!open) {
       resetModalState();
       loadCategories();
+    }
+  };
+
+  const handleImageUpload = async (categoryId: string) => {
+    if (selectedImages.length === 0) return;
+
+    try {
+      const updatedCategory = await eventCategoryService.updateFallbackImages(categoryId, selectedImages);
+      setCategories(categories.map(cat => 
+        cat.id === categoryId ? updatedCategory : cat
+      ));
+      setSelectedImages([]);
+      setPreviewUrls([]);
+      toast.success('Bilder erfolgreich hochgeladen');
+    } catch (error) {
+      toast.error('Fehler beim Hochladen der Bilder');
+      console.error('Fehler beim Hochladen der Bilder:', error);
+    }
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + selectedImages.length > 5) {
+      toast.error('Maximal 5 Bilder erlaubt');
+      return;
+    }
+
+    setSelectedImages([...selectedImages, ...files]);
+    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+  };
+
+  const removeImage = (index: number) => {
+    // Wenn wir im Bearbeitungsmodus sind und die Bilder vom Backend kommen
+    if (editingCategory && !selectedImages.length && previewUrls.length > 0) {
+      const updatedUrls = previewUrls.filter((_, i) => i !== index);
+      setPreviewUrls(updatedUrls);
+      // Hier könnten wir auch einen API-Call machen, um das Bild vom Backend zu entfernen
+      // await eventCategoryService.removeFallbackImage(editingCategory.id, previewUrls[index]);
+    } else {
+      setSelectedImages(selectedImages.filter((_, i) => i !== index));
+      URL.revokeObjectURL(previewUrls[index]);
+      setPreviewUrls(previewUrls.filter((_, i) => i !== index));
     }
   };
 
@@ -240,14 +322,58 @@ export function EventCategoryList() {
                     onChange={(e) => setNewCategory({ ...newCategory, colorCode: e.target.value })}
                   />
                 </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Fallback-Bilder (max. 5)</label>
+                  <div className="grid grid-cols-5 gap-2">
+                    {previewUrls.map((url, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {previewUrls.length < 5 && (
+                      <label className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageSelect}
+                          className="hidden"
+                        />
+                        <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                      </label>
+                    )}
+                  </div>
+                </div>
                 <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
                     <X className="mr-2 h-4 w-4" />
                     Abbrechen
                   </Button>
-                  <Button onClick={editingCategory ? handleUpdateCategory : handleAddCategory}>
-                    <Check className="mr-2 h-4 w-4" />
-                    {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
+                  <Button 
+                    onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        {editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}
+                      </>
+                    ) : (
+                      <>
+                        <Check className="mr-2 h-4 w-4" />
+                        {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
@@ -264,6 +390,7 @@ export function EventCategoryList() {
                 <TableHead>Farbe</TableHead>
                 <TableHead>Erstellt am</TableHead>
                 <TableHead>Aktualisiert am</TableHead>
+                <TableHead>Fallback-Bilder</TableHead>
                 <TableHead className="w-[100px]">Aktionen</TableHead>
               </TableRow>
             </TableHeader>
@@ -303,6 +430,23 @@ export function EventCategoryList() {
                     <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
                     <TableCell>
+                      <div className="flex items-center gap-2">
+                        {category.fallbackImages?.map((image, index) => (
+                          <div 
+                            key={index}
+                            className="relative cursor-pointer hover:scale-110 transition-transform"
+                            onClick={() => setSelectedImagePreview(image)}
+                          >
+                            <img
+                              src={image}
+                              alt={`Fallback ${index + 1}`}
+                              className="w-8 h-8 object-cover rounded"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -331,6 +475,24 @@ export function EventCategoryList() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Bildvorschau Dialog */}
+      <Dialog open={!!selectedImagePreview} onOpenChange={(open) => !open && setSelectedImagePreview(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Bildvorschau</DialogTitle>
+          </DialogHeader>
+          {selectedImagePreview && (
+            <div className="relative w-full h-[70vh]">
+              <img
+                src={selectedImagePreview}
+                alt="Vollbildvorschau"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 } 

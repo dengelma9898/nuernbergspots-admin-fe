@@ -1,7 +1,7 @@
-
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
 import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { useApi } from '@/lib/api';
+
 export const useEventCategoryService = () => {
   const api = useApi();
   const baseUrl = '/event-categories';
@@ -30,11 +30,27 @@ export const useEventCategoryService = () => {
     await api.delete<ApiResponse<void>>(`${baseUrl}/${id}`);
   };
 
+  const updateFallbackImages = async (id: string, files: File[]): Promise<EventCategory> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('images', file);
+    });
+
+    const response = await api.patch<ApiResponse<EventCategory>>(
+      `${baseUrl}/${id}/fallback-images`,
+      formData,
+      { isFormData: true }
+    );
+
+    return unwrapData(response);
+  };
+
   return {
     getCategories,
     getCategory,
     createCategory,
     updateCategory,
-    deleteCategory
+    deleteCategory,
+    updateFallbackImages
   };
 }; 
