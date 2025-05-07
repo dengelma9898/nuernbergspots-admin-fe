@@ -179,9 +179,29 @@ export const EventDetail: React.FC = () => {
   };
 
   const handleInputChange = (field: keyof Event, value: any) => {
+    if (field === 'socialMedia') {
+      setEditedEvent(prev => ({
+        ...prev,
+        socialMedia: {
+          ...prev.socialMedia,
+          ...value
+        }
+      }));
+    } else {
+      setEditedEvent(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
+  const handleSocialMediaChange = (platform: 'instagram' | 'facebook' | 'tiktok', value: string) => {
     setEditedEvent(prev => ({
       ...prev,
-      [field]: value
+      socialMedia: {
+        ...prev.socialMedia,
+        [platform]: value
+      }
     }));
   };
 
@@ -310,9 +330,23 @@ export const EventDetail: React.FC = () => {
     if (!event) return false;
     // Vergleiche nur relevante Felder
     const fieldsToCompare = [
-      'title', 'description', 'location', 'price', 'ticketsNeeded', 'isPromoted', 'categoryId', 'dailyTimeSlots'
+      'title', 
+      'description', 
+      'location', 
+      'price', 
+      'ticketsNeeded', 
+      'isPromoted', 
+      'categoryId', 
+      'dailyTimeSlots',
+      'contactEmail',
+      'contactPhone',
+      'website',
+      'socialMedia'
     ];
     return fieldsToCompare.some(field => {
+      if (field === 'socialMedia') {
+        return JSON.stringify(event[field]) !== JSON.stringify(editedEvent[field]);
+      }
       // @ts-ignore
       return JSON.stringify(event[field]) !== JSON.stringify(editedEvent[field]);
     });
@@ -646,6 +680,150 @@ export const EventDetail: React.FC = () => {
                   {categories.find(cat => cat.id === event.categoryId)?.name}
                 </div>
               )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Kontakt Informationen</Label>
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail">E-Mail</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        placeholder="z.B. info@event.de"
+                        value={editedEvent.contactEmail || ''}
+                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone">Telefon</Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        placeholder="z.B. +49 911 123456"
+                        value={editedEvent.contactPhone || ''}
+                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="website">Website</Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        placeholder="z.B. https://www.event.de"
+                        value={editedEvent.website || ''}
+                        onChange={(e) => handleInputChange('website', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 text-muted-foreground">
+                    {event.contactEmail && (
+                      <div className="flex items-center">
+                        <span className="w-24">E-Mail:</span>
+                        <a href={`mailto:${event.contactEmail}`} className="text-primary hover:underline">
+                          {event.contactEmail}
+                        </a>
+                      </div>
+                    )}
+                    {event.contactPhone && (
+                      <div className="flex items-center">
+                        <span className="w-24">Telefon:</span>
+                        <a href={`tel:${event.contactPhone}`} className="text-primary hover:underline">
+                          {event.contactPhone}
+                        </a>
+                      </div>
+                    )}
+                    {event.website && (
+                      <div className="flex items-center">
+                        <span className="w-24">Website:</span>
+                        <a href={event.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                          {event.website}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Social Media</Label>
+                {isEditing ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram">Instagram</Label>
+                      <Input
+                        id="instagram"
+                        placeholder="z.B. @eventname oder eventname"
+                        value={editedEvent.socialMedia?.instagram || ''}
+                        onChange={(e) => handleSocialMediaChange('instagram', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="facebook">Facebook</Label>
+                      <Input
+                        id="facebook"
+                        placeholder="z.B. eventname oder https://facebook.com/eventname"
+                        value={editedEvent.socialMedia?.facebook || ''}
+                        onChange={(e) => handleSocialMediaChange('facebook', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="tiktok">TikTok</Label>
+                      <Input
+                        id="tiktok"
+                        placeholder="z.B. @eventname oder eventname"
+                        value={editedEvent.socialMedia?.tiktok || ''}
+                        onChange={(e) => handleSocialMediaChange('tiktok', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2 text-muted-foreground">
+                    {event.socialMedia?.instagram && (
+                      <div className="flex items-center">
+                        <span className="w-24">Instagram:</span>
+                        <a 
+                          href={`https://instagram.com/${event.socialMedia.instagram.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {event.socialMedia.instagram}
+                        </a>
+                      </div>
+                    )}
+                    {event.socialMedia?.facebook && (
+                      <div className="flex items-center">
+                        <span className="w-24">Facebook:</span>
+                        <a 
+                          href={event.socialMedia.facebook.startsWith('http') ? event.socialMedia.facebook : `https://facebook.com/${event.socialMedia.facebook}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {event.socialMedia.facebook}
+                        </a>
+                      </div>
+                    )}
+                    {event.socialMedia?.tiktok && (
+                      <div className="flex items-center">
+                        <span className="w-24">TikTok:</span>
+                        <a 
+                          href={`https://tiktok.com/@${event.socialMedia.tiktok.replace('@', '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {event.socialMedia.tiktok}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex justify-end gap-4 mt-8">

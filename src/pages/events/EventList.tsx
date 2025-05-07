@@ -44,14 +44,6 @@ import {
 } from "@/components/ui/select";
 import { getIconComponent } from '@/utils/iconUtils';
 import { CalendarWeekSelect } from '@/components/ui/calendar-week-select';
-import { EventImageGenerator } from '@/components/EventImageGenerator';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);

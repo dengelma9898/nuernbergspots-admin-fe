@@ -5,6 +5,7 @@ import { toPng } from 'html-to-image';
 import { Button } from '@/components/ui/button';
 import { Event } from '@/models/events';
 import { Download, Settings, Palette, Type, Image as ImageIcon } from 'lucide-react';
+import { siInstagram, siFacebook, siTiktok } from 'simple-icons';
 import LogoImage from '@/assets/Logo_nuernbergspots.png';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,7 @@ import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 interface GroupedEvent {
   date: Date;
@@ -40,6 +42,7 @@ interface DesignSettings {
     padding: number;
     fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
+    containerOpacity: number;
   };
   date: {
     fontSize: number;
@@ -83,10 +86,11 @@ const defaultSettings: DesignSettings = {
     backgroundTransparent: false,
   },
   content: {
-    backgroundColor: 'rgba(155, 27, 26, 1)',
+    backgroundColor: '#9B1B1A',
     padding: 1.5,
     fontFamily: 'montserrat',
     fontWeight: 400,
+    containerOpacity: 1,
   },
   date: {
     fontSize: 16,
@@ -118,6 +122,28 @@ const defaultSettings: DesignSettings = {
   },
 };
 
+// Hilfsfunktionen für Farbkonvertierung
+const rgbaToHex = (rgba: string): { color: string; opacity: number } => {
+  const rgbaMatch = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (rgbaMatch) {
+    const r = parseInt(rgbaMatch[1]);
+    const g = parseInt(rgbaMatch[2]);
+    const b = parseInt(rgbaMatch[3]);
+    const a = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) : 1;
+    
+    const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    return { color: hex, opacity: a };
+  }
+  return { color: '#000000', opacity: 1 };
+};
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export const EventImageEditor: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -129,13 +155,17 @@ export const EventImageEditor: React.FC = () => {
   const eventService = useEventService();
   const categoryService = useEventCategoryService();
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
+  const [customTitle, setCustomTitle] = useState<string>('');
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     // Wenn Events über den State übergeben wurden, verwende diese
-    if (location.state?.events) {
+    if (location.state?.events && !isInitialized) {
       setEvents(location.state.events);
       setCategoryName(location.state.categoryName);
-    } else if (id) {
+      setCustomTitle(location.state.categoryName);
+      setIsInitialized(true);
+    } else if (id && !isInitialized) {
       // Ansonsten lade das einzelne Event
       const loadEvent = async () => {
         try {
@@ -145,6 +175,8 @@ export const EventImageEditor: React.FC = () => {
           // Lade die Kategorie separat
           const category = await categoryService.getCategory(event.categoryId!);
           setCategoryName(category.name);
+          setCustomTitle(category.name);
+          setIsInitialized(true);
         } catch (error) {
           toast.error('Fehler beim Laden des Events', {
             description: 'Das Event konnte nicht geladen werden.',
@@ -154,7 +186,7 @@ export const EventImageEditor: React.FC = () => {
       };
       loadEvent();
     }
-  }, [id, eventService, categoryService, navigate, location.state]);
+  }, [id, eventService, categoryService, navigate, location.state, isInitialized]);
 
   const formatDate = (date: string) => {
     try {
@@ -303,6 +335,24 @@ export const EventImageEditor: React.FC = () => {
 
                 <TabsContent value="title" className="space-y-4">
                   <div className="space-y-2">
+                    <Label htmlFor="custom-title">Titel Text</Label>
+                    <Textarea
+                      id="custom-title"
+                      value={customTitle}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        console.log('Neuer Titel:', newValue);
+                        setCustomTitle(newValue);
+                      }}
+                      placeholder="Titel eingeben..."
+                      className="font-mono min-h-[100px] resize-y"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Leer lassen, um den Kategorienamen zu verwenden
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <Label>Schriftgröße</Label>
                     <Slider
                       value={[settings.title.fontSize]}
@@ -442,8 +492,26 @@ export const EventImageEditor: React.FC = () => {
                     <Label>Hintergrundfarbe</Label>
                     <ColorPicker
                       value={settings.content.backgroundColor}
-                      onChange={(value) => updateSetting('content', 'backgroundColor', value)}
+                      onChange={(value) => {
+                        updateSetting('content', 'backgroundColor', value);
+                      }}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Container Transparenz</Label>
+                    <Slider
+                      value={[Math.round(settings.content.containerOpacity * 100)]}
+                      onValueChange={([value]) => {
+                        updateSetting('content', 'containerOpacity', value / 100);
+                      }}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                    <div className="text-sm text-muted-foreground">
+                      {Math.round(settings.content.containerOpacity * 100)}%
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -545,7 +613,7 @@ export const EventImageEditor: React.FC = () => {
                 }}
               >
                 <h1 
-                  className={`text-4xl font-black tracking-tight inline-block ${
+                  className={`text-4xl font-black tracking-tight inline-block whitespace-pre-line ${
                     settings.title.fontFamily === 'league-spartan' ? 'font-league-spartan' :
                     settings.title.fontFamily === 'montserrat' ? 'font-montserrat' :
                     'font-sans'
@@ -562,14 +630,14 @@ export const EventImageEditor: React.FC = () => {
                     fontWeight: settings.title.fontWeight
                   }}
                 >
-                  {categoryName}
+                  {customTitle || categoryName}
                 </h1>
               </div>
               
               <div 
                 className="space-y-4 rounded-lg overflow-hidden mt-12"
                 style={{
-                  backgroundColor: settings.content.backgroundColor,
+                  backgroundColor: hexToRgba(settings.content.backgroundColor, settings.content.containerOpacity),
                   padding: `${settings.content.padding}rem`,
                   paddingBottom: '1rem'
                 }}
@@ -644,6 +712,63 @@ export const EventImageEditor: React.FC = () => {
                                       }}
                                     >
                                       {formatAddress(event.location.address)}
+                                    </div>
+                                  )}
+                                  {(event.socialMedia?.instagram || event.socialMedia?.facebook || event.socialMedia?.tiktok) && (
+                                    <div 
+                                      className={`flex items-center gap-2 ${
+                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                        'font-sans'
+                                      }`}
+                                      style={{
+                                        color: settings.location.color,
+                                        fontSize: `${settings.location.fontSize}px`,
+                                        fontWeight: settings.content.fontWeight
+                                      }}
+                                    >
+                                      {event.socialMedia?.instagram && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.location.fontSize}
+                                            height={settings.location.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siInstagram.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.instagram}</span>
+                                        </div>
+                                      )}
+                                      {event.socialMedia?.facebook && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.location.fontSize}
+                                            height={settings.location.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siFacebook.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.facebook}</span>
+                                        </div>
+                                      )}
+                                      {event.socialMedia?.tiktok && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.location.fontSize}
+                                            height={settings.location.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siTiktok.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.tiktok}</span>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
                                 </div>

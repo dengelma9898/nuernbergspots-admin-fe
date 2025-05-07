@@ -54,7 +54,7 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
     const monthStart = startOfMonth(new Date(selectedMonth));
     const monthEnd = endOfMonth(new Date(selectedMonth));
 
-    return business.customerScans.filter(scan => {
+    return business.scans.filter(scan => {
       const scanDate = new Date(scan.scannedAt);
       return isWithinInterval(scanDate, { start: monthStart, end: monthEnd });
     });
