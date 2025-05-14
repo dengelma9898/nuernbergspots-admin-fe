@@ -2,18 +2,20 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   loading: boolean;
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   getUserId: () => string | null;
   getToken: () => Promise<string | null>;
+  getUserProfile: () => Promise<{ name: string }>;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -59,16 +61,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return null;
   };
 
+  const getUserProfile = async () => {
+    const currentToken = await getToken();
+    if (!currentToken) throw new Error('Nicht authentifiziert');
+
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/profile`, {
+      headers: {
+        'Authorization': `Bearer ${currentToken}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Profil konnte nicht geladen werden');
+    }
+
+    return response.json();
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       loading, 
       token, 
       isAuthenticated: !!user,
+      isLoading: loading,
       login, 
       logout, 
       getUserId, 
-      getToken 
+      getToken,
+      getUserProfile
     }}>
       {!loading && children}
     </AuthContext.Provider>

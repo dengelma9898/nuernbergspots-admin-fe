@@ -29,7 +29,10 @@ import {
   Scan,
   BarChart,
   Euro,
-  MessageSquare
+  MessageSquare,
+  Briefcase,
+  MessageCircle,
+  Handshake
 } from 'lucide-react';
 
 
@@ -331,6 +334,18 @@ export function Dashboard() {
               href="/events"
             />
             <NavigationCard
+              icon={Briefcase}
+              title="Job-Angebote verwalten"
+              description="Stellenangebote erstellen und verwalten"
+              href="/job-offers"
+            />
+            <NavigationCard
+              icon={Briefcase}
+              title="Job-Kategorien verwalten"
+              description="Kategorien für Stellenangebote verwalten"
+              href="/job-categories"
+            />
+            <NavigationCard
               icon={Key}
               title="Keywords verwalten"
               description="Suchbegriffe und Tags für bessere Auffindbarkeit"
@@ -359,6 +374,18 @@ export function Dashboard() {
               title="News Management"
               description="Verwalte aktuelle News und Ankündigungen."
               href="/news-management"
+            />
+            <NavigationCard
+              icon={MessageCircle}
+              title="Chatrooms verwalten"
+              description="Chatrooms erstellen, bearbeiten und moderieren"
+              href="/chatrooms"
+            />
+            <NavigationCard
+              icon={Handshake}
+              title="Mittmach Mittwoch"
+              description="Aktionen, Ideen und Engagement für die Community am Mittwoch."
+              href="/mittmach-mittwoch"
             />
           </div>
         </div>

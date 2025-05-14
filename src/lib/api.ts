@@ -40,8 +40,16 @@ export const endpoints = {
   businessCategories: '/business-categories',
   cities: '/cities',
   events: '/events',
+  eventCategories: '/event-categories',
   keywords: '/keywords',
+  contacts: '/contacts',
   news: '/news',
+  chatrooms: '/chatrooms',
+  chatroomById: (id: string) => `/chatrooms/${id}`,
+  chatroomParticipants: (id: string) => `/chatrooms/${id}/participants`,
+  chatroomMessages: (id: string) => `/chatrooms/${id}/messages`,
+  specialPolls: '/special-polls',
+  specialPollById: (id: string) => `/special-polls/${id}`,
 } as const;
 
 // Re-export models
