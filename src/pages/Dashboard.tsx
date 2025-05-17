@@ -313,80 +313,53 @@ export function Dashboard() {
             </Card>
           </div>
 
-          {/* Management Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <NavigationCard
-              icon={Store}
-              title="Partner verwalten"
-              description="Partner hinzufügen, bearbeiten und löschen"
-              href="/businesses"
-            />
-            <NavigationCard
-              icon={Tags}
-              title="Kategorien verwalten"
-              description="Geschäftskategorien und deren Zuordnungen verwalten"
-              href="/categories"
-            />
-            <NavigationCard
-              icon={Calendar}
-              title="Events verwalten"
-              description="Events und Veranstaltungen organisieren"
-              href="/events"
-            />
-            <NavigationCard
-              icon={Briefcase}
-              title="Job-Angebote verwalten"
-              description="Stellenangebote erstellen und verwalten"
-              href="/job-offers"
-            />
-            <NavigationCard
-              icon={Briefcase}
-              title="Job-Kategorien verwalten"
-              description="Kategorien für Stellenangebote verwalten"
-              href="/job-categories"
-            />
-            <NavigationCard
-              icon={Key}
-              title="Keywords verwalten"
-              description="Suchbegriffe und Tags für bessere Auffindbarkeit"
-              href="/keywords"
-            />
-            <NavigationCard
-              icon={Tag}
-              title="Event-Kategorien verwalten"
-              description="Event-Kategorien hinzufügen und bearbeiten"
-              href="/event-categories"
-            />
-            <NavigationCard
-              icon={Users}
-              title="Business-User verwalten"
-              description="Business-User und deren Berechtigungen verwalten"
-              href="/business-users"
-            />
-            <NavigationCard
-              icon={BarChart}
-              title="Analytics Dashboard"
-              description="Detaillierte Einblicke in die Performance deiner Partner"
-              href="/analytics"
-            />
-            <NavigationCard
-              icon={MessageSquare}
-              title="News Management"
-              description="Verwalte aktuelle News und Ankündigungen."
-              href="/news-management"
-            />
-            <NavigationCard
-              icon={MessageCircle}
-              title="Chatrooms verwalten"
-              description="Chatrooms erstellen, bearbeiten und moderieren"
-              href="/chatrooms"
-            />
-            <NavigationCard
-              icon={Handshake}
-              title="Mittmach Mittwoch"
-              description="Aktionen, Ideen und Engagement für die Community am Mittwoch."
-              href="/mittmach-mittwoch"
-            />
+          {/* Partner */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-2">Partner</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NavigationCard icon={Store} title="Partner verwalten" description="Partner hinzufügen, bearbeiten und löschen" href="/businesses" />
+              <NavigationCard icon={Users} title="Business User verwalten" description="Business-User und deren Berechtigungen verwalten" href="/business-users" />
+              <NavigationCard icon={User} title="Geschäftsinhaber prüfen" description="Geschäftsinhaber warten auf Verifizierung" href="/users/business/review" />
+              <NavigationCard icon={Tags} title="Business Kategorien verwalten" description="Geschäftskategorien und deren Zuordnungen verwalten" href="/categories" />
+              <NavigationCard icon={Key} title="Keywords verwalten" description="Suchbegriffe und Tags für bessere Auffindbarkeit" href="/keywords" />
+            </div>
+          </div>
+
+          {/* Events */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-2">Events</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NavigationCard icon={Calendar} title="Events verwalten" description="Events und Veranstaltungen organisieren" href="/events" />
+              <NavigationCard icon={Tag} title="Event Kategorien verwalten" description="Event-Kategorien hinzufügen und bearbeiten" href="/event-categories" />
+            </div>
+          </div>
+
+          {/* Kontaktanfragen */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-2">Kontaktanfragen</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NavigationCard icon={MessageSquare} title="Partner" description="Offene Kontaktanfragen von Partnern verwalten" href="/contacts?filter=partner" />
+              <NavigationCard icon={MessageSquare} title="Nutzer" description="Offene Kontaktanfragen von Nutzern verwalten" href="/contacts?filter=user" />
+            </div>
+          </div>
+
+          {/* Community */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-2">Community</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NavigationCard icon={MessageSquare} title="News" description="Verwalte aktuelle News und Ankündigungen." href="/news-management" />
+              <NavigationCard icon={Handshake} title="Mittmach Mittwoch" description="Aktionen, Ideen und Engagement für die Community am Mittwoch." href="/mittmach-mittwoch" />
+              <NavigationCard icon={MessageCircle} title="Chatrooms" description="Chatrooms erstellen, bearbeiten und moderieren" href="/chatrooms" />
+              <NavigationCard icon={Briefcase} title="Jobs" description="Stellenangebote erstellen und verwalten" href="/job-offers" />
+            </div>
+          </div>
+
+          {/* Analytics und Sonstiges */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold mb-2">Analytics und Sonstiges</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <NavigationCard icon={BarChart} title="Analytics Dashboard" description="Detaillierte Einblicke in die Performance deiner Partner" href="/analytics" />
+            </div>
           </div>
         </div>
       </div>
