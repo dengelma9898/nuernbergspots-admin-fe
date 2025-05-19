@@ -351,6 +351,7 @@ export function Dashboard() {
               <NavigationCard icon={Handshake} title="Mittmach Mittwoch" description="Aktionen, Ideen und Engagement für die Community am Mittwoch." href="/mittmach-mittwoch" />
               <NavigationCard icon={MessageCircle} title="Chatrooms" description="Chatrooms erstellen, bearbeiten und moderieren" href="/chatrooms" />
               <NavigationCard icon={Briefcase} title="Jobs" description="Stellenangebote erstellen und verwalten" href="/job-offers" />
+              <NavigationCard icon={Tags} title="Job-Kategorien" description="Verwalten Sie die Kategorien für Stellenanzeigen" href="/job-categories" />
             </div>
           </div>
 
