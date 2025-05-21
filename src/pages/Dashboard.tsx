@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
@@ -360,6 +360,7 @@ export function Dashboard() {
             <h3 className="text-xl font-semibold mb-2">Analytics und Sonstiges</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <NavigationCard icon={BarChart} title="Analytics Dashboard" description="Detaillierte Einblicke in die Performance deiner Partner" href="/analytics" />
+              <NavigationCard icon={Users} title="Account-Management" description="Verwaltung und Bereinigung von anonymen Benutzeraccounts" href="/account-management" />
             </div>
           </div>
         </div>

@@ -45,12 +45,21 @@ export const useJobCategoryService = () => {
     return unwrapData(response);
   };
 
+  const deleteFallbackImage = async (id: string, imageUrl: string): Promise<JobCategory> => {
+    const response = await api.patch<ApiResponse<JobCategory>>(
+      `${baseUrl}/${id}/fallback-images/remove`,
+      { imageUrl }
+    );
+    return unwrapData(response);
+  };
+
   return {
     getCategories,
     getCategory,
     createCategory,
     updateCategory,
     deleteCategory,
-    updateFallbackImages
+    updateFallbackImages,
+    deleteFallbackImage
   };
 }; 

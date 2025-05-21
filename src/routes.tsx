@@ -27,6 +27,7 @@ import { ChatroomManagement } from '@/pages/chatrooms/ChatroomManagement';
 import { ChatMessages } from '@/pages/chatrooms/ChatMessages';
 import MittmachMittwoch from '@/pages/MittmachMittwoch';
 import SpecialPollDetail from '@/pages/SpecialPollDetail';
+import { AccountManagement } from './pages/AccountManagement';
 
 export function AppRoutes() {
   return (
@@ -64,6 +65,7 @@ export function AppRoutes() {
         <Route path="/chatrooms/:chatroomId/messages" element={<ChatMessages />} />
         <Route path="/mittmach-mittwoch" element={<MittmachMittwoch />} />
         <Route path="/mittmach-mittwoch/:pollId" element={<SpecialPollDetail />} />
+        <Route path="/account-management" element={<AccountManagement />} />
       </Route>
 
       {/* Fallback */}

@@ -167,11 +167,12 @@ export function JobCategories() {
         colorCode: convertHexToFF(newCategory.colorCode)
       };
       
+      // Aktualisiere die Kategorie-Daten
       const updatedCategory = await jobCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
       
+      // Füge neue Bilder hinzu, falls vorhanden
       if (selectedImages.length > 0) {
-        await jobCategoryService.updateFallbackImages(updatedCategory.id, selectedImages);
-        const finalCategory = await jobCategoryService.getCategory(updatedCategory.id);
+        const finalCategory = await jobCategoryService.updateFallbackImages(updatedCategory.id, selectedImages);
         setCategories(prev => prev.map(cat => 
           cat.id === updatedCategory.id ? finalCategory : cat
         ));
@@ -242,11 +243,30 @@ export function JobCategories() {
     setPreviewUrls([...previewUrls, ...newPreviewUrls]);
   };
 
-  const removeImage = (index: number) => {
+  const removeImage = async (index: number) => {
     if (editingCategory && !selectedImages.length && previewUrls.length > 0) {
-      const updatedUrls = previewUrls.filter((_, i) => i !== index);
-      setPreviewUrls(updatedUrls);
+      try {
+        // Hole die URL des zu entfernenden Bildes
+        const imageToRemove = previewUrls[index];
+        
+        // Entferne das Bild über den separaten Endpoint
+        await jobCategoryService.deleteFallbackImage(editingCategory.id, imageToRemove);
+        
+        // Aktualisiere den lokalen State
+        const updatedUrls = previewUrls.filter((_, i) => i !== index);
+        setPreviewUrls(updatedUrls);
+        setNewCategory(prev => ({
+          ...prev,
+          fallbackImages: updatedUrls
+        }));
+        
+        toast.success('Bild erfolgreich entfernt');
+      } catch (error) {
+        console.error('Fehler beim Entfernen des Bildes:', error);
+        toast.error('Fehler beim Entfernen des Bildes');
+      }
     } else {
+      // Wenn wir ein neu ausgewähltes Bild entfernen
       setSelectedImages(selectedImages.filter((_, i) => i !== index));
       URL.revokeObjectURL(previewUrls[index]);
       setPreviewUrls(previewUrls.filter((_, i) => i !== index));

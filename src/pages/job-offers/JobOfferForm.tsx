@@ -144,6 +144,10 @@ export function JobOfferForm() {
         jobOfferCategoryId: jobOffer.jobOfferCategoryId || '',
       });
       setPreviewUrls(jobOffer.images);
+      
+      if (jobOffer.companyLogo) {
+        setCompanyLogoPreview(jobOffer.companyLogo);
+      }
     } catch (error) {
       toast.error('Fehler beim Laden des Stellenangebots');
       navigate('/job-offers');
