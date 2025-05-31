@@ -253,6 +253,10 @@ export const EventList: React.FC = () => {
             <ImageIcon className="h-4 w-4" />
             Bild generieren
           </Button>
+          <Button variant="outline" onClick={() => navigate('/events/scraper')} className="gap-2">
+            <Search className="h-4 w-4" />
+            Events suchen
+          </Button>
           <Button onClick={() => navigate('/create-event')}>
             <Plus className="mr-2 h-4 w-4" />
             Event hinzufügen
@@ -369,9 +373,19 @@ interface EventCardProps {
   event: Event;
   category?: EventCategory;
   onDelete: (id: string) => void;
+  isPreview?: boolean;
+  onEdit?: () => void;
+  showDeleteButton?: boolean;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
+export const EventCard: React.FC<EventCardProps> = ({ 
+  event, 
+  category, 
+  onDelete, 
+  isPreview = false,
+  onEdit,
+  showDeleteButton = false
+}) => {
   const navigate = useNavigate();
   
   const formatDateTime = (date: string) => {
@@ -606,20 +620,43 @@ const EventCard: React.FC<EventCardProps> = ({ event, category, onDelete }) => {
           Erstellt am {formatDate(event.createdAt)}
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate(`/events/${event.id}`)}
-          >
-            Bearbeiten
-          </Button>
-          <Button 
-            variant="destructive" 
-            size="sm"
-            onClick={() => onDelete(event.id)}
-          >
-            Löschen
-          </Button>
+          {isPreview ? (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={onEdit}
+              >
+                Bearbeiten
+              </Button>
+              {showDeleteButton && (
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => onDelete(event.id)}
+                >
+                  Löschen
+                </Button>
+              )}
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(`/events/${event.id}`)}
+              >
+                Bearbeiten
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => onDelete(event.id)}
+              >
+                Löschen
+              </Button>
+            </>
+          )}
         </div>
       </CardFooter>
     </Card>

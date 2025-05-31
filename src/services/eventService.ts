@@ -138,6 +138,21 @@ export function useEventService() {
       await api.patch(`${endpoints.events}/${eventId}/images/remove`, {
         imageUrl
       });
+    },
+
+    /**
+     * Generischer Endpunkt zum Scrapen von Events
+     */
+    async scrapeEventsFromEventFinder(params: {
+      type: string;
+      category?: string | null;
+      startDate: string;
+      endDate: string;
+      maxResults?: number;
+    }): Promise<Event[]> {
+      const query = new URLSearchParams(params as any).toString();
+      const response = await api.get<ApiResponse<Event[]>>(`/events/scrape?${query}`);
+      return unwrapData(response);
     }
   };
 } 

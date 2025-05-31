@@ -31,4 +31,8 @@ export interface Event {
     facebook?: string;
     tiktok?: string;
   };
+  /**
+   * @deprecated Verwende dailyTimeSlots!
+   */
+  startDate?: string;
 } 

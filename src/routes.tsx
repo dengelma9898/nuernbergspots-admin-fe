@@ -6,6 +6,8 @@ import { CategoryList } from './pages/categories/CategoryList';
 import { EventList } from '@/pages/events/EventList';
 import { EventDetail } from '@/pages/events/EventDetail';
 import { EventImageEditor } from '@/pages/events/EventImageEditor';
+import { EventScraper } from '@/pages/events/EventScraper';
+import { EventScraperDetail } from '@/pages/events/EventScraperDetail';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from '@/components/PrivateRoute';
 import { CreateEvent } from "@/pages/events/CreateEvent";
@@ -42,6 +44,8 @@ export function AppRoutes() {
         <Route path="/businesses/:id/edit" element={<EditBusiness />} />
         <Route path="/categories" element={<CategoryList />} />
         <Route path="/events" element={<EventList />} />
+        <Route path="/events/scraper" element={<EventScraper />} />
+        <Route path="/events/scraper/:id" element={<EventScraperDetail />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/events/image-editor" element={<EventImageEditor />} />
         <Route path="/events/:id/image-editor" element={<EventImageEditor />} />
