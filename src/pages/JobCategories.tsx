@@ -283,207 +283,255 @@ export function JobCategories() {
         <h1 className="text-2xl font-bold">Job-Kategorien verwalten</h1>
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Job-Kategorien</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-            <DialogTrigger asChild>
-              <Button onClick={resetModalState}>
-                <Plus className="mr-2 h-4 w-4" />
-                Neue Kategorie
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie'}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Name</label>
-                  <Input
-                    value={newCategory.name}
-                    onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
-                    placeholder="Kategoriename"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Icon</label>
-                  <IconPicker
-                    value={newCategory.iconName}
-                    onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Beschreibung</label>
-                  <Input
-                    value={newCategory.description}
-                    onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
-                    placeholder="Beschreibung der Kategorie"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Farbe</label>
-                  <Input
-                    type="color"
-                    value={newCategory.colorCode}
-                    onChange={(e) => setNewCategory({ ...newCategory, colorCode: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Fallback-Bilder (max. 5)</label>
-                  <div className="grid grid-cols-5 gap-2">
-                    {previewUrls.map((url, index) => (
-                      <div key={index} className="relative group">
-                        <img
-                          src={url}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <button
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    {previewUrls.length < 5 && (
-                      <label className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageSelect}
-                          className="hidden"
-                        />
-                        <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                      </label>
-                    )}
-                  </div>
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
-                    <X className="mr-2 h-4 w-4" />
-                    Abbrechen
-                  </Button>
-                  <Button 
-                    onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? (
-                      <>
-                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                        {editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}
-                      </>
-                    ) : (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
-                      </>
-                    )}
-                  </Button>
+      {/* Überschrift und Button für mobile Ansicht */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <span className="font-semibold text-lg">Job-Kategorien</span>
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+          <DialogTrigger asChild>
+            <Button onClick={resetModalState}>
+              <Plus className="mr-2 h-4 w-4" />
+              Neue Kategorie
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  placeholder="Kategoriename"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Icon</label>
+                <IconPicker
+                  value={newCategory.iconName}
+                  onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Beschreibung</label>
+                <Input
+                  value={newCategory.description}
+                  onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                  placeholder="Beschreibung der Kategorie"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Farbe</label>
+                <Input
+                  type="color"
+                  value={newCategory.colorCode}
+                  onChange={(e) => setNewCategory({ ...newCategory, colorCode: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Fallback-Bilder (max. 5)</label>
+                <div className="grid grid-cols-5 gap-2">
+                  {previewUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {previewUrls.length < 5 && (
+                    <label className="flex items-center justify-center h-24 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageSelect}
+                        className="hidden"
+                      />
+                      <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                    </label>
+                  )}
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Icon</TableHead>
-                <TableHead>Beschreibung</TableHead>
-                <TableHead>Farbe</TableHead>
-                <TableHead>Erstellt am</TableHead>
-                <TableHead>Aktualisiert am</TableHead>
-                <TableHead>Fallback-Bilder</TableHead>
-                <TableHead className="w-[100px]">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
-                    Lade Kategorien...
-                  </TableCell>
-                </TableRow>
-              ) : categories.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center text-muted-foreground">
-                    Keine Kategorien vorhanden
-                  </TableCell>
-                </TableRow>
-              ) : (
-                categories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      {getIconComponent(category.iconName)}
-                    </TableCell>
-                    <TableCell>{category.description || '-'}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div 
-                          className="w-6 h-6 rounded-full border border-border hover:scale-150 transition-transform cursor-help"
-                          style={{ backgroundColor: convertFFToHex(category.colorCode) }}
-                          title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
+                  <X className="mr-2 h-4 w-4" />
+                  Abbrechen
+                </Button>
+                <Button 
+                  onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                      {editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}
+                    </>
+                  ) : (
+                    <>
+                      <Check className="mr-2 h-4 w-4" />
+                      {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Mobile Card-Ansicht */}
+      {isLoading ? (
+        <div className="block md:hidden text-center text-muted-foreground">Lade Kategorien...</div>
+      ) : categories.length === 0 ? (
+        <div className="block md:hidden text-center text-muted-foreground">Keine Kategorien vorhanden</div>
+      ) : (
+        <div className="block md:hidden space-y-4">
+          {categories.map((category) => (
+            <Card key={category.id} className="p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="font-bold text-lg flex-1">{category.name}</div>
+                <div>{getIconComponent(category.iconName)}</div>
+              </div>
+              <div className="text-sm text-muted-foreground mb-2">{category.description || '-'}</div>
+              <div className="flex items-center gap-2 mb-2">
+                <div 
+                  className="w-5 h-5 rounded-full border border-border"
+                  style={{ backgroundColor: convertFFToHex(category.colorCode) }}
+                  title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
+                />
+                <span className="text-xs bg-muted px-1.5 py-0.5 rounded">{convertFFToHex(category.colorCode)}</span>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-2">
+                {category.fallbackImages?.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`Fallback ${index + 1}`}
+                    className="w-8 h-8 object-cover rounded cursor-pointer border"
+                    onClick={() => setSelectedImagePreview(image)}
+                  />
+                ))}
+              </div>
+              <div className="text-xs text-muted-foreground mb-2">
+                Erstellt: {new Date(category.createdAt).toLocaleDateString()}<br />
+                Aktualisiert: {new Date(category.updatedAt).toLocaleDateString()}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={() => handleEditCategory(category)} className="cursor-pointer">
+                  <Pencil className="mr-1 h-4 w-4" /> Bearbeiten
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDeleteCategory(category.id)} className="cursor-pointer">
+                  <Trash2 className="mr-1 h-4 w-4" /> Löschen
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+      {/* Desktop/Table Ansicht */}
+      <Table className="hidden md:block">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Icon</TableHead>
+            <TableHead>Beschreibung</TableHead>
+            <TableHead>Farbe</TableHead>
+            <TableHead>Erstellt am</TableHead>
+            <TableHead>Aktualisiert am</TableHead>
+            <TableHead>Fallback-Bilder</TableHead>
+            <TableHead className="w-[100px]">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
+                Lade Kategorien...
+              </TableCell>
+            </TableRow>
+          ) : categories.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-center text-muted-foreground">
+                Keine Kategorien vorhanden
+              </TableCell>
+            </TableRow>
+          ) : (
+            categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell>
+                  {getIconComponent(category.iconName)}
+                </TableCell>
+                <TableCell>{category.description || '-'}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-6 h-6 rounded-full border border-border hover:scale-150 transition-transform cursor-help"
+                      style={{ backgroundColor: convertFFToHex(category.colorCode) }}
+                      title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
+                    />
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
+                      {convertFFToHex(category.colorCode)}
+                    </code>
+                  </div>
+                </TableCell>
+                <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    {category.fallbackImages?.map((image, index) => (
+                      <div 
+                        key={index}
+                        className="relative cursor-pointer hover:scale-110 transition-transform"
+                        onClick={() => setSelectedImagePreview(image)}
+                      >
+                        <img
+                          src={image}
+                          alt={`Fallback ${index + 1}`}
+                          className="w-8 h-8 object-cover rounded"
                         />
-                        <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                          {convertFFToHex(category.colorCode)}
-                        </code>
                       </div>
-                    </TableCell>
-                    <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {category.fallbackImages?.map((image, index) => (
-                          <div 
-                            key={index}
-                            className="relative cursor-pointer hover:scale-110 transition-transform"
-                            onClick={() => setSelectedImagePreview(image)}
-                          >
-                            <img
-                              src={image}
-                              alt={`Fallback ${index + 1}`}
-                              className="w-8 h-8 object-cover rounded"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Bearbeiten
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Löschen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Bearbeiten
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteCategory(category.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Löschen
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
 
       {/* Bildvorschau Dialog */}
       <Dialog open={!!selectedImagePreview} onOpenChange={(open) => !open && setSelectedImagePreview(null)}>
