@@ -256,24 +256,24 @@ export function JobOfferForm() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/job-offers')}>
+    <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/job-offers')} className="w-full sm:w-auto">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zur Übersicht
         </Button>
-        <h1 className="text-2xl font-bold">
+        <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto">
           {id ? 'Stellenangebot bearbeiten' : 'Neues Stellenangebot'}
         </h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <Card className="py-4">
             <CardHeader>
               <CardTitle>Allgemeine Informationen</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Titel</Label>
                 <Input
@@ -428,11 +428,11 @@ export function JobOfferForm() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="py-4">
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-4 space-y-4">
               <div className="space-y-2">
                 <Label>Adresse</Label>
                 <LocationSearch
@@ -526,11 +526,11 @@ export function JobOfferForm() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="py-4">
             <CardHeader>
               <CardTitle>Kontaktdaten</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="contactPerson">Kontaktperson</Label>
                 <Input
@@ -582,11 +582,11 @@ export function JobOfferForm() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="py-4">
             <CardHeader>
               <CardTitle>Social Media</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="px-4 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="linkedin">LinkedIn</Label>
                 <div className="flex gap-2">
@@ -665,7 +665,7 @@ export function JobOfferForm() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="py-4">
             <CardHeader>
               <CardTitle>Bilder</CardTitle>
             </CardHeader>
@@ -702,16 +702,17 @@ export function JobOfferForm() {
           </Card>
         </div>
 
-        <div className="mt-6 flex justify-end gap-4">
+        <div className="mt-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
           <Button
             type="button"
             variant="outline"
             onClick={() => navigate('/job-offers')}
             disabled={isSaving}
+            className="w-full sm:w-auto"
           >
             Abbrechen
           </Button>
-          <Button type="submit" disabled={isSaving}>
+          <Button type="submit" disabled={isSaving} className="w-full sm:w-auto">
             {isSaving ? (
               <>
                 <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
