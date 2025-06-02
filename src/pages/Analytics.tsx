@@ -357,22 +357,22 @@ export function Analytics() {
   }, [fetchAnalytics]);
 
   return (
-    <div className="container mx-auto p-8 max-w-7xl">
+    <div className="container mx-auto max-w-full p-8 sm:p-8 px-2 overflow-x-hidden">
       <div className="space-y-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
-            <p className="text-muted-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+          <div className="space-y-1 w-full sm:w-auto">
+            <h1 className="text-2xl sm:text-3xl font-bold break-words">Analytics Dashboard</h1>
+            <p className="text-base sm:text-lg text-muted-foreground break-words">
               Detaillierte Einblicke in die Performance deiner Partner
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               onClick={fetchAnalytics}
               disabled={isLoading}
-              className="flex items-center"
+              className="flex items-center w-full sm:w-auto cursor-pointer"
             >
               <RefreshCcw className="mr-2 h-4 w-4" />
               Aktualisieren
@@ -380,7 +380,7 @@ export function Analytics() {
             <Button
               variant="outline"
               onClick={() => navigate('/dashboard')}
-              className="flex items-center"
+              className="flex items-center w-full sm:w-auto cursor-pointer"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück

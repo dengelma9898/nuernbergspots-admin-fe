@@ -11,6 +11,19 @@ Ein modernes Admin-Dashboard für NürnbergSpots, entwickelt mit React, TypeScri
 - 🧪 Jest und React Testing Library für Tests
 - 📦 Vite für schnelle Entwicklung und Builds
 
+## 🎯 Unterstützte Bildschirmgrößen
+
+Die Anwendung ist vollständig responsiv und unterstützt folgende Bildschirmgrößen:
+
+| Gerätetyp      | Breakpoint (min-width) | Tailwind Prefix |
+|---------------|-----------------------|-----------------|
+| Smartphone    | 0px                   | (default)       |
+| Tablet        | 768px                 | md:             |
+| Desktop/Large | 1024px                | lg:             |
+| Extra Large   | 1400px                | 2xl:            |
+
+Alle Layouts und Komponenten sind so gestaltet, dass sie auf diesen Größen optimal funktionieren. Siehe auch die Tailwind-Konfiguration (`tailwind.config.ts`).
+
 ## 🛠️ Technologie-Stack
 
 - **Framework**: React mit TypeScript
