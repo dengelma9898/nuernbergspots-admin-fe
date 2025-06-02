@@ -167,113 +167,111 @@ export function ChatroomManagement() {
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-7xl">
-      <div className="space-y-8">
-        <div className="flex flex-col space-y-4">
-          <Button
-            variant="ghost"
-            className="w-fit"
-            onClick={() => navigate('/dashboard')}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Zurück zum Dashboard
-          </Button>
-          <div className="flex justify-between items-center">
-            <div className="space-y-2">
-              <h1 className="text-3xl font-bold">Chatroom Management</h1>
-              <div className="text-lg text-muted-foreground">
-                Verwalten Sie hier alle Chatrooms und deren Einstellungen
-              </div>
+    <div className="container mx-auto p-4 sm:p-8 max-w-7xl">
+      <div className="space-y-6 sm:space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <div className="flex flex-col gap-1">
+            <Button
+              variant="ghost"
+              className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer"
+              onClick={() => navigate('/dashboard')}
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Zurück zum Dashboard
+            </Button>
+            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Chatroom Management</h1>
+            <div className="text-base sm:text-lg text-muted-foreground max-w-md">
+              Verwalten Sie hier alle Chatrooms und deren Einstellungen
             </div>
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Neuer Chatroom
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Neuen Chatroom erstellen</DialogTitle>
-                  <DialogDescription>
-                    Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Titel</Label>
-                    <Input
-                      id="title"
-                      value={newChatroom.title}
-                      onChange={(e) => setNewChatroom({ ...newChatroom, title: e.target.value })}
-                      placeholder="Chatroom Titel"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Beschreibung</Label>
-                    <Textarea
-                      id="description"
-                      value={newChatroom.description}
-                      onChange={(e) => setNewChatroom({ ...newChatroom, description: e.target.value })}
-                      placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Chatroom Bild</Label>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-32 h-32 border-2 border-dashed rounded-lg overflow-hidden">
-                        {imagePreview ? (
-                          <>
-                            <img
-                              src={imagePreview}
-                              alt="Vorschau"
-                              className="w-full h-full object-cover"
-                            />
-                            <button
-                              onClick={() => {
-                                setSelectedImage(null);
-                                setImagePreview(null);
-                              }}
-                              className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageSelect}
-                          className="hidden"
-                          id="image-upload"
-                        />
-                        <Label
-                          htmlFor="image-upload"
-                          className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                        >
-                          Bild auswählen
-                        </Label>
-                      </div>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2">
+                <Plus className="mr-2 h-4 w-4" />
+                Neuer Chatroom
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Neuen Chatroom erstellen</DialogTitle>
+                <DialogDescription>
+                  Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Titel</Label>
+                  <Input
+                    id="title"
+                    value={newChatroom.title}
+                    onChange={(e) => setNewChatroom({ ...newChatroom, title: e.target.value })}
+                    placeholder="Chatroom Titel"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Beschreibung</Label>
+                  <Textarea
+                    id="description"
+                    value={newChatroom.description}
+                    onChange={(e) => setNewChatroom({ ...newChatroom, description: e.target.value })}
+                    placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Chatroom Bild</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-32 h-32 border-2 border-dashed rounded-lg overflow-hidden">
+                      {imagePreview ? (
+                        <>
+                          <img
+                            src={imagePreview}
+                            alt="Vorschau"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() => {
+                              setSelectedImage(null);
+                              setImagePreview(null);
+                            }}
+                            className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageSelect}
+                        className="hidden"
+                        id="image-upload"
+                      />
+                      <Label
+                        htmlFor="image-upload"
+                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                      >
+                        Bild auswählen
+                      </Label>
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleCreateChatroom}>
-                    Erstellen
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                  Abbrechen
+                </Button>
+                <Button onClick={handleCreateChatroom}>
+                  Erstellen
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -377,7 +375,7 @@ export function ChatroomManagement() {
           </AlertDialogContent>
         </AlertDialog>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {isLoading ? (
             <div className="col-span-full text-center py-8">
               Lade Chatrooms...
@@ -390,38 +388,20 @@ export function ChatroomManagement() {
             chatrooms.map((chatroom) => (
               <Card
                 key={chatroom.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
+                className="cursor-pointer hover:shadow-lg transition-shadow p-2 sm:p-4 flex flex-col justify-between h-full"
                 onClick={() => handleChatroomClick(chatroom.id)}
               >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2">
-                        <MessageCircle className="h-5 w-5 text-primary" />
-                        {chatroom.title}
-                      </CardTitle>
-                      <CardDescription>{chatroom.description}</CardDescription>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={(e) => openEditDialog(chatroom, e)}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={(e) => openDeleteDialog(chatroom, e)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
+                <CardHeader className="pb-2">
+                  <div className="space-y-1">
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      {chatroom.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm sm:text-base">{chatroom.description}</CardDescription>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
+                <CardContent className="pt-0">
+                  <div className="space-y-3">
                     {chatroom.imageUrl && (
                       <div className="relative aspect-video rounded-lg overflow-hidden">
                         <img
@@ -431,21 +411,37 @@ export function ChatroomManagement() {
                         />
                       </div>
                     )}
-                    <div className="space-y-2">
-                      {chatroom.lastMessage && (
-                        <div className="text-sm text-muted-foreground">
-                          Letzte Nachricht: {chatroom.lastMessage.content}
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        {chatroom.participants.length} Teilnehmer
-                      </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      {chatroom.participants.length} Teilnehmer
                     </div>
+                    {chatroom.lastMessage && (
+                      <div className="text-xs text-muted-foreground">
+                        Letzte Nachricht: {chatroom.lastMessage.content}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
-                <CardFooter className="text-sm text-muted-foreground">
-                  Erstellt am {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
+                <CardFooter className="flex flex-col gap-2 pt-4 border-t mt-2">
+                  <div className="text-xs text-muted-foreground w-full text-center">
+                    Erstellt am {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <Button 
+                      variant="outline" 
+                      onClick={(e) => { e.stopPropagation(); openEditDialog(chatroom, e); }}
+                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center"
+                    >
+                      <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
+                    </Button>
+                    <Button 
+                      variant="destructive" 
+                      onClick={(e) => { e.stopPropagation(); openDeleteDialog(chatroom, e); }}
+                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" /> Löschen
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))
