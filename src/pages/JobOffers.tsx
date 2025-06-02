@@ -112,33 +112,32 @@ export function JobOffers() {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+    <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zum Dashboard
         </Button>
-        <h1 className="text-2xl font-bold">Stellenangebote</h1>
-        <div className="ml-auto">
-          <Button onClick={() => navigate('/job-offers/create')}>
+        <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto">Stellenangebote</h1>
+        <div className="w-full sm:w-auto sm:ml-auto">
+          <Button onClick={() => navigate('/job-offers/create')} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Stellenangebot hinzufügen
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
+        <div className="relative flex-1 mb-2 md:mb-0">
           <Input
             placeholder="Nach Stellenangebot suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="rounded-lg px-1"
           />
         </div>
         <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0">
             <SelectValue placeholder="Beschäftigungsart" />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +149,7 @@ export function JobOffers() {
           </SelectContent>
         </Select>
         <Select value={homeOfficeFilter} onValueChange={setHomeOfficeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] rounded-lg">
             <SelectValue placeholder="Home Office" />
           </SelectTrigger>
           <SelectContent>
@@ -164,16 +163,112 @@ export function JobOffers() {
       {filteredJobOffers.length === 0 ? (
         <div className="text-center py-8">Keine Stellenangebote gefunden.</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJobOffers.map((jobOffer) => (
-            <JobOfferCard 
-              key={jobOffer.id} 
-              jobOffer={jobOffer}
-              onDelete={handleDelete}
-              category={categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null}
-            />
-          ))}
-        </div>
+        <>
+          {/* Mobile Card-Ansicht */}
+          <div className="block md:hidden space-y-6">
+            {filteredJobOffers.map((jobOffer) => {
+              const category = categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null;
+              return (
+                <Card key={jobOffer.id} className="p-4">
+                  <div className="flex flex-col gap-2">
+                    {jobOffer.isHighlight && (
+                      <Badge className="w-fit bg-yellow-500 text-white border-yellow-600 mb-2">⭐ Highlight</Badge>
+                    )}
+                    {jobOffer.companyLogo && (
+                      <img
+                        src={jobOffer.companyLogo}
+                        alt={jobOffer.title}
+                        className="object-contain w-full h-40 rounded bg-white p-2 mb-2"
+                      />
+                    )}
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-lg">{jobOffer.title}</span>
+                      <Badge variant={jobOffer.homeOffice ? 'default' : 'secondary'} className="ml-2">
+                        <Home className="h-4 w-4 mr-1" />
+                        {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm mb-1">
+                      {category && getIconComponent?.(category.iconName)}
+                      {category && <span>{category.name}</span>}
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">{formatDate(jobOffer.startDate)}</div>
+                    <div className="text-sm text-muted-foreground mb-2">{jobOffer.generalDescription}</div>
+                    <div className="flex flex-col gap-1 mb-2">
+                      <div className="flex items-center text-sm">
+                        <MapPin className="mr-2 h-4 w-4" />
+                        <span className="truncate">{jobOffer.location.address}</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <Briefcase className="mr-2 h-4 w-4" />
+                        {jobOffer.typeOfEmployment}
+                      </div>
+                      {jobOffer.wage && (
+                        <div className="flex items-center text-sm">
+                          <Euro className="mr-2 h-4 w-4" />
+                          {jobOffer.wage}
+                        </div>
+                      )}
+                      <div className="flex items-center text-sm">
+                        <Mail className="mr-2 h-4 w-4" />
+                        {jobOffer.contactData.email}
+                      </div>
+                      {jobOffer.contactData.phone && (
+                        <div className="flex items-center text-sm">
+                          <Phone className="mr-2 h-4 w-4" />
+                          {jobOffer.contactData.phone}
+                        </div>
+                      )}
+                      <div className="flex items-center text-sm">
+                        <LinkIcon className="mr-2 h-4 w-4" />
+                        <a 
+                          href={jobOffer.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:underline"
+                        >
+                          Zur Bewerbung
+                        </a>
+                      </div>
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      Erstellt am {formatDate(jobOffer.createdAt)}
+                    </div>
+                    <div className="flex flex-col gap-2 mt-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="w-full cursor-pointer"
+                        onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
+                      >
+                        Bearbeiten
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        className="w-full cursor-pointer"
+                        onClick={() => handleDelete(jobOffer.id)}
+                      >
+                        Löschen
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+          {/* Desktop/Table Ansicht */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredJobOffers.map((jobOffer) => (
+              <JobOfferCard 
+                key={jobOffer.id} 
+                jobOffer={jobOffer}
+                onDelete={handleDelete}
+                category={categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null}
+              />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
