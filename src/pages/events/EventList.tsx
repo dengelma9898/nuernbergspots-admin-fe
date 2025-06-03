@@ -241,41 +241,43 @@ export const EventList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+    <div className="container mx-auto py-6 px-2 max-w-full overflow-x-hidden">
+      {/* Header & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 mb-6">
+        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zum Dashboard
         </Button>
-        <h1 className="text-2xl font-bold">Events</h1>
-        <div className="ml-auto flex gap-2">
-          <Button variant="outline" onClick={handleGenerateImage} className="gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto">Events</h1>
+        <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleGenerateImage} className="w-full sm:w-auto gap-2">
             <ImageIcon className="h-4 w-4" />
             Bild generieren
           </Button>
-          <Button variant="outline" onClick={() => navigate('/events/scraper')} className="gap-2">
+          <Button variant="outline" onClick={() => navigate('/events/scraper')} className="w-full sm:w-auto gap-2">
             <Search className="h-4 w-4" />
             Events suchen
           </Button>
-          <Button onClick={() => navigate('/create-event')}>
+          <Button onClick={() => navigate('/create-event')} className="w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Event hinzufügen
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
+      {/* Filterleiste */}
+      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
+        <div className="relative flex-1 mb-2 md:mb-0">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Nach Event-Namen suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 rounded-lg"
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0">
             <SelectValue placeholder="Status filtern" />
           </SelectTrigger>
           <SelectContent>
@@ -286,7 +288,7 @@ export const EventList: React.FC = () => {
           </SelectContent>
         </Select>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0">
             <SelectValue placeholder="Kategorie filtern" />
           </SelectTrigger>
           <SelectContent>
@@ -299,7 +301,7 @@ export const EventList: React.FC = () => {
           </SelectContent>
         </Select>
         <Select value={timeFilter} onValueChange={setTimeFilter}>
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-full sm:w-[180px] rounded-lg">
             <SelectValue placeholder="Zeitraum filtern" />
           </SelectTrigger>
           <SelectContent>
@@ -538,43 +540,42 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       ) : null}
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <div className="flex items-center gap-1">
-                <CardTitle className="text-xl">{event.title}</CardTitle>
-                {event.isPromoted && (
-                  <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                )}
-              </div>
-              {category ? (
-                <Badge 
-                  className="text-xs flex items-center"
-                  style={{
-                    backgroundColor: convertFFToHex(category.colorCode),
-                    color: '#fff'
-                  }}
-                >
-                  <span className="mr-1 flex items-center">
-                    {getIconComponent(category.iconName)}
-                  </span>
-                  {category.name}
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="text-xs flex items-center">
-                  <Tag className="w-3 h-3 mr-1" />
-                  Keine Kategorie
-                </Badge>
+        <div className="flex flex-col gap-1">
+          <div className="flex flex-wrap items-center gap-2 w-full">
+            <div className="flex items-center gap-1 min-w-0">
+              <CardTitle className="text-xl whitespace-nowrap">{event.title}</CardTitle>
+              {event.isPromoted && (
+                <Star className="h-4 w-4 text-yellow-500 fill-current" />
               )}
             </div>
-            <CardDescription className="mt-1">
-              {getEventDateTime(event)}
-            </CardDescription>
+            {category ? (
+              <Badge 
+                className="text-xs flex items-center max-w-[60%] truncate"
+                style={{
+                  backgroundColor: convertFFToHex(category.colorCode),
+                  color: '#fff'
+                }}
+                title={category.name}
+              >
+                <span className="mr-1 flex items-center">
+                  {getIconComponent(category.iconName)}
+                </span>
+                <span className="truncate">{category.name}</span>
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-xs flex items-center max-w-[60%] truncate">
+                <Tag className="w-3 h-3 mr-1" />
+                Keine Kategorie
+              </Badge>
+            )}
+            <Badge variant={status.variant} className="ml-auto mt-1 sm:mt-0">
+              {status.icon}
+              <span className="ml-1">{status.label}</span>
+            </Badge>
           </div>
-          <Badge variant={status.variant}>
-            {status.icon}
-            <span className="ml-1">{status.label}</span>
-          </Badge>
+          <CardDescription className="mt-1">
+            {getEventDateTime(event)}
+          </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
