@@ -80,14 +80,14 @@ export default function MittmachMittwoch() {
     : { [statusFilter]: groupedPolls[statusFilter] };
 
   return (
-    <div className="container mx-auto p-8 max-w-4xl">
-      <div className="flex items-center justify-between mb-6">
-        <Button variant="outline" onClick={() => navigate('/dashboard')}>
+    <div className="container mx-auto p-4 md:p-8 max-w-4xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <Button variant="outline" onClick={() => navigate('/dashboard')} className="w-full md:w-auto">
           Zurück zum Dashboard
         </Button>
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col md:flex-row gap-2 items-stretch md:items-center w-full md:w-auto">
           <Select value={statusFilter} onValueChange={v => setStatusFilter(v as any)}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-full md:w-40">
               <SelectValue placeholder="Status filtern" />
             </SelectTrigger>
             <SelectContent>
@@ -99,12 +99,12 @@ export default function MittmachMittwoch() {
           </Select>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center gap-2 shadow">
+              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center gap-2 shadow w-full md:w-auto">
                 <Plus className="h-4 w-4" />
                 Neue Aktion/Poll
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader>
                 <DialogTitle>Neue Aktion/Poll erstellen</DialogTitle>
               </DialogHeader>
@@ -122,11 +122,11 @@ export default function MittmachMittwoch() {
                   }}
                 />
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              <DialogFooter className="flex-col sm:flex-row gap-2">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="w-full sm:w-auto">
                   Abbrechen
                 </Button>
-                <Button onClick={handleCreatePoll} disabled={!newPollTitle.trim()}>
+                <Button onClick={handleCreatePoll} disabled={!newPollTitle.trim()} className="w-full sm:w-auto">
                   Erstellen
                 </Button>
               </DialogFooter>
@@ -134,11 +134,11 @@ export default function MittmachMittwoch() {
           </Dialog>
         </div>
       </div>
-      <h1 className="text-3xl font-bold mb-4">Mittmach Mittwoch</h1>
-      <p className="text-lg text-muted-foreground mb-8">
+      <h1 className="text-2xl md:text-3xl font-bold mb-4">Mittmach Mittwoch</h1>
+      <p className="text-base md:text-lg text-muted-foreground mb-8">
         Hier findest du alle Aktionen, Ideen und Möglichkeiten, wie du dich am Mittwoch in der Community engagieren kannst!
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {isLoading ? (
           <div className="col-span-full text-center py-8">Lade Aktionen...</div>
         ) : polls.length === 0 ? (

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useChatMessageService, ChatMessage, ReactionType } from '@/services/chatMessageService';
 import { useUserService } from '@/services/userService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Send, Smile, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Send, Smile, MoreVertical, Edit2, Trash2, ArrowLeft } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,6 +18,7 @@ import {
 
 export function ChatMessages() {
   const { chatroomId } = useParams<{ chatroomId: string }>();
+  const navigate = useNavigate();
   const chatMessageService = useChatMessageService();
   const userService = useUserService();
   const { getUserId } = useAuth();
@@ -154,6 +155,16 @@ export function ChatMessages() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
+      <div className="p-4 border-b">
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/chatrooms')}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Zurück zu Chatrooms
+        </Button>
+      </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
