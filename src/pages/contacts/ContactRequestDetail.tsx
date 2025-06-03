@@ -115,7 +115,7 @@ export function ContactRequestDetail() {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-8 max-w-7xl">
+      <div className="w-full min-h-screen bg-white p-4 md:p-8">
         <div className="text-center py-8">Lade Kontaktanfrage...</div>
       </div>
     );
@@ -123,7 +123,7 @@ export function ContactRequestDetail() {
 
   if (!contactRequest) {
     return (
-      <div className="container mx-auto p-8 max-w-7xl">
+      <div className="w-full min-h-screen bg-white p-4 md:p-8">
         <div className="text-center py-8">
           <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
           <h3 className="mt-2 text-lg font-semibold">Kontaktanfrage nicht gefunden</h3>
@@ -143,10 +143,11 @@ export function ContactRequestDetail() {
   }
 
   return (
-    <div className="container mx-auto p-8 max-w-7xl">
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+    <div className="w-full min-h-screen bg-white flex flex-col p-0">
+      <div className="w-full max-w-2xl mx-auto flex flex-col flex-1 p-0">
+        {/* Header */}
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between px-4 pt-4 pb-2 border-b bg-white sticky top-0 z-10">
+          <div className="flex items-center gap-2">
             <Button
               onClick={() => navigate('/contacts')}
               variant="ghost"
@@ -155,11 +156,11 @@ export function ContactRequestDetail() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">Kontaktanfrage Details</h1>
-              <div className="flex items-center space-x-2 mt-1">
+              <h1 className="text-lg md:text-2xl font-bold">Kontaktanfrage Details</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
                 {getRequestTypeBadge(contactRequest.type)}
                 {getStatusBadge(contactRequest)}
-                <span className="text-sm text-muted-foreground">
+                <span className="text-xs md:text-sm text-muted-foreground">
                   {format(new Date(contactRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
                 </span>
               </div>
@@ -169,46 +170,51 @@ export function ContactRequestDetail() {
             onClick={fetchContactRequest}
             variant="outline"
             disabled={isRefreshing}
-            className="flex items-center"
+            className="flex items-center w-full md:w-auto"
           >
             <RefreshCcw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Wird aktualisiert...' : 'Aktualisieren'}
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Konversation</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Konversation */}
+        <div className="flex-1 overflow-y-auto px-2 md:px-4 pb-40 pt-4 bg-white">
+          <div className="max-w-2xl mx-auto">
+            <div className="font-semibold text-base mb-2 px-2">Konversation</div>
             <div className="space-y-4">
               {contactRequest.messages.map((message, index) => (
                 <MessageBubble key={index} message={message} />
               ))}
             </div>
-          </CardContent>
-          <CardFooter>
-            <form onSubmit={handleSubmitResponse} className="w-full space-y-4">
-              <Textarea
-                placeholder="Ihre Antwort..."
-                value={responseMessage}
-                onChange={(e) => setResponseMessage(e.target.value)}
-                className="min-h-[100px]"
-                disabled={isSending}
-              />
-              <div className="flex justify-end">
-                <Button
-                  type="submit"
-                  disabled={isSending || !responseMessage.trim()}
-                  className="flex items-center"
-                >
-                  <Send className={`mr-2 h-4 w-4 ${isSending ? 'animate-pulse' : ''}`} />
-                  {isSending ? 'Wird gesendet...' : 'Antwort senden'}
-                </Button>
-              </div>
-            </form>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
+
+        {/* Floating Antwortfeld */}
+        <form
+          onSubmit={handleSubmitResponse}
+          className="fixed bottom-0 left-0 w-full z-30 bg-white border-t shadow-lg px-2 py-3 flex flex-col gap-2"
+          style={{maxWidth: '100vw'}}
+        >
+          <div className="max-w-2xl mx-auto w-full flex flex-col gap-2">
+            <Textarea
+              placeholder="Ihre Antwort..."
+              value={responseMessage}
+              onChange={(e) => setResponseMessage(e.target.value)}
+              className="min-h-[60px]"
+              disabled={isSending}
+            />
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={isSending || !responseMessage.trim()}
+                className="flex items-center"
+              >
+                <Send className={`mr-2 h-4 w-4 ${isSending ? 'animate-pulse' : ''}`} />
+                {isSending ? 'Wird gesendet...' : 'Antwort senden'}
+              </Button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );
