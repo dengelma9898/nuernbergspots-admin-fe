@@ -177,156 +177,199 @@ export function CategoryList() {
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-7xl">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+    <div className="container mx-auto p-4 md:p-8 max-w-7xl">
+      {/* Back Button */}
+      <div className="mb-4">
+        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück zum Dashboard
         </Button>
-        <h1 className="text-2xl font-bold">Kategorien verwalten</h1>
       </div>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Kategorien verwalten</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-            <DialogTrigger asChild>
-              <Button onClick={resetModalState}>
-                <Plus className="mr-2 h-4 w-4" />
-                Neue Kategorie
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie'}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Name</label>
-                  <Input
-                    value={newCategory.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, name: e.target.value })}
-                    placeholder="Kategoriename"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Icon</label>
-                  <IconPicker
-                    value={newCategory.iconName}
-                    onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Beschreibung</label>
-                  <Input
-                    value={newCategory.description}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, description: e.target.value })}
-                    placeholder="Beschreibung"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Keywords</label>
-                  <KeywordSelector
-                    selectedIds={newCategory.keywordIds}
-                    onChange={(ids) => setNewCategory({ ...newCategory, keywordIds: ids })}
-                  />
-                </div>
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    <X className="mr-2 h-4 w-4" />
-                    Abbrechen
-                  </Button>
-                  <Button onClick={editingCategory ? handleUpdateCategory : handleAddCategory}>
-                    <Check className="mr-2 h-4 w-4" />
-                    {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
-                  </Button>
-                </div>
+      {/* Header und Button */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6">
+        <h1 className="text-xl md:text-2xl font-bold">Kategorien verwalten</h1>
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+          <DialogTrigger asChild>
+            <Button onClick={resetModalState}>
+              <Plus className="mr-2 h-4 w-4" />
+              Neue Kategorie
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Name</label>
+                <Input
+                  value={newCategory.name}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  placeholder="Kategoriename"
+                />
               </div>
-            </DialogContent>
-          </Dialog>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Icon</TableHead>
-                <TableHead>Beschreibung</TableHead>
-                <TableHead>Keywords</TableHead>
-                <TableHead>Erstellt am</TableHead>
-                <TableHead>Aktualisiert am</TableHead>
-                <TableHead className="w-[100px]">Aktionen</TableHead>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Icon</label>
+                <IconPicker
+                  value={newCategory.iconName}
+                  onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Beschreibung</label>
+                <Input
+                  value={newCategory.description}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, description: e.target.value })}
+                  placeholder="Beschreibung"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Keywords</label>
+                <KeywordSelector
+                  selectedIds={newCategory.keywordIds}
+                  onChange={(ids) => setNewCategory({ ...newCategory, keywordIds: ids })}
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  <X className="mr-2 h-4 w-4" />
+                  Abbrechen
+                </Button>
+                <Button onClick={editingCategory ? handleUpdateCategory : handleAddCategory}>
+                  <Check className="mr-2 h-4 w-4" />
+                  {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Mobile Card-Ansicht */}
+      {isLoading ? (
+        <div className="block md:hidden text-center text-muted-foreground">Lade Kategorien...</div>
+      ) : categories.length === 0 ? (
+        <div className="block md:hidden text-center text-muted-foreground">Keine Kategorien vorhanden</div>
+      ) : (
+        <div className="block md:hidden space-y-4">
+          {categories.map((category) => (
+            <Card key={category.id} className="p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="font-bold text-lg flex-1">{category.name}</div>
+                <div>{getIconComponent(category.iconName)}</div>
+              </div>
+              <div className="text-sm text-muted-foreground mb-2">{category.description || '-'}</div>
+              <div className="flex flex-wrap gap-1 mb-2">
+                {category.keywords && category.keywords.length > 0 ? (
+                  category.keywords.map((keyword) => (
+                    <span 
+                      key={keyword.name} 
+                      className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
+                    >
+                      {keyword.name}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">-</span>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground mb-2">
+                Erstellt: {new Date(category.createdAt).toLocaleDateString()}<br />
+                Aktualisiert: {new Date(category.updatedAt).toLocaleDateString()}
+              </div>
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" variant="outline" onClick={() => handleEditCategory(category)} className="cursor-pointer">
+                  <Pencil className="mr-1 h-4 w-4" /> Bearbeiten
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => handleDeleteCategory(category.id)} className="cursor-pointer">
+                  <Trash2 className="mr-1 h-4 w-4" /> Löschen
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+      {/* Desktop/Table Ansicht */}
+      <Table className="hidden md:table">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Icon</TableHead>
+            <TableHead>Beschreibung</TableHead>
+            <TableHead>Keywords</TableHead>
+            <TableHead>Erstellt am</TableHead>
+            <TableHead>Aktualisiert am</TableHead>
+            <TableHead className="w-[100px]">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                Lade Kategorien...
+              </TableCell>
+            </TableRow>
+          ) : categories.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
+                Keine Kategorien vorhanden
+              </TableCell>
+            </TableRow>
+          ) : (
+            categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell className="font-medium">{category.name}</TableCell>
+                <TableCell>
+                  {getIconComponent(category.iconName)}
+                </TableCell>
+                <TableCell>{category.description || '-'}</TableCell>
+                <TableCell>
+                  {category.keywords && category.keywords.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {category.keywords.map((keyword) => (
+                        <span 
+                          key={keyword.name} 
+                          className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
+                        >
+                          {keyword.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    '-'
+                  )}
+                </TableCell>
+                <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEditCategory(category)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Bearbeiten
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteCategory(category.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Löschen
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    Lade Kategorien...
-                  </TableCell>
-                </TableRow>
-              ) : categories.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    Keine Kategorien vorhanden
-                  </TableCell>
-                </TableRow>
-              ) : (
-                categories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      {getIconComponent(category.iconName)}
-                    </TableCell>
-                    <TableCell>{category.description || '-'}</TableCell>
-                    <TableCell>
-                      {category.keywords && category.keywords.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {category.keywords.map((keyword) => (
-                            <span 
-                              key={keyword.name} 
-                              className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
-                            >
-                              {keyword.name}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        '-'
-                      )}
-                    </TableCell>
-                    <TableCell>{new Date(category.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell>{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditCategory(category)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Bearbeiten
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteCategory(category.id)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Löschen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 } 
