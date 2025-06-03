@@ -135,7 +135,7 @@ const NewsManagement: React.FC = () => {
     setLoading(true);
     try {
       const allNews = await newsService.getAll();
-      setNews(allNews.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
+      setNews(allNews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
       setTimeout(() => {
         feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'auto' });
       }, 100);
@@ -273,53 +273,54 @@ const NewsManagement: React.FC = () => {
   };
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="min-w-[600px] max-w-2xl w-full py-8 flex flex-col" style={{height: '90vh'}}>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/dashboard')}
-              title="Zurück zum Dashboard"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-2xl font-bold">News Management</h1>
-          </div>
-          <Button variant="ghost" size="icon" onClick={fetchNews} title="Neu laden">
-            <RefreshCw className={loading ? 'animate-spin' : ''} />
+    <div className="flex flex-col min-h-screen w-full bg-white">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-6 px-2 pt-4">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/dashboard')}
+            title="Zurück zum Dashboard"
+          >
+            <ArrowLeft className="w-5 h-5" />
           </Button>
+          <h1 className="text-xl md:text-2xl font-bold truncate">News Management</h1>
         </div>
-        <div ref={feedRef} className="flex-1 flex flex-col gap-2 overflow-y-auto pb-4" style={{scrollBehavior: 'smooth'}}>
-          {loading ? (
-            <div className="flex justify-center py-12">
-              <Loader2 className="animate-spin w-8 h-8 text-muted-foreground" />
-            </div>
-          ) : news.length === 0 ? (
-            <div className="text-center text-muted-foreground py-8">
-              Noch keine News vorhanden. Klicke auf das Refresh-Icon zum Laden.
-            </div>
-          ) : (
-            news.map(item => <NewsBubble key={item.id} item={item} />)
-          )}
-        </div>
-        <form
-          className="flex gap-2 mt-2 border-t pt-4 bg-white"
-          onSubmit={e => {
-            e.preventDefault();
-            handleSend();
-          }}
-        >
-          <Input
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            placeholder="Neue Nachricht schreiben..."
-            disabled={sending}
-            className="flex-1"
-            autoFocus
-          />
-          <Button type="submit" disabled={sending || !input.trim()} size="icon">
+        <Button variant="ghost" size="icon" onClick={fetchNews} title="Neu laden">
+          <RefreshCw className={loading ? 'animate-spin' : ''} />
+        </Button>
+      </div>
+      <div ref={feedRef} className="flex-1 flex flex-col gap-2 overflow-y-auto pb-32 px-2" style={{scrollBehavior: 'smooth', minHeight: 0}}>
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <Loader2 className="animate-spin w-8 h-8 text-muted-foreground" />
+          </div>
+        ) : news.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            Noch keine News vorhanden. Klicke auf das Refresh-Icon zum Laden.
+          </div>
+        ) : (
+          news.map(item => <NewsBubble key={item.id} item={item} />)
+        )}
+      </div>
+      <form
+        className="fixed bottom-0 left-0 w-full z-30 flex flex-col gap-2 border-t pt-4 bg-white px-2 pb-4 shadow-lg"
+        style={{maxWidth: '100vw'}} 
+        onSubmit={e => {
+          e.preventDefault();
+          handleSend();
+        }}
+      >
+        <Input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Neue Nachricht schreiben..."
+          disabled={sending}
+          className="w-full"
+          autoFocus
+        />
+        <div className="flex gap-2 w-full">
+          <Button type="submit" disabled={sending || !input.trim()} className="flex-1" size="icon">
             <Send />
           </Button>
           <Button
@@ -328,6 +329,7 @@ const NewsManagement: React.FC = () => {
             size="icon"
             onClick={() => setShowImageModal(true)}
             title="Bild-News hinzufügen"
+            className="flex-1"
           >
             <ImageIcon />
           </Button>
@@ -337,164 +339,165 @@ const NewsManagement: React.FC = () => {
             size="icon"
             onClick={() => setShowPollModal(true)}
             title="Umfrage erstellen"
+            className="flex-1"
           >
             <BarChart2 />
           </Button>
-        </form>
-        <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Bild-News erstellen</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                value={imageContent}
-                onChange={e => setImageContent(e.target.value)}
-                placeholder="Text zur Bild-News..."
-                disabled={imageSending}
+        </div>
+      </form>
+      <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Bild-News erstellen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Textarea
+              value={imageContent}
+              onChange={e => setImageContent(e.target.value)}
+              placeholder="Text zur Bild-News..."
+              disabled={imageSending}
+            />
+            <div>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                disabled={imageFiles.length >= MAX_IMAGES || imageSending}
+                onChange={handleImageFiles}
+                className="hidden"
+                id="image-upload-input"
               />
-              <div>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  disabled={imageFiles.length >= MAX_IMAGES || imageSending}
-                  onChange={handleImageFiles}
-                  className="hidden"
-                  id="image-upload-input"
-                />
-                <Button asChild variant="outline" size="sm" className="mb-2" disabled={imageFiles.length >= MAX_IMAGES || imageSending}>
-                  <label htmlFor="image-upload-input" className="cursor-pointer">
-                    {imageFiles.length >= MAX_IMAGES ? 'Maximal 5 Bilder' : 'Bilder auswählen'}
-                  </label>
-                </Button>
-                <div className="flex gap-2 flex-wrap">
-                  {imagePreviews.map((url, idx) => (
-                    <div key={idx} className="relative w-20 h-20 border rounded-md overflow-hidden">
-                      <img src={url} alt={`Preview ${idx + 1}`} className="object-cover w-full h-full" />
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="destructive"
-                        className="absolute top-1 right-1"
-                        onClick={() => handleRemoveImage(idx)}
-                        disabled={imageSending}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline" disabled={imageSending}>
-                  Abbrechen
-                </Button>
-              </DialogClose>
-              <Button onClick={handleSendImageNews} disabled={imageSending || !imageContent.trim() || imageFiles.length === 0}>
-                {imageSending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
-                Senden
+              <Button asChild variant="outline" size="sm" className="mb-2" disabled={imageFiles.length >= MAX_IMAGES || imageSending}>
+                <label htmlFor="image-upload-input" className="cursor-pointer">
+                  {imageFiles.length >= MAX_IMAGES ? 'Maximal 5 Bilder' : 'Bilder auswählen'}
+                </label>
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-        <Dialog open={showPollModal} onOpenChange={setShowPollModal}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Umfrage erstellen</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="poll-question">Frage</Label>
-                <Input
-                  id="poll-question"
-                  value={pollQuestion}
-                  onChange={e => setPollQuestion(e.target.value)}
-                  placeholder="Stelle deine Frage..."
-                  disabled={pollSending}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Antwortmöglichkeiten</Label>
-                {pollOptions.map((option, index) => (
-                  <div key={index} className="flex gap-2">
-                    <Input
-                      value={option}
-                      onChange={e => handlePollOptionChange(index, e.target.value)}
-                      placeholder={`Option ${index + 1}`}
-                      disabled={pollSending}
-                    />
-                    {pollOptions.length > 2 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleRemovePollOption(index)}
-                        disabled={pollSending}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    )}
+              <div className="flex gap-2 flex-wrap">
+                {imagePreviews.map((url, idx) => (
+                  <div key={idx} className="relative w-20 h-20 border rounded-md overflow-hidden">
+                    <img src={url} alt={`Preview ${idx + 1}`} className="object-cover w-full h-full" />
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="destructive"
+                      className="absolute top-1 right-1"
+                      onClick={() => handleRemoveImage(idx)}
+                      disabled={imageSending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 ))}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAddPollOption}
-                  disabled={pollSending || pollOptions.length >= 10}
-                  className="w-full"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Option hinzufügen
-                </Button>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="multiple-answers"
-                  checked={allowMultipleAnswers}
-                  onCheckedChange={setAllowMultipleAnswers}
-                  disabled={pollSending}
-                />
-                <Label htmlFor="multiple-answers">Mehrfachauswahl erlauben</Label>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="poll-expires">Ablaufdatum (optional)</Label>
-                <Input
-                  id="poll-expires"
-                  type="datetime-local"
-                  value={pollExpiresAt}
-                  onChange={e => setPollExpiresAt(e.target.value)}
-                  disabled={pollSending}
-                />
               </div>
             </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button type="button" variant="outline" disabled={pollSending}>
-                  Abbrechen
-                </Button>
-              </DialogClose>
-              <Button
-                onClick={handleSendPoll}
-                disabled={
-                  pollSending ||
-                  !pollQuestion.trim() ||
-                  pollOptions.some(opt => !opt.trim())
-                }
-              >
-                {pollSending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
-                Umfrage erstellen
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={imageSending}>
+                Abbrechen
               </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
+            </DialogClose>
+            <Button onClick={handleSendImageNews} disabled={imageSending || !imageContent.trim() || imageFiles.length === 0}>
+              {imageSending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+              Senden
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showPollModal} onOpenChange={setShowPollModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Umfrage erstellen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="poll-question">Frage</Label>
+              <Input
+                id="poll-question"
+                value={pollQuestion}
+                onChange={e => setPollQuestion(e.target.value)}
+                placeholder="Stelle deine Frage..."
+                disabled={pollSending}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Antwortmöglichkeiten</Label>
+              {pollOptions.map((option, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={option}
+                    onChange={e => handlePollOptionChange(index, e.target.value)}
+                    placeholder={`Option ${index + 1}`}
+                    disabled={pollSending}
+                  />
+                  {pollOptions.length > 2 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemovePollOption(index)}
+                      disabled={pollSending}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddPollOption}
+                disabled={pollSending || pollOptions.length >= 10}
+                className="w-full"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Option hinzufügen
+              </Button>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="multiple-answers"
+                checked={allowMultipleAnswers}
+                onCheckedChange={setAllowMultipleAnswers}
+                disabled={pollSending}
+              />
+              <Label htmlFor="multiple-answers">Mehrfachauswahl erlauben</Label>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="poll-expires">Ablaufdatum (optional)</Label>
+              <Input
+                id="poll-expires"
+                type="datetime-local"
+                value={pollExpiresAt}
+                onChange={e => setPollExpiresAt(e.target.value)}
+                disabled={pollSending}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline" disabled={pollSending}>
+                Abbrechen
+              </Button>
+            </DialogClose>
+            <Button
+              onClick={handleSendPoll}
+              disabled={
+                pollSending ||
+                !pollQuestion.trim() ||
+                pollOptions.some(opt => !opt.trim())
+              }
+            >
+              {pollSending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+              Umfrage erstellen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
