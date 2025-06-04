@@ -334,57 +334,61 @@ export const BusinessList: React.FC = () => {
   const inactiveBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.INACTIVE);
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="min-h-screen bg-muted px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
       <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zum Dashboard
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate('/dashboard')}
+          className="rounded-full p-2 mr-2"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Zurück zum Dashboard</span>
         </Button>
-        <h1 className="text-2xl font-bold">Geschäfte</h1>
-        <div className="ml-auto">
-          <Button onClick={() => navigate('/create-business')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Partner hinzufügen
-          </Button>
-        </div>
+        <h1 className="text-2xl font-bold flex-1 text-left sm:text-center">Geschäfte</h1>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => navigate('/create-business')}
+          className="ml-2"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Partner hinzufügen
+        </Button>
       </div>
 
       <div className="space-y-6 mb-8">
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Nach Geschäftsnamen suchen..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="max-w-sm"
+          <Input
+            placeholder="Nach Geschäftsnamen suchen..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full mb-2 sm:mb-0 max-w-full"
+          />
+          <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="pending-filter"
+                checked={showOnlyPending}
+                onCheckedChange={setShowOnlyPending}
               />
+              <Label htmlFor="pending-filter">Nur ausstehende</Label>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="pending-filter"
-                  checked={showOnlyPending}
-                  onCheckedChange={setShowOnlyPending}
-                />
-                <Label htmlFor="pending-filter">Nur ausstehende</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="review-filter"
-                  checked={showOnlyWithoutReview}
-                  onCheckedChange={setShowOnlyWithoutReview}
-                />
-                <Label htmlFor="review-filter">Ohne Review</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="pending-partners-filter"
-                  checked={showOnlyPendingPartners}
-                  onCheckedChange={setShowOnlyPendingPartners}
-                />
-                <Label htmlFor="pending-partners-filter">Ausstehende Partner mit Konto</Label>
-              </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="review-filter"
+                checked={showOnlyWithoutReview}
+                onCheckedChange={setShowOnlyWithoutReview}
+              />
+              <Label htmlFor="review-filter">Ohne Review</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="pending-partners-filter"
+                checked={showOnlyPendingPartners}
+                onCheckedChange={setShowOnlyPendingPartners}
+              />
+              <Label htmlFor="pending-partners-filter">Ausstehende Partner mit Konto</Label>
             </div>
           </div>
           <div className="text-sm text-muted-foreground">
