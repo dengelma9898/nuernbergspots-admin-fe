@@ -84,13 +84,15 @@ export function EditBusinessUser() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" onClick={() => navigate('/business-users')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
-          </Button>
-          <h1 className="text-3xl font-bold">Business-User bearbeiten</h1>
+      <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/business-users')} className="rounded-full p-2">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <span className="sr-only">Zurück</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Business-User bearbeiten</h1>
         </div>
         <div className="space-y-4">
           <Skeleton className="h-20 w-full" />
@@ -102,13 +104,15 @@ export function EditBusinessUser() {
 
   if (!businessUser) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" onClick={() => navigate('/business-users')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
-          </Button>
-          <h1 className="text-3xl font-bold">Business-User bearbeiten</h1>
+      <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/business-users')} className="rounded-full p-2">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <span className="sr-only">Zurück</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Business-User bearbeiten</h1>
         </div>
         <div className="bg-card rounded-lg p-6">
           <p>Business-User nicht gefunden</p>
@@ -126,15 +130,16 @@ export function EditBusinessUser() {
   );
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => navigate('/business-users')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück
-        </Button>
-        <h1 className="text-3xl font-bold">Business-User bearbeiten</h1>
+    <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/business-users')} className="rounded-full p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <span className="sr-only">Zurück</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Business-User bearbeiten</h1>
       </div>
-      
       <div className="space-y-6">
         {/* Business-User Info */}
         <Card>
@@ -173,65 +178,104 @@ export function EditBusinessUser() {
         </Card>
 
         {/* Zugewiesene Geschäfte */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Zugewiesene Geschäfte</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>ID</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {assignedBusinesses.map((business) => (
-                  <TableRow key={business.id}>
-                    <TableCell>{business.name}</TableCell>
-                    <TableCell>{business.id}</TableCell>
+        <div>
+          <div className="md:hidden space-y-2">
+            <div className="font-semibold mb-2">Zugewiesene Geschäfte</div>
+            {assignedBusinesses.length === 0 ? (
+              <div className="text-muted-foreground text-sm">Keine zugewiesenen Geschäfte</div>
+            ) : (
+              assignedBusinesses.map((business) => (
+                <Card key={business.id} className="p-3">
+                  <div className="font-medium">{business.name}</div>
+                  <div className="text-xs text-muted-foreground break-all">{business.id}</div>
+                </Card>
+              ))
+            )}
+          </div>
+          <Card className="hidden md:block">
+            <CardHeader>
+              <CardTitle>Zugewiesene Geschäfte</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>ID</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {assignedBusinesses.map((business) => (
+                    <TableRow key={business.id}>
+                      <TableCell>{business.name}</TableCell>
+                      <TableCell>{business.id}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Verfügbare Geschäfte */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Verfügbare Geschäfte</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {unassignedBusinesses.map((business) => (
-                  <TableRow key={business.id}>
-                    <TableCell>{business.name}</TableCell>
-                    <TableCell>{business.id}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleAddBusiness(business)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Hinzufügen
-                      </Button>
-                    </TableCell>
+        <div>
+          <div className="md:hidden space-y-2">
+            <div className="font-semibold mb-2">Verfügbare Geschäfte</div>
+            {unassignedBusinesses.length === 0 ? (
+              <div className="text-muted-foreground text-sm">Keine verfügbaren Geschäfte</div>
+            ) : (
+              unassignedBusinesses.map((business) => (
+                <Card key={business.id} className="p-3 flex flex-col gap-1">
+                  <div className="font-medium">{business.name}</div>
+                  <div className="text-xs text-muted-foreground break-all">{business.id}</div>
+                  <div className="flex justify-end mt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleAddBusiness(business)}
+                    >
+                      <Plus className="mr-1 h-4 w-4" /> Hinzufügen
+                    </Button>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+          <Card className="hidden md:block">
+            <CardHeader>
+              <CardTitle>Verfügbare Geschäfte</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>ID</TableHead>
+                    <TableHead>Aktionen</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                </TableHeader>
+                <TableBody>
+                  {unassignedBusinesses.map((business) => (
+                    <TableRow key={business.id}>
+                      <TableCell>{business.name}</TableCell>
+                      <TableCell>{business.id}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleAddBusiness(business)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Hinzufügen
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Bestätigungs-Dialog */}

@@ -86,13 +86,15 @@ export const BusinessUserReview: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zum Dashboard
-        </Button>
-        <h1 className="text-2xl font-bold">Geschäftsinhaber prüfen</h1>
+    <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="rounded-full p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <span className="sr-only">Zurück zum Dashboard</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Geschäftsinhaber prüfen</h1>
       </div>
 
       <div className="space-y-6">
@@ -100,43 +102,43 @@ export const BusinessUserReview: React.FC = () => {
           {users.length} Benutzer zur Überprüfung gefunden
         </div>
 
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-6">
           {users.map(user => (
-            <Card key={user.id} className="flex flex-col">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">Business User</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
+            <Card key={user.id} className="w-full max-w-full rounded-2xl shadow-lg border border-border bg-background p-4">
+              <CardHeader className="pb-2 border-b border-muted/40 mb-2">
+                <div className="flex justify-between items-start flex-wrap gap-2">
+                  <div className="space-y-1 min-w-0">
+                    <CardTitle className="text-lg font-semibold truncate">Business User</CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground break-all truncate max-w-xs sm:max-w-none">
                       ID: {user.id}
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className="ml-2">
+                  <Badge variant="outline" className="ml-2 whitespace-nowrap text-xs px-2 py-1">
                     Überprüfung erforderlich
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="pb-2">
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1 min-w-0">
+                      <div className="flex items-center text-sm break-all truncate max-w-full">
                         <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                        {user.email}
+                        <span className="font-medium">{user.email}</span>
                       </div>
                       {user.businessIds && user.businessIds.length > 0 && (
-                        <div className="flex items-center text-sm">
-                          <Building2 className="mr-2 h-4 w-4 text-muted-foreground" />
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Building2 className="mr-2 h-4 w-4" />
                           {user.businessIds.length} {user.businessIds.length === 1 ? 'Geschäft' : 'Geschäfte'} zugewiesen
                         </div>
                       )}
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 min-w-0 text-right">
                       <div className="flex items-center text-sm justify-end">
                         <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
-                        {user.isDeleted ? 'Gelöscht' : 'Aktiv'}
+                        <span className={user.isDeleted ? 'text-destructive' : 'text-success'}>{user.isDeleted ? 'Gelöscht' : 'Aktiv'}</span>
                       </div>
-                      <div className="flex items-center text-sm justify-end text-muted-foreground">
+                      <div className="flex items-center text-xs justify-end text-muted-foreground">
                         Registriert am {formatDate(user.createdAt)}
                       </div>
                     </div>
@@ -147,7 +149,7 @@ export const BusinessUserReview: React.FC = () => {
                       <div className="text-sm font-medium mb-2">Beanspruchte Geschäfte:</div>
                       <div className="space-y-2">
                         {user.businessNames.map(name => (
-                          <div key={name} className="flex items-center text-sm bg-muted/50 p-2 rounded">
+                          <div key={name} className="flex items-center text-sm bg-muted/50 p-2 rounded break-all truncate max-w-full">
                             <Store className="mr-2 h-4 w-4 text-muted-foreground" />
                             <span className="font-medium">{name}</span>
                           </div>
@@ -157,12 +159,12 @@ export const BusinessUserReview: React.FC = () => {
                   )}
                 </div>
               </CardContent>
-              <CardFooter className="pt-2 flex justify-end gap-2">
+              <CardFooter className="pt-4 flex flex-col sm:flex-row justify-end gap-2">
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => handleReject(user.id)}
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive w-full sm:w-auto"
                 >
                   <XCircle className="mr-1 h-3 w-3" />
                   Ablehnen
@@ -170,6 +172,7 @@ export const BusinessUserReview: React.FC = () => {
                 <Button 
                   size="sm"
                   onClick={() => handleApprove(user.id)}
+                  className="w-full sm:w-auto"
                 >
                   <CheckCircle2 className="mr-1 h-3 w-3" />
                   Verifizieren

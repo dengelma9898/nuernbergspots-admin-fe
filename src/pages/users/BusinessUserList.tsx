@@ -31,33 +31,87 @@ export function BusinessUserList() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" onClick={() => navigate('/')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Zurück
-          </Button>
-          <h1 className="text-3xl font-bold">Business-User verwalten</h1>
+      <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="rounded-full p-2">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <span className="sr-only">Zurück</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Business-User verwalten</h1>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-4 block md:hidden">
           {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-20 w-full" />
           ))}
+        </div>
+        <div className="hidden md:block">
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <Skeleton key={i} className="h-20 w-full" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => navigate('/')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück
-        </Button>
-        <h1 className="text-3xl font-bold">Business-User verwalten</h1>
+    <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/')} className="rounded-full p-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <span className="sr-only">Zurück</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Business-User verwalten</h1>
       </div>
-      <Card>
+      {/* Mobile Card-Ansicht */}
+      {businessUsers.length === 0 ? (
+        <div className="block md:hidden text-center text-muted-foreground">Keine Business-User vorhanden</div>
+      ) : (
+        <div className="block md:hidden space-y-4">
+          {businessUsers.map((user) => (
+            <Card key={user.id} className="p-4 w-full max-w-full rounded-2xl shadow-lg border border-border bg-background">
+              <div className="mb-2">
+                <span className="text-sm font-medium break-all whitespace-normal">{user.email}</span>
+              </div>
+              <div className="flex items-center mb-4">
+                {user.isDeleted ? (
+                  <Badge variant="destructive" className="flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap">
+                    <Trash2 className="h-3 w-3" />
+                    Gelöscht
+                  </Badge>
+                ) : user.needsReview ? (
+                  <Badge variant="secondary" className="flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap">
+                    <AlertCircle className="h-3 w-3" />
+                    Überprüfung erforderlich
+                  </Badge>
+                ) : (
+                  <Badge variant="default" className="flex items-center gap-1 text-xs px-2 py-1 whitespace-nowrap">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Aktiv
+                  </Badge>
+                )}
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/business-users/${user.id}/edit`)}
+                  className="min-w-[120px]"
+                >
+                  <Pencil className="mr-1 h-4 w-4" /> Bearbeiten
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+      {/* Desktop/Table Ansicht */}
+      <Card className="hidden md:block">
         <CardHeader>
           <CardTitle>Business-User Übersicht</CardTitle>
         </CardHeader>
