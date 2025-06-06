@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { Event } from '@/models/events';
 import { useEventService } from '@/services/eventService';
 import { toast } from 'sonner';
-import { EventCard } from './EventList';
+import { ScraperEventCard } from '@/components/events/ScraperEventCard';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -37,6 +37,7 @@ const SCRAPER_TYPES = [
   { value: 'EVENTFINDER', label: 'EventFinder' },
   { value: 'CURT', label: 'CURT' },
   { value: 'RAUSGEGANGEN', label: 'Rausgegangen' },
+  { value: 'parks', label: 'Parks' },
 ];
 
 const LOCAL_STORAGE_KEY = 'scraperFoundEvents';
@@ -217,14 +218,19 @@ export const EventScraper: React.FC = () => {
                 setFoundEvents(updated);
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
               };
+              const handleEdit = () => {
+                navigate(`/events/scraper/${event.id}`, {
+                  state: {
+                    event: selectedCategory ? { ...event, categoryId: selectedCategory } : event
+                  }
+                });
+              };
               return (
-                <EventCard
+                <ScraperEventCard
                   key={event.id}
                   event={selectedCategory ? { ...event, categoryId: selectedCategory } : event}
                   onDelete={handleDelete}
-                  isPreview={true}
-                  onEdit={() => navigate(`/events/scraper/${event.id}`, { state: { event: selectedCategory ? { ...event, categoryId: selectedCategory } : event } })}
-                  showDeleteButton
+                  onEdit={handleEdit}
                 />
               );
             })}

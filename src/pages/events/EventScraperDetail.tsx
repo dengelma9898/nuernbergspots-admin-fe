@@ -48,6 +48,7 @@ export const EventScraperDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [event, setEvent] = useState<Event>(location.state?.event);
   const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
+  const [categoryError, setCategoryError] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (!event) {
@@ -106,10 +107,11 @@ export const EventScraperDetail: React.FC = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
-
+      setCategoryError(null);
       // Kategorie prüfen
       if (!editedEvent.categoryId) {
-        toast.error("Bitte wählen Sie eine Kategorie aus.");
+        setCategoryError('Bitte wählen Sie eine Kategorie aus.');
+        toast.error('Bitte wählen Sie eine Kategorie aus.');
         setLoading(false);
         return;
       }
@@ -252,8 +254,11 @@ export const EventScraperDetail: React.FC = () => {
           <div className="space-y-2">
             <Label htmlFor="category">Kategorie</Label>
             <Select
-              value={editedEvent.categoryId || categories[0]?.id}
-              onValueChange={(value) => handleInputChange('categoryId', value)}
+              value={editedEvent.categoryId || ''}
+              onValueChange={(value) => {
+                setCategoryError(null);
+                handleInputChange('categoryId', value);
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Kategorie auswählen" />
@@ -271,6 +276,9 @@ export const EventScraperDetail: React.FC = () => {
                 ))}
               </SelectContent>
             </Select>
+            {categoryError && (
+              <p className="text-sm text-destructive font-semibold">{categoryError}</p>
+            )}
           </div>
 
           <div className="space-y-2">
