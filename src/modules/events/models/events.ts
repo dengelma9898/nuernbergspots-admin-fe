@@ -7,7 +7,7 @@ export interface DailyTimeSlot {
 export interface Event {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   location: {
     address: string;
     latitude: number;
