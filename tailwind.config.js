@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
@@ -171,52 +171,6 @@ module.exports = {
           '0%, 100%': { opacity: 0.05 },
           '50%': { opacity: 0.15 },
         },
-        'liquid-dot-1': {
-          '0%, 100%': { 
-            transform: 'translateY(0) scale(1)',
-            opacity: 0.6 
-          },
-          '25%': { 
-            transform: 'translateY(-12px) scale(1.2)',
-            opacity: 1 
-          },
-          '50%': { 
-            transform: 'translateY(-6px) scale(1.1)',
-            opacity: 0.8 
-          },
-          '75%': { 
-            transform: 'translateY(-3px) scale(1.05)',
-            opacity: 0.9 
-          },
-        },
-        'liquid-dot-2': {
-          '0%, 100%': { 
-            transform: 'translateY(0) scale(1)',
-            opacity: 0.6 
-          },
-          '33%': { 
-            transform: 'translateY(-15px) scale(1.3)',
-            opacity: 1 
-          },
-          '66%': { 
-            transform: 'translateY(-8px) scale(1.15)',
-            opacity: 0.8 
-          },
-        },
-        'liquid-dot-3': {
-          '0%, 100%': { 
-            transform: 'translateY(0) scale(1)',
-            opacity: 0.6 
-          },
-          '40%': { 
-            transform: 'translateY(-10px) scale(1.25)',
-            opacity: 1 
-          },
-          '80%': { 
-            transform: 'translateY(-5px) scale(1.1)',
-            opacity: 0.9 
-          },
-        },
         'accent-dot-subtle-1': {
           '0%, 100%': { 
             transform: 'translate(0, 0) scale(1)',
@@ -274,5 +228,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 }
