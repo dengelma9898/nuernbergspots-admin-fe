@@ -11,6 +11,7 @@ import { ScraperEventCard } from '@/components/events/ScraperEventCard';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 import { de } from 'date-fns/locale';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ const SCRAPER_TYPES = [
   { value: 'CURT', label: 'CURT' },
   { value: 'RAUSGEGANGEN', label: 'Rausgegangen' },
   { value: 'parks', label: 'Parks' },
+  { value: 'eventbrite', label: 'Eventbrite' },
 ];
 
 const LOCAL_STORAGE_KEY = 'scraperFoundEvents';
@@ -85,6 +87,7 @@ export const EventScraper: React.FC = () => {
   const performScrape = async () => {
     try {
       setLoading(true);
+      setShowConfirmDialog(false);
       const params = {
         type: scraperType,
         category: selectedCategory,
@@ -100,7 +103,6 @@ export const EventScraper: React.FC = () => {
       toast.error('Fehler beim Scrapen der Events');
     } finally {
       setLoading(false);
-      setShowConfirmDialog(false);
     }
   };
 
@@ -121,141 +123,143 @@ export const EventScraper: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-4 px-2 sm:px-4 md:py-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-        <Button variant="ghost" onClick={handleNavigateDashboard} className="mb-2 sm:mb-0">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zur Event-Liste
-        </Button>
-        <h1 className="text-xl sm:text-2xl font-bold">Event Scraper</h1>
-      </div>
-
-      <Card className="mb-4 sm:mb-6">
-        <CardHeader>
-          <CardTitle>Events importieren</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col gap-3 md:flex-row md:gap-4 items-stretch md:items-center w-full">
-            <Select value={scraperType} onValueChange={setScraperType}>
-              <SelectTrigger className="w-full md:w-[180px]">
-                <SelectValue placeholder="Scraper auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {SCRAPER_TYPES.map(type => (
-                  <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="flex flex-row gap-2 items-center justify-between md:justify-start">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekChange('prev')}
-                className="px-2"
-              >
-                ←
-              </Button>
-              <div className="text-xs sm:text-sm text-muted-foreground min-w-[120px] sm:min-w-[200px] text-center">
-                {format(weekStart, 'dd.MM.yyyy', { locale: de })} - {format(weekEnd, 'dd.MM.yyyy', { locale: de })}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleWeekChange('next')}
-                className="px-2"
-              >
-                →
-              </Button>
-            </div>
-
-            <Select value={selectedCategory ?? 'null'} onValueChange={val => setSelectedCategory(val === 'null' ? null : val)}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue placeholder="Kategorie auswählen (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORY_OPTIONS.map(opt => (
-                  <SelectItem key={opt.value ?? 'null'} value={opt.value ?? 'null'}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="flex flex-row gap-2 items-center">
-              <label htmlFor="maxResults" className="text-xs sm:text-sm">Max. Ergebnisse</label>
-              <input
-                id="maxResults"
-                type="number"
-                min={1}
-                max={10}
-                value={maxResults}
-                onChange={e => setMaxResults(Number(e.target.value))}
-                className="w-14 sm:w-20 border rounded px-2 py-1 text-xs sm:text-sm"
-              />
-            </div>
-
-            <Button onClick={handleScrape} disabled={loading} className="w-full md:w-auto">
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Events suchen
-            </Button>
-
-            {foundEvents.length > 0 && (
-              <Button variant="destructive" onClick={handleClearEvents} className="w-full md:w-auto">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Alle löschen
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {foundEvents.length > 0 && (
-        <div className="space-y-4 sm:space-y-6">
-          <h2 className="text-lg sm:text-xl font-semibold">Gefundene Events ({foundEvents.length})</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {foundEvents.map((event) => {
-              const handleDelete = () => {
-                const updated = foundEvents.filter(e => e.id !== event.id);
-                setFoundEvents(updated);
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-              };
-              const handleEdit = () => {
-                navigate(`/events/scraper/${event.id}`, {
-                  state: {
-                    event: selectedCategory ? { ...event, categoryId: selectedCategory } : event
-                  }
-                });
-              };
-              return (
-                <ScraperEventCard
-                  key={event.id}
-                  event={selectedCategory ? { ...event, categoryId: selectedCategory } : event}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                />
-              );
-            })}
-          </div>
+    <LoadingOverlay isLoading={loading}>
+      <div className="container mx-auto py-4 px-2 sm:px-4 md:py-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
+          <Button variant="ghost" onClick={handleNavigateDashboard} className="mb-2 sm:mb-0">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Zurück zur Event-Liste
+          </Button>
+          <h1 className="text-xl sm:text-2xl font-bold">Event Scraper</h1>
         </div>
-      )}
 
-      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Vorhandene Events ersetzen?</DialogTitle>
-            <DialogDescription>
-              Es sind bereits {foundEvents.length} Events vorhanden. Möchten Sie diese durch neue Events ersetzen?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-              Abbrechen
-            </Button>
-            <Button variant="destructive" onClick={performScrape}>
-              Ersetzen
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+        <Card className="mb-4 sm:mb-6">
+          <CardHeader>
+            <CardTitle>Events importieren</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-3 md:flex-row md:gap-4 items-stretch md:items-center w-full">
+              <Select value={scraperType} onValueChange={setScraperType}>
+                <SelectTrigger className="w-full md:w-[180px]">
+                  <SelectValue placeholder="Scraper auswählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SCRAPER_TYPES.map(type => (
+                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="flex flex-row gap-2 items-center justify-between md:justify-start">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleWeekChange('prev')}
+                  className="px-2"
+                >
+                  ←
+                </Button>
+                <div className="text-xs sm:text-sm text-muted-foreground min-w-[120px] sm:min-w-[200px] text-center">
+                  {format(weekStart, 'dd.MM.yyyy', { locale: de })} - {format(weekEnd, 'dd.MM.yyyy', { locale: de })}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleWeekChange('next')}
+                  className="px-2"
+                >
+                  →
+                </Button>
+              </div>
+
+              <Select value={selectedCategory ?? 'null'} onValueChange={val => setSelectedCategory(val === 'null' ? null : val)}>
+                <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectValue placeholder="Kategorie auswählen (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORY_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value ?? 'null'} value={opt.value ?? 'null'}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="flex flex-row gap-2 items-center">
+                <label htmlFor="maxResults" className="text-xs sm:text-sm">Max. Ergebnisse</label>
+                <input
+                  id="maxResults"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={maxResults}
+                  onChange={e => setMaxResults(Number(e.target.value))}
+                  className="w-14 sm:w-20 border rounded px-2 py-1 text-xs sm:text-sm"
+                />
+              </div>
+
+              <Button onClick={handleScrape} disabled={loading} className="w-full md:w-auto">
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Events suchen
+              </Button>
+
+              {foundEvents.length > 0 && (
+                <Button variant="destructive" onClick={handleClearEvents} className="w-full md:w-auto">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Alle löschen
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {foundEvents.length > 0 && (
+          <div className="space-y-4 sm:space-y-6">
+            <h2 className="text-lg sm:text-xl font-semibold">Gefundene Events ({foundEvents.length})</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {foundEvents.map((event) => {
+                const handleDelete = () => {
+                  const updated = foundEvents.filter(e => e.id !== event.id);
+                  setFoundEvents(updated);
+                  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+                };
+                const handleEdit = () => {
+                  navigate(`/events/scraper/${event.id}`, {
+                    state: {
+                      event: selectedCategory ? { ...event, categoryId: selectedCategory } : event
+                    }
+                  });
+                };
+                return (
+                  <ScraperEventCard
+                    key={event.id}
+                    event={selectedCategory ? { ...event, categoryId: selectedCategory } : event}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Vorhandene Events ersetzen?</DialogTitle>
+              <DialogDescription>
+                Es sind bereits {foundEvents.length} Events vorhanden. Möchten Sie diese durch neue Events ersetzen?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+                Abbrechen
+              </Button>
+              <Button variant="destructive" onClick={performScrape}>
+                Ersetzen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </LoadingOverlay>
   );
 }; 
