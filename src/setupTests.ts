@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 
-// Stelle sicher, dass jest-dom Matchers verfügbar sind
+// Erweitere Jest Matchers mit @testing-library/jest-dom
 declare global {
   namespace jest {
     interface Matchers<R> {
@@ -10,6 +10,10 @@ declare global {
       toBeDisabled(): R;
       toHaveFocus(): R;
       toBeRequired(): R;
+      toHaveClass(...classNames: string[]): R;
+      toHaveTextContent(text: string | RegExp): R;
+      toBeEmptyDOMElement(): R;
+      toHaveDisplayValue(value: string | RegExp | (string | RegExp)[]): R;
     }
   }
 }
