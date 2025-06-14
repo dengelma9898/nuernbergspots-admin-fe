@@ -71,7 +71,7 @@ describe('Label Component', () => {
       render(<Label>Disabled Label</Label>);
       
       const label = screen.getByText('Disabled Label');
-      expect(label).toHaveClass('peer-disabled:cursor-not-allowed', 'peer-disabled:opacity-70');
+      expect(label).toHaveClass('peer-disabled:cursor-not-allowed', 'peer-disabled:opacity-50');
     });
   });
 

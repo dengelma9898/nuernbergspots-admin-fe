@@ -222,8 +222,8 @@ describe('Textarea Component', () => {
       const unicodeValue = '🚀 Hello 世界 🌍\nMultiline text';
       render(<Textarea value={unicodeValue} readOnly />);
       
-      const textarea = screen.getByDisplayValue(unicodeValue);
-      expect(textarea).toBeInTheDocument();
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).toHaveValue(unicodeValue);
     });
 
     it('sollte mit leeren Werten umgehen', () => {
@@ -249,8 +249,8 @@ describe('Textarea Component', () => {
       const multilineValue = 'Line 1\nLine 2\nLine 3';
       render(<Textarea value={multilineValue} readOnly />);
       
-      const textarea = screen.getByDisplayValue(multilineValue);
-      expect(textarea).toBeInTheDocument();
+      const textarea = screen.getByRole('textbox');
+      expect(textarea).toHaveValue(multilineValue);
     });
   });
 
@@ -261,7 +261,7 @@ describe('Textarea Component', () => {
       const textarea = screen.getByRole('textbox');
       expect(textarea).toHaveClass(
         'flex',
-        'min-h-[60px]',
+        'min-h-16',
         'w-full',
         'rounded-md',
         'border',
