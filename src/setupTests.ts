@@ -1,0 +1,87 @@
+import '@testing-library/jest-dom';
+
+// Stelle sicher, dass jest-dom Matchers verfügbar sind
+declare global {
+  namespace jest {
+    interface Matchers<R> {
+      toBeInTheDocument(): R;
+      toHaveAttribute(attr: string, value?: string): R;
+      toHaveValue(value: string | number): R;
+      toBeDisabled(): R;
+      toHaveFocus(): R;
+      toBeRequired(): R;
+    }
+  }
+}
+
+// Mock fetch global
+global.fetch = jest.fn();
+
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Mock ResizeObserver
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
+// Mock React Router
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+  useLocation: () => ({ pathname: '/' }),
+  useParams: () => ({}),
+}));
+
+// Mock Firebase
+jest.mock('./lib/firebase', () => ({
+  auth: {
+    currentUser: null,
+    signInWithEmailAndPassword: jest.fn(),
+    signOut: jest.fn(),
+  },
+  db: {},
+}));
+
+// Mock Sonner Toast
+jest.mock('sonner', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+    info: jest.fn(),
+    warning: jest.fn(),
+  },
+}));
+
+// Mock Auth Context
+jest.mock('./contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    login: jest.fn(),
+    logout: jest.fn(),
+    loading: false,
+    isAuthenticated: false,
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+})); 

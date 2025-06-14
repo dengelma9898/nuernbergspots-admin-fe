@@ -6,6 +6,20 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+/**
+ * Login-Komponente für die Nürnbergspots Admin-Anwendung
+ * 
+ * Ermöglicht Administratoren die Anmeldung über Email und Passwort.
+ * Verwendet Firebase Authentication im Hintergrund.
+ * 
+ * Features:
+ * - Email/Password-Authentifizierung
+ * - Loading-Zustand während der Anmeldung
+ * - Fehlerbehandlung mit Toast-Benachrichtigungen
+ * - Automatische Weiterleitung nach erfolgreichem Login
+ * 
+ * @returns JSX.Element Login-Formular
+ */
 export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

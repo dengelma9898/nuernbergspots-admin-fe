@@ -26,9 +26,32 @@ import { de } from 'date-fns/locale';
 import { BusinessCustomerScans } from '@/models/business';
 
 interface CustomerScansAnalysisProps {
+  /** Array aller Geschäfte mit ihren Scan-Daten */
   businesses: BusinessCustomerScans[];
 }
 
+/**
+ * CustomerScansAnalysis - Detaillierte Analyse-Komponente für Kundenscans
+ * 
+ * Diese Komponente ermöglicht es Administratoren, die Scan-Aktivitäten
+ * von Geschäftspartnern im Detail zu analysieren. Sie bietet:
+ * 
+ * Features:
+ * - Geschäfts-spezifische Filterung
+ * - Monats-basierte Zeitfilterung
+ * - Statistische Auswertung (Scans, Kunden, Preise, Personen)
+ * - Detaillierte Scan-Tabelle mit allen Informationen
+ * - Responsive Design für verschiedene Bildschirmgrößen
+ * 
+ * Berechnungen:
+ * - Gesamtanzahl Scans im gewählten Zeitraum
+ * - Anzahl einzigartige Kunden (basierend auf customerId)
+ * - Durchschnittlicher Preis pro Scan
+ * - Durchschnittliche Anzahl Personen pro Scan
+ * 
+ * @param businesses - Array mit Geschäfts-Scan-Daten
+ * @returns JSX.Element Analyse-Dashboard
+ */
 export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps) {
   const [selectedBusiness, setSelectedBusiness] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>(format(new Date(), 'yyyy-MM'));

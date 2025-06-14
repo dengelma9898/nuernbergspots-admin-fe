@@ -16,7 +16,10 @@
     "deploy:ci:dev": "npm run build:dev && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project dev --non-interactive",
     "deploy:ci:prd": "npm run build:prd && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project prd --non-interactive",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
