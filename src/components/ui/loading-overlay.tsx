@@ -22,16 +22,22 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({ isLoading, child
   useEffect(() => {
     if (!isLoading) return;
 
-    const interval = setInterval(() => {
-      setIsTextVisible(false);
-      
-      setTimeout(() => {
-        setCurrentMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-        setIsTextVisible(true);
-      }, 300);
-    }, 3000);
+    try {
+      const interval = setInterval(() => {
+        setIsTextVisible(false);
+        
+        setTimeout(() => {
+          setCurrentMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+          setIsTextVisible(true);
+        }, 300);
+      }, 3000);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    } catch (error) {
+      console.error('Error setting up loading timer:', error);
+      // Falls Timer fehlschlägt, zeige trotzdem die erste Message
+      return undefined;
+    }
   }, [isLoading]);
 
   return (
