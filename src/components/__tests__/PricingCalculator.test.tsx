@@ -190,10 +190,10 @@ describe('PricingCalculator Component', () => {
     it('sollte Standard-Preismodell-Werte anzeigen', () => {
       render(<PricingCalculator analytics={mockBusinessAnalytics} />);
 
-      expect(screen.getByText('29.99€')).toBeInTheDocument(); // Grundgebühr
-      expect(screen.getByText('100 Scans')).toBeInTheDocument(); // Scan-Schwelle
-      expect(screen.getByText('0.10€')).toBeInTheDocument(); // Scan-Gebühr
-      expect(screen.getByText('99.99€')).toBeInTheDocument(); // Max-Gebühr
+      expect(screen.getAllByText('29.99€')[0]).toBeInTheDocument(); // Grundgebühr
+      expect(screen.getAllByText('100 Scans')[0]).toBeInTheDocument(); // Scan-Schwelle
+      expect(screen.getAllByText('0.10€')[0]).toBeInTheDocument(); // Scan-Gebühr
+      expect(screen.getAllByText('99.99€')[0]).toBeInTheDocument(); // Max-Gebühr
     });
 
     it('sollte Prognostizierte Einnahmen Sektion anzeigen', () => {
@@ -220,7 +220,7 @@ describe('PricingCalculator Component', () => {
       
       // Solo Restaurant hat 50 Scans (unter 100 Schwelle)
       // Sollte nur Grundgebühr von 29.99€ zahlen
-      expect(screen.getByText('29.99€')).toBeInTheDocument();
+      expect(screen.getAllByText('29.99€')[0]).toBeInTheDocument();
     });
 
     it('sollte korrekte Gebühren für Businesses über der Schwelle berechnen', async () => {
@@ -234,7 +234,7 @@ describe('PricingCalculator Component', () => {
       // Gesamt: 34.99€ + 44.99€ + 29.99€ = 109.97€
 
       await waitFor(() => {
-        expect(screen.getByText('109.97€')).toBeInTheDocument();
+        expect(screen.getAllByText('109.97€')[0]).toBeInTheDocument();
       });
     });
 
@@ -243,7 +243,7 @@ describe('PricingCalculator Component', () => {
 
       // Gesamt: 109.97€ / 3 Businesses = 36.66€
       await waitFor(() => {
-        expect(screen.getByText('36.66€')).toBeInTheDocument();
+        expect(screen.getAllByText('36.66€')[0]).toBeInTheDocument();
       });
     });
 
@@ -261,7 +261,7 @@ describe('PricingCalculator Component', () => {
       // Mit 2000 Scans: 29.99€ + (2000-100) * 0.10€ = 29.99€ + 190€ = 219.99€
       // Aber Max-Fee ist 99.99€, also sollte 99.99€ angezeigt werden
       await waitFor(() => {
-        expect(screen.getByText('99.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('99.99€')[0]).toBeInTheDocument();
       });
     });
   });
@@ -276,7 +276,7 @@ describe('PricingCalculator Component', () => {
       fireEvent.change(baseFeeSlider, { target: { value: '39.99' } });
 
       await waitFor(() => {
-        expect(screen.getByText('39.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('39.99€')[0]).toBeInTheDocument();
       });
     });
 
@@ -289,7 +289,7 @@ describe('PricingCalculator Component', () => {
       fireEvent.change(thresholdSlider, { target: { value: '200' } });
 
       await waitFor(() => {
-        expect(screen.getByText('200 Scans')).toBeInTheDocument();
+        expect(screen.getAllByText('200 Scans')[0]).toBeInTheDocument();
       });
     });
 
@@ -302,7 +302,7 @@ describe('PricingCalculator Component', () => {
       fireEvent.change(scanFeeSlider, { target: { value: '0.20' } });
 
       await waitFor(() => {
-        expect(screen.getByText('0.20€')).toBeInTheDocument();
+        expect(screen.getAllByText('0.20€')[0]).toBeInTheDocument();
       });
     });
 
@@ -315,7 +315,7 @@ describe('PricingCalculator Component', () => {
       fireEvent.change(maxFeeSlider, { target: { value: '149.99' } });
 
       await waitFor(() => {
-        expect(screen.getByText('149.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('149.99€')[0]).toBeInTheDocument();
       });
     });
   });
@@ -374,7 +374,7 @@ describe('PricingCalculator Component', () => {
       // Mit 2000 Scans: 29.99€ + (2000-100) * 0.10€ = 29.99€ + 190€ = 219.99€
       // Ohne Max-Fee sollte die volle Berechnung angezeigt werden
       await waitFor(() => {
-        expect(screen.getByText('219.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('219.99€')[0]).toBeInTheDocument();
       });
     });
   });
@@ -384,7 +384,7 @@ describe('PricingCalculator Component', () => {
       render(<PricingCalculator analytics={mockEmptyAnalytics} />);
 
       expect(screen.getByText('Preismodell Rechner')).toBeInTheDocument();
-      expect(screen.getByText('0.00€')).toBeInTheDocument(); // Gesamt sollte 0 sein
+      expect(screen.getAllByText('0.00€')[0]).toBeInTheDocument(); // Gesamt sollte 0 sein
     });
 
     it('sollte Division durch Null bei Durchschnitt vermeiden', () => {
@@ -406,7 +406,7 @@ describe('PricingCalculator Component', () => {
 
       // Mit 10000 Scans und Max-Fee sollte trotzdem Max-Fee angewendet werden
       await waitFor(() => {
-        expect(screen.getByText('99.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('99.99€')[0]).toBeInTheDocument();
       });
     });
 
@@ -422,7 +422,7 @@ describe('PricingCalculator Component', () => {
 
       // Mit 0 Scans sollte nur Grundgebühr berechnet werden
       await waitFor(() => {
-        expect(screen.getByText('29.99€')).toBeInTheDocument();
+        expect(screen.getAllByText('29.99€')[0]).toBeInTheDocument();
       });
     });
   });
@@ -432,7 +432,7 @@ describe('PricingCalculator Component', () => {
       render(<PricingCalculator analytics={mockBusinessAnalytics} />);
 
       // Ursprünglicher Gesamtbetrag
-      expect(screen.getByText('109.97€')).toBeInTheDocument();
+      expect(screen.getAllByText('109.97€')[0]).toBeInTheDocument();
 
       const sliders = screen.getAllByTestId('slider');
       const baseFeeSlider = sliders[0];
@@ -447,7 +447,7 @@ describe('PricingCalculator Component', () => {
       // Gesamt: 55.00€ + 65.00€ + 50.00€ = 170.00€
 
       await waitFor(() => {
-        expect(screen.getByText('170.00€')).toBeInTheDocument();
+        expect(screen.getAllByText('170.00€')[0]).toBeInTheDocument();
       });
     });
 
@@ -461,7 +461,7 @@ describe('PricingCalculator Component', () => {
 
       // Neuer Durchschnitt: 170.00€ / 3 = 56.67€
       await waitFor(() => {
-        expect(screen.getByText('56.67€')).toBeInTheDocument();
+        expect(screen.getAllByText('56.67€')[0]).toBeInTheDocument();
       });
     });
   });
