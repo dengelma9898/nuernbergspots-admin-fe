@@ -28,6 +28,11 @@ if (typeof global.TextEncoder === 'undefined') {
   global.TextDecoder = TextDecoder;
 }
 
+// Mock URL.createObjectURL for file upload tests
+let mockUrlCounter = 0;
+global.URL.createObjectURL = jest.fn(() => `mock-url-${++mockUrlCounter}`);
+global.URL.revokeObjectURL = jest.fn();
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
