@@ -1,0 +1,593 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { EventList, EventCard } from '../EventList';
+import { useEventService } from '../../../services/eventService';
+import { useEventCategoryService } from '../../../services/eventCategoryService';
+import { Event } from '../../../models/events';
+import { EventCategory } from '../../../models/event-category';
+import '@testing-library/jest-dom';
+
+// Mock alle externen Dependencies
+jest.mock('../../../lib/api', () => ({
+  apiRequest: jest.fn(),
+}));
+jest.mock('../../../services/eventService');
+jest.mock('../../../services/eventCategoryService');
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
+}));
+
+// Mock shadcn/ui components
+jest.mock('@/components/ui/card', () => ({
+  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
+  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
+  CardDescription: ({ children, className }: any) => <div className={className} data-testid="card-description">{children}</div>,
+  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
+  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  CardFooter: ({ children, className }: any) => <div className={className} data-testid="card-footer">{children}</div>,
+}));
+
+jest.mock('@/components/ui/button', () => ({
+  Button: ({ children, onClick, disabled, variant, className }: any) => (
+    <button 
+      onClick={onClick} 
+      disabled={disabled} 
+      className={className}
+      data-variant={variant}
+      data-testid="button"
+    >
+      {children}
+    </button>
+  ),
+}));
+
+jest.mock('@/components/ui/badge', () => ({
+  Badge: ({ children, variant, className }: any) => (
+    <span data-testid="badge" data-variant={variant} className={className}>
+      {children}
+    </span>
+  ),
+}));
+
+jest.mock('@/components/ui/input', () => ({
+  Input: ({ value, onChange, placeholder, className }: any) => (
+    <input 
+      value={value} 
+      onChange={onChange}
+      placeholder={placeholder}
+      className={className}
+      data-testid="input"
+    />
+  ),
+}));
+
+jest.mock('@/components/ui/select', () => ({
+  Select: ({ children, value, onValueChange }: any) => (
+    <div data-testid="select" data-value={value} onClick={() => onValueChange?.('test-value')}>
+      {children}
+    </div>
+  ),
+  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
+  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
+  SelectTrigger: ({ children, className }: any) => <div className={className} data-testid="select-trigger">{children}</div>,
+  SelectValue: ({ placeholder }: any) => <div data-testid="select-value">{placeholder}</div>,
+}));
+
+jest.mock('@/components/ui/calendar-week-select', () => ({
+  CalendarWeekSelect: ({ value, onChange }: any) => (
+    <div data-testid="calendar-week-select" data-value={value} onClick={() => onChange?.('1')}>
+      Week Select
+    </div>
+  ),
+}));
+
+// Mock Lucide React icons
+jest.mock('lucide-react', () => ({
+  MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
+  Image: () => <div data-testid="image-icon">Image</div>,
+  Heart: () => <div data-testid="heart-icon">Heart</div>,
+  Ticket: () => <div data-testid="ticket-icon">Ticket</div>,
+  Euro: () => <div data-testid="euro-icon">Euro</div>,
+  Clock: () => <div data-testid="clock-icon">Clock</div>,
+  CheckCircle2: () => <div data-testid="check-circle-icon">CheckCircle2</div>,
+  AlertCircle: () => <div data-testid="alert-circle-icon">AlertCircle</div>,
+  Search: () => <div data-testid="search-icon">Search</div>,
+  ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
+  Tag: () => <div data-testid="tag-icon">Tag</div>,
+  Star: () => <div data-testid="star-icon">Star</div>,
+  StarOff: () => <div data-testid="star-off-icon">StarOff</div>,
+  Plus: () => <div data-testid="plus-icon">Plus</div>,
+  MoreVertical: () => <div data-testid="more-vertical-icon">MoreVertical</div>,
+  Edit: () => <div data-testid="edit-icon">Edit</div>,
+  Trash: () => <div data-testid="trash-icon">Trash</div>,
+}));
+
+// Mock Sonner toast
+jest.mock('sonner', () => ({
+  toast: {
+    error: jest.fn(),
+    success: jest.fn(),
+  },
+}));
+
+// Mock date-fns functions
+jest.mock('date-fns', () => ({
+  format: (date: Date, formatString: string, options?: any) => {
+    if (formatString === 'dd. MMMM yyyy') {
+      return '15. Januar 2024';
+    }
+    if (formatString === 'dd. MMMM yyyy HH:mm') {
+      return '15. Januar 2024 14:00';
+    }
+    if (formatString === 'w') {
+      return '3';
+    }
+    return '15. Januar 2024';
+  },
+  isPast: jest.fn(),
+  isFuture: jest.fn(),
+  isWithinInterval: jest.fn(),
+}));
+
+// Mock color utils
+jest.mock('@/utils/colorUtils', () => ({
+  convertFFToHex: jest.fn((color) => color || '#000000'),
+}));
+
+// Mock icon utils
+jest.mock('@/utils/iconUtils', () => ({
+  getIconComponent: jest.fn(() => <div data-testid="icon-component">Icon</div>),
+}));
+
+const mockNavigate = jest.fn();
+const mockEventService = {
+  getEvents: jest.fn(),
+  deleteEvent: jest.fn(),
+};
+const mockEventCategoryService = {
+  getCategories: jest.fn(),
+};
+
+// Mock-Daten
+const mockEventCategory: EventCategory = {
+  id: 'cat-1',
+  name: 'Kultur',
+  description: 'Kulturelle Veranstaltungen',
+  colorCode: '#3B82F6',
+  iconName: 'art',
+  fallbackImages: ['https://example.com/image1.jpg'],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+};
+
+const mockEvent: Event = {
+  id: 'event-1',
+  title: 'Konzert im Park',
+  description: 'Ein wunderschönes Konzert unter freiem Himmel',
+  location: {
+    address: 'Stadtpark, Nürnberg',
+    latitude: 49.4521,
+    longitude: 11.0767,
+  },
+  titleImageUrl: 'https://example.com/concert.jpg',
+  imageUrls: ['https://example.com/concert1.jpg', 'https://example.com/concert2.jpg'],
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+  favoriteCount: 25,
+  ticketsNeeded: true,
+  price: 15.50,
+  categoryId: 'cat-1',
+  isPromoted: true,
+  dailyTimeSlots: [
+    {
+      date: '2024-06-15',
+      from: '14:00',
+      to: '18:00',
+    },
+    {
+      date: '2024-06-16',
+      from: '14:00',
+      to: '18:00',
+    },
+  ],
+  contactEmail: 'info@konzert.de',
+  contactPhone: '+49 911 123456',
+  website: 'https://konzert.de',
+  socialMedia: {
+    instagram: '@konzert',
+    facebook: 'konzert',
+  },
+};
+
+const mockPastEvent: Event = {
+  ...mockEvent,
+  id: 'event-past',
+  title: 'Vergangenes Event',
+  dailyTimeSlots: [
+    {
+      date: '2023-12-15',
+      from: '14:00',
+      to: '18:00',
+    },
+  ],
+};
+
+const mockFutureEvent: Event = {
+  ...mockEvent,
+  id: 'event-future',
+  title: 'Zukünftiges Event',
+  dailyTimeSlots: [
+    {
+      date: '2025-06-15',
+      from: '14:00',
+      to: '18:00',
+    },
+  ],
+};
+
+const mockRunningEvent: Event = {
+  ...mockEvent,
+  id: 'event-running',
+  title: 'Laufendes Event',
+  dailyTimeSlots: [
+    {
+      date: '2024-01-10',
+      from: '14:00',
+      to: '18:00',
+    },
+    {
+      date: '2024-01-20',
+      from: '14:00',
+      to: '18:00',
+    },
+  ],
+};
+
+const renderWithRouter = (component: React.ReactElement) => {
+  return render(
+    <BrowserRouter>
+      {component}
+    </BrowserRouter>
+  );
+};
+
+describe('EventList Component', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    (useEventService as jest.Mock).mockReturnValue(mockEventService);
+    (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
+    
+    // Standard mock setup
+    mockEventService.getEvents.mockResolvedValue([mockEvent, mockPastEvent, mockFutureEvent, mockRunningEvent]);
+    mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
+    
+    // Mock date-fns return values
+    const mockIsPast = require('date-fns').isPast as jest.Mock;
+    const mockIsFuture = require('date-fns').isFuture as jest.Mock;
+    const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+    
+    mockIsPast.mockImplementation((date: Date) => {
+      return date.getTime() < new Date('2024-01-15').getTime();
+    });
+    
+    mockIsFuture.mockImplementation((date: Date) => {
+      return date.getTime() > new Date('2024-01-15').getTime();
+    });
+    
+    mockIsWithinInterval.mockImplementation((date: Date, interval: any) => {
+      const start = new Date(interval.start);
+      const end = new Date(interval.end);
+      return date >= start && date <= end;
+    });
+  });
+
+  describe('Component Rendering', () => {
+    it('sollte die EventList korrekt rendern', async () => {
+      renderWithRouter(<EventList />);
+
+      expect(screen.getByText('Events')).toBeInTheDocument();
+      expect(screen.getByText('Zurück zum Dashboard')).toBeInTheDocument();
+      
+      // Warte auf das Laden der Daten
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Loading-State anzeigen', () => {
+      mockEventService.getEvents.mockImplementation(
+        () => new Promise(() => {}) // Never resolves
+      );
+
+      renderWithRouter(<EventList />);
+
+      expect(screen.getByText('Lade Events...')).toBeInTheDocument();
+    });
+
+    it('sollte alle Header-Buttons rendern', () => {
+      renderWithRouter(<EventList />);
+
+      expect(screen.getByText('Zurück zum Dashboard')).toBeInTheDocument();
+      expect(screen.getByText('Bild generieren')).toBeInTheDocument();
+      expect(screen.getByText('Events suchen')).toBeInTheDocument();
+      expect(screen.getByText('Event hinzufügen')).toBeInTheDocument();
+    });
+  });
+
+  describe('Data Loading', () => {
+    it('sollte Events und Kategorien beim Mount laden', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockEventService.getEvents).toHaveBeenCalledTimes(1);
+        expect(mockEventCategoryService.getCategories).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('sollte Fehler beim Laden der Daten behandeln', async () => {
+      const mockToast = require('sonner').toast;
+      mockEventService.getEvents.mockRejectedValue(new Error('API Error'));
+
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockToast.error).toHaveBeenCalledWith(
+          'Fehler beim Laden der Daten',
+          expect.objectContaining({
+            description: 'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+          })
+        );
+      });
+    });
+  });
+
+  describe('Navigation', () => {
+    it('sollte zum Dashboard navigieren beim Klick auf Zurück', async () => {
+      renderWithRouter(<EventList />);
+
+      const backButton = screen.getByText('Zurück zum Dashboard');
+      fireEvent.click(backButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+    });
+
+    it('sollte zum Event Hinzufügen navigieren', async () => {
+      renderWithRouter(<EventList />);
+
+      const addButton = screen.getByText('Event hinzufügen');
+      fireEvent.click(addButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/create-event');
+    });
+
+    it('sollte zum Event Scraper navigieren', async () => {
+      renderWithRouter(<EventList />);
+
+      const scraperButton = screen.getByText('Events suchen');
+      fireEvent.click(scraperButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/events/scraper');
+    });
+
+    it('sollte zum Image Editor navigieren beim Bild generieren', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+
+      const generateButton = screen.getByText('Bild generieren');
+      fireEvent.click(generateButton);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/events/image-editor', expect.objectContaining({
+        state: expect.objectContaining({
+          events: expect.any(Array),
+          categoryName: expect.any(String),
+        }),
+      }));
+    });
+  });
+
+  describe('Search and Filtering', () => {
+    beforeEach(async () => {
+      renderWithRouter(<EventList />);
+      
+      // Warte auf das Laden der Daten
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Such-Input rendern', () => {
+      const searchInput = screen.getByPlaceholderText('Nach Event-Namen suchen...');
+      expect(searchInput).toBeInTheDocument();
+    });
+
+    it('sollte Suche durchführen beim Eingeben', async () => {
+      const searchInput = screen.getByPlaceholderText('Nach Event-Namen suchen...');
+      
+      fireEvent.change(searchInput, { target: { value: 'Konzert' } });
+      
+      expect(searchInput).toHaveValue('Konzert');
+    });
+
+    it('sollte alle Filter-Selects rendern', () => {
+      expect(screen.getByText('Status filtern')).toBeInTheDocument();
+      expect(screen.getByText('Kategorie filtern')).toBeInTheDocument();
+      expect(screen.getByText('Zeitraum filtern')).toBeInTheDocument();
+    });
+
+    it('sollte Kategorie-Filter mit Kategorien befüllen', async () => {
+      await waitFor(() => {
+        // Der Kategorie-Filter sollte die Kategorie "Kultur" enthalten
+        expect(screen.getByText('Kultur')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Event Grouping', () => {
+    beforeEach(async () => {
+      renderWithRouter(<EventList />);
+      
+      // Warte auf das Laden der Daten
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Event-Gruppen-Header anzeigen', async () => {
+      await waitFor(() => {
+        expect(screen.getByText('Laufende Events')).toBeInTheDocument();
+        expect(screen.getByText('Zukünftige Events')).toBeInTheDocument();
+        expect(screen.getByText('Vergangene Events')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Events in richtigen Gruppen anzeigen', async () => {
+      await waitFor(() => {
+        expect(screen.getByText('Laufendes Event')).toBeInTheDocument();
+        expect(screen.getByText('Zukünftiges Event')).toBeInTheDocument();
+        expect(screen.getByText('Vergangenes Event')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Empty State', () => {
+    it('sollte "Keine Events gefunden" anzeigen wenn keine Events vorhanden', async () => {
+      mockEventService.getEvents.mockResolvedValue([]);
+
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Keine Events gefunden.')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Responsive Design', () => {
+    it('sollte responsive Klassen für Header haben', async () => {
+      renderWithRouter(<EventList />);
+
+      const header = screen.getByText('Events');
+      expect(header).toHaveClass('text-xl', 'sm:text-2xl');
+    });
+  });
+});
+
+describe('EventCard Component', () => {
+  const mockOnDelete = jest.fn();
+  const mockOnEdit = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+  });
+
+  const renderEventCard = (props: any = {}) => {
+    const defaultProps = {
+      event: mockEvent,
+      category: mockEventCategory,
+      onDelete: mockOnDelete,
+      ...props,
+    };
+
+    return renderWithRouter(<EventCard {...defaultProps} />);
+  };
+
+  describe('Event Card Rendering', () => {
+    it('sollte Event-Karte korrekt rendern', () => {
+      renderEventCard();
+
+      expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      expect(screen.getByText('Ein wunderschönes Konzert unter freiem Himmel')).toBeInTheDocument();
+      expect(screen.getByText('Stadtpark, Nürnberg')).toBeInTheDocument();
+    });
+
+    it('sollte Event-Preis anzeigen wenn vorhanden', () => {
+      renderEventCard();
+
+      expect(screen.getByText('15,50 €')).toBeInTheDocument();
+    });
+
+    it('sollte Favorite Count anzeigen', () => {
+      renderEventCard();
+
+      expect(screen.getByText('25')).toBeInTheDocument();
+    });
+
+    it('sollte Tickets Required Icon anzeigen', () => {
+      renderEventCard();
+
+      expect(screen.getByTestId('ticket-icon')).toBeInTheDocument();
+    });
+
+    it('sollte Event ohne Kategorie handhaben', () => {
+      renderEventCard({ category: undefined });
+
+      expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+    });
+  });
+
+  describe('Event Status', () => {
+    it('sollte korrekten Status für vergangene Events anzeigen', () => {
+      const mockIsPast = require('date-fns').isPast as jest.Mock;
+      mockIsPast.mockReturnValue(true);
+
+      renderEventCard({ event: mockPastEvent });
+
+      expect(screen.getByText('Beendet')).toBeInTheDocument();
+      expect(screen.getByTestId('check-circle-icon')).toBeInTheDocument();
+    });
+
+    it('sollte korrekten Status für zukünftige Events anzeigen', () => {
+      const mockIsFuture = require('date-fns').isFuture as jest.Mock;
+      mockIsFuture.mockReturnValue(true);
+
+      renderEventCard({ event: mockFutureEvent });
+
+      expect(screen.getByText('Kommend')).toBeInTheDocument();
+      expect(screen.getByTestId('alert-circle-icon')).toBeInTheDocument();
+    });
+
+    it('sollte korrekten Status für laufende Events anzeigen', () => {
+      const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+      mockIsWithinInterval.mockReturnValue(true);
+
+      renderEventCard({ event: mockRunningEvent });
+
+      expect(screen.getByText('Läuft jetzt')).toBeInTheDocument();
+      expect(screen.getByTestId('clock-icon')).toBeInTheDocument();
+    });
+  });
+
+  describe('Event Date Formatting', () => {
+    it('sollte Event-Datum korrekt formatieren', () => {
+      renderEventCard();
+
+      expect(screen.getByText('15. Januar 2024')).toBeInTheDocument();
+    });
+  });
+
+  describe('Event Navigation', () => {
+    it('sollte zu Event-Detail navigieren beim Klick', () => {
+      renderEventCard();
+
+      const eventCard = screen.getByTestId('card');
+      fireEvent.click(eventCard);
+
+      expect(mockNavigate).toHaveBeenCalledWith('/events/event-1');
+    });
+  });
+
+  describe('Preview Mode', () => {
+    it('sollte Preview Mode korrekt handhaben', () => {
+      renderEventCard({ isPreview: true });
+
+      expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      // Im Preview-Modus sollten keine Action-Buttons angezeigt werden
+    });
+  });
+}); 
