@@ -16,7 +16,10 @@
     "deploy:ci:dev": "npm run build:dev && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project dev --non-interactive",
     "deploy:ci:prd": "npm run build:prd && GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS firebase deploy --project prd --non-interactive",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -63,6 +66,10 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss7-compat": "^2.2.17",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.13.13",
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
@@ -73,10 +80,16 @@
     "eslint": "^9.23.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^30.0.0",
+    "jest-environment-jsdom": "^30.0.0",
+    "jest-transform-stub": "^2.0.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.5.3",
     "postcss-nesting": "^13.0.1",
     "tailwindcss": "^4.0.15",
     "tailwindcss-animate": "^1.0.7",
+    "ts-jest": "^29.4.0",
     "typescript": "^5.8.2",
     "vite": "^5.2.0"
   },
