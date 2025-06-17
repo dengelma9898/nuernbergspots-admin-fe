@@ -92,6 +92,9 @@ export const BusinessUserReview: React.FC = () => {
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
         
         <div className="relative z-10 flex justify-center items-center h-screen">
           <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
@@ -116,7 +119,7 @@ export const BusinessUserReview: React.FC = () => {
       <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <div className="relative z-10 min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
+      <div className="relative z-10 min-h-screen bg-muted bg-opacity-0 px-4 py-6 sm:px-8 overflow-x-hidden">
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
@@ -218,23 +221,60 @@ export const BusinessUserReview: React.FC = () => {
 
                   {/* Footer Actions */}
                   <div className="pt-6 flex flex-col sm:flex-row justify-end gap-2" data-slot="card-footer">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleReject(user.id)}
-                      className="text-destructive backdrop-blur-2xl bg-red-500/20 border-red-400/40 text-red-200 hover:bg-red-500/30 hover:border-red-400/60 hover:text-red-100 hover:scale-105 transition-all duration-300 rounded-xl w-full sm:w-auto"
-                    >
-                      <XCircle className="mr-2 h-4 w-4" />
-                      Ablehnen
-                    </Button>
-                    <Button 
-                      size="sm"
-                      onClick={() => handleApprove(user.id)}
-                      className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-white/20 hover:from-green-600/90 hover:to-emerald-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg"
-                    >
-                      <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Verifizieren
-                    </Button>
+                    <div className="w-full sm:w-auto">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleReject(user.id)}
+                        className="text-destructive w-full sm:w-auto relative overflow-hidden"
+                        style={{ 
+                          backdropFilter: 'blur(8px)', 
+                          background: 'rgba(239, 68, 68, 0.2)', 
+                          borderColor: 'rgba(248, 113, 113, 0.4)',
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
+                          e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.6)';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Ablehnen
+                      </Button>
+                    </div>
+                    <div className="w-full sm:w-auto">
+                      <Button 
+                        size="sm"
+                        onClick={() => handleApprove(user.id)}
+                        className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto relative overflow-hidden"
+                        style={{ 
+                          backdropFilter: 'blur(8px)', 
+                          background: 'linear-gradient(to right, rgba(34, 197, 94, 0.8), rgba(16, 185, 129, 0.8))', 
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(to right, rgba(22, 163, 74, 0.9), rgba(5, 150, 105, 0.9))';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(to right, rgba(34, 197, 94, 0.8), rgba(16, 185, 129, 0.8))';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        Verifizieren
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
