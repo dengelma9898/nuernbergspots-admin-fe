@@ -119,7 +119,7 @@ export const BusinessUserReview: React.FC = () => {
       <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <div className="relative z-10 min-h-screen bg-muted bg-opacity-0 px-4 py-6 sm:px-8 overflow-x-hidden">
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8 overflow-x-hidden">
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
