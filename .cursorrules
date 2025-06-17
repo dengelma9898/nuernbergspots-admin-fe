@@ -81,7 +81,36 @@
     "testing": {
       "componentTests": "__tests__",
       "testFiles": "*.test.tsx",
-      "coverageThreshold": 80
+      "coverageThreshold": 80,
+      "mandatory": "All tests must pass before committing - no exceptions"
+    },
+    "ux": {
+      "mobileFirst": {
+        "mandatory": true,
+        "description": "Always design mobile-first with responsive breakpoints",
+        "breakpoints": {
+          "mobile": "base (320px+)",
+          "tablet": "sm: (640px+)",
+          "desktop": "md: (768px+)",
+          "large": "lg: (1024px+)",
+          "xl": "xl: (1280px+)"
+        },
+        "principles": [
+          "Start with mobile layout and scale up",
+          "Touch targets minimum 44px",
+          "Readable text without zooming",
+          "Thumb-friendly navigation",
+          "Progressive enhancement for larger screens",
+          "Optimize for one-handed use",
+          "Consider swipe gestures and touch interactions"
+        ],
+        "responsiveDesign": {
+          "typography": "text-sm sm:text-base md:text-lg lg:text-xl",
+          "spacing": "p-4 md:p-6 lg:p-8",
+          "layout": "flex-col sm:flex-row",
+          "grids": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        }
+      }
     },
     "git": {
       "commitMessageFormat": "^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+$",
