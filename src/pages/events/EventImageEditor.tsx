@@ -300,515 +300,563 @@ export const EventImageEditor: React.FC = () => {
   const groupedEvents = groupEventsByDate(events);
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => navigate('/events')} className="hover:bg-accent">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zur Übersicht
-        </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Event-Bild Editor</h1>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Linke Spalte - Einstellungen */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Design-Einstellungen</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <Tabs defaultValue="title">
-                <TabsList className="grid grid-cols-3">
-                  <TabsTrigger value="title">
-                    <Type className="h-4 w-4 mr-2" />
-                    Titel
-                  </TabsTrigger>
-                  <TabsTrigger value="content">
-                    <Palette className="h-4 w-4 mr-2" />
-                    Inhalt
-                  </TabsTrigger>
-                  <TabsTrigger value="logo">
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Logo
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="title" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-title">Titel Text</Label>
-                    <Textarea
-                      id="custom-title"
-                      value={customTitle}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
-                        console.log('Neuer Titel:', newValue);
-                        setCustomTitle(newValue);
-                      }}
-                      placeholder="Titel eingeben..."
-                      className="font-mono min-h-[100px] resize-y"
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Leer lassen, um den Kategorienamen zu verwenden
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Schriftgröße</Label>
-                    <Slider
-                      value={[settings.title.fontSize]}
-                      onValueChange={([value]) => updateSetting('title', 'fontSize', value)}
-                      min={24}
-                      max={72}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">{settings.title.fontSize}px</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Textfarbe</Label>
-                    <ColorPicker
-                      value={settings.title.color}
-                      onChange={(value) => updateSetting('title', 'color', value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Hintergrundfarbe</Label>
-                    <ColorPicker
-                      value={settings.title.backgroundColor}
-                      onChange={(value) => updateSetting('title', 'backgroundColor', value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Rahmenfarbe</Label>
-                    <ColorPicker
-                      value={settings.title.borderColor}
-                      onChange={(value) => updateSetting('title', 'borderColor', value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Schattenfarbe</Label>
-                    <ColorPicker
-                      value={settings.title.shadowColor}
-                      onChange={(value) => updateSetting('title', 'shadowColor', value)}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Schriftart</Label>
-                    <Select
-                      value={settings.title.fontFamily}
-                      onValueChange={(value) => updateSetting('title', 'fontFamily', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Schriftart wählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="league-spartan">League Spartan</SelectItem>
-                        <SelectItem value="montserrat">Montserrat</SelectItem>
-                        <SelectItem value="system-ui">System</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Schriftschnitt</Label>
-                    <Select
-                      value={settings.title.fontWeight.toString()}
-                      onValueChange={(value) => updateSetting('title', 'fontWeight', parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Schriftschnitt wählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="200">200</SelectItem>
-                        <SelectItem value="300">300</SelectItem>
-                        <SelectItem value="400">400</SelectItem>
-                        <SelectItem value="500">500</SelectItem>
-                        <SelectItem value="600">600</SelectItem>
-                        <SelectItem value="700">700</SelectItem>
-                        <SelectItem value="800">800</SelectItem>
-                        <SelectItem value="900">900</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Label>Hintergrund transparent</Label>
-                    <input
-                      type="checkbox"
-                      checked={settings.title.backgroundTransparent}
-                      onChange={e => updateSetting('title', 'backgroundTransparent', e.target.checked)}
-                      className="ml-2"
-                    />
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="content" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Schriftart</Label>
-                    <Select
-                      value={settings.content.fontFamily}
-                      onValueChange={(value) => updateSetting('content', 'fontFamily', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Schriftart wählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="league-spartan">League Spartan</SelectItem>
-                        <SelectItem value="montserrat">Montserrat</SelectItem>
-                        <SelectItem value="system-ui">System</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Schriftschnitt</Label>
-                    <Select
-                      value={settings.content.fontWeight.toString()}
-                      onValueChange={(value) => updateSetting('content', 'fontWeight', parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Schriftschnitt wählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="100">100</SelectItem>
-                        <SelectItem value="200">200</SelectItem>
-                        <SelectItem value="300">300</SelectItem>
-                        <SelectItem value="400">400</SelectItem>
-                        <SelectItem value="500">500</SelectItem>
-                        <SelectItem value="600">600</SelectItem>
-                        <SelectItem value="700">700</SelectItem>
-                        <SelectItem value="800">800</SelectItem>
-                        <SelectItem value="900">900</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Hintergrundfarbe</Label>
-                    <ColorPicker
-                      value={settings.content.backgroundColor}
-                      onChange={(value) => {
-                        updateSetting('content', 'backgroundColor', value);
-                      }}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Container Transparenz</Label>
-                    <Slider
-                      value={[Math.round(settings.content.containerOpacity * 100)]}
-                      onValueChange={([value]) => {
-                        updateSetting('content', 'containerOpacity', value / 100);
-                      }}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">
-                      {Math.round(settings.content.containerOpacity * 100)}%
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Innenabstand</Label>
-                    <Slider
-                      value={[settings.content.padding]}
-                      onValueChange={([value]) => updateSetting('content', 'padding', value)}
-                      min={0.5}
-                      max={3}
-                      step={0.1}
-                    />
-                    <div className="text-sm text-muted-foreground">{settings.content.padding}rem</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Datum Schriftgröße</Label>
-                    <Slider
-                      value={[settings.date.fontSize]}
-                      onValueChange={([value]) => updateSetting('date', 'fontSize', value)}
-                      min={12}
-                      max={24}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">{settings.date.fontSize}px</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Event Schriftgröße</Label>
-                    <Slider
-                      value={[settings.event.fontSize]}
-                      onValueChange={([value]) => updateSetting('event', 'fontSize', value)}
-                      min={10}
-                      max={20}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">{settings.event.fontSize}px</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Hintergrundbild</Label>
-                    <Input type="file" accept="image/*" onChange={handleBackgroundImageChange} />
-                    {backgroundImage && (
-                      <div className="mt-2 flex items-center gap-4">
-                        <img src={backgroundImage} alt="Vorschau" className="h-16 rounded shadow" />
-                        <Button variant="outline" onClick={removeBackgroundImage}>Entfernen</Button>
-                      </div>
-                    )}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="logo" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Logo-Größe</Label>
-                    <Slider
-                      value={[settings.logo.size]}
-                      onValueChange={([value]) => updateSetting('logo', 'size', value)}
-                      min={10}
-                      max={40}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">{settings.logo.size}rem</div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Transparenz</Label>
-                    <Slider
-                      value={[settings.logo.opacity * 100]}
-                      onValueChange={([value]) => updateSetting('logo', 'opacity', value / 100)}
-                      min={0}
-                      max={100}
-                      step={1}
-                    />
-                    <div className="text-sm text-muted-foreground">{Math.round(settings.logo.opacity * 100)}%</div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+      <div className="relative z-10 container mx-auto py-4 px-2 sm:px-4 md:py-8">
+        {/* Glass Header */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/events')} 
+              className="mb-2 sm:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Zurück zur Übersicht
+            </Button>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+              Event-Bild Editor
+            </h1>
+          </div>
         </div>
 
-        {/* Rechte Spalte - Vorschau */}
-        <div className="lg:col-span-2">
-          <div
-            ref={elementRef}
-            className="bg-white p-8 rounded-xl shadow-lg max-w-2xl mx-auto relative"
-            style={{
-              fontFamily: 'system-ui, -apple-system, sans-serif',
-              backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-            }}
-          >
-            <div className="space-y-6">
-              <div 
-                className="absolute top-4 left-8 z-10"
-                style={{
-                  transform: 'rotate(-2deg) translateY(-40%)',
-                }}
-              >
-                <h1 
-                  className={`text-4xl font-black tracking-tight inline-block whitespace-pre-line ${
-                    settings.title.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                    settings.title.fontFamily === 'montserrat' ? 'font-montserrat' :
-                    'font-sans'
-                  }`}
-                  style={{ 
-                    color: settings.title.color,
-                    fontSize: `${settings.title.fontSize}px`,
-                    backgroundColor: settings.title.backgroundTransparent ? 'transparent' : settings.title.backgroundColor,
-                    borderRadius: '4px',
-                    WebkitTextStroke: '2px white',
-                    textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
-                    border: `2px solid ${settings.title.borderColor}`,
-                    padding: '0.5rem 1rem',
-                    fontWeight: settings.title.fontWeight
-                  }}
-                >
-                  {customTitle || categoryName}
-                </h1>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          {/* Linke Spalte - Einstellungen */}
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl transition-all duration-500">
+              <div className="backdrop-blur-2xl bg-white/5 rounded-t-3xl p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-lg sm:text-xl font-bold text-white bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
+                  Design-Einstellungen
+                </h2>
               </div>
-              
-              <div 
-                className="space-y-4 rounded-lg overflow-hidden mt-12"
-                style={{
-                  backgroundColor: hexToRgba(settings.content.backgroundColor, settings.content.containerOpacity),
-                  padding: `${settings.content.padding}rem`,
-                  paddingBottom: '1rem'
-                }}
-              >
-                {groupedEvents.map((group, groupIndex) => {
-                  const { dayDate } = formatDate(group.date.toISOString());
-                  return (
-                    <div key={groupIndex} className="space-y-2">
-                      <div 
-                        className={
-                          settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                          settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                          'font-sans'
-                        }
-                        style={{
-                          color: settings.date.color,
-                          fontSize: `${settings.date.fontSize}px`,
-                          fontWeight: settings.content.fontWeight
+              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+                <Tabs defaultValue="title">
+                  <TabsList className="grid grid-cols-3 backdrop-blur-2xl bg-white/10 border-white/20 rounded-xl">
+                    <TabsTrigger value="title" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                      <Type className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Titel</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="content" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                      <Palette className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Inhalt</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="logo" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                      <ImageIcon className="h-4 w-4 mr-2" />
+                      <span className="hidden sm:inline">Logo</span>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="title" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="custom-title" className="text-white/90 font-medium">Titel Text</Label>
+                      <Textarea
+                        id="custom-title"
+                        value={customTitle}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          console.log('Neuer Titel:', newValue);
+                          setCustomTitle(newValue);
                         }}
+                        placeholder="Titel eingeben..."
+                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl font-mono min-h-[100px] resize-y"
+                      />
+                      <p className="text-sm text-white/70">
+                        Leer lassen, um den Kategorienamen zu verwenden
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schriftgröße</Label>
+                      <Slider
+                        value={[settings.title.fontSize]}
+                        onValueChange={([value]) => updateSetting('title', 'fontSize', value)}
+                        min={24}
+                        max={72}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{settings.title.fontSize}px</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Textfarbe</Label>
+                      <ColorPicker
+                        value={settings.title.color}
+                        onChange={(value) => updateSetting('title', 'color', value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
+                      <ColorPicker
+                        value={settings.title.backgroundColor}
+                        onChange={(value) => updateSetting('title', 'backgroundColor', value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Rahmenfarbe</Label>
+                      <ColorPicker
+                        value={settings.title.borderColor}
+                        onChange={(value) => updateSetting('title', 'borderColor', value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schattenfarbe</Label>
+                      <ColorPicker
+                        value={settings.title.shadowColor}
+                        onChange={(value) => updateSetting('title', 'shadowColor', value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schriftart</Label>
+                      <Select
+                        value={settings.title.fontFamily}
+                        onValueChange={(value) => updateSetting('title', 'fontFamily', value)}
                       >
-                        {dayDate}
-                      </div>
-                      <div className="space-y-1">
-                        {group.events.map((event) => {
-                          const time = event.dailyTimeSlots?.[0]?.from 
-                            ? `${event.dailyTimeSlots[0].from} Uhr`
-                            : '';
-                          return (
-                            <div key={event.id} className="ml-4">
-                              <div className="flex items-baseline">
-                                <span 
-                                  className={`inline-block min-w-[70px] ${
-                                    settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                    settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                    'font-sans'
-                                  }`}
-                                  style={{
-                                    color: settings.time.color,
-                                    fontSize: `${settings.time.fontSize}px`,
-                                    fontWeight: settings.content.fontWeight,
-                                    visibility: time ? 'visible' : 'hidden'
-                                  }}
-                                >
-                                  {time || '00:00 Uhr'}
-                                </span>
-                                <div className="flex-1">
-                                  <span 
-                                    className={
-                                      settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                      settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                      'font-sans'
-                                    }
-                                    style={{
-                                      color: settings.event.color,
-                                      fontSize: `${settings.event.fontSize}px`,
-                                      fontWeight: settings.content.fontWeight
-                                    }}
-                                  >
-                                    {formatEventTitle(event)}
-                                  </span>
-                                  {event.location.address && (
-                                    <div 
-                                      className={`${
-                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                        'font-sans'
-                                      }`}
-                                      style={{
-                                        color: settings.location.color,
-                                        fontSize: `${settings.location.fontSize}px`,
-                                        fontWeight: settings.content.fontWeight
-                                      }}
-                                    >
-                                      {formatAddress(event.location.address)}
-                                    </div>
-                                  )}
-                                  {(event.socialMedia?.instagram || event.socialMedia?.facebook || event.socialMedia?.tiktok) && (
-                                    <div 
-                                      className={`flex items-center gap-2 ${
-                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                        'font-sans'
-                                      }`}
-                                      style={{
-                                        color: settings.location.color,
-                                        fontSize: `${settings.location.fontSize}px`,
-                                        fontWeight: settings.content.fontWeight
-                                      }}
-                                    >
-                                      {event.socialMedia?.instagram && (
-                                        <div className="flex items-center gap-1">
-                                          <svg
-                                            role="img"
-                                            viewBox="0 0 24 24"
-                                            width={settings.location.fontSize}
-                                            height={settings.location.fontSize}
-                                            fill="currentColor"
-                                          >
-                                            <path d={siInstagram.path} />
-                                          </svg>
-                                          <span>{event.socialMedia.instagram}</span>
-                                        </div>
-                                      )}
-                                      {event.socialMedia?.facebook && (
-                                        <div className="flex items-center gap-1">
-                                          <svg
-                                            role="img"
-                                            viewBox="0 0 24 24"
-                                            width={settings.location.fontSize}
-                                            height={settings.location.fontSize}
-                                            fill="currentColor"
-                                          >
-                                            <path d={siFacebook.path} />
-                                          </svg>
-                                          <span>{event.socialMedia.facebook}</span>
-                                        </div>
-                                      )}
-                                      {event.socialMedia?.tiktok && (
-                                        <div className="flex items-center gap-1">
-                                          <svg
-                                            role="img"
-                                            viewBox="0 0 24 24"
-                                            width={settings.location.fontSize}
-                                            height={settings.location.fontSize}
-                                            fill="currentColor"
-                                          >
-                                            <path d={siTiktok.path} />
-                                          </svg>
-                                          <span>{event.socialMedia.tiktok}</span>
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
+                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                          <SelectValue placeholder="Schriftart wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                          <SelectItem value="league-spartan" className="text-white hover:bg-white/20">League Spartan</SelectItem>
+                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">Montserrat</SelectItem>
+                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">System</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schriftschnitt</Label>
+                      <Select
+                        value={settings.title.fontWeight.toString()}
+                        onValueChange={(value) => updateSetting('title', 'fontWeight', parseInt(value))}
+                      >
+                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                          <SelectValue placeholder="Schriftschnitt wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                          <SelectItem value="100" className="text-white hover:bg-white/20">100</SelectItem>
+                          <SelectItem value="200" className="text-white hover:bg-white/20">200</SelectItem>
+                          <SelectItem value="300" className="text-white hover:bg-white/20">300</SelectItem>
+                          <SelectItem value="400" className="text-white hover:bg-white/20">400</SelectItem>
+                          <SelectItem value="500" className="text-white hover:bg-white/20">500</SelectItem>
+                          <SelectItem value="600" className="text-white hover:bg-white/20">600</SelectItem>
+                          <SelectItem value="700" className="text-white hover:bg-white/20">700</SelectItem>
+                          <SelectItem value="800" className="text-white hover:bg-white/20">800</SelectItem>
+                          <SelectItem value="900" className="text-white hover:bg-white/20">900</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
+                      <Label className="text-white/90 font-medium cursor-pointer">Hintergrund transparent</Label>
+                      <input
+                        type="checkbox"
+                        checked={settings.title.backgroundTransparent}
+                        onChange={e => updateSetting('title', 'backgroundTransparent', e.target.checked)}
+                        className="ml-auto accent-blue-500"
+                      />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="content" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schriftart</Label>
+                      <Select
+                        value={settings.content.fontFamily}
+                        onValueChange={(value) => updateSetting('content', 'fontFamily', value)}
+                      >
+                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                          <SelectValue placeholder="Schriftart wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                          <SelectItem value="league-spartan" className="text-white hover:bg-white/20">League Spartan</SelectItem>
+                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">Montserrat</SelectItem>
+                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">System</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Schriftschnitt</Label>
+                      <Select
+                        value={settings.content.fontWeight.toString()}
+                        onValueChange={(value) => updateSetting('content', 'fontWeight', parseInt(value))}
+                      >
+                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                          <SelectValue placeholder="Schriftschnitt wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                          <SelectItem value="100" className="text-white hover:bg-white/20">100</SelectItem>
+                          <SelectItem value="200" className="text-white hover:bg-white/20">200</SelectItem>
+                          <SelectItem value="300" className="text-white hover:bg-white/20">300</SelectItem>
+                          <SelectItem value="400" className="text-white hover:bg-white/20">400</SelectItem>
+                          <SelectItem value="500" className="text-white hover:bg-white/20">500</SelectItem>
+                          <SelectItem value="600" className="text-white hover:bg-white/20">600</SelectItem>
+                          <SelectItem value="700" className="text-white hover:bg-white/20">700</SelectItem>
+                          <SelectItem value="800" className="text-white hover:bg-white/20">800</SelectItem>
+                          <SelectItem value="900" className="text-white hover:bg-white/20">900</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
+                      <ColorPicker
+                        value={settings.content.backgroundColor}
+                        onChange={(value) => {
+                          updateSetting('content', 'backgroundColor', value);
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Container Transparenz</Label>
+                      <Slider
+                        value={[Math.round(settings.content.containerOpacity * 100)]}
+                        onValueChange={([value]) => {
+                          updateSetting('content', 'containerOpacity', value / 100);
+                        }}
+                        min={0}
+                        max={100}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">
+                        {Math.round(settings.content.containerOpacity * 100)}%
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            
-              <div className="mt-4 flex justify-center items-center">
-                <div 
-                  className="rounded-full bg-black flex items-center justify-center overflow-hidden"
-                  style={{
-                    width: `${settings.logo.size}rem`,
-                    height: `${settings.logo.size}rem`
-                  }}
-                >
-                  <img 
-                    src={LogoImage} 
-                    alt="nuernbergspots.com" 
-                    style={{
-                      width: `${settings.logo.size - 2}rem`,
-                      height: `${settings.logo.size - 2}rem`,
-                      opacity: settings.logo.opacity
-                    }}
-                  />
-                </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Innenabstand</Label>
+                      <Slider
+                        value={[settings.content.padding]}
+                        onValueChange={([value]) => updateSetting('content', 'padding', value)}
+                        min={0.5}
+                        max={3}
+                        step={0.1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{settings.content.padding}rem</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Datum Schriftgröße</Label>
+                      <Slider
+                        value={[settings.date.fontSize]}
+                        onValueChange={([value]) => updateSetting('date', 'fontSize', value)}
+                        min={12}
+                        max={24}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{settings.date.fontSize}px</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Event Schriftgröße</Label>
+                      <Slider
+                        value={[settings.event.fontSize]}
+                        onValueChange={([value]) => updateSetting('event', 'fontSize', value)}
+                        min={10}
+                        max={20}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{settings.event.fontSize}px</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Hintergrundbild</Label>
+                      <Input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleBackgroundImageChange} 
+                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white file:text-white file:bg-white/20 file:border-white/20 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
+                      />
+                      {backgroundImage && (
+                        <div className="mt-2 flex items-center gap-4 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
+                          <img src={backgroundImage} alt="Vorschau" className="h-16 rounded shadow" />
+                          <Button 
+                            variant="outline" 
+                            onClick={removeBackgroundImage}
+                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl"
+                          >
+                            Entfernen
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="logo" className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Logo-Größe</Label>
+                      <Slider
+                        value={[settings.logo.size]}
+                        onValueChange={([value]) => updateSetting('logo', 'size', value)}
+                        min={10}
+                        max={40}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{settings.logo.size}rem</div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-white/90 font-medium">Transparenz</Label>
+                      <Slider
+                        value={[settings.logo.opacity * 100]}
+                        onValueChange={([value]) => updateSetting('logo', 'opacity', value / 100)}
+                        min={0}
+                        max={100}
+                        step={1}
+                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                      />
+                      <div className="text-sm text-white/70">{Math.round(settings.logo.opacity * 100)}%</div>
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-center mt-6">
-            <Button onClick={handleDownload} className="gap-2">
-              <Download className="h-4 w-4" />
-              Als Bild herunterladen
-            </Button>
+          {/* Rechte Spalte - Vorschau */}
+          <div className="lg:col-span-2">
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-6">
+              <div
+                ref={elementRef}
+                className="bg-white p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg max-w-2xl mx-auto relative"
+                style={{
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              >
+                <div className="space-y-6">
+                  <div 
+                    className="absolute top-4 left-4 sm:left-8 z-10"
+                    style={{
+                      transform: 'rotate(-2deg) translateY(-40%)',
+                    }}
+                  >
+                    <h1 
+                      className={`text-2xl sm:text-4xl font-black tracking-tight inline-block whitespace-pre-line ${
+                        settings.title.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                        settings.title.fontFamily === 'montserrat' ? 'font-montserrat' :
+                        'font-sans'
+                      }`}
+                      style={{ 
+                        color: settings.title.color,
+                        fontSize: `${settings.title.fontSize}px`,
+                        backgroundColor: settings.title.backgroundTransparent ? 'transparent' : settings.title.backgroundColor,
+                        borderRadius: '4px',
+                        WebkitTextStroke: '2px white',
+                        textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
+                        border: `2px solid ${settings.title.borderColor}`,
+                        padding: '0.5rem 1rem',
+                        fontWeight: settings.title.fontWeight
+                      }}
+                    >
+                      {customTitle || categoryName}
+                    </h1>
+                  </div>
+                  
+                  <div 
+                    className="space-y-4 rounded-lg overflow-hidden mt-12"
+                    style={{
+                      backgroundColor: hexToRgba(settings.content.backgroundColor, settings.content.containerOpacity),
+                      padding: `${settings.content.padding}rem`,
+                      paddingBottom: '1rem'
+                    }}
+                  >
+                    {groupedEvents.map((group, groupIndex) => {
+                      const { dayDate } = formatDate(group.date.toISOString());
+                      return (
+                        <div key={groupIndex} className="space-y-2">
+                          <div 
+                            className={
+                              settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                              settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                              'font-sans'
+                            }
+                            style={{
+                              color: settings.date.color,
+                              fontSize: `${settings.date.fontSize}px`,
+                              fontWeight: settings.content.fontWeight
+                            }}
+                          >
+                            {dayDate}
+                          </div>
+                          <div className="space-y-1">
+                            {group.events.map((event) => {
+                              const time = event.dailyTimeSlots?.[0]?.from 
+                                ? `${event.dailyTimeSlots[0].from} Uhr`
+                                : '';
+                              return (
+                                <div key={event.id} className="ml-4">
+                                  <div className="flex items-baseline">
+                                    <span 
+                                      className={`inline-block min-w-[70px] ${
+                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                        'font-sans'
+                                      }`}
+                                      style={{
+                                        color: settings.time.color,
+                                        fontSize: `${settings.time.fontSize}px`,
+                                        fontWeight: settings.content.fontWeight,
+                                        visibility: time ? 'visible' : 'hidden'
+                                      }}
+                                    >
+                                      {time || '00:00 Uhr'}
+                                    </span>
+                                    <div className="flex-1">
+                                      <span 
+                                        className={
+                                          settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                          settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                          'font-sans'
+                                        }
+                                        style={{
+                                          color: settings.event.color,
+                                          fontSize: `${settings.event.fontSize}px`,
+                                          fontWeight: settings.content.fontWeight
+                                        }}
+                                      >
+                                        {formatEventTitle(event)}
+                                      </span>
+                                      {event.location.address && (
+                                        <div 
+                                          className={`${
+                                            settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                            settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                            'font-sans'
+                                          }`}
+                                          style={{
+                                            color: settings.location.color,
+                                            fontSize: `${settings.location.fontSize}px`,
+                                            fontWeight: settings.content.fontWeight
+                                          }}
+                                        >
+                                          {formatAddress(event.location.address)}
+                                        </div>
+                                      )}
+                                      {(event.socialMedia?.instagram || event.socialMedia?.facebook || event.socialMedia?.tiktok) && (
+                                        <div 
+                                          className={`flex items-center gap-2 ${
+                                            settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
+                                            settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
+                                            'font-sans'
+                                          }`}
+                                          style={{
+                                            color: settings.location.color,
+                                            fontSize: `${settings.location.fontSize}px`,
+                                            fontWeight: settings.content.fontWeight
+                                          }}
+                                        >
+                                          {event.socialMedia?.instagram && (
+                                            <div className="flex items-center gap-1">
+                                              <svg
+                                                role="img"
+                                                viewBox="0 0 24 24"
+                                                width={settings.location.fontSize}
+                                                height={settings.location.fontSize}
+                                                fill="currentColor"
+                                              >
+                                                <path d={siInstagram.path} />
+                                              </svg>
+                                              <span>{event.socialMedia.instagram}</span>
+                                            </div>
+                                          )}
+                                          {event.socialMedia?.facebook && (
+                                            <div className="flex items-center gap-1">
+                                              <svg
+                                                role="img"
+                                                viewBox="0 0 24 24"
+                                                width={settings.location.fontSize}
+                                                height={settings.location.fontSize}
+                                                fill="currentColor"
+                                              >
+                                                <path d={siFacebook.path} />
+                                              </svg>
+                                              <span>{event.socialMedia.facebook}</span>
+                                            </div>
+                                          )}
+                                          {event.socialMedia?.tiktok && (
+                                            <div className="flex items-center gap-1">
+                                              <svg
+                                                role="img"
+                                                viewBox="0 0 24 24"
+                                                width={settings.location.fontSize}
+                                                height={settings.location.fontSize}
+                                                fill="currentColor"
+                                              >
+                                                <path d={siTiktok.path} />
+                                              </svg>
+                                              <span>{event.socialMedia.tiktok}</span>
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                
+                  <div className="mt-4 flex justify-center items-center">
+                    <div 
+                      className="rounded-full bg-black flex items-center justify-center overflow-hidden"
+                      style={{
+                        width: `${settings.logo.size}rem`,
+                        height: `${settings.logo.size}rem`
+                      }}
+                    >
+                      <img 
+                        src={LogoImage} 
+                        alt="nuernbergspots.com" 
+                        style={{
+                          width: `${settings.logo.size - 2}rem`,
+                          height: `${settings.logo.size - 2}rem`,
+                          opacity: settings.logo.opacity
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <Button 
+                onClick={handleDownload} 
+                className="backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Als Bild herunterladen
+              </Button>
+            </div>
           </div>
         </div>
       </div>
