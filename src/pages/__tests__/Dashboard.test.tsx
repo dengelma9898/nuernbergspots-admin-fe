@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Dashboard } from '../Dashboard';
 
@@ -156,7 +156,7 @@ describe('Dashboard Component', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
-      expect(screen.getByText(/5/)).toBeTruthy();
+      expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
     });
   });
 
@@ -167,7 +167,7 @@ describe('Dashboard Component', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
-      expect(screen.getByText(/3/)).toBeTruthy();
+      expect(screen.getByText('3 Geschäftsinhaber warten auf Verifizierung')).toBeTruthy();
     });
   });
 
@@ -178,7 +178,7 @@ describe('Dashboard Component', () => {
     
     await waitFor(() => {
       expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
-      expect(screen.getByText(/7/)).toBeTruthy();
+      expect(screen.getByText('7 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
     });
   });
 
@@ -188,14 +188,17 @@ describe('Dashboard Component', () => {
     
     render(<Dashboard />);
     
+    // Wait for the pending approvals card to appear
     await waitFor(() => {
-      expect(screen.getByText('Jetzt prüfen')).toBeTruthy();
+      expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
     });
     
-    const checkButton = screen.getByText('Jetzt prüfen');
+    // Find the button specifically in the pending approvals card by looking for the button near the "Ausstehende Partner" text
+    const pendingApprovalsSection = screen.getByText('Ausstehende Partner ✍️').closest('[data-testid="card"]');
+    const checkButton = within(pendingApprovalsSection!).getByText('Jetzt prüfen');
     await user.click(checkButton);
     
-    expect(mockNavigate).toHaveBeenCalledWith('/contacts?filter=pending');
+    expect(mockNavigate).toHaveBeenCalledWith('/businesses?filter=pending');
   });
 
   it('handles service errors gracefully', async () => {
@@ -232,7 +235,8 @@ describe('Dashboard Component', () => {
     render(<Dashboard />);
     
     await waitFor(() => {
-      expect(screen.getByText(/15.*🔥/)).toBeTruthy();
+      expect(screen.getByText('🔥')).toBeTruthy();
+      expect(screen.getByText('15 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
     });
   });
 
