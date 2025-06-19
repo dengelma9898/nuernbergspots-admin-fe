@@ -347,13 +347,13 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const categoryBadge = screen.getByText('Restaurant');
         
-        // Kategorie auswählen
+        // Kategorie auswählen - glassmorphism styling ändert sich bei Klicks
         fireEvent.click(categoryBadge);
-        expect(categoryBadge).toHaveAttribute('data-variant', 'default');
+        expect(categoryBadge).toHaveClass('bg-white/20');
         
         // Kategorie abwählen
         fireEvent.click(categoryBadge);
-        expect(categoryBadge).toHaveAttribute('data-variant', 'outline');
+        expect(categoryBadge).toHaveClass('bg-white/5');
       });
     });
 
@@ -413,13 +413,13 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const keywordBadge = screen.getAllByText('Pizza')[0];
         
-        // Keyword auswählen
+        // Keyword auswählen - glassmorphism styling ändert sich bei Klicks
         fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveAttribute('data-variant', 'default');
+        expect(keywordBadge).toHaveClass('bg-white/20');
         
         // Keyword abwählen
         fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveAttribute('data-variant', 'outline');
+        expect(keywordBadge).toHaveClass('bg-white/5');
       });
     });
   });
@@ -495,8 +495,8 @@ describe('CreateBusiness Component', () => {
         const montag = screen.getAllByText('Montag')[0]; // Erster Zeitraum
         fireEvent.click(montag);
         
-        // Badge sollte den Status ändern
-        expect(montag.closest('[data-testid="badge"]')).toHaveAttribute('data-variant');
+        // Glassmorphism styling sollte sich ändern
+        expect(montag).toHaveClass('backdrop-blur-2xl');
       });
     });
   });

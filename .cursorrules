@@ -50,12 +50,67 @@
       "framework": "tailwind",
       "componentLibrary": "shadcn/ui",
       "useTailwindClasses": true,
-      "preferShadcnComponents": true
+      "preferShadcnComponents": true,
+      "designSystem": {
+        "glassmorphism": {
+          "mandatory": true,
+          "description": "All pages must use the glassmorphism design with rainbow background",
+          "background": "Multi-layer rainbow gradients with animated blur circles",
+          "backgroundClasses": [
+            "min-h-screen relative overflow-hidden",
+            "absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500",
+            "absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70",
+            "absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"
+          ],
+          "animatedElements": [
+            "absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse",
+            "absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000",
+            "absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500",
+            "absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700",
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"
+          ],
+          "glassCards": [
+            "backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20",
+            "backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl ring-1 ring-white/30"
+          ],
+          "textColors": "All text should be white with various opacities (text-white, text-white/90, text-white/80)",
+          "contentZIndex": "relative z-10"
+        }
+      }
     },
     "testing": {
       "componentTests": "__tests__",
       "testFiles": "*.test.tsx",
-      "coverageThreshold": 80
+      "coverageThreshold": 80,
+      "mandatory": "All tests must pass before committing - no exceptions"
+    },
+    "ux": {
+      "mobileFirst": {
+        "mandatory": true,
+        "description": "Always design mobile-first with responsive breakpoints",
+        "breakpoints": {
+          "mobile": "base (320px+)",
+          "tablet": "sm: (640px+)",
+          "desktop": "md: (768px+)",
+          "large": "lg: (1024px+)",
+          "xl": "xl: (1280px+)"
+        },
+        "principles": [
+          "Start with mobile layout and scale up",
+          "Touch targets minimum 44px",
+          "Readable text without zooming",
+          "Thumb-friendly navigation",
+          "Progressive enhancement for larger screens",
+          "Optimize for one-handed use",
+          "Consider swipe gestures and touch interactions"
+        ],
+        "responsiveDesign": {
+          "typography": "text-sm sm:text-base md:text-lg lg:text-xl",
+          "spacing": "p-4 md:p-6 lg:p-8",
+          "layout": "flex-col sm:flex-row",
+          "grids": "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        }
+      }
     },
     "git": {
       "commitMessageFormat": "^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+$",

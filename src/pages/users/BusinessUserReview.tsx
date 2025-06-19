@@ -82,111 +82,213 @@ export const BusinessUserReview: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Lade Benutzer...</div>;
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Rainbow Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+        
+        {/* Animated Blur Circles */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
+        
+        <div className="relative z-10 flex justify-center items-center h-screen">
+          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
+            <div className="text-white/90 text-lg">Lade Benutzer...</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-muted px-4 py-6 sm:px-8 overflow-x-hidden">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard')} className="rounded-full p-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <span className="sr-only">Zurück zum Dashboard</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight break-words">Geschäftsinhaber prüfen</h1>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <div className="space-y-6">
-        <div className="text-sm text-muted-foreground">
-          {users.length} Benutzer zur Überprüfung gefunden
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          {users.map(user => (
-            <Card key={user.id} className="w-full max-w-full rounded-2xl shadow-lg border border-border bg-background p-4">
-              <CardHeader className="pb-2 border-b border-muted/40 mb-2">
-                <div className="flex justify-between items-start flex-wrap gap-2">
-                  <div className="space-y-1 min-w-0">
-                    <CardTitle className="text-lg font-semibold truncate">Business User</CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground break-all truncate max-w-xs sm:max-w-none">
-                      ID: {user.id}
-                    </CardDescription>
-                  </div>
-                  <Badge variant="outline" className="ml-2 whitespace-nowrap text-xs px-2 py-1">
-                    Überprüfung erforderlich
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="pb-2">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1 min-w-0">
-                      <div className="flex items-center text-sm break-all truncate max-w-full">
-                        <Mail className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{user.email}</span>
-                      </div>
-                      {user.businessIds && user.businessIds.length > 0 && (
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Building2 className="mr-2 h-4 w-4" />
-                          {user.businessIds.length} {user.businessIds.length === 1 ? 'Geschäft' : 'Geschäfte'} zugewiesen
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-1 min-w-0 text-right">
-                      <div className="flex items-center text-sm justify-end">
-                        <Tag className="mr-2 h-4 w-4 text-muted-foreground" />
-                        <span className={user.isDeleted ? 'text-destructive' : 'text-success'}>{user.isDeleted ? 'Gelöscht' : 'Aktiv'}</span>
-                      </div>
-                      <div className="flex items-center text-xs justify-end text-muted-foreground">
-                        Registriert am {formatDate(user.createdAt)}
-                      </div>
-                    </div>
-                  </div>
-
-                  {user.businessNames && user.businessNames.length > 0 && (
-                    <div className="border-t pt-3">
-                      <div className="text-sm font-medium mb-2">Beanspruchte Geschäfte:</div>
-                      <div className="space-y-2">
-                        {user.businessNames.map(name => (
-                          <div key={name} className="flex items-center text-sm bg-muted/50 p-2 rounded break-all truncate max-w-full">
-                            <Store className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="pt-4 flex flex-col sm:flex-row justify-end gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleReject(user.id)}
-                  className="text-destructive hover:text-destructive w-full sm:w-auto"
-                >
-                  <XCircle className="mr-1 h-3 w-3" />
-                  Ablehnen
-                </Button>
-                <Button 
-                  size="sm"
-                  onClick={() => handleApprove(user.id)}
-                  className="w-full sm:w-auto"
-                >
-                  <CheckCircle2 className="mr-1 h-3 w-3" />
-                  Verifizieren
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-
-        {users.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            Keine Benutzer zur Überprüfung gefunden.
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8 overflow-x-hidden">
+        {/* Glass Header */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => navigate('/dashboard')} 
+                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-full p-2 border"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <span className="sr-only">Zurück zum Dashboard</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent leading-tight break-words">
+              Geschäftsinhaber prüfen
+            </h1>
           </div>
-        )}
+        </div>
+
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {/* Stats Card */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
+            <div className="text-sm text-white/80">
+              {users.length} Benutzer zur Überprüfung gefunden
+            </div>
+          </div>
+
+          {/* User Cards */}
+          <div className="grid grid-cols-1 gap-6">
+            {users.map(user => (
+              <div key={user.id} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-500 overflow-hidden" data-slot="card">
+                <div className="p-4 sm:p-6">
+                  {/* Header */}
+                  <div className="border-b border-white/10 pb-4 mb-4">
+                    <div className="flex justify-between items-start flex-wrap gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <div className="text-lg font-semibold text-white">Business User</div>
+                        <div className="text-xs text-white/60 break-all truncate max-w-xs sm:max-w-none">
+                          ID: {user.id}
+                        </div>
+                      </div>
+                      <div className="backdrop-blur-2xl bg-orange-500/20 border border-orange-400/30 text-orange-200 rounded-xl px-3 py-1 text-xs font-medium whitespace-nowrap">
+                        Überprüfung erforderlich
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2 min-w-0">
+                        <div className="flex items-center text-sm break-all truncate max-w-full">
+                          <div className="backdrop-blur-2xl bg-white/10 rounded-lg p-2 mr-3">
+                            <Mail className="h-4 w-4 text-white/80" />
+                          </div>
+                          <span className="font-medium text-white">{user.email}</span>
+                        </div>
+                        {user.businessIds && user.businessIds.length > 0 && (
+                          <div className="flex items-center text-sm text-white/80">
+                            <div className="backdrop-blur-2xl bg-white/10 rounded-lg p-2 mr-3">
+                              <Building2 className="h-4 w-4 text-white/80" />
+                            </div>
+                            {user.businessIds.length} {user.businessIds.length === 1 ? 'Geschäft' : 'Geschäfte'} zugewiesen
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2 min-w-0 text-right">
+                        <div className="flex items-center text-sm justify-end">
+                          <span className={`${user.isDeleted ? 'text-red-300' : 'text-green-300'} font-medium`}>
+                            {user.isDeleted ? 'Gelöscht' : 'Aktiv'}
+                          </span>
+                          <div className="backdrop-blur-2xl bg-white/10 rounded-lg p-2 ml-3">
+                            <Tag className="h-4 w-4 text-white/80" />
+                          </div>
+                        </div>
+                        <div className="flex items-center text-xs justify-end text-white/60">
+                          Registriert am {formatDate(user.createdAt)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {user.businessNames && user.businessNames.length > 0 && (
+                      <div className="border-t border-white/10 pt-4">
+                        <div className="text-sm font-medium mb-3 text-white/90">Beanspruchte Geschäfte:</div>
+                        <div className="space-y-2">
+                          {user.businessNames.map(name => (
+                            <div key={name} className="flex items-center text-sm backdrop-blur-2xl bg-white/10 border border-white/20 p-3 rounded-xl break-all truncate max-w-full">
+                              <div className="backdrop-blur-2xl bg-white/10 rounded-lg p-2 mr-3">
+                                <Store className="h-4 w-4 text-white/80" />
+                              </div>
+                              <span className="font-medium text-white">{name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer Actions */}
+                  <div className="pt-6 flex flex-col sm:flex-row justify-end gap-2" data-slot="card-footer">
+                    <div className="w-full sm:w-auto">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleReject(user.id)}
+                        className="text-destructive w-full sm:w-auto relative overflow-hidden"
+                        style={{ 
+                          backdropFilter: 'blur(8px)', 
+                          background: 'rgba(239, 68, 68, 0.2)', 
+                          borderColor: 'rgba(248, 113, 113, 0.4)',
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';
+                          e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.6)';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
+                          e.currentTarget.style.borderColor = 'rgba(248, 113, 113, 0.4)';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Ablehnen
+                      </Button>
+                    </div>
+                    <div className="w-full sm:w-auto">
+                      <Button 
+                        size="sm"
+                        onClick={() => handleApprove(user.id)}
+                        className="bg-primary hover:bg-primary/90 text-white w-full sm:w-auto relative overflow-hidden"
+                        style={{ 
+                          backdropFilter: 'blur(8px)', 
+                          background: 'linear-gradient(to right, rgba(34, 197, 94, 0.8), rgba(16, 185, 129, 0.8))', 
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          borderRadius: '12px',
+                          transition: 'all 0.3s ease',
+                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(to right, rgba(22, 163, 74, 0.9), rgba(5, 150, 105, 0.9))';
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'linear-gradient(to right, rgba(34, 197, 94, 0.8), rgba(16, 185, 129, 0.8))';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }}
+                      >
+                        <CheckCircle2 className="mr-2 h-4 w-4" />
+                        Verifizieren
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {users.length === 0 && (
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 text-center">
+              <div className="text-white/80">
+                Keine Benutzer zur Überprüfung gefunden.
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -189,35 +189,34 @@ export const BusinessList: React.FC = () => {
   const BusinessCard: React.FC<{ business: Business }> = ({ business }) => {
     const status = getStatusBadge(business.status);
     return (
-      <Card key={business.id} className="flex flex-col">
+      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:bg-white/10 hover:scale-105 transition-all duration-500 hover:shadow-3xl">
         {business.imageUrls && business.imageUrls.length > 0 && (
           <div className="relative h-48 w-full">
             <img
               src={business.imageUrls[0]}
               alt={business.name}
-              className="object-cover w-full h-full rounded-t-lg"
+              className="object-cover w-full h-full"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
             {business.imageUrls.length > 1 && (
-              <Badge variant="secondary" className="absolute top-2 right-2">
-                <ImageIcon className="mr-1 h-3 w-3" />
+              <div className="absolute top-3 right-3 backdrop-blur-2xl bg-white/20 border border-white/30 text-white rounded-xl px-2 py-1 text-xs font-medium flex items-center gap-1">
+                <ImageIcon className="h-3 w-3" />
                 +{business.imageUrls.length - 1}
-              </Badge>
+              </div>
             )}
             {business.isPromoted && (
-              <Badge 
-                className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"
-              >
-                <Star className="mr-1 h-3 w-3 fill-current" />
+              <div className="absolute top-3 left-3 backdrop-blur-2xl bg-yellow-500/80 border border-yellow-400/50 text-white rounded-xl px-2 py-1 text-xs font-medium flex items-center gap-1">
+                <Star className="h-3 w-3 fill-current" />
                 Highlight
-              </Badge>
+              </div>
             )}
           </div>
         )}
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div className="flex items-start gap-3">
+        <div className="p-4 sm:p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="flex items-start gap-3 flex-1">
               {business.logoUrl && (
-                <div className="w-12 h-12 rounded-lg overflow-hidden border border-muted">
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/20 bg-white/10 backdrop-blur-sm">
                   <img
                     src={business.logoUrl}
                     alt={`${business.name} Logo`}
@@ -225,98 +224,125 @@ export const BusinessList: React.FC = () => {
                   />
                 </div>
               )}
-              <div>
-                <CardTitle className="text-xl">{business.name}</CardTitle>
-                <CardDescription className="mt-1">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-semibold text-white mb-1 truncate">{business.name}</h3>
+                <p className="text-sm text-white/70">
                   Kategorien: {getCategoryNames(business.categoryIds)}
-                </CardDescription>
+                </p>
               </div>
             </div>
-            <Badge variant={status.variant}>
+            <Badge variant={status.variant} className="backdrop-blur-2xl bg-white/20 border-white/30 text-white text-xs flex items-center gap-1 px-2 py-1 rounded-xl shrink-0">
               {status.icon}
-              <span className="ml-1">{status.label}</span>
+              <span>{status.label}</span>
             </Badge>
           </div>
-        </CardHeader>
-        <CardContent className="flex-grow">
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+
+          <p className="text-sm text-white/80 line-clamp-3 mb-4">
             {business.description}
           </p>
-          <div className="space-y-2">
-            <div className="flex items-center text-sm">
-              <MapPin className="mr-2 h-4 w-4" />
+          
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center text-sm text-white/90">
+              <MapPin className="mr-2 h-4 w-4 text-white/70" />
               <span className="truncate">
                 {formatAddress(business.address)}
               </span>
             </div>
             {business.contact.phoneNumber && (
-              <div className="flex items-center text-sm">
-                <Phone className="mr-2 h-4 w-4" />
+              <div className="flex items-center text-sm text-white/90">
+                <Phone className="mr-2 h-4 w-4 text-white/70" />
                 {business.contact.phoneNumber}
               </div>
             )}
             {business.contact.email && (
-              <div className="flex items-center text-sm">
-                <Mail className="mr-2 h-4 w-4" />
+              <div className="flex items-center text-sm text-white/90">
+                <Mail className="mr-2 h-4 w-4 text-white/70" />
                 {business.contact.email}
               </div>
             )}
             {business.contact.website && (
-              <div className="flex items-center text-sm">
-                <Globe className="mr-2 h-4 w-4" />
-                <a href={business.contact.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <div className="flex items-center text-sm text-white/90">
+                <Globe className="mr-2 h-4 w-4 text-white/70" />
+                <a href={business.contact.website} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 transition-colors hover:underline">
                   Website besuchen
                 </a>
               </div>
             )}
-            <div className="flex items-center text-sm">
-              <Clock className="mr-2 h-4 w-4" />
+            <div className="flex items-center text-sm text-white/90">
+              <Clock className="mr-2 h-4 w-4 text-white/70" />
               {formatOpeningHours(business.detailedOpeningHours)}
             </div>
             {business.keywordIds && business.keywordIds.length > 0 && (
-              <div className="flex items-center text-sm">
-                <Tag className="mr-2 h-4 w-4" />
+              <div className="flex items-center text-sm text-white/90">
+                <Tag className="mr-2 h-4 w-4 text-white/70" />
                 {business.keywordIds.length} Keywords
               </div>
             )}
             {business.nuernbergspotsReview?.reviewText && (
-              <div className="flex items-center text-sm">
+              <div className="flex items-center text-sm text-white/90">
                 <Star className="mr-2 h-4 w-4 text-yellow-400" />
                 Nuernbergspots Review vorhanden
               </div>
             )}
             {business.isPromoted && (
               <div className="flex items-center text-sm">
-                <Star className="mr-2 h-4 w-4 text-yellow-500 fill-current" />
-                <span className="text-yellow-500 font-medium">Highlight Partner</span>
+                <Star className="mr-2 h-4 w-4 text-yellow-400 fill-current" />
+                <span className="text-yellow-300 font-medium">Highlight Partner</span>
               </div>
             )}
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between items-center">
-          <div className="text-xs text-muted-foreground">
-            Erstellt am {formatDate(business.createdAt)}
+
+          <div className="flex justify-between items-center pt-4 border-t border-white/10">
+            <div className="text-xs text-white/60">
+              Erstellt am {formatDate(business.createdAt)}
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleEditClick(business)}
+                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl text-xs"
+              >
+                <Pencil className="mr-1 h-3 w-3" />
+                Bearbeiten
+              </Button>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={() => handleDelete(business.id)}
+                className="backdrop-blur-2xl bg-red-500/80 border border-red-400/30 text-white hover:bg-red-400/90 hover:scale-105 transition-all duration-300 rounded-xl text-xs"
+              >
+                Löschen
+              </Button>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleEditClick(business)}>
-              <Pencil className="mr-1 h-3 w-3" />
-              Bearbeiten
-            </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => handleDelete(business.id)}
-            >
-              Löschen
-            </Button>
-          </div>
-        </CardFooter>
-      </Card>
+        </div>
+      </div>
     );
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Lade Geschäfte...</div>;
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Rainbow Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+        
+        {/* Animated Blur Circles */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
+
+        <div className="relative z-10 flex justify-center items-center h-screen">
+          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
+            <div className="text-white text-lg font-medium">Lade Geschäfte...</div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const filteredBusinesses = businesses.filter(business => {
@@ -334,115 +360,149 @@ export const BusinessList: React.FC = () => {
   const inactiveBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.INACTIVE);
 
   return (
-    <div className="min-h-screen bg-muted px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
-      <div className="flex items-center gap-4 mb-6">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/dashboard')}
-          className="rounded-full p-2 mr-2"
-        >
-          <ArrowLeft className="h-5 w-5" />
-          <span className="sr-only">Zurück zum Dashboard</span>
-        </Button>
-        <h1 className="text-2xl font-bold flex-1 text-left sm:text-center">Geschäfte</h1>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={() => navigate('/create-business')}
-          className="ml-2"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Partner hinzufügen
-        </Button>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <div className="space-y-6 mb-8">
-        <div className="flex flex-col gap-4">
-          <Input
-            placeholder="Nach Geschäftsnamen suchen..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full mb-2 sm:mb-0 max-w-full"
-          />
-          <div className="flex flex-nowrap gap-2 overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="pending-filter"
-                checked={showOnlyPending}
-                onCheckedChange={setShowOnlyPending}
-              />
-              <Label htmlFor="pending-filter">Nur ausstehende</Label>
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
+        {/* Glass Header */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-full p-2 border"
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </Button>
+                             <h1 className="text-2xl font-bold text-xl sm:text-2xl md:text-3xl text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                 Geschäfte
+               </h1>
             </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="review-filter"
-                checked={showOnlyWithoutReview}
-                onCheckedChange={setShowOnlyWithoutReview}
-              />
-              <Label htmlFor="review-filter">Ohne Review</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="pending-partners-filter"
-                checked={showOnlyPendingPartners}
-                onCheckedChange={setShowOnlyPendingPartners}
-              />
-              <Label htmlFor="pending-partners-filter">Ausstehende Partner mit Konto</Label>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {filteredBusinesses.length} Geschäfte gefunden
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate('/create-business')}
+              className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-green-400/30 text-white hover:from-green-400/90 hover:to-emerald-400/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Partner hinzufügen
+            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="space-y-8">
-        {activeBusinesses.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <CheckCircle2 className="mr-2 h-5 w-5 text-green-500" />
-              Aktive Geschäfte ({activeBusinesses.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {activeBusinesses.map(business => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
+        {/* Glass Filter Section */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="space-y-4">
+            <Input
+              placeholder="Nach Geschäftsnamen suchen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="pending-filter"
+                    checked={showOnlyPending}
+                    onCheckedChange={setShowOnlyPending}
+                    className="data-[state=checked]:bg-white/30"
+                  />
+                  <Label htmlFor="pending-filter" className="text-white/90 text-sm">Nur ausstehende</Label>
+                </div>
+              </div>
+              <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="review-filter"
+                    checked={showOnlyWithoutReview}
+                    onCheckedChange={setShowOnlyWithoutReview}
+                    className="data-[state=checked]:bg-white/30"
+                  />
+                  <Label htmlFor="review-filter" className="text-white/90 text-sm">Ohne Review</Label>
+                </div>
+              </div>
+              <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="pending-partners-filter"
+                    checked={showOnlyPendingPartners}
+                    onCheckedChange={setShowOnlyPendingPartners}
+                    className="data-[state=checked]:bg-white/30"
+                  />
+                  <Label htmlFor="pending-partners-filter" className="text-white/90 text-sm">Ausstehende Partner mit Konto</Label>
+                </div>
+              </div>
+            </div>
+            <div className="text-sm text-white/70">
+              {filteredBusinesses.length} Geschäfte gefunden
             </div>
           </div>
-        )}
+        </div>
 
-        {pendingBusinesses.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <AlertCircle className="mr-2 h-5 w-5 text-yellow-500" />
-              Ausstehende Partner ({pendingBusinesses.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pendingBusinesses.map(business => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
+        {/* Business Sections */}
+        <div className="space-y-8">
+          {activeBusinesses.length > 0 && (
+            <div className="backdrop-blur-2xl bg-white/5 rounded-3xl border border-white/10 shadow-xl ring-1 ring-white/20 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
+                <CheckCircle2 className="mr-3 h-6 w-6 text-green-400" />
+                Aktive Geschäfte ({activeBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {activeBusinesses.map(business => (
+                  <BusinessCard key={business.id} business={business} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {inactiveBusinesses.length > 0 && (
-          <div>
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <XCircle className="mr-2 h-5 w-5 text-red-500" />
-              Inaktive Partner ({inactiveBusinesses.length})
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {inactiveBusinesses.map(business => (
-                <BusinessCard key={business.id} business={business} />
-              ))}
+          {pendingBusinesses.length > 0 && (
+            <div className="backdrop-blur-2xl bg-white/5 rounded-3xl border border-white/10 shadow-xl ring-1 ring-white/20 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
+                <AlertCircle className="mr-3 h-6 w-6 text-yellow-400" />
+                Ausstehende Partner ({pendingBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pendingBusinesses.map(business => (
+                  <BusinessCard key={business.id} business={business} />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {filteredBusinesses.length === 0 && (
-          <div className="text-center py-8">Keine Partner gefunden.</div>
-        )}
+          {inactiveBusinesses.length > 0 && (
+            <div className="backdrop-blur-2xl bg-white/5 rounded-3xl border border-white/10 shadow-xl ring-1 ring-white/20 p-4 sm:p-6">
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-white">
+                <XCircle className="mr-3 h-6 w-6 text-red-400" />
+                Inaktive Partner ({inactiveBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {inactiveBusinesses.map(business => (
+                  <BusinessCard key={business.id} business={business} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {filteredBusinesses.length === 0 && (
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 text-center">
+              <div className="text-white/80 text-lg">Keine Partner gefunden.</div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

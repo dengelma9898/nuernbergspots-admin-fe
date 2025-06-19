@@ -42,7 +42,7 @@ describe('Login Component', () => {
     // Formular vollständig ausfüllen bevor submit
     const emailInput = screen.getByLabelText('E-Mail');
     const passwordInput = screen.getByLabelText('Passwort');
-    const submitButton = screen.getByRole('button');
+    const submitButton = screen.getByRole('button', { name: 'Anmelden' });
     
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');

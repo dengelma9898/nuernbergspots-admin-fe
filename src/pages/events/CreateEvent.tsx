@@ -182,285 +182,359 @@ export const CreateEvent: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/events')}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zur Übersicht
-        </Button>
-        <h1 className="text-2xl font-bold">Neues Event erstellen</h1>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Event Details</CardTitle>
-          <CardDescription>
-            Füllen Sie alle notwendigen Informationen aus, um ein neues Event zu erstellen.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Titel</Label>
-            <Input
-              id="title"
-              value={newEvent.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="z.B. Sommerfest 2024"
-            />
-            <p className="text-sm text-muted-foreground">
-              Ein prägnanter Titel, der das Event gut beschreibt.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Beschreibung</Label>
-            <Textarea
-              id="description"
-              value={newEvent.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Beschreiben Sie das Event im Detail..."
-              className="min-h-[100px]"
-            />
-            <p className="text-sm text-muted-foreground">
-              Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie Programm, Highlights oder besondere Hinweise.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Startdatum</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={newEvent.startDate.split('T')[0]}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endDate">Enddatum</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={newEvent.endDate.split('T')[0]}
-                onChange={(e) => handleInputChange('endDate', e.target.value)}
-              />
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent">
+        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {/* Glass Header */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/events')}
+                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl p-2 border w-full sm:w-auto"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück zur Übersicht
+              </Button>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                Neues Event erstellen
+              </h1>
             </div>
           </div>
 
-          {newEvent.dailyTimeSlots.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label>Tägliche Zeitangaben (optional)</Label>
+          {/* Main Content Card */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="p-6 border-b border-white/10">
+              <h2 className="text-lg font-semibold text-white">Event Details</h2>
+              <p className="text-white/70 text-sm mt-1">
+                Füllen Sie alle notwendigen Informationen aus, um ein neues Event zu erstellen.
+              </p>
+            </div>
+            
+            <div className="p-4 sm:p-6 space-y-6">
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-white font-medium">Titel</Label>
+                <Input
+                  id="title"
+                  value={newEvent.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  placeholder="z.B. Sommerfest 2024"
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                />
+                <p className="text-xs text-white/60">
+                  Ein prägnanter Titel, der das Event gut beschreibt.
+                </p>
               </div>
-              
-              <div className="space-y-4">
-                {newEvent.dailyTimeSlots.map((slot) => (
-                  <div key={slot.date} className="grid grid-cols-3 gap-4 items-center">
-                    <div className="font-medium">
-                      {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
-                    </div>
-                    <Input
-                      type="time"
-                      value={slot.from || ''}
-                      onChange={(e) => updateTimeSlot(slot.date, 'from', e.target.value)}
-                      placeholder="Von"
-                    />
-                    <Input
-                      type="time"
-                      value={slot.to || ''}
-                      onChange={(e) => updateTimeSlot(slot.date, 'to', e.target.value)}
-                      placeholder="Bis"
-                    />
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-white font-medium">Beschreibung</Label>
+                <Textarea
+                  id="description"
+                  value={newEvent.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Beschreiben Sie das Event im Detail..."
+                  className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                />
+                <p className="text-xs text-white/60">
+                  Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie Programm, Highlights oder besondere Hinweise.
+                </p>
+              </div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-white font-medium">Startdatum</Label>
+                  <Input
+                    id="startDate"
+                    type="date"
+                    value={newEvent.startDate.split('T')[0]}
+                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endDate" className="text-white font-medium">Enddatum</Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={newEvent.endDate.split('T')[0]}
+                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
+                  />
+                </div>
+              </div>
+
+              {/* Daily Time Slots */}
+              {newEvent.dailyTimeSlots.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-white font-medium">Tägliche Zeitangaben (optional)</Label>
                   </div>
-                ))}
+                  
+                  <div className="space-y-4">
+                    {newEvent.dailyTimeSlots.map((slot) => (
+                      <div key={slot.date} className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                          <div className="font-medium text-white">
+                            {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
+                          </div>
+                          <Input
+                            type="time"
+                            value={slot.from || ''}
+                            onChange={(e) => updateTimeSlot(slot.date, 'from', e.target.value)}
+                            placeholder="Von"
+                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                          />
+                          <Input
+                            type="time"
+                            value={slot.to || ''}
+                            onChange={(e) => updateTimeSlot(slot.date, 'to', e.target.value)}
+                            placeholder="Bis"
+                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Location */}
+              <div className="space-y-2">
+                <Label className="text-white font-medium">Adresse</Label>
+                <div className="backdrop-blur-2xl bg-white/10 border-white/20 rounded-xl">
+                  <LocationSearch
+                    value={searchValue}
+                    onChange={handleLocationSelect}
+                    placeholder="Adresse suchen..."
+                    debounce={1000}
+                    className="border-0 bg-transparent text-white placeholder:text-white/60 focus:ring-white/20"
+                  />
+                </div>
+                <p className="text-xs text-white/60">
+                  Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den passenden Eintrag aus.
+                </p>
               </div>
-            </div>
-          )}
 
-          <div className="space-y-2">
-            <Label>Adresse</Label>
-            <LocationSearch
-              value={searchValue}
-              onChange={handleLocationSelect}
-              placeholder="Adresse suchen..."
-              debounce={1000}
-            />
-            <p className="text-sm text-muted-foreground">
-              Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den passenden Eintrag aus.
-            </p>
-          </div>
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="price" className="text-white font-medium">Preis (in €)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={newEvent.price || ''}
+                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
+                  placeholder="0.00"
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                />
+                <p className="text-xs text-white/60">
+                  Der Eintrittspreis in Euro. Lassen Sie das Feld leer oder geben Sie 0 ein für kostenlose Events.
+                </p>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="price">Preis (in €)</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0"
-              value={newEvent.price || ''}
-              onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
-              placeholder="0.00"
-            />
-            <p className="text-sm text-muted-foreground">
-              Der Eintrittspreis in Euro. Lassen Sie das Feld leer oder geben Sie 0 ein für kostenlose Events.
-            </p>
-          </div>
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-white font-medium">Kategorie</Label>
+                <Select
+                  value={newEvent.categoryId || ''}
+                  onValueChange={(value) => handleInputChange('categoryId', value)}
+                >
+                  <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl">
+                    <SelectValue placeholder="Kategorie auswählen" className="text-white" />
+                  </SelectTrigger>
+                  <SelectContent className="backdrop-blur-3xl bg-white/10 border border-white/20 rounded-xl">
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id} className="text-white hover:bg-white/20 focus:bg-white/20">
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center">
+                            {getIconComponent(category.iconName)}
+                          </span>
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-white/60">
+                  Wählen Sie eine passende Kategorie für Ihr Event aus.
+                </p>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="category">Kategorie</Label>
-            <Select
-              value={newEvent.categoryId || ''}
-              onValueChange={(value) => handleInputChange('categoryId', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Kategorie auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center">
-                        {getIconComponent(category.iconName)}
-                      </span>
-                      {category.name}
+              {/* Switches */}
+              <div className="space-y-4">
+                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="ticketsNeeded"
+                      checked={newEvent.ticketsNeeded}
+                      onCheckedChange={(checked) => handleInputChange('ticketsNeeded', checked)}
+                      className="data-[state=checked]:bg-white/30"
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="ticketsNeeded" className="text-white font-medium">Tickets erforderlich</Label>
+                      <p className="text-xs text-white/60">
+                        Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
+                      </p>
                     </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-sm text-muted-foreground">
-              Wählen Sie eine passende Kategorie für Ihr Event aus.
-            </p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="ticketsNeeded"
-              checked={newEvent.ticketsNeeded}
-              onCheckedChange={(checked) => handleInputChange('ticketsNeeded', checked)}
-            />
-            <div className="space-y-1">
-              <Label htmlFor="ticketsNeeded">Tickets erforderlich</Label>
-              <p className="text-sm text-muted-foreground">
-                Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="isPromoted"
-              checked={newEvent.isPromoted}
-              onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
-            />
-            <div className="space-y-1">
-              <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
-              <p className="text-sm text-muted-foreground">
-                Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Kontaktinformationen</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contactEmail">E-Mail</Label>
-                <Input
-                  id="contactEmail"
-                  type="email"
-                  value={newEvent.contactEmail || ''}
-                  onChange={(e) => handleInputChange('contactEmail', e.target.value)}
-                  placeholder="kontakt@beispiel.de"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contactPhone">Telefon</Label>
-                <Input
-                  id="contactPhone"
-                  type="tel"
-                  value={newEvent.contactPhone || ''}
-                  onChange={(e) => handleInputChange('contactPhone', e.target.value)}
-                  placeholder="+49 123 4567890"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  type="url"
-                  value={newEvent.website || ''}
-                  onChange={(e) => handleInputChange('website', e.target.value)}
-                  placeholder="https://www.beispiel.de"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <Label>Social Media</Label>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                <div className="space-y-2">
-                  <Label htmlFor="instagram">Instagram</Label>
-                  <Input
-                    id="instagram"
-                    value={newEvent.socialMedia.instagram || ''}
-                    onChange={(e) => setNewEvent(prev => ({
-                      ...prev,
-                      socialMedia: {
-                        ...prev.socialMedia,
-                        instagram: e.target.value
-                      }
-                    }))}
-                    placeholder="@benutzername"
-                  />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="facebook">Facebook</Label>
-                  <Input
-                    id="facebook"
-                    value={newEvent.socialMedia.facebook || ''}
-                    onChange={(e) => setNewEvent(prev => ({
-                      ...prev,
-                      socialMedia: {
-                        ...prev.socialMedia,
-                        facebook: e.target.value
-                      }
-                    }))}
-                    placeholder="@seitename"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="tiktok">TikTok</Label>
-                  <Input
-                    id="tiktok"
-                    value={newEvent.socialMedia.tiktok || ''}
-                    onChange={(e) => setNewEvent(prev => ({
-                      ...prev,
-                      socialMedia: {
-                        ...prev.socialMedia,
-                        tiktok: e.target.value
-                      }
-                    }))}
-                    placeholder="@benutzername"
-                  />
+
+                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="isPromoted"
+                      checked={newEvent.isPromoted}
+                      onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+                      className="data-[state=checked]:bg-white/30"
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="isPromoted" className="text-white font-medium">Als "Highlight" markieren</Label>
+                      <p className="text-xs text-white/60">
+                        Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu, die Sie öffentlich teilen möchten.
-            </p>
-          </div>
 
-          <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" onClick={() => navigate('/events')}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Wird erstellt...' : 'Event erstellen'}
-            </Button>
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <Label className="text-white font-medium text-lg">Kontaktinformationen</Label>
+                
+                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4 space-y-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail" className="text-white/90">E-Mail</Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={newEvent.contactEmail || ''}
+                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="kontakt@beispiel.de"
+                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone" className="text-white/90">Telefon</Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={newEvent.contactPhone || ''}
+                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                        placeholder="+49 123 4567890"
+                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2 lg:col-span-2">
+                      <Label htmlFor="website" className="text-white/90">Website</Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={newEvent.website || ''}
+                        onChange={(e) => handleInputChange('website', e.target.value)}
+                        placeholder="https://www.beispiel.de"
+                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Label className="text-white/90 text-base">Social Media</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram" className="text-white/80 text-sm">Instagram</Label>
+                        <Input
+                          id="instagram"
+                          value={newEvent.socialMedia.instagram || ''}
+                          onChange={(e) => setNewEvent(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              instagram: e.target.value
+                            }
+                          }))}
+                          placeholder="@benutzername"
+                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook" className="text-white/80 text-sm">Facebook</Label>
+                        <Input
+                          id="facebook"
+                          value={newEvent.socialMedia.facebook || ''}
+                          onChange={(e) => setNewEvent(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              facebook: e.target.value
+                            }
+                          }))}
+                          placeholder="@seitename"
+                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tiktok" className="text-white/80 text-sm">TikTok</Label>
+                        <Input
+                          id="tiktok"
+                          value={newEvent.socialMedia.tiktok || ''}
+                          onChange={(e) => setNewEvent(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              tiktok: e.target.value
+                            }
+                          }))}
+                          placeholder="@benutzername"
+                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-white/60 mt-4">
+                    Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu, die Sie öffentlich teilen möchten.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-white/10">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/events')}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl w-full sm:w-auto"
+                >
+                  Abbrechen
+                </Button>
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={loading}
+                  className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-green-400/30 text-white hover:from-green-400/90 hover:to-emerald-400/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
+                >
+                  {loading ? 'Wird erstellt...' : 'Event erstellen'}
+                </Button>
+              </div>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }; 

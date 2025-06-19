@@ -154,69 +154,86 @@ export function ChatMessages() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="p-4 border-b">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
+      </div>
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-col h-[calc(100vh-4rem)] relative z-10">
+      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl m-4 p-4 border border-white/10 shadow-2xl ring-1 ring-white/20">
         <Button
           variant="ghost"
           onClick={() => navigate('/chatrooms')}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
         >
           <ArrowLeft className="h-4 w-4" />
           Zurück zu Chatrooms
         </Button>
       </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 backdrop-blur-xl bg-white/5 mx-4 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex ${isOwnMessage(message) ? 'justify-end' : 'justify-start'}`}
           >
             <div className="relative max-w-[70%]">
-              <div className={`${isOwnMessage(message) ? 'bg-primary text-primary-foreground' : 'bg-muted'} rounded-lg p-3`}>
+              <div className={`${isOwnMessage(message) ? 'backdrop-blur-2xl bg-white/20 text-white border-white/30' : 'backdrop-blur-2xl bg-white/10 text-white border-white/20'} rounded-lg p-3 border shadow-lg`}>
                 {!isOwnMessage(message) && (
-                  <div className="text-sm font-semibold mb-1">{message.senderName}</div>
+                  <div className="text-sm font-semibold mb-1 text-white/90">{message.senderName}</div>
                 )}
-                <div className="text-sm whitespace-pre-line">{message.content}</div>
-                <div className="flex items-center justify-between mt-1 text-xs opacity-70">
+                <div className="text-sm whitespace-pre-line text-white">{message.content}</div>
+                <div className="flex items-center justify-between mt-1 text-xs text-white/60">
                   <span>
                     {format(new Date(message.createdAt), 'HH:mm', { locale: de })}
                     {message.editedAt && ' (bearbeitet)'}
                   </span>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Button variant="ghost" size="icon" className="h-6 w-6 backdrop-blur-xl bg-white/10 hover:bg-white/20 border-white/20 hover:border-white/30 transition-all duration-300 text-white hover:scale-110 rounded-lg">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {isOwnMessage(message) && (
+                    <DropdownMenuContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
+                                              {isOwnMessage(message) && (
                         <>
-                          <DropdownMenuItem onClick={() => setEditingMessage(message.id)}>
+                          <DropdownMenuItem onClick={() => setEditingMessage(message.id)} className="text-white hover:bg-white/20 cursor-pointer">
                             <Edit2 className="mr-2 h-4 w-4" />
                             Bearbeiten
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteMessage(message.id)}>
+                          <DropdownMenuItem onClick={() => handleDeleteMessage(message.id)} className="text-red-300 hover:bg-red-500/20 cursor-pointer">
                             <Trash2 className="mr-2 h-4 w-4" />
                             Löschen
                           </DropdownMenuItem>
                         </>
                       )}
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LIKE)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LIKE)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.LIKE)} {getReactionLabel(ReactionType.LIKE)}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LOVE)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LOVE)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.LOVE)} {getReactionLabel(ReactionType.LOVE)}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LAUGH)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LAUGH)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.LAUGH)} {getReactionLabel(ReactionType.LAUGH)}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.WOW)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.WOW)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.WOW)} {getReactionLabel(ReactionType.WOW)}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.SAD)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.SAD)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.SAD)} {getReactionLabel(ReactionType.SAD)}
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.ANGRY)}>
+                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.ANGRY)} className="text-white hover:bg-white/20 cursor-pointer">
                         {getReactionEmoji(ReactionType.ANGRY)} {getReactionLabel(ReactionType.ANGRY)}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -225,7 +242,7 @@ export function ChatMessages() {
               </div>
               {message.reactions && message.reactions.length > 0 && (
                 <div
-                  className={`absolute left-4 -bottom-4 flex gap-1 px-2 py-1 bg-white rounded-full shadow border text-base z-10 ${isOwnMessage(message) ? 'right-4 left-auto' : ''}`}
+                  className={`absolute left-4 -bottom-4 flex gap-1 px-2 py-1 backdrop-blur-2xl bg-white/20 rounded-full shadow-lg border border-white/30 text-base z-10 ${isOwnMessage(message) ? 'right-4 left-auto' : ''}`}
                   style={{ minHeight: '28px' }}
                 >
                   {message.reactions.map((reaction, index) => (
@@ -240,19 +257,24 @@ export function ChatMessages() {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <div className="border-t p-4">
+      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl m-4 p-4 border border-white/10 shadow-2xl ring-1 ring-white/20">
         <div className="flex gap-2">
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Nachricht eingeben..."
-            className="flex-1"
+            className="flex-1 backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
           />
-          <Button onClick={handleSendMessage}>
+          <Button 
+            onClick={handleSendMessage}
+            className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl bg-primary"
+            data-testid="send-button"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
+      </div>
       </div>
     </div>
   );

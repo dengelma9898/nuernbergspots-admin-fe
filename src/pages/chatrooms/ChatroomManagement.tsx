@@ -167,60 +167,80 @@ export function ChatroomManagement() {
   };
 
   return (
-    <div className="container mx-auto p-4 sm:p-8 max-w-7xl">
-      <div className="space-y-6 sm:space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
-          <div className="flex flex-col gap-1">
-            <Button
-              variant="ghost"
-              className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer"
-              onClick={() => navigate('/dashboard')}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Zurück zum Dashboard
-            </Button>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Chatroom Management</h1>
-            <div className="text-base sm:text-lg text-muted-foreground max-w-md">
-              Verwalten Sie hier alle Chatrooms und deren Einstellungen
-            </div>
-          </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2">
-                <Plus className="mr-2 h-4 w-4" />
-                Neuer Chatroom
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
+      </div>
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto p-4 sm:p-8 max-w-7xl relative z-10">
+              <div className="space-y-6 sm:space-y-8">
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+            <div className="flex flex-col gap-1">
+              <Button
+                variant="ghost"
+                className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
+                onClick={() => navigate('/dashboard')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück zum Dashboard
               </Button>
-            </DialogTrigger>
-            <DialogContent>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">Chatroom Management</h1>
+              <div className="text-base sm:text-lg text-white/80 max-w-md">
+                Verwalten Sie hier alle Chatrooms und deren Einstellungen
+              </div>
+            </div>
+            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Neuer Chatroom
+                </Button>
+              </DialogTrigger>
+            <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
               <DialogHeader>
-                <DialogTitle>Neuen Chatroom erstellen</DialogTitle>
-                <DialogDescription>
+                <DialogTitle className="text-white">Neuen Chatroom erstellen</DialogTitle>
+                <DialogDescription className="text-white/80">
                   Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Titel</Label>
+                  <Label htmlFor="title" className="text-white/90">Titel</Label>
                   <Input
                     id="title"
                     value={newChatroom.title}
                     onChange={(e) => setNewChatroom({ ...newChatroom, title: e.target.value })}
                     placeholder="Chatroom Titel"
+                    className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="description">Beschreibung</Label>
+                  <Label htmlFor="description" className="text-white/90">Beschreibung</Label>
                   <Textarea
                     id="description"
                     value={newChatroom.description}
                     onChange={(e) => setNewChatroom({ ...newChatroom, description: e.target.value })}
                     placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                    className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Chatroom Bild</Label>
+                  <Label className="text-white/90">Chatroom Bild</Label>
                   <div className="flex items-center gap-4">
-                    <div className="relative w-32 h-32 border-2 border-dashed rounded-lg overflow-hidden">
+                    <div className="relative w-32 h-32 border-2 border-dashed border-white/30 rounded-lg overflow-hidden">
                       {imagePreview ? (
                         <>
                           <img
@@ -233,14 +253,14 @@ export function ChatroomManagement() {
                               setSelectedImage(null);
                               setImagePreview(null);
                             }}
-                            className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
                           >
                             <X className="h-4 w-4" />
                           </button>
                         </>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-muted">
-                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        <div className="w-full h-full flex items-center justify-center bg-white/10">
+                          <ImageIcon className="h-8 w-8 text-white/60" />
                         </div>
                       )}
                     </div>
@@ -254,7 +274,7 @@ export function ChatroomManagement() {
                       />
                       <Label
                         htmlFor="image-upload"
-                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 hover:scale-105 hover:shadow-xl rounded-xl"
                       >
                         Bild auswählen
                       </Label>
@@ -263,48 +283,58 @@ export function ChatroomManagement() {
                 </div>
               </div>
               <DialogFooter>
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                  className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                >
                   Abbrechen
                 </Button>
-                <Button onClick={handleCreateChatroom}>
+                <Button 
+                  onClick={handleCreateChatroom}
+                  className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                >
                   Erstellen
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent>
+          <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
             <DialogHeader>
-              <DialogTitle>Chatroom bearbeiten</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Chatroom bearbeiten</DialogTitle>
+              <DialogDescription className="text-white/80">
                 Bearbeiten Sie die Einstellungen des Chatrooms.
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-title">Titel</Label>
+                <Label htmlFor="edit-title" className="text-white/90">Titel</Label>
                 <Input
                   id="edit-title"
                   value={selectedChatroom?.title || ''}
                   onChange={(e) => setSelectedChatroom(prev => prev ? { ...prev, title: e.target.value } : null)}
                   placeholder="Chatroom Titel"
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Beschreibung</Label>
+                <Label htmlFor="edit-description" className="text-white/90">Beschreibung</Label>
                 <Textarea
                   id="edit-description"
                   value={selectedChatroom?.description || ''}
                   onChange={(e) => setSelectedChatroom(prev => prev ? { ...prev, description: e.target.value } : null)}
                   placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Chatroom Bild</Label>
+                <Label className="text-white/90">Chatroom Bild</Label>
                 <div className="flex items-center gap-4">
-                  <div className="relative w-32 h-32 border-2 border-dashed rounded-lg overflow-hidden">
+                  <div className="relative w-32 h-32 border-2 border-dashed border-white/30 rounded-lg overflow-hidden">
                     {imagePreview ? (
                       <>
                         <img
@@ -317,14 +347,14 @@ export function ChatroomManagement() {
                             setSelectedImage(null);
                             setImagePreview(null);
                           }}
-                          className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                          className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
                         >
                           <X className="h-4 w-4" />
                         </button>
                       </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      <div className="w-full h-full flex items-center justify-center bg-white/10">
+                        <ImageIcon className="h-8 w-8 text-white/60" />
                       </div>
                     )}
                   </div>
@@ -338,7 +368,7 @@ export function ChatroomManagement() {
                     />
                     <Label
                       htmlFor="edit-image-upload"
-                      className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                      className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 hover:scale-105 hover:shadow-xl rounded-xl"
                     >
                       Bild auswählen
                     </Label>
@@ -347,10 +377,17 @@ export function ChatroomManagement() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsEditDialogOpen(false)}
+                className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              >
                 Abbrechen
               </Button>
-              <Button onClick={handleEditChatroom}>
+              <Button 
+                onClick={handleEditChatroom}
+                className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              >
                 Speichern
               </Button>
             </DialogFooter>
@@ -358,17 +395,20 @@ export function ChatroomManagement() {
         </Dialog>
 
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
             <AlertDialogHeader>
-              <AlertDialogTitle>Chatroom löschen</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogTitle className="text-white">Chatroom löschen</AlertDialogTitle>
+              <AlertDialogDescription className="text-white/80">
                 Möchten Sie den Chatroom "{selectedChatroom?.title}" wirklich löschen?
                 Diese Aktion kann nicht rückgängig gemacht werden.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDeleteChatroom} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogCancel className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">Abbrechen</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDeleteChatroom} 
+                className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              >
                 Löschen
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -377,27 +417,27 @@ export function ChatroomManagement() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {isLoading ? (
-            <div className="col-span-full text-center py-8">
-              Lade Chatrooms...
+            <div className="col-span-full backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
+              <div className="text-white/90 text-lg">Lade Chatrooms...</div>
             </div>
           ) : chatrooms.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-muted-foreground">
-              Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!
+            <div className="col-span-full backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
+              <div className="text-white/90 text-lg">Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!</div>
             </div>
           ) : (
             chatrooms.map((chatroom) => (
               <Card
                 key={chatroom.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow p-2 sm:p-4 flex flex-col justify-between h-full"
+                className="cursor-pointer backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full ring-1 ring-white/30"
                 onClick={() => handleChatroomClick(chatroom.id)}
               >
                 <CardHeader className="pb-2">
                   <div className="space-y-1">
-                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
-                      <MessageCircle className="h-5 w-5 text-primary" />
+                    <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-white">
+                      <MessageCircle className="h-5 w-5 text-white/90" />
                       {chatroom.title}
                     </CardTitle>
-                    <CardDescription className="text-sm sm:text-base">{chatroom.description}</CardDescription>
+                    <CardDescription className="text-sm sm:text-base text-white/80">{chatroom.description}</CardDescription>
                   </div>
                 </CardHeader>
                 <CardContent className="pt-0">
@@ -411,33 +451,33 @@ export function ChatroomManagement() {
                         />
                       </div>
                     )}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2 text-sm text-white/70">
                       <Users className="h-4 w-4" />
                       {chatroom.participants.length} Teilnehmer
                     </div>
                     {chatroom.lastMessage && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-white/60">
                         Letzte Nachricht: {chatroom.lastMessage.content}
                       </div>
                     )}
                   </div>
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2 pt-4 border-t mt-2">
-                  <div className="text-xs text-muted-foreground w-full text-center">
+                <CardFooter className="flex flex-col gap-2 pt-4 border-t border-white/20 mt-2">
+                  <div className="text-xs text-white/70 w-full text-center">
                     Erstellt am {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2 w-full">
                     <Button 
                       variant="outline" 
                       onClick={(e) => { e.stopPropagation(); openEditDialog(chatroom, e); }}
-                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center"
+                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
                     >
                       <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
                     </Button>
                     <Button 
                       variant="destructive" 
                       onClick={(e) => { e.stopPropagation(); openDeleteDialog(chatroom, e); }}
-                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center"
+                      className="w-full sm:w-auto cursor-pointer flex items-center justify-center backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
                     >
                       <Trash2 className="h-4 w-4 mr-2" /> Löschen
                     </Button>
@@ -447,6 +487,7 @@ export function ChatroomManagement() {
             ))
           )}
         </div>
+      </div>
       </div>
     </div>
   );

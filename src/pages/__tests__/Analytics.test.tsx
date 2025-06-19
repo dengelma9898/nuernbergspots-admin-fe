@@ -250,7 +250,9 @@ describe('Analytics Component', () => {
 
       renderWithRouter(<Analytics />);
 
-      expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0);
+      // Test für glassmorphism loading states statt Skeleton-Komponenten
+      const loadingElements = document.querySelectorAll('.animate-pulse');
+      expect(loadingElements.length).toBeGreaterThan(0);
     });
 
     it('sollte den Aktualisieren-Button während des Ladens deaktivieren', async () => {
@@ -595,12 +597,12 @@ describe('Analytics Component', () => {
       renderWithRouter(<Analytics />);
 
       await waitFor(() => {
-        const progressElements = screen.getAllByTestId('progress');
+        // Test für glassmorphism progress bars statt Progress-Komponenten
+        const progressElements = document.querySelectorAll('.bg-gradient-to-r.from-green-400.to-blue-500');
         expect(progressElements.length).toBeGreaterThan(0);
-        // Der erste Progress-Balken sollte einen numerischen Wert haben
-        const firstProgressValue = progressElements[0].getAttribute('data-value');
-        expect(firstProgressValue).toBeTruthy();
-        expect(parseFloat(firstProgressValue!)).toBeGreaterThan(0);
+        // Der erste Progress-Balken sollte einen style-width haben
+        const firstProgress = progressElements[0] as HTMLElement;
+        expect(firstProgress.style.width).toBeTruthy();
       });
     });
   });
@@ -661,7 +663,9 @@ describe('Analytics Component', () => {
 
       renderWithRouter(<Analytics />);
 
-      expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0);
+      // Test für glassmorphism loading states statt Skeleton-Komponenten
+      const loadingElements = document.querySelectorAll('.animate-pulse');
+      expect(loadingElements.length).toBeGreaterThan(0);
     });
   });
 

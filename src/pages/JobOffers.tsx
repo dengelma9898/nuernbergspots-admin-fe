@@ -108,60 +108,111 @@ export function JobOffers() {
   });
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Lade Stellenangebote...</div>;
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
+          <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
+        </div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+          <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
+        </div>
+        <div className="flex justify-center items-center h-64 relative z-10">
+          <div className="backdrop-blur-3xl bg-white/10 rounded-2xl p-6 border border-white/20 shadow-2xl text-white/90 text-lg">
+            Lade Stellenangebote...
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 mb-6">
-        <Button variant="ghost" onClick={() => navigate('/dashboard')} className="w-full sm:w-auto">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zum Dashboard
-        </Button>
-        <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto">Stellenangebote</h1>
-        <div className="w-full sm:w-auto sm:ml-auto">
-          <Button onClick={() => navigate('/job-offers/create')} className="w-full sm:w-auto">
-            <Plus className="mr-2 h-4 w-4" />
-            Stellenangebot hinzufügen
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
+      </div>
+
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden relative z-10">
+      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/dashboard')} 
+            className="w-full sm:w-auto backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Zurück zum Dashboard
           </Button>
+          <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">
+            Stellenangebote
+          </h1>
+          <div className="w-full sm:w-auto sm:ml-auto">
+            <Button 
+              onClick={() => navigate('/job-offers/create')} 
+              className="w-full sm:w-auto backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Stellenangebot hinzufügen
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-6">
-        <div className="relative flex-1 mb-2 md:mb-0">
-          <Input
-            placeholder="Nach Stellenangebot suchen..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="rounded-lg px-1"
-          />
+      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+          <div className="relative flex-1 mb-2 md:mb-0">
+            <Input
+              placeholder="Nach Stellenangebot suchen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="rounded-lg px-1 backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
+            />
+          </div>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white">
+              <SelectValue placeholder="Beschäftigungsart" />
+            </SelectTrigger>
+            <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+              <SelectItem value="all" className="text-white hover:bg-white/20">Alle Arten</SelectItem>
+              <SelectItem value="Vollzeit" className="text-white hover:bg-white/20">Vollzeit</SelectItem>
+              <SelectItem value="Teilzeit" className="text-white hover:bg-white/20">Teilzeit</SelectItem>
+              <SelectItem value="Ausbildung" className="text-white hover:bg-white/20">Ausbildung</SelectItem>
+              <SelectItem value="Praktikum" className="text-white hover:bg-white/20">Praktikum</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={homeOfficeFilter} onValueChange={setHomeOfficeFilter}>
+            <SelectTrigger className="w-full sm:w-[180px] rounded-lg backdrop-blur-2xl bg-white/10 border-white/20 text-white">
+              <SelectValue placeholder="Home Office" />
+            </SelectTrigger>
+            <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+              <SelectItem value="all" className="text-white hover:bg-white/20">Alle Optionen</SelectItem>
+              <SelectItem value="yes" className="text-white hover:bg-white/20">Mit Home Office</SelectItem>
+              <SelectItem value="no" className="text-white hover:bg-white/20">Ohne Home Office</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0">
-            <SelectValue placeholder="Beschäftigungsart" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Arten</SelectItem>
-            <SelectItem value="Vollzeit">Vollzeit</SelectItem>
-            <SelectItem value="Teilzeit">Teilzeit</SelectItem>
-            <SelectItem value="Ausbildung">Ausbildung</SelectItem>
-            <SelectItem value="Praktikum">Praktikum</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={homeOfficeFilter} onValueChange={setHomeOfficeFilter}>
-          <SelectTrigger className="w-full sm:w-[180px] rounded-lg">
-            <SelectValue placeholder="Home Office" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Alle Optionen</SelectItem>
-            <SelectItem value="yes">Mit Home Office</SelectItem>
-            <SelectItem value="no">Ohne Home Office</SelectItem>
-          </SelectContent>
-        </Select>
       </div>
 
       {filteredJobOffers.length === 0 ? (
-        <div className="text-center py-8">Keine Stellenangebote gefunden.</div>
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
+          <div className="text-white/90 text-lg">Keine Stellenangebote gefunden.</div>
+        </div>
       ) : (
         <>
           {/* Mobile Card-Ansicht */}
@@ -169,7 +220,7 @@ export function JobOffers() {
             {filteredJobOffers.map((jobOffer) => {
               const category = categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null;
               return (
-                <Card key={jobOffer.id} className="p-4">
+                <Card key={jobOffer.id} className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
                   <div className="flex flex-col gap-2">
                     {jobOffer.isHighlight && (
                       <Badge className="w-fit bg-yellow-500 text-white border-yellow-600 mb-2">⭐ Highlight</Badge>
@@ -182,63 +233,63 @@ export function JobOffers() {
                       />
                     )}
                     <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-lg">{jobOffer.title}</span>
-                      <Badge variant={jobOffer.homeOffice ? 'default' : 'secondary'} className="ml-2">
+                      <span className="font-bold text-lg text-white">{jobOffer.title}</span>
+                      <Badge variant={jobOffer.homeOffice ? 'default' : 'secondary'} className="ml-2 backdrop-blur-2xl bg-white/20 text-white border-white/30">
                         <Home className="h-4 w-4 mr-1" />
                         {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-2 text-sm mb-1">
+                    <div className="flex items-center gap-2 text-sm mb-1 text-white/90">
                       {category && getIconComponent?.(category.iconName)}
                       {category && <span>{category.name}</span>}
                     </div>
-                    <div className="text-xs text-muted-foreground mb-1">{formatDate(jobOffer.startDate)}</div>
-                    <div className="text-sm text-muted-foreground mb-2">{jobOffer.generalDescription}</div>
+                    <div className="text-xs text-white/70 mb-1">{formatDate(jobOffer.startDate)}</div>
+                    <div className="text-sm text-white/80 mb-2">{jobOffer.generalDescription}</div>
                     <div className="flex flex-col gap-1 mb-2">
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-white/90">
                         <MapPin className="mr-2 h-4 w-4" />
                         <span className="truncate">{jobOffer.location.address}</span>
                       </div>
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-white/90">
                         <Briefcase className="mr-2 h-4 w-4" />
                         {jobOffer.typeOfEmployment}
                       </div>
                       {jobOffer.wage && (
-                        <div className="flex items-center text-sm">
+                        <div className="flex items-center text-sm text-white/90">
                           <Euro className="mr-2 h-4 w-4" />
                           {jobOffer.wage}
                         </div>
                       )}
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-white/90">
                         <Mail className="mr-2 h-4 w-4" />
                         {jobOffer.contactData.email}
                       </div>
                       {jobOffer.contactData.phone && (
-                        <div className="flex items-center text-sm">
+                        <div className="flex items-center text-sm text-white/90">
                           <Phone className="mr-2 h-4 w-4" />
                           {jobOffer.contactData.phone}
                         </div>
                       )}
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-white/90">
                         <LinkIcon className="mr-2 h-4 w-4" />
                         <a 
                           href={jobOffer.link} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-blue-500 hover:underline"
+                          className="text-blue-300 hover:text-blue-100 hover:underline transition-colors"
                         >
                           Zur Bewerbung
                         </a>
                       </div>
                     </div>
-                    <div className="text-xs text-muted-foreground mb-2">
+                    <div className="text-xs text-white/70 mb-2">
                       Erstellt am {formatDate(jobOffer.createdAt)}
                     </div>
                     <div className="flex flex-col gap-2 mt-2">
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="w-full cursor-pointer"
+                        className="w-full cursor-pointer backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
                         onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
                       >
                         Bearbeiten
@@ -246,7 +297,7 @@ export function JobOffers() {
                       <Button 
                         variant="destructive" 
                         size="sm"
-                        className="w-full cursor-pointer"
+                        className="w-full cursor-pointer backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
                         onClick={() => handleDelete(jobOffer.id)}
                       >
                         Löschen
@@ -270,6 +321,7 @@ export function JobOffers() {
           </div>
         </>
       )}
+      </div>
     </div>
   );
 }
@@ -284,7 +336,7 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
   const navigate = useNavigate();
 
   return (
-    <Card className="flex flex-col">
+    <Card className="flex flex-col backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl ring-1 ring-white/30">
       {jobOffer.companyLogo ? (
         <div className="relative h-48 w-full">
           <img
@@ -308,59 +360,59 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-xl">{jobOffer.title}</CardTitle>
-            <CardDescription className="mt-1">
+            <CardTitle className="text-xl text-white">{jobOffer.title}</CardTitle>
+            <CardDescription className="mt-1 text-white/80">
               {formatDate(jobOffer.startDate)}
             </CardDescription>
             {category && (
-              <div className="flex items-center gap-2 mt-1 text-sm">
+              <div className="flex items-center gap-2 mt-1 text-sm text-white/90">
                 {getIconComponent?.(category.iconName)}
                 <span>{category.name}</span>
               </div>
             )}
           </div>
-          <Badge variant={jobOffer.homeOffice ? "default" : "secondary"}>
+          <Badge variant={jobOffer.homeOffice ? "default" : "secondary"} className="backdrop-blur-2xl bg-white/20 text-white border-white/30">
             <Home className="h-4 w-4 mr-1" />
             {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+        <p className="text-sm text-white/80 line-clamp-3 mb-4">
           {jobOffer.generalDescription}
         </p>
         <div className="space-y-2">
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm text-white/90">
             <MapPin className="mr-2 h-4 w-4" />
             <span className="truncate">{jobOffer.location.address}</span>
           </div>
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm text-white/90">
             <Briefcase className="mr-2 h-4 w-4" />
             {jobOffer.typeOfEmployment}
           </div>
           {jobOffer.wage && (
-            <div className="flex items-center text-sm">
+            <div className="flex items-center text-sm text-white/90">
               <Euro className="mr-2 h-4 w-4" />
               {jobOffer.wage}
             </div>
           )}
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm text-white/90">
             <Mail className="mr-2 h-4 w-4" />
             {jobOffer.contactData.email}
           </div>
           {jobOffer.contactData.phone && (
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm text-white/90">
             <Phone className="mr-2 h-4 w-4" />
             {jobOffer.contactData.phone}
           </div>
           )}
-          <div className="flex items-center text-sm">
+          <div className="flex items-center text-sm text-white/90">
             <LinkIcon className="mr-2 h-4 w-4" />
             <a 
               href={jobOffer.link} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-blue-500 hover:underline"
+              className="text-blue-300 hover:text-blue-100 hover:underline transition-colors"
             >
               Zur Bewerbung
             </a>
@@ -368,13 +420,14 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs text-white/70">
           Erstellt am {formatDate(jobOffer.createdAt)}
         </div>
         <div className="flex gap-2">
           <Button 
             variant="outline" 
             size="sm"
+            className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
             onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
           >
             Bearbeiten
@@ -382,6 +435,7 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
           <Button 
             variant="destructive" 
             size="sm"
+            className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
             onClick={() => onDelete(jobOffer.id)}
           >
             Löschen
