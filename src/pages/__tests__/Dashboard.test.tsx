@@ -3,7 +3,11 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Dashboard } from '../Dashboard';
 
-// Mock Services
+// Mock Services with Promise control for testing loading states
+let pendingApprovalsPromiseResolve: (value: number) => void;
+let usersInReviewPromiseResolve: (value: number) => void;
+let contactRequestsPromiseResolve: (value: number) => void;
+
 const mockGetPendingApprovalsCount = jest.fn();
 const mockGetBusinessUsersInReviewCount = jest.fn();
 const mockGetOpenContactRequestsCount = jest.fn();
@@ -96,9 +100,25 @@ jest.mock('lucide-react', () => ({
 describe('Dashboard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetPendingApprovalsCount.mockResolvedValue(0);
-    mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
-    mockGetOpenContactRequestsCount.mockResolvedValue(0);
+    
+    // Set up controlled promises for testing loading states
+    mockGetPendingApprovalsCount.mockImplementation(() => {
+      return new Promise((resolve) => {
+        pendingApprovalsPromiseResolve = resolve;
+      });
+    });
+    
+    mockGetBusinessUsersInReviewCount.mockImplementation(() => {
+      return new Promise((resolve) => {
+        usersInReviewPromiseResolve = resolve;
+      });
+    });
+    
+    mockGetOpenContactRequestsCount.mockImplementation(() => {
+      return new Promise((resolve) => {
+        contactRequestsPromiseResolve = resolve;
+      });
+    });
   });
 
   it('renders dashboard header correctly', () => {
@@ -149,8 +169,138 @@ describe('Dashboard Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/profile');
   });
 
+  describe('Skeleton Loading States', () => {
+    it('shows skeleton for pending approvals while loading', () => {
+      render(<Dashboard />);
+      
+      // Should show skeleton with title but no actual count
+      expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
+      
+      // Should have skeleton elements (animate-pulse classes)
+      const skeletonElements = document.querySelectorAll('.animate-pulse');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+    });
+
+    it('shows skeleton for users in review while loading', () => {
+      render(<Dashboard />);
+      
+      // Should show skeleton with title
+      expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
+      
+      // Should have skeleton elements
+      const skeletonElements = document.querySelectorAll('.animate-pulse');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+    });
+
+    it('shows skeleton for contact requests while loading', () => {
+      render(<Dashboard />);
+      
+      // Should show skeleton with title
+      expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
+      
+      // Should have skeleton elements
+      const skeletonElements = document.querySelectorAll('.animate-pulse');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+    });
+
+    it('replaces skeleton with real data when pending approvals loads', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
+      const initialSkeletons = document.querySelectorAll('.animate-pulse');
+      expect(initialSkeletons.length).toBeGreaterThan(0);
+      
+      // Resolve pending approvals with count > 0
+      pendingApprovalsPromiseResolve(5);
+      
+      await waitFor(() => {
+        expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
+      });
+    });
+
+    it('replaces skeleton with real data when users in review loads', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
+      
+      // Resolve users in review with count > 0
+      usersInReviewPromiseResolve(3);
+      
+      await waitFor(() => {
+        expect(screen.getByText('3 Geschäftsinhaber warten auf Verifizierung')).toBeTruthy();
+      });
+    });
+
+    it('replaces skeleton with real data when contact requests loads', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
+      
+      // Resolve contact requests
+      contactRequestsPromiseResolve(7);
+      
+      await waitFor(() => {
+        expect(screen.getByText('7 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
+      });
+    });
+
+    it('hides pending approvals card when count is 0 after loading', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
+      
+      // Resolve with 0 count
+      pendingApprovalsPromiseResolve(0);
+      
+      await waitFor(() => {
+        // Card should be hidden when count is 0
+        expect(screen.queryByText('0 neue Geschäfte warten auf Genehmigung')).toBeFalsy();
+        expect(screen.queryByText('Neues Geschäft wartet auf Genehmigung')).toBeFalsy();
+      });
+    });
+
+    it('hides users in review card when count is 0 after loading', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
+      
+      // Resolve with 0 count
+      usersInReviewPromiseResolve(0);
+      
+      await waitFor(() => {
+        // Card should be hidden when count is 0
+        expect(screen.queryByText('0 Geschäftsinhaber warten auf Verifizierung')).toBeFalsy();
+        expect(screen.queryByText('Geschäftsinhaber wartet auf Verifizierung')).toBeFalsy();
+      });
+    });
+
+    it('always shows contact requests card even when count is 0', async () => {
+      render(<Dashboard />);
+      
+      // Initially should show skeleton
+      expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
+      
+      // Resolve with 0 count
+      contactRequestsPromiseResolve(0);
+      
+      await waitFor(() => {
+        // Card should still be visible with 0 count
+        expect(screen.getByText('0 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
+      });
+    });
+  });
+
+  // Legacy tests updated to use simple resolved promises
   it('displays pending approvals when available', async () => {
+    // Mock to resolve immediately for this test
     mockGetPendingApprovalsCount.mockResolvedValue(5);
+    mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
+    mockGetOpenContactRequestsCount.mockResolvedValue(0);
     
     render(<Dashboard />);
     
@@ -161,7 +311,10 @@ describe('Dashboard Component', () => {
   });
 
   it('displays users in review when available', async () => {
+    // Mock to resolve immediately for this test
+    mockGetPendingApprovalsCount.mockResolvedValue(0);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(3);
+    mockGetOpenContactRequestsCount.mockResolvedValue(0);
     
     render(<Dashboard />);
     
@@ -172,6 +325,9 @@ describe('Dashboard Component', () => {
   });
 
   it('displays open contact requests', async () => {
+    // Mock to resolve immediately for this test
+    mockGetPendingApprovalsCount.mockResolvedValue(0);
+    mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(7);
     
     render(<Dashboard />);
@@ -184,13 +340,16 @@ describe('Dashboard Component', () => {
 
   it('navigates to businesses with pending filter when pending approvals button is clicked', async () => {
     const user = userEvent.setup();
+    // Mock to resolve immediately for this test
     mockGetPendingApprovalsCount.mockResolvedValue(5);
+    mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
+    mockGetOpenContactRequestsCount.mockResolvedValue(0);
     
     render(<Dashboard />);
     
-    // Wait for the pending approvals card to appear
+    // Wait for the data to load and the real card content to appear (not skeleton)
     await waitFor(() => {
-      expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
+      expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
     });
     
     // Find the button specifically in the pending approvals card by looking for the button near the "Ausstehende Partner" text
@@ -210,6 +369,13 @@ describe('Dashboard Component', () => {
     
     // Component should still render without crashing
     expect(screen.getByText('Admin Dashboard')).toBeTruthy();
+    
+    // After errors, skeletons should disappear
+    await waitFor(() => {
+      const skeletonElements = document.querySelectorAll('.animate-pulse');
+      // Should have fewer skeleton elements after loading completes (even with errors)
+      expect(skeletonElements.length).toBeLessThan(10);
+    });
   });
 
   it('shows appropriate message when no pending items', async () => {
@@ -231,6 +397,8 @@ describe('Dashboard Component', () => {
 
   it('displays correct emoji based on pending count', async () => {
     mockGetPendingApprovalsCount.mockResolvedValue(15); // > 10 should show 🔥
+    mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
+    mockGetOpenContactRequestsCount.mockResolvedValue(0);
     
     render(<Dashboard />);
     

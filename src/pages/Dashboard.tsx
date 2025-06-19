@@ -35,6 +35,48 @@ import {
   Handshake
 } from 'lucide-react';
 
+// Skeleton Loading Component for Dashboard Cards
+const DashboardCardSkeleton = ({ 
+  icon: Icon,
+  titleText
+}: {
+  icon: any;
+  titleText: string;
+}) => (
+  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+    <CardContent className="p-0">
+      {/* Header with icon and title in one line */}
+      <div className="flex items-center gap-2 mb-3">
+        <Icon className="h-5 w-5 text-white drop-shadow-lg" />
+        <span className="text-sm sm:text-base font-semibold text-white">{titleText}</span>
+      </div>
+      
+      {/* Main content with skeleton animation */}
+      <div className="flex items-center justify-between gap-4">
+        {/* Number and emoji skeleton */}
+        <div className="flex items-center gap-3">
+          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+            <div className="w-12 h-8 bg-white/20 rounded-lg animate-pulse"></div>
+          </div>
+          <div className="text-xl sm:text-2xl">
+            <div className="w-8 h-8 bg-white/20 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
+        
+        {/* Action button skeleton */}
+        <div className="shrink-0">
+          <div className="w-20 sm:w-24 h-8 bg-white/20 rounded-xl animate-pulse"></div>
+        </div>
+      </div>
+      
+      {/* Description text skeleton */}
+      <div className="mt-3 space-y-1">
+        <div className="w-full h-3 bg-white/15 rounded animate-pulse"></div>
+        <div className="w-3/4 h-3 bg-white/15 rounded animate-pulse"></div>
+      </div>
+    </CardContent>
+  </Card>
+);
 
 const NavigationCard = ({ 
   icon: Icon, 
@@ -124,6 +166,12 @@ export function Dashboard() {
   const [pendingApprovals, setPendingApprovals] = useState<number>(0);
   const [usersInReview, setUsersInReview] = useState<number>(0);
   const [openContactRequests, setOpenContactRequests] = useState<number>(0);
+  
+  // Loading states for each card
+  const [pendingApprovalsLoading, setPendingApprovalsLoading] = useState<boolean>(true);
+  const [usersInReviewLoading, setUsersInReviewLoading] = useState<boolean>(true);
+  const [contactRequestsLoading, setContactRequestsLoading] = useState<boolean>(true);
+  
   const userService = useUserService();
   const businessService = useBusinessService();
   const contactService = useContactService();
@@ -140,28 +188,37 @@ export function Dashboard() {
 
   const fetchPendingApprovals = useCallback(async () => {
     try {
+      setPendingApprovalsLoading(true);
       const count = await businessService.getPendingApprovalsCount();
       setPendingApprovals(count);
     } catch (error) {
       console.error('Fehler beim Laden der ausstehenden Genehmigungen:', error);
+    } finally {
+      setPendingApprovalsLoading(false);
     }
   }, [businessService]);
 
   const fetchUsersInReview = useCallback(async () => {
     try {
+      setUsersInReviewLoading(true);
       const count = await userService.getBusinessUsersInReviewCount();
       setUsersInReview(count);
     } catch (error) {
       console.error('Fehler beim Laden der zu überprüfenden Benutzer:', error);
+    } finally {
+      setUsersInReviewLoading(false);
     }
   }, [userService]);
 
   const fetchOpenContactRequests = useCallback(async () => {
     try {
+      setContactRequestsLoading(true);
       const openContactRequests = await contactService.getOpenContactRequestsCount();
       setOpenContactRequests(openContactRequests);
     } catch (error) {
       console.error('Fehler beim Laden der offenen Kontaktanfragen:', error);
+    } finally {
+      setContactRequestsLoading(false);
     }
   }, [contactService]);
 
@@ -237,58 +294,113 @@ export function Dashboard() {
             {/* Pending Reviews Section */}
             <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
               {/* Pending Business Approvals Card */}
-              {pendingApprovals > 0 && (
-                <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
-                  <CardContent className="p-0">
-                    {/* Header with icon and title in one line */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <Store className="h-5 w-5 text-white drop-shadow-lg" />
-                      <span className="text-sm sm:text-base font-semibold text-white">Ausstehende Partner ✍️</span>
-                    </div>
-                    
-                    {/* Main content with improved layout */}
-                    <div className="flex items-center justify-between gap-4">
-                      {/* Number and emoji in compact layout */}
-                      <div className="flex items-center gap-3">
-                        <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-                          {pendingApprovals}
-                        </div>
-                        <div className="text-xl sm:text-2xl">
-                          {pendingApprovals > 10 ? '🔥' : '📝'}
-                        </div>
+              {pendingApprovalsLoading ? (
+                <DashboardCardSkeleton icon={Store} titleText="Ausstehende Partner ✍️" />
+              ) : (
+                pendingApprovals > 0 && (
+                  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+                    <CardContent className="p-0">
+                      {/* Header with icon and title in one line */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <Store className="h-5 w-5 text-white drop-shadow-lg" />
+                        <span className="text-sm sm:text-base font-semibold text-white">Ausstehende Partner ✍️</span>
                       </div>
                       
-                      {/* Action button - always visible */}
-                      <Button
-                        onClick={() => navigate('/businesses?filter=pending')}
-                        size="sm"
-                        className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
-                      >
-                        <span className="hidden sm:inline">Jetzt prüfen</span>
-                        <span className="sm:hidden">Prüfen</span>
-                        <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      </Button>
-                    </div>
-                    
-                    {/* Description text - more compact */}
-                    <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
-                      {pendingApprovals === 1 
-                        ? 'Neues Geschäft wartet auf Genehmigung'
-                        : `${pendingApprovals} neue Geschäfte warten auf Genehmigung`
-                      }
-                    </div>
-                  </CardContent>
-                </Card>
+                      {/* Main content with improved layout */}
+                      <div className="flex items-center justify-between gap-4">
+                        {/* Number and emoji in compact layout */}
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+                            {pendingApprovals}
+                          </div>
+                          <div className="text-xl sm:text-2xl">
+                            {pendingApprovals > 10 ? '🔥' : '📝'}
+                          </div>
+                        </div>
+                        
+                        {/* Action button - always visible */}
+                        <Button
+                          onClick={() => navigate('/businesses?filter=pending')}
+                          size="sm"
+                          className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
+                        >
+                          <span className="hidden sm:inline">Jetzt prüfen</span>
+                          <span className="sm:hidden">Prüfen</span>
+                          <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Description text - more compact */}
+                      <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
+                        {pendingApprovals === 1 
+                          ? 'Neues Geschäft wartet auf Genehmigung'
+                          : `${pendingApprovals} neue Geschäfte warten auf Genehmigung`
+                        }
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
               )}
 
               {/* Business Users in Review Card */}
-              {usersInReview > 0 && (
+              {usersInReviewLoading ? (
+                <DashboardCardSkeleton icon={User} titleText="Geschäftsinhaber prüfen 🔍" />
+              ) : (
+                usersInReview > 0 && (
+                  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+                    <CardContent className="p-0">
+                      {/* Header with icon and title in one line */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <User className="h-5 w-5 text-white drop-shadow-lg" />
+                        <span className="text-sm sm:text-base font-semibold text-white">Geschäftsinhaber prüfen 🔍</span>
+                      </div>
+                      
+                      {/* Main content with improved layout */}
+                      <div className="flex items-center justify-between gap-4">
+                        {/* Number and emoji in compact layout */}
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+                            {usersInReview}
+                          </div>
+                          <div className="text-xl sm:text-2xl">
+                            {usersInReview > 10 ? '🔥' : '👤'}
+                          </div>
+                        </div>
+                        
+                        {/* Action button - always visible */}
+                        <Button
+                          onClick={() => navigate('/users/business/review')}
+                          size="sm"
+                          className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
+                        >
+                          <span className="hidden sm:inline">Jetzt prüfen</span>
+                          <span className="sm:hidden">Prüfen</span>
+                          <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Description text - more compact */}
+                      <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
+                        {usersInReview === 1 
+                          ? 'Geschäftsinhaber wartet auf Verifizierung'
+                          : `${usersInReview} Geschäftsinhaber warten auf Verifizierung`
+                        }
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              )}
+
+              {/* Open Contact Requests Card */}
+              {contactRequestsLoading ? (
+                <DashboardCardSkeleton icon={MessageSquare} titleText="Offene Kontaktanfragen 📧" />
+              ) : (
                 <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
                   <CardContent className="p-0">
                     {/* Header with icon and title in one line */}
                     <div className="flex items-center gap-2 mb-3">
-                      <User className="h-5 w-5 text-white drop-shadow-lg" />
-                      <span className="text-sm sm:text-base font-semibold text-white">Geschäftsinhaber prüfen 🔍</span>
+                      <MessageSquare className="h-5 w-5 text-white drop-shadow-lg" />
+                      <span className="text-sm sm:text-base font-semibold text-white">Offene Kontaktanfragen 📧</span>
                     </div>
                     
                     {/* Main content with improved layout */}
@@ -296,16 +408,16 @@ export function Dashboard() {
                       {/* Number and emoji in compact layout */}
                       <div className="flex items-center gap-3">
                         <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-                          {usersInReview}
+                          {openContactRequests}
                         </div>
                         <div className="text-xl sm:text-2xl">
-                          {usersInReview > 10 ? '🔥' : '👤'}
+                          {openContactRequests > 10 ? '📬' : '✉️'}
                         </div>
                       </div>
                       
                       {/* Action button - always visible */}
                       <Button
-                        onClick={() => navigate('/users/business/review')}
+                        onClick={() => navigate('/contacts?filter=pending')}
                         size="sm"
                         className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
                       >
@@ -317,57 +429,14 @@ export function Dashboard() {
                     
                     {/* Description text - more compact */}
                     <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
-                      {usersInReview === 1 
-                        ? 'Geschäftsinhaber wartet auf Verifizierung'
-                        : `${usersInReview} Geschäftsinhaber warten auf Verifizierung`
+                      {openContactRequests === 1 
+                        ? 'Neue Kontaktanfrage wartet auf Bearbeitung'
+                        : `${openContactRequests} neue Kontaktanfragen warten auf Bearbeitung`
                       }
                     </div>
                   </CardContent>
                 </Card>
               )}
-
-              {/* Open Contact Requests Card */}
-              <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
-                <CardContent className="p-0">
-                  {/* Header with icon and title in one line */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <MessageSquare className="h-5 w-5 text-white drop-shadow-lg" />
-                    <span className="text-sm sm:text-base font-semibold text-white">Offene Kontaktanfragen 📧</span>
-                  </div>
-                  
-                  {/* Main content with improved layout */}
-                  <div className="flex items-center justify-between gap-4">
-                    {/* Number and emoji in compact layout */}
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-                        {openContactRequests}
-                      </div>
-                      <div className="text-xl sm:text-2xl">
-                        {openContactRequests > 10 ? '📬' : '✉️'}
-                      </div>
-                    </div>
-                    
-                    {/* Action button - always visible */}
-                    <Button
-                      onClick={() => navigate('/contacts?filter=pending')}
-                      size="sm"
-                      className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
-                    >
-                      <span className="hidden sm:inline">Jetzt prüfen</span>
-                      <span className="sm:hidden">Prüfen</span>
-                      <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
-                  </div>
-                  
-                  {/* Description text - more compact */}
-                  <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
-                    {openContactRequests === 1 
-                      ? 'Neue Kontaktanfrage wartet auf Bearbeitung'
-                      : `${openContactRequests} neue Kontaktanfragen warten auf Bearbeitung`
-                    }
-                  </div>
-                </CardContent>
-              </Card>
             </div>
 
             {/* Partner */}
