@@ -476,8 +476,12 @@ describe('JobOfferForm', () => {
         expect(screen.getByText('Neues Stellenangebot')).toBeInTheDocument();
       });
 
-      const container = document.querySelector('.container');
-      expect(container).toHaveClass('mx-auto', 'py-6', 'max-w-full', 'px-2', 'overflow-x-hidden');
+      // Test für glassmorphism Layout-Container
+      const mainContainer = document.querySelector('.min-h-screen.relative.overflow-hidden');
+      expect(mainContainer).toBeInTheDocument();
+      
+      const contentContainer = document.querySelector('.relative.z-10');
+      expect(contentContainer).toBeInTheDocument();
     });
 
     it('sollte responsive Grid-Layout haben', async () => {
