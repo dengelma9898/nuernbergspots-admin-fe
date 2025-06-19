@@ -414,7 +414,25 @@ export const EditBusiness: React.FC = () => {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64">Lade Partner...</div>;
+    return (
+      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+        {/* Rainbow Background Layers */}
+        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+        
+        {/* Animated Blur Circles */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
+        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
+        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+
+        <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
+          <div className="text-white text-xl">Lade Partner...</div>
+        </div>
+      </div>
+    );
   }
 
   if (!business) {
@@ -422,415 +440,467 @@ export const EditBusiness: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={() => navigate('/businesses')} className="hover:bg-accent">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zur Übersicht
-        </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Partner bearbeiten</h1>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Linke Spalte - Basisinformationen */}
-        <div className="lg:col-span-1 space-y-6">
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Basisinformationen</CardTitle>
-              <CardDescription>Grundlegende Informationen zum Partner</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Name</h3>
-                  <p className="text-sm text-muted-foreground">{business.name}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Kategorie</h3>
-                  <div className="flex-grow">
-                    <p className="text-sm text-muted-foreground">Kategorie-IDs: {business.categoryIds.join(', ')}</p>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Adresse</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Kontakt</h3>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    {business.contact.email && <p>{business.contact.email}</p>}
-                    {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Status & Highlight</CardTitle>
-              <CardDescription>Partner-Status und Sichtbarkeit</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Status</h3>
-                  <Select 
-                    value={business.status} 
-                    onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Status auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={BusinessStatus.ACTIVE}>Aktiv</SelectItem>
-                      <SelectItem value={BusinessStatus.PENDING}>Ausstehend</SelectItem>
-                      <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="isPromoted"
-                    checked={business.isPromoted}
-                    onCheckedChange={async (checked) => {
-                      try {
-                        await businessService.updateBusiness(business.id, {
-                          isPromoted: checked
-                        });
-                        setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
-                        toast.success("Highlight-Status aktualisiert", {
-                          description: checked 
-                            ? "Der Partner wurde als Highlight markiert." 
-                            : "Der Highlight-Status wurde entfernt.",
-                        });
-                      } catch (error) {
-                        toast.error("Fehler beim Aktualisieren", {
-                          description: "Der Highlight-Status konnte nicht aktualisiert werden.",
-                        });
-                      }
-                    }}
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {business.isPromoted 
-                        ? 'Dieser Partner wird als Highlight angezeigt ✨' 
-                        : 'Markiere diesen Partner als Highlight'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Kategorien</CardTitle>
-              <CardDescription>Kategorien des Partners</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-2">
-                <Label>Kategorien (max. 3)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map(category => (
-                    <Badge
-                      key={category.id}
-                      variant={business?.categoryIds.includes(category.id) ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => toggleCategory(category.id)}
-                    >
-                      {category.name}
-                    </Badge>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
-                </p>
-              </div>
-
-              {keywords.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Keywords</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {keywords.map(keyword => (
-                      <Badge
-                        key={keyword.id}
-                        variant={business?.keywordIds.includes(keyword.id) ? "default" : "outline"}
-                        className="cursor-pointer"
-                        onClick={() => toggleKeyword(keyword.id)}
-                      >
-                        {keyword.name}
-                      </Badge>
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+        {/* Glass Header */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/businesses')} 
+                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl px-3 py-2 border"
+              >
+                <ArrowLeft className="h-5 w-5 mr-2" />
+                Zurück zur Übersicht
+              </Button>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                Partner bearbeiten
+              </h1>
+            </div>
+          </div>
         </div>
 
-        {/* Rechte Spalte - Medien & Öffnungszeiten */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Medien</CardTitle>
-              <CardDescription>Logo und Geschäftsbilder</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Logo</h3>
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-muted">
-                      <img
-                        src={logoPreview || business.logoUrl}
-                        alt="Logo"
-                        className="w-full h-full object-cover"
-                      />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+          {/* Linke Spalte - Basisinformationen */}
+          <div className="lg:col-span-1 space-y-6">
+            {/* Basisinformationen Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Basisinformationen
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Grundlegende Informationen zum Partner</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Name</h3>
+                    <p className="text-sm text-white/70">{business.name}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Kategorie</h3>
+                    <div className="flex-grow">
+                      <p className="text-sm text-white/70">Kategorie-IDs: {business.categoryIds.join(', ')}</p>
                     </div>
-                    <div>
-                      <label className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-md cursor-pointer hover:bg-primary/90 transition-colors">
-                        <Upload className="mr-2 h-4 w-4" />
-                        Logo hochladen
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleLogoUpload}
-                        />
-                      </label>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Empfohlene Größe: 512x512 Pixel
+                  </div>
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Adresse</h3>
+                    <p className="text-sm text-white/70">
+                      {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Kontakt</h3>
+                    <div className="text-sm text-white/70 space-y-1">
+                      {business.contact.email && <p>{business.contact.email}</p>}
+                      {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Status & Highlight Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Status & Highlight
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Partner-Status und Sichtbarkeit</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Status</h3>
+                    <Select 
+                      value={business.status} 
+                      onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
+                    >
+                      <SelectTrigger className="w-full backdrop-blur-2xl bg-white/10 border-white/20 text-white">
+                        <SelectValue placeholder="Status auswählen" />
+                      </SelectTrigger>
+                      <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
+                        <SelectItem value={BusinessStatus.ACTIVE} className="text-white hover:bg-white/20">Aktiv</SelectItem>
+                        <SelectItem value={BusinessStatus.PENDING} className="text-white hover:bg-white/20">Ausstehend</SelectItem>
+                        <SelectItem value={BusinessStatus.INACTIVE} className="text-white hover:bg-white/20">Inaktiv</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isPromoted"
+                      checked={business.isPromoted}
+                      onCheckedChange={async (checked) => {
+                        try {
+                          await businessService.updateBusiness(business.id, {
+                            isPromoted: checked
+                          });
+                          setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
+                          toast.success("Highlight-Status aktualisiert", {
+                            description: checked 
+                              ? "Der Partner wurde als Highlight markiert." 
+                              : "Der Highlight-Status wurde entfernt.",
+                          });
+                        } catch (error) {
+                          toast.error("Fehler beim Aktualisieren", {
+                            description: "Der Highlight-Status konnte nicht aktualisiert werden.",
+                          });
+                        }
+                      }}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="isPromoted" className="text-white">Als "Highlight" markieren</Label>
+                      <p className="text-sm text-white/70">
+                        {business.isPromoted 
+                          ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                          : 'Markiere diesen Partner als Highlight'}
                       </p>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div>
-                  <h3 className="font-medium mb-2">Geschäftsbilder</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {businessImages.map((url, index) => (
-                      <div key={url} className="relative group">
-                        <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-muted">
-                          <img
-                            src={url}
-                            alt={`Geschäftsbild ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <button
-                          onClick={() => handleRemoveBusinessImage(url)}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+            {/* Kategorien Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Kategorien
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Kategorien des Partners</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-2">
+                  <Label className="text-white">Kategorien (max. 3)</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(category => (
+                      <Badge
+                        key={category.id}
+                        variant={business?.categoryIds.includes(category.id) ? "default" : "outline"}
+                        className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                        onClick={() => toggleCategory(category.id)}
+                      >
+                        {category.name}
+                      </Badge>
                     ))}
-                    <label className="aspect-video rounded-lg border-2 border-dashed border-muted flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
-                      <div className="text-center">
-                        <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
-                      </div>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleBusinessImageUpload}
-                      />
-                    </label>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Empfohlene Größe: 1200x800 Pixel
+                  <p className="text-sm text-white/70">
+                    Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
                   </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
 
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Öffnungszeiten</CardTitle>
-              <CardDescription>Definieren Sie die Öffnungszeiten des Partners</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4">
-                {timeSlots.map(slot => (
-                  <div key={slot.id} className="border rounded-lg p-4 space-y-4 bg-card">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-medium">Zeitraum</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        onClick={() => removeTimeSlot(slot.id)}
-                        className="text-destructive hover:text-destructive/90"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                {keywords.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-white">Keywords</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {keywords.map(keyword => (
+                        <Badge
+                          key={keyword.id}
+                          variant={business?.keywordIds.includes(keyword.id) ? "default" : "outline"}
+                          className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                          onClick={() => toggleKeyword(keyword.id)}
+                        >
+                          {keyword.name}
+                        </Badge>
+                      ))}
                     </div>
+                    <p className="text-sm text-white/70">
+                      Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Rechte Spalte - Medien & Öffnungszeiten */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Medien Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Medien
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Logo und Geschäftsbilder</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Logo</h3>
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-white/20">
+                        <img
+                          src={logoPreview || business.logoUrl}
+                          alt="Logo"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <label className="inline-flex items-center px-4 py-2 backdrop-blur-2xl bg-white/10 border border-white/20 text-white rounded-md cursor-pointer hover:bg-white/20 hover:scale-105 transition-all duration-300">
+                          <Upload className="mr-2 h-4 w-4" />
+                          Logo hochladen
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleLogoUpload}
+                          />
+                        </label>
+                        <p className="text-sm text-white/70 mt-2">
+                          Empfohlene Größe: 512x512 Pixel
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="font-medium mb-2 text-white">Geschäftsbilder</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {businessImages.map((url, index) => (
+                        <div key={url} className="relative group">
+                          <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5">
+                            <img
+                              src={url}
+                              alt={`Geschäftsbild ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleRemoveBusinessImage(url)}
+                            className="absolute top-2 right-2 p-1 bg-red-500/80 backdrop-blur-2xl text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600/80 hover:scale-110"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <label className="aspect-video rounded-lg border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all duration-300">
+                        <div className="text-center">
+                          <ImageIcon className="h-8 w-8 mx-auto text-white/70" />
+                          <p className="text-sm text-white/70 mt-2">Bilder hinzufügen</p>
+                        </div>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleBusinessImageUpload}
+                        />
+                      </label>
+                    </div>
+                    <p className="text-sm text-white/70 mt-2">
+                      Empfohlene Größe: 1200x800 Pixel
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Öffnungszeiten Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Öffnungszeiten
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Definieren Sie die Öffnungszeiten des Partners</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-4">
+                  {timeSlots.map(slot => (
+                    <div key={slot.id} className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg">
+                      <div className="flex justify-between items-center">
+                        <h4 className="font-medium text-white">Zeitraum</h4>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeTimeSlot(slot.id)}
+                          className="text-red-300 hover:text-red-200 hover:bg-red-500/20 backdrop-blur-2xl"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-white">Von</Label>
+                          <Input
+                            type="time"
+                            value={slot.from}
+                            onChange={(e) => handleTimeSlotChange(slot.id, 'from', e.target.value)}
+                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-white">Bis</Label>
+                          <Input
+                            type="time"
+                            value={slot.to}
+                            onChange={(e) => handleTimeSlotChange(slot.id, 'to', e.target.value)}
+                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                          />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-white">Gültig an</Label>
+                        <div className="flex flex-wrap gap-2">
+                          {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                            <Badge
+                              key={day}
+                              variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                              className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                              onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                            >
+                              {dayName}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg">
+                    <h4 className="font-medium text-white">Neuer Zeitraum</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Von</Label>
+                        <Label className="text-white">Von</Label>
                         <Input
                           type="time"
-                          value={slot.from}
-                          onChange={(e) => handleTimeSlotChange(slot.id, 'from', e.target.value)}
-                          className="bg-background"
+                          value={newTimeSlot.from}
+                          onChange={(e) => 
+                            setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
+                          }
+                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Bis</Label>
+                        <Label className="text-white">Bis</Label>
                         <Input
                           type="time"
-                          value={slot.to}
-                          onChange={(e) => handleTimeSlotChange(slot.id, 'to', e.target.value)}
-                          className="bg-background"
+                          value={newTimeSlot.to}
+                          onChange={(e) => 
+                            setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))
+                          }
+                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                         />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label>Gültig an</Label>
+                      <Label className="text-white">Gültig an</Label>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                           <Badge
                             key={day}
-                            variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
-                            className="cursor-pointer hover:bg-primary/10"
-                            onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                            variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                            className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                            onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
                           >
                             {dayName}
                           </Badge>
                         ))}
                       </div>
                     </div>
+                    <Button 
+                      onClick={addTimeSlot} 
+                      className="w-full backdrop-blur-2xl bg-white/15 border border-white/20 text-white hover:bg-white/25 hover:scale-105 transition-all duration-300"
+                      disabled={newTimeSlot.days.length === 0}
+                    >
+                      Zeitraum hinzufügen
+                    </Button>
                   </div>
-                ))}
-                
-                <div className="border rounded-lg p-4 space-y-4 bg-card">
-                  <h4 className="font-medium">Neuer Zeitraum</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Von</Label>
-                      <Input
-                        type="time"
-                        value={newTimeSlot.from}
-                        onChange={(e) => 
-                          setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
-                        }
-                        className="bg-background"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Bis</Label>
-                      <Input
-                        type="time"
-                        value={newTimeSlot.to}
-                        onChange={(e) => 
-                          setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))
-                        }
-                        className="bg-background"
-                      />
-                    </div>
-                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Nuernbergspots Review Card */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                  Nuernbergspots Review
+                </h2>
+                <p className="text-white/70 text-sm mt-2">Bewertung und Bilder des Partners</p>
+              </div>
+              <div className="p-4 sm:p-6 space-y-6">
+                <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Gültig an</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                        <Badge
-                          key={day}
-                          variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
-                          className="cursor-pointer hover:bg-primary/10"
-                          onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
-                        >
-                          {dayName}
-                        </Badge>
+                    <Label className="text-white">Review Text</Label>
+                    <Textarea
+                      value={editReview.reviewText || ''}
+                      onChange={(e) => setEditReview(prev => ({
+                        ...prev,
+                        reviewText: e.target.value,
+                      }))}
+                      placeholder="Geben Sie hier die Review ein..."
+                      className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                    />
+                  </div>
+                  
+                  <div>
+                    <h4 className="text-sm font-medium mb-2 text-white">Review Bilder</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {editReview.reviewImageUrls?.map((url, index) => (
+                        <div key={url} className="relative group">
+                          <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5">
+                            <img
+                              src={url}
+                              alt={`Review Bild ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <button
+                            onClick={() => handleRemoveImage(url)}
+                            className="absolute top-2 right-2 p-1 bg-red-500/80 backdrop-blur-2xl text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600/80 hover:scale-110"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
                       ))}
+                      <label className="aspect-video rounded-lg border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all duration-300">
+                        <div className="text-center">
+                          <ImageIcon className="h-8 w-8 mx-auto text-white/70" />
+                          <p className="text-sm text-white/70 mt-2">Bilder hinzufügen</p>
+                        </div>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                      </label>
                     </div>
                   </div>
-                  <Button 
-                    onClick={addTimeSlot} 
-                    className="w-full"
-                    disabled={newTimeSlot.days.length === 0}
-                  >
-                    Zeitraum hinzufügen
-                  </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
 
-          <Card className="border-none shadow-lg">
-            <CardHeader className="bg-primary/5 rounded-t-lg">
-              <CardTitle className="text-xl">Nuernbergspots Review</CardTitle>
-              <CardDescription>Bewertung und Bilder des Partners</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6 pt-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Review Text</Label>
-                  <Textarea
-                    value={editReview.reviewText || ''}
-                    onChange={(e) => setEditReview(prev => ({
-                      ...prev,
-                      reviewText: e.target.value,
-                    }))}
-                    placeholder="Geben Sie hier die Review ein..."
-                    className="min-h-[100px] bg-background"
-                  />
-                </div>
-                
-                <div>
-                  <h4 className="text-sm font-medium mb-2">Review Bilder</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {editReview.reviewImageUrls?.map((url, index) => (
-                      <div key={url} className="relative group">
-                        <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-muted">
-                          <img
-                            src={url}
-                            alt={`Review Bild ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <button
-                          onClick={() => handleRemoveImage(url)}
-                          className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    ))}
-                    <label className="aspect-video rounded-lg border-2 border-dashed border-muted flex items-center justify-center cursor-pointer hover:border-primary transition-colors">
-                      <div className="text-center">
-                        <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
-                      </div>
-                      <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-4 pt-4">
-            <Button variant="outline" onClick={() => navigate('/businesses')}>
-              Abbrechen
-            </Button>
-            <Button onClick={handleUpdateBusiness} disabled={isSaving}>
-              {isSaving ? 'Speichert...' : 'Änderungen speichern'}
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/businesses')}
+                className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+              >
+                Abbrechen
+              </Button>
+              <Button 
+                onClick={handleUpdateBusiness} 
+                disabled={isSaving}
+                className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-600/80 border border-white/20 text-white hover:from-green-600/80 hover:to-emerald-700/80 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+              >
+                {isSaving ? 'Speichert...' : 'Änderungen speichern'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
