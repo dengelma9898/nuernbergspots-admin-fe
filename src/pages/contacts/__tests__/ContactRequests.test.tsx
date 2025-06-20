@@ -395,17 +395,30 @@ describe('ContactRequests', () => {
   });
 
   describe('Loading States', () => {
-    it('sollte initialen Loading-State anzeigen', async () => {
+    it('sollte initialen Loading-State mit Skeleton-Elementen anzeigen', async () => {
       mockContactService.getContactRequests.mockImplementation(() => 
         new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
       );
 
-      renderWithRouter(<ContactRequests />);
+      const { container } = renderWithRouter(<ContactRequests />);
 
-      expect(screen.getByText('Lade Kontaktanfragen...')).toBeInTheDocument();
+      // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(0);
+
+      // Prüfe dass mehrere Skeleton-Karten mit dem richtigen Glassmorphism-Styling angezeigt werden
+      const skeletonCards = container.querySelectorAll('.backdrop-blur-3xl.bg-gradient-to-br.from-white\\/15.to-white\\/5');
+      expect(skeletonCards.length).toBeGreaterThanOrEqual(3); // Mindestens 3 Skeleton-Karten
 
       await waitFor(() => {
-        expect(screen.queryByText('Lade Kontaktanfragen...')).not.toBeInTheDocument();
+        // Nach dem Laden sollten die echten Kontaktanfragen angezeigt werden
+        expect(screen.getByText('Allgemeine Anfrage')).toBeInTheDocument();
+      });
+
+      // Skeleton-Elemente sollten verschwunden sein
+      await waitFor(() => {
+        const remainingSkeletons = container.querySelectorAll('[data-slot="skeleton"]');
+        expect(remainingSkeletons.length).toBe(0);
       });
     });
   });

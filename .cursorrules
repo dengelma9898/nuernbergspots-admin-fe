@@ -75,6 +75,27 @@
           ],
           "textColors": "All text should be white with various opacities (text-white, text-white/90, text-white/80)",
           "contentZIndex": "relative z-10"
+        },
+        "skeletonLoading": {
+          "mandatory": true,
+          "description": "Use skeleton loading animations instead of spinners for better UX",
+          "implementation": "Use @/components/ui/skeleton component for loading states",
+          "styling": {
+            "glassmorphism": "bg-white/10 backdrop-blur-xl rounded",
+            "animation": "animate-pulse (inherited from skeleton component)",
+            "shapes": [
+              "Rectangular: h-4 w-[width] for text lines",
+              "Circular: h-[size] w-[size] rounded-full for avatars/icons", 
+              "Badge-like: h-6 w-[width] rounded-full for badges",
+              "Card-like: Full card structure matching real content layout"
+            ]
+          },
+          "usage": [
+            "Show 3-5 skeleton items while loading lists",
+            "Match skeleton structure to actual content layout",
+            "Use appropriate widths (full, 3/4, 1/2, etc.) for text lines",
+            "Include skeleton elements for all interactive elements (badges, buttons, etc.)"
+          ]
         }
       }
     },
