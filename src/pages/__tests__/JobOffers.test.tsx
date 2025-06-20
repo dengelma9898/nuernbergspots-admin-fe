@@ -123,6 +123,13 @@ jest.mock('date-fns/locale', () => ({
   de: {},
 }));
 
+// Mock skeleton component
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock icon utils
 jest.mock('@/utils/iconUtils', () => ({
   getIconComponent: jest.fn(() => <div data-testid="category-icon">CategoryIcon</div>),
@@ -224,10 +231,13 @@ describe('JobOffers Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
-    renderComponent();
+  it('displays skeleton loading state initially', () => {
+    mockJobOfferService.getJobOffers.mockImplementation(() => new Promise(() => {}));
+    const { container } = renderComponent();
 
-    expect(screen.getByText('Lade Stellenangebote...')).toBeTruthy();
+    // Sollte Header-, Filter- und Job-Card-Skeletons anzeigen
+    const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBeGreaterThan(50); // Umfassende Skeleton-Struktur
   });
 
   it('loads job offers on mount', async () => {

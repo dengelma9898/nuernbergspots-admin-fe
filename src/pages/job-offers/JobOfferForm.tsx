@@ -37,6 +37,203 @@ import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { JobCategory } from '@/models/job-category';
 import { getIconComponent } from '@/utils/iconUtils';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function JobOfferFormSkeleton() {
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Rainbow Background Layers */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
+      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
+      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+      
+      {/* Animated Blur Circles */}
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
+      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
+      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+        {/* Glass Header Skeleton */}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-44 rounded-xl bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-8 w-64 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          {/* Allgemeine Informationen Card Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+              <Skeleton className="h-6 w-48 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Title field */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Highlight toggle */}
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-10 rounded-full bg-white/10 backdrop-blur-xl" />
+                <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Company logo */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-32 w-full rounded-lg bg-white/10 backdrop-blur-xl" />
+              </div>
+
+              {/* Description fields */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-36 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Tasks list */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Skeleton className="h-10 flex-1 bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-10 w-10 bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                ))}
+                <Skeleton className="h-10 w-40 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Benefits list */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Skeleton className="h-10 flex-1 bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-10 w-10 bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                ))}
+                <Skeleton className="h-10 w-36 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+            </div>
+          </div>
+
+          {/* Details Card Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+              <Skeleton className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Location */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Employment type */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Additional notes */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Home office toggle */}
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-10 rounded-full bg-white/10 backdrop-blur-xl" />
+                <Skeleton className="h-4 w-36 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Wage */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+
+              {/* Start date */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Card Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+              <Skeleton className="h-6 w-24 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                  <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Social Media Card Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+              <Skeleton className="h-6 w-28 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-4 w-4 mt-2 bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-10 flex-1 bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Images Card Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+              <Skeleton className="h-6 w-12 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+            <div className="p-4 sm:p-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-32 w-full rounded-lg bg-white/10 backdrop-blur-xl" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons Skeleton */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+          <Skeleton className="h-10 w-24 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-10 w-28 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function JobOfferForm() {
   const { id } = useParams<{ id: string }>();
@@ -252,25 +449,7 @@ export function JobOfferForm() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-        {/* Rainbow Background Layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-        
-        {/* Animated Blur Circles */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
-
-        <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
-          <div className="text-white text-xl">Lade Stellenangebot...</div>
-        </div>
-      </div>
-    );
+    return <JobOfferFormSkeleton />;
   }
 
   return (

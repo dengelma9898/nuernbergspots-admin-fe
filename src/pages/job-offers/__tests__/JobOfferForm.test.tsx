@@ -89,6 +89,13 @@ jest.mock('@/components/ui/LocationSearch', () => ({
   ),
 }));
 
+// Mock skeleton component
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock icon utils
 jest.mock('@/utils/iconUtils', () => ({
   getIconComponent: jest.fn((iconName: string) => <span data-testid={`icon-${iconName}`}>{iconName}</span>),
@@ -316,12 +323,14 @@ describe('JobOfferForm', () => {
       mockUseParams.mockReturnValue({ id: 'job-1' });
     });
 
-    it('sollte Lademodus anzeigen', () => {
+    it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
       mockJobOfferService.getJobOffer.mockImplementation(() => new Promise(() => {}));
       
-      renderWithRouter(<JobOfferForm />);
+      const { container } = renderWithRouter(<JobOfferForm />);
       
-      expect(screen.getByText('Lade Stellenangebot...')).toBeInTheDocument();
+      // Sollte umfassende Form-Skeleton-Struktur anzeigen
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(70); // Detaillierte Form-Skeletons
     });
 
     it('sollte Fehler beim Laden handhaben', async () => {
