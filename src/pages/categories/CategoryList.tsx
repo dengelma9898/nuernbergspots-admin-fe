@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Table,
   TableBody,
@@ -288,8 +289,38 @@ export function CategoryList() {
 
         {/* Mobile Card-Ansicht */}
         {isLoading ? (
-          <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 text-center">
-            <div className="text-white/80">Lade Kategorien...</div>
+          <div className="block md:hidden space-y-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
+                {/* Header Section */}
+                <div className="flex items-center gap-3 mb-3">
+                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded flex-1" />
+                  <Skeleton className="h-6 w-6 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                
+                {/* Description */}
+                <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded mb-3" />
+                
+                {/* Keywords Section */}
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {[...Array(3)].map((_, j) => (
+                    <Skeleton key={j} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-xl" />
+                  ))}
+                </div>
+                
+                {/* Dates Section */}
+                <div className="mb-4 space-y-1">
+                  <Skeleton className="h-3 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                  <Skeleton className="h-3 w-28 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Skeleton className="h-8 w-full sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
+                  <Skeleton className="h-8 w-full sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : categories.length === 0 ? (
           <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 text-center">
@@ -361,11 +392,42 @@ export function CategoryList() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableCell colSpan={7} className="text-center text-white/80 py-8">
-                    Lade Kategorien...
-                  </TableCell>
-                </TableRow>
+                [...Array(5)].map((_, i) => (
+                  <TableRow key={i} className="border-white/10 hover:bg-white/5">
+                    {/* Name */}
+                    <TableCell>
+                      <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                    </TableCell>
+                    {/* Icon */}
+                    <TableCell>
+                      <Skeleton className="h-6 w-6 bg-white/10 backdrop-blur-xl rounded" />
+                    </TableCell>
+                    {/* Description */}
+                    <TableCell>
+                      <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                    </TableCell>
+                    {/* Keywords */}
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {[...Array(2)].map((_, j) => (
+                          <Skeleton key={j} className="h-5 w-12 bg-white/10 backdrop-blur-xl rounded-xl" />
+                        ))}
+                      </div>
+                    </TableCell>
+                    {/* Created At */}
+                    <TableCell>
+                      <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                    </TableCell>
+                    {/* Updated At */}
+                    <TableCell>
+                      <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                    </TableCell>
+                    {/* Actions */}
+                    <TableCell>
+                      <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg" />
+                    </TableCell>
+                  </TableRow>
+                ))
               ) : categories.length === 0 ? (
                 <TableRow className="border-white/10 hover:bg-white/5">
                   <TableCell colSpan={7} className="text-center text-white/80 py-8">
