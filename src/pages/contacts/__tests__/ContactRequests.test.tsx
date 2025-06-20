@@ -360,9 +360,20 @@ describe('ContactRequests', () => {
   });
 
   describe('Error Handling', () => {
-    it('sollte Toast-Erfolg nach erfolgreichem Laden anzeigen', async () => {
+    it('sollte Toast-Erfolg bei manuellem Refresh anzeigen', async () => {
       await act(async () => {
         renderWithRouter(<ContactRequests />);
+      });
+
+      // Warte bis initiale Ladung abgeschlossen ist
+      await waitFor(() => {
+        expect(screen.getByText('Aktualisieren')).toBeInTheDocument();
+      });
+
+      const refreshButton = screen.getByText('Aktualisieren');
+      
+      await act(async () => {
+        fireEvent.click(refreshButton);
       });
 
       await waitFor(() => {

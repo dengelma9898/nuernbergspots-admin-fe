@@ -17,12 +17,14 @@ export function ContactRequests() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const contactService = useContactService();
 
-  const fetchContactRequests = useCallback(async () => {
+  const fetchContactRequests = useCallback(async (showSuccessToast = false) => {
     try {
       setIsRefreshing(true);
       const requests = await contactService.getContactRequests();
       setContactRequests(requests);
-      toast.success('Kontaktanfragen erfolgreich aktualisiert');
+      if (showSuccessToast) {
+        toast.success('Kontaktanfragen erfolgreich aktualisiert');
+      }
     } catch (error) {
       console.error('Fehler beim Laden der Kontaktanfragen:', error);
       toast.error('Fehler beim Laden der Kontaktanfragen');
@@ -32,10 +34,14 @@ export function ContactRequests() {
     }
   }, [contactService]);
 
-  // Initiale Ladung der Daten
+  // Initiale Ladung der Daten - nur einmal beim Mount mit useRef um Doppelaufrufe zu verhindern
+  const isInitialMount = React.useRef(true);
   useEffect(() => {
-    fetchContactRequests();
-  }, []); // Leeres Dependency Array für einmalige Ausführung
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchContactRequests(false);
+    }
+  }, [fetchContactRequests]); // Leeres Dependency Array für einmalige Ausführung
 
   const getRequestTypeBadge = (type: ContactRequestType) => {
     const typeConfig = {
@@ -118,7 +124,7 @@ export function ContactRequests() {
               </div>
               <div className="flex flex-col gap-3 w-full lg:w-auto sm:flex-row">
                 <Button
-                  onClick={fetchContactRequests}
+                  onClick={() => fetchContactRequests(true)}
                   disabled={isRefreshing}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 shadow-lg ring-1 ring-white/30 w-full sm:w-auto"
                 >
