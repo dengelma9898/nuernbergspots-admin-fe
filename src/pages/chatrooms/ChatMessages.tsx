@@ -15,6 +15,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ChatMessageSkeleton({ isOwnMessage = false }: { isOwnMessage?: boolean }) {
+  return (
+    <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+      <div className="relative max-w-[70%]">
+        <div className={`${isOwnMessage ? 'backdrop-blur-2xl bg-white/20 border-white/30' : 'backdrop-blur-2xl bg-white/10 border-white/20'} rounded-lg p-3 border shadow-lg`}>
+          {!isOwnMessage && (
+            <Skeleton className="h-4 w-20 mb-1 bg-white/10 backdrop-blur-xl rounded" />
+          )}
+          <div className="space-y-1">
+            <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center justify-between mt-1">
+            <Skeleton className="h-3 w-12 bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-6 w-6 rounded-lg bg-white/10 backdrop-blur-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function ChatMessages() {
   const { chatroomId } = useParams<{ chatroomId: string }>();
@@ -25,6 +48,7 @@ export function ChatMessages() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [editingMessage, setEditingMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -39,11 +63,14 @@ export function ChatMessages() {
     if (!chatroomId) return;
     
     try {
+      setIsLoading(true);
       const data = await chatMessageService.getMessages(chatroomId);
       setMessages(data);
       scrollToBottom();
     } catch (error) {
       toast.error("Nachrichten konnten nicht geladen werden.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -183,78 +210,90 @@ export function ChatMessages() {
         </Button>
       </div>
       <div className="flex-1 overflow-y-auto p-4 space-y-4 backdrop-blur-xl bg-white/5 mx-4 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${isOwnMessage(message) ? 'justify-end' : 'justify-start'}`}
-          >
-            <div className="relative max-w-[70%]">
-              <div className={`${isOwnMessage(message) ? 'backdrop-blur-2xl bg-white/20 text-white border-white/30' : 'backdrop-blur-2xl bg-white/10 text-white border-white/20'} rounded-lg p-3 border shadow-lg`}>
-                {!isOwnMessage(message) && (
-                  <div className="text-sm font-semibold mb-1 text-white/90">{message.senderName}</div>
-                )}
-                <div className="text-sm whitespace-pre-line text-white">{message.content}</div>
-                <div className="flex items-center justify-between mt-1 text-xs text-white/60">
-                  <span>
-                    {format(new Date(message.createdAt), 'HH:mm', { locale: de })}
-                    {message.editedAt && ' (bearbeitet)'}
-                  </span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-6 w-6 backdrop-blur-xl bg-white/10 hover:bg-white/20 border-white/20 hover:border-white/30 transition-all duration-300 text-white hover:scale-110 rounded-lg">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
-                                              {isOwnMessage(message) && (
-                        <>
-                          <DropdownMenuItem onClick={() => setEditingMessage(message.id)} className="text-white hover:bg-white/20 cursor-pointer">
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            Bearbeiten
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteMessage(message.id)} className="text-red-300 hover:bg-red-500/20 cursor-pointer">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Löschen
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LIKE)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.LIKE)} {getReactionLabel(ReactionType.LIKE)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LOVE)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.LOVE)} {getReactionLabel(ReactionType.LOVE)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LAUGH)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.LAUGH)} {getReactionLabel(ReactionType.LAUGH)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.WOW)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.WOW)} {getReactionLabel(ReactionType.WOW)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.SAD)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.SAD)} {getReactionLabel(ReactionType.SAD)}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.ANGRY)} className="text-white hover:bg-white/20 cursor-pointer">
-                        {getReactionEmoji(ReactionType.ANGRY)} {getReactionLabel(ReactionType.ANGRY)}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-              {message.reactions && message.reactions.length > 0 && (
-                <div
-                  className={`absolute left-4 -bottom-4 flex gap-1 px-2 py-1 backdrop-blur-2xl bg-white/20 rounded-full shadow-lg border border-white/30 text-base z-10 ${isOwnMessage(message) ? 'right-4 left-auto' : ''}`}
-                  style={{ minHeight: '28px' }}
-                >
-                  {message.reactions.map((reaction, index) => (
-                    <span key={index} className="text-xs">
-                      {getReactionEmoji(reaction.type as ReactionType)}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+        {isLoading ? (
+          // Show skeleton loading messages
+          <div className="space-y-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <ChatMessageSkeleton 
+                key={index} 
+                isOwnMessage={index % 3 === 0} // Mix of own and other messages
+              />
+            ))}
           </div>
-        ))}
+        ) : (
+          messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${isOwnMessage(message) ? 'justify-end' : 'justify-start'}`}
+            >
+              <div className="relative max-w-[70%]">
+                <div className={`${isOwnMessage(message) ? 'backdrop-blur-2xl bg-white/20 text-white border-white/30' : 'backdrop-blur-2xl bg-white/10 text-white border-white/20'} rounded-lg p-3 border shadow-lg`}>
+                  {!isOwnMessage(message) && (
+                    <div className="text-sm font-semibold mb-1 text-white/90">{message.senderName}</div>
+                  )}
+                  <div className="text-sm whitespace-pre-line text-white">{message.content}</div>
+                  <div className="flex items-center justify-between mt-1 text-xs text-white/60">
+                    <span>
+                      {format(new Date(message.createdAt), 'HH:mm', { locale: de })}
+                      {message.editedAt && ' (bearbeitet)'}
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6 backdrop-blur-xl bg-white/10 hover:bg-white/20 border-white/20 hover:border-white/30 transition-all duration-300 text-white hover:scale-110 rounded-lg">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
+                                                {isOwnMessage(message) && (
+                          <>
+                            <DropdownMenuItem onClick={() => setEditingMessage(message.id)} className="text-white hover:bg-white/20 cursor-pointer">
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              Bearbeiten
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeleteMessage(message.id)} className="text-red-300 hover:bg-red-500/20 cursor-pointer">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Löschen
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LIKE)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.LIKE)} {getReactionLabel(ReactionType.LIKE)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LOVE)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.LOVE)} {getReactionLabel(ReactionType.LOVE)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.LAUGH)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.LAUGH)} {getReactionLabel(ReactionType.LAUGH)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.WOW)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.WOW)} {getReactionLabel(ReactionType.WOW)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.SAD)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.SAD)} {getReactionLabel(ReactionType.SAD)}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleReaction(message.id, ReactionType.ANGRY)} className="text-white hover:bg-white/20 cursor-pointer">
+                          {getReactionEmoji(ReactionType.ANGRY)} {getReactionLabel(ReactionType.ANGRY)}
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                {message.reactions && message.reactions.length > 0 && (
+                  <div
+                    className={`absolute left-4 -bottom-4 flex gap-1 px-2 py-1 backdrop-blur-2xl bg-white/20 rounded-full shadow-lg border border-white/30 text-base z-10 ${isOwnMessage(message) ? 'right-4 left-auto' : ''}`}
+                    style={{ minHeight: '28px' }}
+                  >
+                    {message.reactions.map((reaction, index) => (
+                      <span key={index} className="text-xs">
+                        {getReactionEmoji(reaction.type as ReactionType)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div className="backdrop-blur-3xl bg-white/5 rounded-3xl m-4 p-4 border border-white/10 shadow-2xl ring-1 ring-white/20">
