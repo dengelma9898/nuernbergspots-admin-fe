@@ -97,6 +97,12 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-menu-trigger">{children}</div>,
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Lucide icons mock
 jest.mock('lucide-react', () => ({
   Plus: () => <div data-testid="plus-icon">Plus</div>,
@@ -163,14 +169,19 @@ describe('KeywordList Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', async () => {
+    it('sollte Loading-State mit Skeleton-Animationen anzeigen', async () => {
       mockKeywordService.getKeywords.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(mockKeywords), 1000))
       );
 
-      renderWithRouter(<KeywordList />);
+      const { container } = renderWithRouter(<KeywordList />);
 
-      expect(screen.getAllByText('Lade Keywords...')[0]).toBeInTheDocument();
+      // Überprüfe, dass Skeleton-Elemente gerendert werden
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+      
+      // Es sollten sowohl Mobile-Card-Skeletons als auch Desktop-Table-Skeletons vorhanden sein
+      expect(skeletonElements.length).toBeGreaterThan(20);
     });
 
     it('sollte Desktop-Tabelle rendern', async () => {

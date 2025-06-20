@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Table,
   TableBody,
@@ -240,8 +241,28 @@ export function KeywordList() {
 
         {/* Mobile Card-Ansicht */}
         {isLoading ? (
-          <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 text-center">
-            <div className="text-white/80">Lade Keywords...</div>
+          <div className="block md:hidden space-y-4">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
+                {/* Header */}
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-3/4 mb-2 rounded" />
+                
+                {/* Description */}
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full mb-3 rounded" />
+                
+                {/* Dates */}
+                <div className="space-y-1 mb-4">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-full sm:flex-1 rounded-xl" />
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-full sm:flex-1 rounded-xl" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : keywords.length === 0 ? (
           <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 text-center">
@@ -294,11 +315,27 @@ export function KeywordList() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableCell colSpan={5} className="text-center text-white/80 py-8">
-                    Lade Keywords...
-                  </TableCell>
-                </TableRow>
+                <>
+                  {[...Array(5)].map((_, index) => (
+                    <TableRow key={index} className="border-white/10 hover:bg-white/5">
+                      <TableCell className="py-4">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-48 rounded" />
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                      </TableCell>
+                      <TableCell className="py-4">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </>
               ) : keywords.length === 0 ? (
                 <TableRow className="border-white/10 hover:bg-white/5">
                   <TableCell colSpan={5} className="text-center text-white/80 py-8">
