@@ -114,6 +114,12 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
   Loader2: () => <div data-testid="loader2-icon">Loader2</div>,
@@ -237,10 +243,19 @@ describe('NewsManagement Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
-    renderComponent();
+  it('displays loading state with skeleton animations', () => {
+    mockNewsService.getAll.mockImplementation(
+      () => new Promise(() => {}) // Never resolves
+    );
 
-    expect(screen.getByTestId('loader2-icon')).toBeTruthy();
+    const { container } = renderComponent();
+
+    // Überprüfe, dass Skeleton-Elemente gerendert werden
+    const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBeGreaterThan(0);
+    
+    // Sollte mindestens 40+ Skeleton-Elemente haben (5 News Cards mit verschiedenen Typen)
+    expect(skeletonElements.length).toBeGreaterThan(40);
   });
 
   it('navigates back to dashboard when back button is clicked', async () => {

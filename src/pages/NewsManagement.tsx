@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Loader2, UserCircle, Image as ImageIcon, BarChart2, RefreshCw, Send, Trash2, ArrowLeft, Plus, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -21,6 +22,71 @@ import {
 } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+
+const NewsSkeletonBubble: React.FC<{ type?: 'text' | 'image' | 'poll' }> = ({ type = 'text' }) => {
+  return (
+    <Card className="w-full backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-3xl ring-1 ring-white/30">
+      <CardContent className="p-4 md:p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Skeleton className="bg-white/10 backdrop-blur-xl w-8 h-8 rounded-full" />
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+          </div>
+          <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-16 rounded" />
+        </div>
+
+        {/* Content based on type */}
+        {type === 'text' && (
+          <div className="space-y-2">
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full rounded" />
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-5/6 rounded" />
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-3/4 rounded" />
+          </div>
+        )}
+
+        {type === 'image' && (
+          <div className="space-y-3">
+            <div className="flex gap-3 flex-wrap">
+              {[...Array(3)].map((_, idx) => (
+                <Skeleton key={idx} className="bg-white/10 backdrop-blur-xl w-24 h-24 rounded-xl" />
+              ))}
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full rounded" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-2/3 rounded" />
+            </div>
+          </div>
+        )}
+
+        {type === 'poll' && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="bg-white/10 backdrop-blur-xl w-4 h-4 rounded" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-48 rounded" />
+            </div>
+            <div className="space-y-2">
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 rounded-xl border border-white/20">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-8 rounded-full" />
+                </div>
+              ))}
+            </div>
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-40 rounded" />
+          </div>
+        )}
+
+        {/* Reactions */}
+        <div className="flex gap-2 mt-4 flex-wrap">
+          {[...Array(2)].map((_, idx) => (
+            <Skeleton key={idx} className="bg-white/10 backdrop-blur-xl h-6 w-12 rounded-full" />
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 const NewsBubble: React.FC<{ item: NewsItem }> = ({ item }) => {
   return (
@@ -325,10 +391,13 @@ const NewsManagement: React.FC = () => {
       {/* News Feed */}
       <div ref={feedRef} className="flex-1 flex flex-col gap-4 overflow-y-auto pb-32 px-2" style={{scrollBehavior: 'smooth', minHeight: 0}}>
         {loading ? (
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20">
-            <div className="flex justify-center">
-              <Loader2 className="animate-spin w-8 h-8 text-white/80" />
-            </div>
+          <div className="space-y-4">
+            {/* Mixed skeleton types for realistic loading */}
+            <NewsSkeletonBubble type="text" />
+            <NewsSkeletonBubble type="image" />
+            <NewsSkeletonBubble type="poll" />
+            <NewsSkeletonBubble type="text" />
+            <NewsSkeletonBubble type="image" />
           </div>
         ) : news.length === 0 ? (
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20">
