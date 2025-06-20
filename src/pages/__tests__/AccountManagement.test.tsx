@@ -34,6 +34,12 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 jest.mock('@/components/ui/alert-dialog', () => ({
   AlertDialog: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog">{children}</div>,
   AlertDialogTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-trigger">{children}</div>,
@@ -108,10 +114,13 @@ describe('AccountManagement Component', () => {
   it('renders account management page correctly', async () => {
     renderComponent();
 
-    expect(screen.getByText('Account-Management')).toBeTruthy();
-    expect(screen.getByText('Zurück zum Dashboard')).toBeTruthy();
-    expect(screen.getByText('Anonyme Accounts')).toBeTruthy();
-    expect(screen.getByText('Verwaltung und Bereinigung von anonymen Benutzeraccounts')).toBeTruthy();
+    // Wait for content to load after skeleton
+    await waitFor(() => {
+      expect(screen.getByText('Account-Management')).toBeTruthy();
+      expect(screen.getByText('Zurück zum Dashboard')).toBeTruthy();
+      expect(screen.getByText('Anonyme Accounts')).toBeTruthy();
+      expect(screen.getByText('Verwaltung und Bereinigung von anonymen Benutzeraccounts')).toBeTruthy();
+    });
 
     await waitFor(() => {
       expect(screen.getByText('150')).toBeTruthy();
@@ -127,10 +136,11 @@ describe('AccountManagement Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
-    renderComponent();
+  it('displays skeleton loading state initially', () => {
+    const { container } = renderComponent();
 
-    expect(screen.getByText('Lade Statistiken...')).toBeTruthy();
+    const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBe(14); // 2 header + 2 card header + 9 stats (3 cards * 3 elements each) + 1 button
   });
 
   it('displays account statistics correctly', async () => {
@@ -149,6 +159,11 @@ describe('AccountManagement Component', () => {
 
   it('navigates back to dashboard when back button is clicked', async () => {
     renderComponent();
+
+    await waitFor(() => {
+      const backButton = screen.getByText('Zurück zum Dashboard');
+      expect(backButton).toBeTruthy();
+    });
 
     const backButton = screen.getByText('Zurück zum Dashboard');
     await user.click(backButton);
@@ -253,9 +268,8 @@ describe('AccountManagement Component', () => {
   it('displays icons correctly', async () => {
     renderComponent();
 
-    expect(screen.getByTestId('arrow-left-icon')).toBeTruthy();
-    
     await waitFor(() => {
+      expect(screen.getByTestId('arrow-left-icon')).toBeTruthy();
       expect(screen.getByTestId('users-icon')).toBeTruthy();
       expect(screen.getByTestId('clock-icon')).toBeTruthy();
       expect(screen.getByTestId('calendar-icon')).toBeTruthy();
