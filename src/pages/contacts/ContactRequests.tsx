@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowRight, Clock, CheckCircle2, MessageSquare, RefreshCcw } from 'lucide-react';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 import { useContactService } from '@/services/contactService';
@@ -88,6 +89,38 @@ export function ContactRequests() {
     );
   };
 
+  const ContactRequestSkeleton = () => (
+    <div className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-4 md:p-6">
+      {/* Header Row Skeleton */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Skeleton className="h-6 w-24 bg-white/10 backdrop-blur-xl rounded-full" />
+          <Skeleton className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-full" />
+        </div>
+        <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+      </div>
+
+      {/* Message Preview Skeleton */}
+      <div className="mb-4 space-y-2">
+        <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+        <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+        <Skeleton className="h-4 w-1/2 bg-white/10 backdrop-blur-xl rounded" />
+      </div>
+
+      {/* Footer Row Skeleton */}
+      <div className="flex items-center justify-between pt-2 border-t border-white/10">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-4 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Rainbow Background Layers */}
@@ -145,12 +178,10 @@ export function ContactRequests() {
                   {/* Contact Requests Grid */}
           <div className="grid gap-4 md:gap-6">
             {loading ? (
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 text-center">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/30 border-t-white"></div>
-                  <p className="text-white/80 text-lg">Lade Kontaktanfragen...</p>
-                </div>
-              </div>
+              // Show skeleton cards while loading
+              Array.from({ length: 3 }, (_, index) => (
+                <ContactRequestSkeleton key={`skeleton-${index}`} />
+              ))
             ) : contactRequests.length === 0 ? (
               <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 md:p-12 text-center">
                 <MessageSquare className="mx-auto h-16 w-16 text-white/60 mb-4" />

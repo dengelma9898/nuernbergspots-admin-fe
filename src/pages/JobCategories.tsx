@@ -45,6 +45,7 @@ import { useJobCategoryService } from '@/services/jobCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
 import { IconPicker } from '@/components/ui/icon-picker';
 import { convertFFToHex, convertHexToFF } from '@/utils/colorUtils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const toSnakeCase = (str: string): string => {
   return str
@@ -52,6 +53,98 @@ const toSnakeCase = (str: string): string => {
     .join('_')
     .toLowerCase();
 };
+
+function JobCategorySkeleton() {
+  return (
+    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl p-4 ring-1 ring-white/30">
+      <div className="flex items-center gap-3 mb-2">
+        <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+        <Skeleton className="h-6 w-6 bg-white/10 backdrop-blur-xl rounded" />
+      </div>
+      
+      <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded mb-2" />
+      
+      <div className="flex items-center gap-2 mb-2">
+        <Skeleton className="h-5 w-5 rounded-full bg-white/10 backdrop-blur-xl" />
+        <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+      </div>
+      
+      <div className="flex flex-wrap gap-2 mb-2">
+        {Array.from({ length: 3 }).map((_, index) => (
+          <Skeleton key={index} className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded" />
+        ))}
+      </div>
+      
+      <div className="mb-2">
+        <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded mb-1" />
+        <Skeleton className="h-3 w-36 bg-white/10 backdrop-blur-xl rounded" />
+      </div>
+      
+      <div className="flex gap-2 mt-2">
+        <Skeleton className="h-8 w-24 bg-white/10 backdrop-blur-xl rounded-xl" />
+        <Skeleton className="h-8 w-20 bg-white/10 backdrop-blur-xl rounded-xl" />
+      </div>
+    </Card>
+  );
+}
+
+function JobCategoryTableSkeleton() {
+  return (
+    <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-white/20 hover:bg-white/5">
+            <TableHead className="text-white/90 font-semibold">Name</TableHead>
+            <TableHead className="text-white/90 font-semibold">Icon</TableHead>
+            <TableHead className="text-white/90 font-semibold">Beschreibung</TableHead>
+            <TableHead className="text-white/90 font-semibold">Farbe</TableHead>
+            <TableHead className="text-white/90 font-semibold">Erstellt am</TableHead>
+            <TableHead className="text-white/90 font-semibold">Aktualisiert am</TableHead>
+            <TableHead className="text-white/90 font-semibold">Fallback-Bilder</TableHead>
+            <TableHead className="w-[100px] text-white/90 font-semibold">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <TableRow key={index} className="border-white/20 hover:bg-white/5 transition-colors">
+              <TableCell>
+                <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-6 w-6 bg-white/10 backdrop-blur-xl rounded" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-6 w-6 rounded-full bg-white/10 backdrop-blur-xl" />
+                  <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 2 }).map((_, imgIndex) => (
+                    <Skeleton key={imgIndex} className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded" />
+                  ))}
+                </div>
+              </TableCell>
+              <TableCell>
+                <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
 export function JobCategories() {
   const jobCategoryService = useJobCategoryService();
@@ -431,8 +524,10 @@ export function JobCategories() {
 
       {/* Mobile Card-Ansicht */}
       {isLoading ? (
-        <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
-          <div className="text-white/90 text-lg">Lade Kategorien...</div>
+        <div className="block md:hidden space-y-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <JobCategorySkeleton key={index} />
+          ))}
         </div>
       ) : categories.length === 0 ? (
         <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
@@ -493,106 +588,104 @@ export function JobCategories() {
         </div>
       )}
       {/* Desktop/Table Ansicht */}
-      <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-        <Table>
-        <TableHeader>
-          <TableRow className="border-white/20 hover:bg-white/5">
-            <TableHead className="text-white/90 font-semibold">Name</TableHead>
-            <TableHead className="text-white/90 font-semibold">Icon</TableHead>
-            <TableHead className="text-white/90 font-semibold">Beschreibung</TableHead>
-            <TableHead className="text-white/90 font-semibold">Farbe</TableHead>
-            <TableHead className="text-white/90 font-semibold">Erstellt am</TableHead>
-            <TableHead className="text-white/90 font-semibold">Aktualisiert am</TableHead>
-            <TableHead className="text-white/90 font-semibold">Fallback-Bilder</TableHead>
-            <TableHead className="w-[100px] text-white/90 font-semibold">Aktionen</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {isLoading ? (
-            <TableRow className="border-white/20 hover:bg-white/5">
-              <TableCell colSpan={8} className="text-center text-white/90 py-8">
-                Lade Kategorien...
-              </TableCell>
-            </TableRow>
-          ) : categories.length === 0 ? (
-            <TableRow className="border-white/20 hover:bg-white/5">
-              <TableCell colSpan={8} className="text-center text-white/90 py-8">
-                Keine Kategorien vorhanden
-              </TableCell>
-            </TableRow>
-          ) : (
-            categories.map((category) => (
-              <TableRow key={category.id} className="border-white/20 hover:bg-white/5 transition-colors">
-                <TableCell className="font-medium text-white">{category.name}</TableCell>
-                <TableCell className="text-white">
-                  {getIconComponent(category.iconName)}
-                </TableCell>
-                <TableCell className="text-white/90">{category.description || '-'}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div 
-                      className="w-6 h-6 rounded-full border border-border hover:scale-150 transition-transform cursor-help"
-                      style={{ backgroundColor: convertFFToHex(category.colorCode) }}
-                      title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
-                    />
-                    <code className="text-xs bg-white/20 text-white px-1.5 py-0.5 rounded">
-                      {convertFFToHex(category.colorCode)}
-                    </code>
-                  </div>
-                </TableCell>
-                <TableCell className="text-white/90">{new Date(category.createdAt).toLocaleDateString()}</TableCell>
-                <TableCell className="text-white/90">{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {category.fallbackImages?.map((image, index) => (
-                      <div 
-                        key={index}
-                        className="relative cursor-pointer hover:scale-110 transition-transform"
-                        onClick={() => setSelectedImagePreview(image)}
-                      >
-                        <img
-                          src={image}
-                          alt={`Fallback ${index + 1}`}
-                          className="w-8 h-8 object-cover rounded border border-white/30 hover:scale-110 transition-transform"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        className="h-8 w-8 p-0 backdrop-blur-2xl bg-white/10 hover:bg-white/20 border-white/20 hover:border-white/30 transition-all duration-300 hover:scale-110 rounded-lg text-white"
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="backdrop-blur-3xl bg-white/10 border-white/20">
-                      <DropdownMenuItem 
-                        onClick={() => handleEditCategory(category)}
-                        className="text-white hover:bg-white/20 cursor-pointer"
-                      >
-                        <Pencil className="mr-2 h-4 w-4" />
-                        Bearbeiten
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => handleDeleteCategory(category.id)}
-                        className="text-red-300 hover:bg-red-500/20 cursor-pointer"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Löschen
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+      {isLoading ? (
+        <JobCategoryTableSkeleton />
+      ) : (
+        <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-white/20 hover:bg-white/5">
+                <TableHead className="text-white/90 font-semibold">Name</TableHead>
+                <TableHead className="text-white/90 font-semibold">Icon</TableHead>
+                <TableHead className="text-white/90 font-semibold">Beschreibung</TableHead>
+                <TableHead className="text-white/90 font-semibold">Farbe</TableHead>
+                <TableHead className="text-white/90 font-semibold">Erstellt am</TableHead>
+                <TableHead className="text-white/90 font-semibold">Aktualisiert am</TableHead>
+                <TableHead className="text-white/90 font-semibold">Fallback-Bilder</TableHead>
+                <TableHead className="w-[100px] text-white/90 font-semibold">Aktionen</TableHead>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {categories.length === 0 ? (
+                <TableRow className="border-white/20 hover:bg-white/5">
+                  <TableCell colSpan={8} className="text-center text-white/90 py-8">
+                    Keine Kategorien vorhanden
+                  </TableCell>
+                </TableRow>
+              ) : (
+                categories.map((category) => (
+                  <TableRow key={category.id} className="border-white/20 hover:bg-white/5 transition-colors">
+                    <TableCell className="font-medium text-white">{category.name}</TableCell>
+                    <TableCell className="text-white">
+                      {getIconComponent(category.iconName)}
+                    </TableCell>
+                    <TableCell className="text-white/90">{category.description || '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="w-6 h-6 rounded-full border border-border hover:scale-150 transition-transform cursor-help"
+                          style={{ backgroundColor: convertFFToHex(category.colorCode) }}
+                          title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
+                        />
+                        <code className="text-xs bg-white/20 text-white px-1.5 py-0.5 rounded">
+                          {convertFFToHex(category.colorCode)}
+                        </code>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-white/90">{new Date(category.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-white/90">{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {category.fallbackImages?.map((image, index) => (
+                          <div 
+                            key={index}
+                            className="relative cursor-pointer hover:scale-110 transition-transform"
+                            onClick={() => setSelectedImagePreview(image)}
+                          >
+                            <img
+                              src={image}
+                              alt={`Fallback ${index + 1}`}
+                              className="w-8 h-8 object-cover rounded border border-white/30 hover:scale-110 transition-transform"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 backdrop-blur-2xl bg-white/10 hover:bg-white/20 border-white/20 hover:border-white/30 transition-all duration-300 hover:scale-110 rounded-lg text-white"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="backdrop-blur-3xl bg-white/10 border-white/20">
+                          <DropdownMenuItem 
+                            onClick={() => handleEditCategory(category)}
+                            className="text-white hover:bg-white/20 cursor-pointer"
+                          >
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Bearbeiten
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="text-red-300 hover:bg-red-500/20 cursor-pointer"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Löschen
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Bildvorschau Dialog */}
       <Dialog open={!!selectedImagePreview} onOpenChange={(open) => !open && setSelectedImagePreview(null)}>

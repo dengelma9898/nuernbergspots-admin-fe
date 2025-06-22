@@ -83,6 +83,12 @@ jest.mock('@/components/ui/calendar-week-select', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
   MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
@@ -301,14 +307,19 @@ describe('EventList Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit Skeleton-Animationen anzeigen', () => {
       mockEventService.getEvents.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
 
-      renderWithRouter(<EventList />);
+      const { container } = renderWithRouter(<EventList />);
 
-      expect(screen.getByText('Lade Events...')).toBeInTheDocument();
+      // Überprüfe, dass Skeleton-Elemente gerendert werden
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+      
+      // Sollte mindestens 30+ Skeleton-Elemente haben (Header + Filter + Event Cards)
+      expect(skeletonElements.length).toBeGreaterThan(30);
     });
 
     it('sollte alle Header-Buttons rendern', async () => {

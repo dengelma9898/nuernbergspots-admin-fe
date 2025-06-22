@@ -38,6 +38,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from '@/components/ui/skeleton';
+
+function ChatroomSkeleton() {
+  return (
+    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full ring-1 ring-white/30">
+      <CardHeader className="pb-2">
+        <div className="space-y-1">
+          <CardTitle className="flex items-center gap-2">
+            <Skeleton className="h-5 w-5 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+          </CardTitle>
+          <CardDescription>
+            <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-4 w-2/3 mt-1 bg-white/10 backdrop-blur-xl rounded" />
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="space-y-3">
+          {/* Image placeholder */}
+          <Skeleton className="aspect-video rounded-lg bg-white/10 backdrop-blur-xl" />
+          
+          {/* Participants info */}
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          
+          {/* Last message */}
+          <Skeleton className="h-3 w-5/6 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+      </CardContent>
+      <CardFooter className="flex flex-col gap-2 pt-4 border-t border-white/20 mt-2">
+        {/* Created date */}
+        <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded mx-auto" />
+        
+        {/* Action buttons */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
+          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
 
 export function ChatroomManagement() {
   const chatroomService = useChatroomService();
@@ -417,9 +462,10 @@ export function ChatroomManagement() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {isLoading ? (
-            <div className="col-span-full backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
-              <div className="text-white/90 text-lg">Lade Chatrooms...</div>
-            </div>
+            // Show 6 skeleton chatroom cards
+            Array.from({ length: 6 }).map((_, index) => (
+              <ChatroomSkeleton key={index} />
+            ))
           ) : chatrooms.length === 0 ? (
             <div className="col-span-full backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
               <div className="text-white/90 text-lg">Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!</div>

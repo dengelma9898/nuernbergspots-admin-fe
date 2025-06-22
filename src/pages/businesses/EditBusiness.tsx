@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, Image as ImageIcon, Upload } from 'lucide-react';
 import {
   Select,
@@ -415,7 +416,7 @@ export const EditBusiness: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
+      <div className="min-h-screen relative overflow-hidden">
         {/* Rainbow Background Layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
@@ -428,8 +429,203 @@ export const EditBusiness: React.FC = () => {
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
 
-        <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
-          <div className="text-white text-xl">Lade Partner...</div>
+        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+          {/* Glass Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-10 w-40 bg-white/10 backdrop-blur-xl rounded-xl" />
+                <Skeleton className="h-8 w-48 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            {/* Linke Spalte Skeletons */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Basisinformationen Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-64 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <div key={index} className="space-y-2">
+                      <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      {index === 3 && <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Status & Highlight Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-5 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Skeleton className="h-5 w-9 bg-white/10 backdrop-blur-xl rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-3 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Kategorien Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: 6 }, (_, index) => (
+                        <Skeleton key={index} className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-full" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: 8 }, (_, index) => (
+                        <Skeleton key={index} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Rechte Spalte Skeletons */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Medien Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <div className="space-y-4">
+                    {/* Logo Skeleton */}
+                    <div>
+                      <Skeleton className="h-5 w-12 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="w-32 h-32 bg-white/10 backdrop-blur-xl rounded-lg" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-10 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                          <Skeleton className="h-3 w-40 bg-white/10 backdrop-blur-xl rounded" />
+                        </div>
+                      </div>
+                    </div>
+                    {/* Geschäftsbilder Skeleton */}
+                    <div>
+                      <Skeleton className="h-5 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {Array.from({ length: 5 }, (_, index) => (
+                          <Skeleton key={index} className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg" />
+                        ))}
+                      </div>
+                      <Skeleton className="h-3 w-48 bg-white/10 backdrop-blur-xl rounded mt-2" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Öffnungszeiten Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-64 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  {/* Zeitslots Skeletons */}
+                  {Array.from({ length: 2 }, (_, index) => (
+                    <div key={index} className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      </div>
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from({ length: 7 }, (_, dayIndex) => (
+                            <Skeleton key={dayIndex} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {/* Neuer Zeitraum Skeleton */}
+                  <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
+                    <Skeleton className="h-5 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    </div>
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from({ length: 7 }, (_, dayIndex) => (
+                          <Skeleton key={dayIndex} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                        ))}
+                      </div>
+                    </div>
+                    <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Nuernbergspots Review Card Skeleton */}
+              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
+                  <Skeleton className="h-6 w-48 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                  <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                <div className="p-4 sm:p-6 space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    </div>
+                    <div>
+                      <Skeleton className="h-4 w-28 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {Array.from({ length: 4 }, (_, index) => (
+                          <Skeleton key={index} className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons Skeleton */}
+              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
+                <Skeleton className="h-10 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-40 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

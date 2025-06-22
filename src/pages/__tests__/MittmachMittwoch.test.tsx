@@ -80,6 +80,12 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
   Plus: () => <div data-testid="plus-icon">Plus</div>,
@@ -181,10 +187,19 @@ describe('MittmachMittwoch Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
-    renderComponent();
+  it('displays loading state with skeleton animations', () => {
+    mockSpecialPollService.getSpecialPolls.mockImplementation(
+      () => new Promise(() => {}) // Never resolves
+    );
 
-    expect(screen.getByText('Lade Aktionen...')).toBeTruthy();
+    const { container } = renderComponent();
+
+    // Überprüfe, dass Skeleton-Elemente gerendert werden
+    const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBeGreaterThan(0);
+    
+    // Sollte mindestens 35+ Skeleton-Elemente haben (Header + 6 Cards mit je 5+ Elementen)
+    expect(skeletonElements.length).toBeGreaterThan(35);
   });
 
   it('navigates back to dashboard when back button is clicked', async () => {
@@ -379,12 +394,11 @@ describe('MittmachMittwoch Component', () => {
   it('shows loading state that completes', async () => {
     renderComponent();
 
-    // Should start with loading
-    expect(screen.getByText('Lade Aktionen...')).toBeTruthy();
-
     // Should complete loading and show polls
     await waitFor(() => {
-      expect(screen.queryByText('Lade Aktionen...')).toBeFalsy();
+      expect(screen.getByText('Community Cleanup')).toBeTruthy();
+      expect(screen.getByText('Food Drive')).toBeTruthy();
+      expect(screen.getByText('Old Event')).toBeTruthy();
     });
   });
 

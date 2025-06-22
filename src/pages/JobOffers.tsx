@@ -44,6 +44,7 @@ import {
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { JobCategory } from '@/models/job-category';
 import { getIconComponent } from '@/utils/iconUtils';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formatDate = (date: string) => {
   try {
@@ -52,6 +53,141 @@ const formatDate = (date: string) => {
     return 'Ungültiges Datum';
   }
 };
+
+function JobOfferSkeleton() {
+  return (
+    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full ring-1 ring-white/30">
+      {/* Company logo skeleton */}
+      <div className="relative h-48 w-full mb-4">
+        <Skeleton className="w-full h-full rounded-t-lg bg-white/10 backdrop-blur-xl" />
+        {/* Badge placeholders */}
+        <div className="absolute top-2 right-2">
+          <Skeleton className="h-6 w-12 rounded bg-white/10 backdrop-blur-xl" />
+        </div>
+        <div className="absolute top-2 left-2">
+          <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl" />
+        </div>
+      </div>
+      
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <div className="flex-1">
+            <CardTitle className="flex items-center gap-2">
+              <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+            </CardTitle>
+            <CardDescription className="mt-1">
+              <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+            </CardDescription>
+            {/* Category skeleton */}
+            <div className="flex items-center gap-2 mt-1">
+              <Skeleton className="h-4 w-4 rounded bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          </div>
+          <Skeleton className="h-6 w-20 rounded-xl bg-white/10 backdrop-blur-xl" />
+        </div>
+      </CardHeader>
+      
+      <CardContent className="flex-grow">
+        {/* Description */}
+        <div className="space-y-2 mb-4">
+          <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-4/5 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-3/5 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+        
+        {/* Details */}
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-36 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-28 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+          <div className="flex items-center">
+            <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+            <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+          </div>
+        </div>
+      </CardContent>
+      
+      <CardFooter className="flex justify-between items-center">
+        <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded" />
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-20 rounded-xl bg-white/10 backdrop-blur-xl" />
+          <Skeleton className="h-8 w-16 rounded-xl bg-white/10 backdrop-blur-xl" />
+        </div>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function JobOfferMobileSkeleton() {
+  return (
+    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl p-4 ring-1 ring-white/30">
+      <div className="flex flex-col gap-2">
+        {/* Highlight badge */}
+        <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl mb-2" />
+        
+        {/* Company logo */}
+        <Skeleton className="w-full h-40 rounded bg-white/10 backdrop-blur-xl mb-2" />
+        
+        <div className="flex items-center justify-between mb-1">
+          <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl" />
+        </div>
+        
+        {/* Category */}
+        <div className="flex items-center gap-2 mb-1">
+          <Skeleton className="h-4 w-4 rounded bg-white/10 backdrop-blur-xl" />
+          <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+        
+        {/* Date */}
+        <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded mb-1" />
+        
+        {/* Description */}
+        <div className="space-y-1 mb-2">
+          <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-2/3 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+        
+        {/* Details list */}
+        <div className="flex flex-col gap-1 mb-2">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="flex items-center">
+              <Skeleton className="h-4 w-4 mr-2 rounded bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          ))}
+        </div>
+        
+        {/* Created date */}
+        <Skeleton className="h-3 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
+        
+        {/* Action buttons */}
+        <div className="flex flex-col gap-2 mt-2">
+          <Skeleton className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-xl" />
+          <Skeleton className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-xl" />
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 export function JobOffers() {
   const [jobOffers, setJobOffers] = useState<JobOffer[]>([]);
@@ -110,10 +246,13 @@ export function JobOffers() {
   if (loading) {
     return (
       <div className="min-h-screen relative overflow-hidden">
+        {/* Rainbow Background Layers */}
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
           <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
           <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
         </div>
+
+        {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
           <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -121,9 +260,41 @@ export function JobOffers() {
           <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
         </div>
-        <div className="flex justify-center items-center h-64 relative z-10">
-          <div className="backdrop-blur-3xl bg-white/10 rounded-2xl p-6 border border-white/20 shadow-2xl text-white/90 text-lg">
-            Lade Stellenangebote...
+
+        {/* Main Content */}
+        <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden relative z-10">
+          {/* Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2">
+              <Skeleton className="h-10 w-44 rounded-xl bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-8 w-48 bg-white/10 backdrop-blur-xl rounded" />
+              <div className="w-full sm:w-auto sm:ml-auto">
+                <Skeleton className="h-10 w-56 rounded-xl bg-white/10 backdrop-blur-xl" />
+              </div>
+            </div>
+          </div>
+
+          {/* Filter Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+              <Skeleton className="h-10 flex-1 rounded-lg bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-lg bg-white/10 backdrop-blur-xl" />
+              <Skeleton className="h-10 w-full sm:w-[180px] rounded-lg bg-white/10 backdrop-blur-xl" />
+            </div>
+          </div>
+
+          {/* Mobile Card Skeletons */}
+          <div className="block md:hidden space-y-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <JobOfferMobileSkeleton key={index} />
+            ))}
+          </div>
+
+          {/* Desktop Grid Skeletons */}
+          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <JobOfferSkeleton key={index} />
+            ))}
           </div>
         </div>
       </div>

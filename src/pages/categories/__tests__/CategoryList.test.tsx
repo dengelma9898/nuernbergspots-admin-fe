@@ -215,14 +215,20 @@ describe('CategoryList Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', async () => {
+    it('sollte Loading-State mit detaillierten Skeleton-Elementen anzeigen', async () => {
       mockBusinessCategoryService.getCategories.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(mockCategories), 1000))
       );
 
-      renderWithRouter(<CategoryList />);
+      const { container } = renderWithRouter(<CategoryList />);
 
-      expect(screen.getAllByText('Lade Kategorien...')[0]).toBeInTheDocument();
+      // Prüfe dass viele Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(20); // Viele detaillierte Skeleton-Elemente
+
+      // Prüfe dass sowohl Mobile- als auch Desktop-Layouts Skeleton-Elemente haben
+      expect(container.querySelector('.space-y-4')).toBeInTheDocument(); // Mobile Layout
+      expect(container.querySelector('.hidden.md\\:table')).toBeInTheDocument(); // Desktop Table
     });
 
     it('sollte Desktop-Tabelle rendern', async () => {

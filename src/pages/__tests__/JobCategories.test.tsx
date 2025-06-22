@@ -136,6 +136,13 @@ jest.mock('@/components/ui/icon-picker', () => ({
   ),
 }));
 
+// Mock skeleton component
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock color utils
 jest.mock('@/utils/colorUtils', () => ({
   convertFFToHex: jest.fn((color) => color || '#000000'),
@@ -200,10 +207,13 @@ describe('JobCategories Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
-    renderComponent();
+  it('displays skeleton loading state initially', () => {
+    mockJobCategoryService.getCategories.mockImplementation(() => new Promise(() => {}));
+    const { container } = renderComponent();
 
-    expect(screen.getAllByText('Lade Kategorien...').length).toBeGreaterThan(0);
+    // Sollte sowohl mobile als auch desktop Skeleton-Elemente anzeigen
+    const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+    expect(skeletonElements.length).toBeGreaterThan(25); // Mobile Cards + Table Skeletons
   });
 
   it('loads categories on mount', async () => {

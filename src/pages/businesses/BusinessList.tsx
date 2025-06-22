@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -186,6 +187,67 @@ export const BusinessList: React.FC = () => {
       .join(', ');
   };
 
+  const BusinessCardSkeleton: React.FC = () => (
+    <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+      {/* Image Skeleton */}
+      <div className="relative h-48 w-full bg-white/10 backdrop-blur-xl">
+        <Skeleton className="w-full h-full bg-white/10 backdrop-blur-xl rounded-none" />
+        {/* Image Counter Badge Skeleton */}
+        <div className="absolute top-3 right-3">
+          <Skeleton className="h-6 w-12 bg-white/10 backdrop-blur-xl rounded-xl" />
+        </div>
+        {/* Promoted Badge Skeleton */}
+        <div className="absolute top-3 left-3">
+          <Skeleton className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-xl" />
+        </div>
+      </div>
+      
+      <div className="p-4 sm:p-6">
+        {/* Header Row Skeleton */}
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-start gap-3 flex-1">
+            {/* Logo Skeleton */}
+            <Skeleton className="w-12 h-12 bg-white/10 backdrop-blur-xl rounded-lg" />
+            <div className="flex-1 min-w-0">
+              {/* Name Skeleton */}
+              <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded mb-2" />
+              {/* Categories Skeleton */}
+              <Skeleton className="h-4 w-1/2 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          </div>
+          {/* Status Badge Skeleton */}
+          <Skeleton className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-xl" />
+        </div>
+
+        {/* Description Skeleton */}
+        <div className="mb-4 space-y-2">
+          <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-5/6 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-4 w-2/3 bg-white/10 backdrop-blur-xl rounded" />
+        </div>
+        
+        {/* Contact Info Skeletons */}
+        <div className="space-y-2 mb-4">
+          {Array.from({ length: 5 }, (_, index) => (
+            <div key={index} className="flex items-center">
+              <Skeleton className="h-4 w-4 bg-white/10 backdrop-blur-xl rounded mr-2" />
+              <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Skeleton */}
+        <div className="flex justify-between items-center pt-4 border-t border-white/10">
+          <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+          <div className="flex gap-2">
+            <Skeleton className="h-8 w-20 bg-white/10 backdrop-blur-xl rounded-xl" />
+            <Skeleton className="h-8 w-16 bg-white/10 backdrop-blur-xl rounded-xl" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const BusinessCard: React.FC<{ business: Business }> = ({ business }) => {
     const status = getStatusBadge(business.status);
     return (
@@ -336,9 +398,49 @@ export const BusinessList: React.FC = () => {
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-        <div className="relative z-10 flex justify-center items-center h-screen">
-          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
-            <div className="text-white text-lg font-medium">Lade Geschäfte...</div>
+        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
+          {/* Glass Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 bg-white/10 backdrop-blur-xl rounded-full" />
+                <Skeleton className="h-8 w-32 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+              <Skeleton className="h-9 w-full sm:w-40 bg-white/10 backdrop-blur-xl rounded-xl" />
+            </div>
+          </div>
+
+          {/* Glass Filter Section Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded-xl" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }, (_, index) => (
+                  <div key={index} className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-5 w-9 bg-white/10 backdrop-blur-xl rounded-full" />
+                      <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          </div>
+
+          {/* Business Cards Skeleton */}
+          <div className="space-y-8">
+            <div className="backdrop-blur-2xl bg-white/5 rounded-3xl border border-white/10 shadow-xl ring-1 ring-white/20 p-4 sm:p-6">
+              <div className="flex items-center mb-6">
+                <Skeleton className="h-6 w-6 bg-white/10 backdrop-blur-xl rounded mr-3" />
+                <Skeleton className="h-6 w-48 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }, (_, index) => (
+                  <BusinessCardSkeleton key={`skeleton-${index}`} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

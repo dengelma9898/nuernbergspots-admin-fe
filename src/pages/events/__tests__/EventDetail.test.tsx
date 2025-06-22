@@ -147,6 +147,12 @@ jest.mock('@/components/ui/LocationSearch', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock Lucide icons
 jest.mock('lucide-react', () => ({
   MapPin: () => <span data-testid="map-pin-icon">MapPin</span>,
@@ -260,12 +266,17 @@ describe('EventDetail Component', () => {
       expect(screen.getAllByTestId('card')).toHaveLength(2); // Event Info und Bilder Cards
     });
 
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit Skeleton-Animationen anzeigen', () => {
       mockEventService.getEvent.mockImplementation(() => new Promise(() => {}));
       
-      renderWithRouter(<EventDetail />);
+      const { container } = renderWithRouter(<EventDetail />);
       
-      expect(screen.getByText('Lade Event...')).toBeInTheDocument();
+      // Überprüfe, dass Skeleton-Elemente gerendert werden
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+      
+      // Sollte mindestens 40+ Skeleton-Elemente haben (Header + 2 Cards mit Details)
+      expect(skeletonElements.length).toBeGreaterThan(40);
     });
 
     it('sollte Event-Informationen anzeigen', async () => {

@@ -93,14 +93,24 @@ describe('BusinessUserList', () => {
   });
 
   describe('Loading State', () => {
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit detaillierten Skeleton-Elementen anzeigen', () => {
       mockService.getBusinessUsers.mockImplementation(() => new Promise(() => {}));
       
-      renderWithRouter(<BusinessUserList />);
+      const { container } = renderWithRouter(<BusinessUserList />);
       
       expect(screen.getByText('Business-User verwalten')).toBeInTheDocument();
-      const skeletons = document.querySelectorAll('[data-slot="skeleton"]');
-      expect(skeletons).toHaveLength(10); // 5 mobile + 5 desktop skeletons
+      
+      // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(20); // Viele detaillierte Skeleton-Elemente
+      
+      // Prüfe dass Mobile Cards Skeleton-Struktur vorhanden ist
+      const mobileSkeletons = container.querySelector('.block.md\\:hidden');
+      expect(mobileSkeletons).toBeInTheDocument();
+      
+      // Prüfe dass Desktop Table Skeleton-Struktur vorhanden ist  
+      const desktopSkeletons = container.querySelector('.hidden.md\\:block');
+      expect(desktopSkeletons).toBeInTheDocument();
     });
 
     it('sollte Zurück-Button im Loading-State rendern', () => {

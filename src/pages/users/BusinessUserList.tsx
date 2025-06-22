@@ -65,17 +65,68 @@ export function BusinessUserList() {
             </div>
           </div>
 
-          {/* Loading Skeletons */}
-          <div className="space-y-4 block md:hidden">
+          {/* Mobile Loading Skeletons */}
+          <div className="block md:hidden space-y-4 max-w-4xl mx-auto">
             {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-20 w-full backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20" />
+              <div key={i} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 w-full">
+                {/* E-Mail Skeleton */}
+                <div className="mb-3">
+                  <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                </div>
+                {/* Status Badge Skeleton */}
+                <div className="flex items-center mb-4">
+                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded-xl" />
+                </div>
+                {/* Button Skeleton */}
+                <div className="flex justify-end">
+                  <Skeleton className="h-8 w-32 bg-white/10 backdrop-blur-xl rounded-xl" />
+                </div>
+              </div>
             ))}
           </div>
-          <div className="hidden md:block">
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-20 w-full backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20" />
-              ))}
+
+          {/* Desktop Table Loading Skeleton */}
+          <div className="hidden md:block max-w-6xl mx-auto">
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+              {/* Table Header Skeleton */}
+              <div className="p-6 border-b border-white/10">
+                <Skeleton className="h-6 w-48 bg-white/10 backdrop-blur-xl rounded" />
+              </div>
+              <div className="overflow-x-auto">
+                <div className="min-w-full">
+                  {/* Table Header Row Skeleton */}
+                  <div className="border-b border-white/10 p-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex space-x-8">
+                        <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Table Body Rows Skeleton */}
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="border-b border-white/5 p-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex space-x-8 items-center">
+                          {/* E-Mail Column */}
+                          <div className="flex-1 min-w-0">
+                            <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                          </div>
+                          {/* Status Column */}
+                          <div className="flex-shrink-0">
+                            <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded-xl" />
+                          </div>
+                        </div>
+                        {/* Actions Column */}
+                        <div className="flex-shrink-0">
+                          <Skeleton className="h-8 w-28 bg-white/10 backdrop-blur-xl rounded-xl" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

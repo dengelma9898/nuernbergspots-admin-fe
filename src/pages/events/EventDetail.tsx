@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
   MapPin, 
   Calendar, 
@@ -367,9 +368,167 @@ export const EventDetail: React.FC = () => {
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-        <div className="relative z-10 flex justify-center items-center h-screen">
-          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 p-8 shadow-2xl">
-            <div className="text-white text-xl font-semibold">Lade Event...</div>
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Glass Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 mb-8">
+            <div className="flex items-center gap-4">
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-48 rounded-xl" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-40 rounded" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Left Card - Event Information Skeleton */}
+            <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl ring-1 ring-white/30">
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-48 rounded" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-20 rounded-xl" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-24 rounded-xl" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-28 rounded-xl" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Title */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-12 rounded" />
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-3/4 rounded" />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                  <div className="space-y-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full rounded" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-5/6 rounded" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-3/4 rounded" />
+                  </div>
+                </div>
+
+                {/* Time Slots */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                  <div className="space-y-2">
+                    {[...Array(3)].map((_, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-4 rounded" />
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
+                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-4 rounded" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-64 rounded" />
+                  </div>
+                </div>
+
+                {/* Price */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-12 rounded" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-4 rounded" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                  </div>
+                </div>
+
+                {/* Switches */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-10 rounded-full" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-10 rounded-full" />
+                    <div className="space-y-1">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-40 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-56 rounded" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                  <div className="flex items-center gap-2">
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-4 rounded" />
+                    <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-36 rounded" />
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-40 rounded ml-2" />
+                    </div>
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded ml-2" />
+                    </div>
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-48 rounded ml-2" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Social Media */}
+                <div className="space-y-4">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded ml-2" />
+                    </div>
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-36 rounded ml-2" />
+                    </div>
+                    <div className="flex items-center">
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-28 rounded ml-2" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Right Card - Images Skeleton */}
+            <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl ring-1 ring-white/30">
+              <CardHeader>
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-16 rounded" />
+              </CardHeader>
+              <CardContent>
+                {/* Title Image */}
+                <div className="mb-6">
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded mb-2" />
+                  <Skeleton className="bg-white/10 backdrop-blur-xl h-48 w-48 rounded-lg mx-auto" />
+                </div>
+
+                {/* Additional Images */}
+                <div className="grid grid-cols-2 gap-4">
+                  {[...Array(4)].map((_, index) => (
+                    <Skeleton key={index} className="bg-white/10 backdrop-blur-xl h-48 w-full rounded-lg" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Action Buttons Skeleton */}
+          <div className="flex justify-end gap-4 mt-6">
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-20 rounded-xl" />
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-24 rounded-xl" />
           </div>
         </div>
       </div>

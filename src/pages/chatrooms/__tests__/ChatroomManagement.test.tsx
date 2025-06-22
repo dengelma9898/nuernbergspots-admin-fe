@@ -29,6 +29,13 @@ jest.mock('@/services/chatroomService', () => ({
   useChatroomService: () => mockChatroomService,
 }));
 
+// Mock skeleton component
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock toast
 jest.mock('sonner', () => ({
   toast: {
@@ -111,12 +118,14 @@ describe('ChatroomManagement', () => {
       expect(screen.getByRole('button', { name: /neuer chatroom/i })).toBeInTheDocument();
     });
 
-    it('sollte Lademodus anzeigen', () => {
+    it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
       mockChatroomService.getChatrooms.mockImplementation(() => new Promise(() => {}));
       
-      renderWithRouter(<ChatroomManagement />);
+      const { container } = renderWithRouter(<ChatroomManagement />);
       
-      expect(screen.getByText('Lade Chatrooms...')).toBeInTheDocument();
+      // Sollte 6 Skeleton-Chatroom-Cards anzeigen
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(30); // Jede Skeleton-Card hat mehrere Skeleton-Elemente
     });
 
     it('sollte Chatrooms laden und anzeigen', async () => {

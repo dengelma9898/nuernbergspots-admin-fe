@@ -115,24 +115,39 @@ describe('BusinessUserReview', () => {
   });
 
   describe('Loading State', () => {
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit detaillierten Skeleton-Elementen anzeigen', () => {
       mockService.getBusinessUsersInReview.mockImplementation(() => new Promise(() => {}));
       
-      renderWithRouter(<BusinessUserReview />);
+      const { container } = renderWithRouter(<BusinessUserReview />);
       
-      expect(screen.getByText('Lade Benutzer...')).toBeInTheDocument();
+      // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(15); // Viele detaillierte Skeleton-Elemente
+
+      // Prüfe dass Header Skeleton-Struktur vorhanden ist
+      const headerSkeletons = container.querySelector('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      expect(headerSkeletons).toBeInTheDocument();
+
+      // Prüfe dass User Card Skeletons vorhanden sind (3 Karten)
+      const userCardSkeletons = container.querySelectorAll('.grid.grid-cols-1.gap-6 > div');
+      expect(userCardSkeletons.length).toBe(3); // 3 User Card Skeletons
     });
 
     it('sollte nach dem Laden Inhalt anzeigen', async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
 
-      renderWithRouter(<BusinessUserReview />);
+      const { container } = renderWithRouter(<BusinessUserReview />);
 
       await waitFor(() => {
         expect(screen.getByText('Geschäftsinhaber prüfen')).toBeInTheDocument();
       });
 
-      expect(screen.queryByText('Lade Benutzer...')).not.toBeInTheDocument();
+      // Prüfe dass Skeleton-Elemente nicht mehr vorhanden sind
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBe(0);
+      
+      // Prüfe dass echte Content-Elemente angezeigt werden
+      expect(screen.getByText('1 Benutzer zur Überprüfung gefunden')).toBeInTheDocument();
     });
   });
 

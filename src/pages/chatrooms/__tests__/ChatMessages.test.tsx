@@ -45,6 +45,13 @@ jest.mock('@/services/userService', () => ({
   useUserService: () => mockUserService,
 }));
 
+// Mock skeleton component
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock auth context
 const mockGetUserId = jest.fn();
 jest.mock('@/contexts/AuthContext', () => ({
@@ -145,6 +152,16 @@ describe('ChatMessages', () => {
       await waitFor(() => {
         expect(mockChatMessageService.getMessages).toHaveBeenCalledWith('chatroom-1');
       });
+    });
+
+    it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
+      mockChatMessageService.getMessages.mockImplementation(() => new Promise(() => {}));
+      
+      const { container } = renderWithRouter(<ChatMessages />);
+      
+      // Sollte 8 Skeleton-Message-Bubbles anzeigen
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(25); // Jede Skeleton-Message hat mehrere Skeleton-Elemente
     });
 
     it('sollte Fehler anzeigen wenn chatroomId fehlt', async () => {

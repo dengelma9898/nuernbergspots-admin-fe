@@ -270,15 +270,21 @@ describe('EditBusiness Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit Skeleton-Elementen anzeigen', () => {
       // Mock mit einem längeren delay aber trotzdem auflösend
       mockBusinessService.getBusiness.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(mockBusiness), 2000))
       );
 
-      renderWithRouter(<EditBusiness />);
+      const { container } = renderWithRouter(<EditBusiness />);
 
-      expect(screen.getByText('Lade Partner...')).toBeInTheDocument();
+      // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(0);
+
+      // Prüfe dass das komplexe Layout mit Skeleton-Sektionen angezeigt wird
+      const skeletonSections = container.querySelectorAll('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      expect(skeletonSections.length).toBeGreaterThanOrEqual(5); // Header, Basisinfo, Status, Kategorien, Medien, etc.
     });
 
     it('sollte alle Haupt-Sektionen rendern', async () => {

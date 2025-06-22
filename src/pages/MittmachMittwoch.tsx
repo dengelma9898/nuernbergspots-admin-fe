@@ -4,6 +4,7 @@ import { SpecialPoll, SpecialPollStatus } from '@/models/specialPoll';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -19,6 +20,34 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const MittmachMittwochSkeleton: React.FC = () => {
+  return (
+    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl ring-1 ring-white/30">
+      <CardHeader className="p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          {/* Title and Badge */}
+          <div className="flex-1">
+            <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-5/6 md:w-3/4 rounded mb-2" />
+          </div>
+          <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-20 rounded-full" />
+        </div>
+        {/* Created Date */}
+        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded mt-2" />
+      </CardHeader>
+      <CardContent className="p-4 md:p-6 pt-0">
+        {/* Response Count */}
+        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded mb-3" />
+        
+        {/* Last Response Preview */}
+        <div className="space-y-1">
+          <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-full rounded" />
+          <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-4/5 rounded" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function MittmachMittwoch() {
   const specialPollService = useSpecialPollService();
@@ -182,11 +211,18 @@ export default function MittmachMittwoch() {
       {/* Content Grid - Improved mobile-first responsive design */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {isLoading ? (
-          <div className="col-span-full">
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
-              <div className="text-white/80 text-lg">Lade Aktionen...</div>
+          <>
+            {/* Section Header Skeleton */}
+            <div className="col-span-full mt-6 mb-2">
+              <div className="backdrop-blur-2xl bg-white/10 rounded-2xl p-4 border border-white/20">
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-48 rounded" />
+              </div>
             </div>
-          </div>
+            {/* Action Cards Skeletons */}
+            {[...Array(6)].map((_, index) => (
+              <MittmachMittwochSkeleton key={index} />
+            ))}
+          </>
         ) : polls.length === 0 ? (
           <div className="col-span-full">
             <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">

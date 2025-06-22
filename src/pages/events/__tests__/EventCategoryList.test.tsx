@@ -107,6 +107,12 @@ jest.mock('@/components/ui/icon-picker', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: ({ className, ...props }: any) => (
+    <div data-slot="skeleton" className={className} {...props} />
+  ),
+}));
+
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
   Plus: () => <div data-testid="plus-icon">Plus</div>,
@@ -211,14 +217,19 @@ describe('EventCategoryList Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit Skeleton-Animationen anzeigen', () => {
       mockEventCategoryService.getCategories.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
 
-      renderWithRouter(<EventCategoryList />);
+      const { container } = renderWithRouter(<EventCategoryList />);
 
-      expect(screen.getAllByText('Lade Kategorien...')).toHaveLength(2);
+      // Überprüfe, dass Skeleton-Elemente gerendert werden
+      const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletonElements.length).toBeGreaterThan(0);
+      
+      // Sollte mindestens 25+ Skeleton-Elemente haben (Mobile Cards + Desktop Table)
+      expect(skeletonElements.length).toBeGreaterThan(25);
     });
   });
 

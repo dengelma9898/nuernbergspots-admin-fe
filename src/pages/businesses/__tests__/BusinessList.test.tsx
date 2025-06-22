@@ -238,15 +238,21 @@ describe('BusinessList Component', () => {
       });
     });
 
-    it('sollte Loading-State anzeigen', () => {
+    it('sollte Loading-State mit Skeleton-Elementen anzeigen', () => {
       // Mock mit einem längeren delay aber trotzdem auflösend
       mockBusinessService.getBusinesses.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve(mockBusinesses), 2000))
       );
 
-      renderWithRouter(<BusinessList />);
+      const { container } = renderWithRouter(<BusinessList />);
 
-      expect(screen.getByText('Lade Geschäfte...')).toBeInTheDocument();
+      // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
+      const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
+      expect(skeletons.length).toBeGreaterThan(0);
+
+      // Prüfe dass mehrere Skeleton-Karten mit dem richtigen Glassmorphism-Styling angezeigt werden
+      const skeletonSections = container.querySelectorAll('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      expect(skeletonSections.length).toBeGreaterThanOrEqual(3); // Header, Filter, Cards sections
     });
 
     it('sollte alle Header-Buttons rendern', async () => {

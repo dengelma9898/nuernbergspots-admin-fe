@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   MapPin, 
   Image as ImageIcon,
@@ -251,9 +252,82 @@ export const EventList: React.FC = () => {
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
 
-        <div className="relative z-10 flex justify-center items-center h-screen">
-          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 p-8 shadow-2xl">
-            <div className="text-white text-xl font-semibold">Lade Events...</div>
+        <div className="relative z-10 container mx-auto py-6 px-2 max-w-full overflow-x-hidden">
+          {/* Glass Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 mb-8">
+            {/* Header row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-48 rounded-xl" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-32 rounded" />
+              <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-32 rounded-xl" />
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-32 rounded-xl" />
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-40 rounded-xl" />
+              </div>
+            </div>
+
+            {/* Filter Bar */}
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 flex-1 rounded-xl" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-44 rounded-xl" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-44 rounded-xl" />
+              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-full sm:w-44 rounded-xl" />
+            </div>
+          </div>
+
+          {/* Event Cards Grid Skeleton */}
+          <div className="space-y-8">
+            {[...Array(3)].map((_, sectionIndex) => (
+              <div key={sectionIndex}>
+                <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-48 mb-6 rounded" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, cardIndex) => (
+                    <div key={cardIndex} className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 flex flex-col">
+                      {/* Image Skeleton */}
+                      <Skeleton className="bg-white/10 backdrop-blur-xl h-48 w-full rounded-t-2xl" />
+                      
+                      {/* Card Header */}
+                      <div className="p-6">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-wrap items-center gap-2 w-full mb-2">
+                            <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-40 rounded" />
+                            <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-20 rounded-xl" />
+                            <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-16 rounded-xl ml-auto" />
+                          </div>
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
+                        </div>
+                      </div>
+                      
+                      {/* Card Content */}
+                      <div className="px-6 pb-6 flex-grow">
+                        <div className="space-y-3 mb-4">
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full rounded" />
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-3/4 rounded" />
+                        </div>
+                        <div className="space-y-2">
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full rounded" />
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-40 rounded" />
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
+                        </div>
+                      </div>
+                      
+                      {/* Card Footer */}
+                      <div className="px-6 pb-6">
+                        <div className="flex justify-between items-center">
+                          <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-24 rounded" />
+                          <div className="flex gap-2">
+                            <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-20 rounded-xl" />
+                            <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-16 rounded-xl" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Mail, 
   Building2, 
@@ -95,10 +96,96 @@ export const BusinessUserReview: React.FC = () => {
         <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-        
-        <div className="relative z-10 flex justify-center items-center h-screen">
-          <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-8">
-            <div className="text-white/90 text-lg">Lade Benutzer...</div>
+
+        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8 overflow-x-hidden">
+          {/* Glass Header Skeleton */}
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-10 bg-white/10 backdrop-blur-xl rounded-full" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </div>
+              <Skeleton className="h-8 w-64 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+          </div>
+
+          <div className="space-y-6 max-w-6xl mx-auto">
+            {/* Stats Card Skeleton */}
+            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
+              <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+            </div>
+
+            {/* User Cards Skeletons */}
+            <div className="grid grid-cols-1 gap-6">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
+                  <div className="p-4 sm:p-6">
+                    {/* Header Skeleton */}
+                    <div className="border-b border-white/10 pb-4 mb-4">
+                      <div className="flex justify-between items-start flex-wrap gap-2">
+                        <div className="space-y-1 min-w-0">
+                          <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                          <Skeleton className="h-3 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                        </div>
+                        <Skeleton className="h-6 w-40 bg-white/10 backdrop-blur-xl rounded-xl" />
+                      </div>
+                    </div>
+
+                    {/* Content Skeleton */}
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2 min-w-0">
+                          {/* E-Mail Skeleton */}
+                          <div className="flex items-center text-sm">
+                            <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg mr-3" />
+                            <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                          </div>
+                          {/* Business IDs Skeleton */}
+                          <div className="flex items-center text-sm">
+                            <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg mr-3" />
+                            <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                          </div>
+                        </div>
+                        <div className="space-y-2 min-w-0 text-right">
+                          {/* Status Skeleton */}
+                          <div className="flex items-center justify-end">
+                            <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                            <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg ml-3" />
+                          </div>
+                          {/* Date Skeleton */}
+                          <div className="flex items-center justify-end">
+                            <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Business Names Section Skeleton */}
+                      <div className="border-t border-white/10 pt-4">
+                        <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded mb-3" />
+                        <div className="space-y-2">
+                          {[...Array(2)].map((_, j) => (
+                            <div key={j} className="flex items-center backdrop-blur-2xl bg-white/10 border border-white/20 p-3 rounded-xl">
+                              <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded-lg mr-3" />
+                              <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded" />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer Actions Skeleton */}
+                    <div className="pt-6 flex flex-col sm:flex-row justify-end gap-2">
+                      <div className="w-full sm:w-auto">
+                        <Skeleton className="h-8 w-full sm:w-24 bg-white/10 backdrop-blur-xl rounded-xl" />
+                      </div>
+                      <div className="w-full sm:w-auto">
+                        <Skeleton className="h-8 w-full sm:w-28 bg-white/10 backdrop-blur-xl rounded-xl" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
