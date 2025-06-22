@@ -20,7 +20,13 @@ export default tseslint.config(
       '**/*.log',
       'vite-env.d.ts',
       'setupTests.ts',
-      'tailwind.config.ts'
+      'tailwind.config.ts',
+      // Test files
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/__tests__/**'
     ] 
   },
   {
