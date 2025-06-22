@@ -19,7 +19,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('../../contexts/AuthContext', () => ({
@@ -92,7 +92,9 @@ describe('Contact Service', () => {
     it('should throw error when user is not authenticated', async () => {
       mockAuth.getUserId.mockReturnValue(null);
 
-      await expect(contactService.getContactRequestById('1')).rejects.toThrow('Kein Benutzer angemeldet');
+      await expect(contactService.getContactRequestById('1')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
     });
 
     it('should handle API errors', async () => {
@@ -107,25 +109,31 @@ describe('Contact Service', () => {
       const mockResponse = { id: '1', subject: 'Test', status: 'responded' };
       mockApi.patch.mockResolvedValue({ data: mockResponse });
 
-      const result = await contactService.respondToContactRequest('1', 'Thank you for your message');
-
-      expect(mockApi.patch).toHaveBeenCalledWith(
-        '/contact/user/user123/request/1',
-        { message: 'Thank you for your message' }
+      const result = await contactService.respondToContactRequest(
+        '1',
+        'Thank you for your message'
       );
+
+      expect(mockApi.patch).toHaveBeenCalledWith('/contact/user/user123/request/1', {
+        message: 'Thank you for your message',
+      });
       expect(result).toEqual(mockResponse);
     });
 
     it('should throw error when user is not authenticated', async () => {
       mockAuth.getUserId.mockReturnValue(null);
 
-      await expect(contactService.respondToContactRequest('1', 'Response')).rejects.toThrow('Kein Benutzer angemeldet');
+      await expect(contactService.respondToContactRequest('1', 'Response')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
     });
 
     it('should handle API errors', async () => {
       mockApi.patch.mockRejectedValue(new Error('Failed to respond'));
 
-      await expect(contactService.respondToContactRequest('1', 'Response')).rejects.toThrow('Failed to respond');
+      await expect(contactService.respondToContactRequest('1', 'Response')).rejects.toThrow(
+        'Failed to respond'
+      );
     });
   });
 
@@ -133,15 +141,23 @@ describe('Contact Service', () => {
     it('should handle undefined user ID', async () => {
       mockAuth.getUserId.mockReturnValue(undefined);
 
-      await expect(contactService.getContactRequestById('1')).rejects.toThrow('Kein Benutzer angemeldet');
-      await expect(contactService.respondToContactRequest('1', 'test')).rejects.toThrow('Kein Benutzer angemeldet');
+      await expect(contactService.getContactRequestById('1')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
+      await expect(contactService.respondToContactRequest('1', 'test')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
     });
 
     it('should handle empty string user ID', async () => {
       mockAuth.getUserId.mockReturnValue('');
 
-      await expect(contactService.getContactRequestById('1')).rejects.toThrow('Kein Benutzer angemeldet');
-      await expect(contactService.respondToContactRequest('1', 'test')).rejects.toThrow('Kein Benutzer angemeldet');
+      await expect(contactService.getContactRequestById('1')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
+      await expect(contactService.respondToContactRequest('1', 'test')).rejects.toThrow(
+        'Kein Benutzer angemeldet'
+      );
     });
   });
-}); 
+});

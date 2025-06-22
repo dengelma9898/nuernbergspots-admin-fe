@@ -1,9 +1,11 @@
 # Nürnbergspots Admin Frontend
 
 ## Übersicht
+
 Das Nürnbergspots Admin Frontend ist eine React-basierte Webanwendung zur Verwaltung der Nürnbergspots-Plattform. Die Anwendung ermöglicht es Administratoren, Geschäfte, Veranstaltungen, Benutzer und weitere Inhalte zu verwalten.
 
 ## Technologie-Stack
+
 - **Frontend Framework**: React 18 mit TypeScript
 - **Build Tool**: Vite
 - **UI Framework**: Tailwind CSS mit shadcn/ui Komponenten
@@ -37,6 +39,7 @@ src/
 ## Hauptfunktionalitäten
 
 ### 1. Dashboard (`src/pages/Dashboard.tsx`)
+
 - **Zweck**: Zentrale Übersichtsseite für Administratoren
 - **Features**:
   - Schnelle Navigation zu allen Bereichen
@@ -46,6 +49,7 @@ src/
   - Offene Kontaktanfragen
 
 ### 2. Geschäftsverwaltung (`src/pages/businesses/`)
+
 - **BusinessList.tsx**: Übersicht aller Geschäfte
 - **CreateBusiness.tsx**: Neue Geschäfte erstellen
 - **EditBusiness.tsx**: Bestehende Geschäfte bearbeiten
@@ -56,6 +60,7 @@ src/
   - Öffnungszeiten-Management
 
 ### 3. Veranstaltungsverwaltung (`src/pages/events/`)
+
 - **EventList.tsx**: Alle Veranstaltungen
 - **CreateEvent.tsx**: Neue Veranstaltungen erstellen
 - **EventDetail.tsx**: Detailansicht von Veranstaltungen
@@ -67,11 +72,13 @@ src/
   - Scraper-Integration
 
 ### 4. Benutzerverwaltung (`src/pages/users/`)
+
 - **BusinessUserList.tsx**: Übersicht aller Business-Benutzer
 - **BusinessUserReview.tsx**: Benutzer-Überprüfung
 - **EditBusinessUser.tsx**: Benutzer bearbeiten
 
 ### 5. Analytics (`src/pages/Analytics.tsx`)
+
 - **Zweck**: Detaillierte Datenanalyse und Berichte
 - **Features**:
   - Scan-Statistiken
@@ -81,30 +88,38 @@ src/
 ## Services Layer
 
 ### Business Service (`src/services/businessService.ts`)
+
 Hauptverantwortlich für alle geschäftsbezogenen API-Operationen:
+
 - Geschäfte laden, erstellen, aktualisieren, löschen
 - Kategorie-Management
 - Bild- und Logo-Upload
 - Genehmigungsprozesse
 
 ### User Service (`src/services/userService.ts`)
+
 Benutzer-Management Operationen:
+
 - Benutzer-CRUD
 - Rollenverwaltung
 - Überprüfungsprozesse
 
 ### Event Service (`src/services/eventService.ts`)
+
 Veranstaltungs-Management:
+
 - Event-CRUD
 - Kategorie-Zuordnung
 - Scraper-Integration
 
 ## Authentifizierung
+
 - **Provider**: Firebase Authentication
 - **Context**: `src/contexts/AuthContext.tsx`
 - **Route Protection**: `src/components/PrivateRoute.tsx`
 
 ## UI/UX Konzept
+
 - **Design System**: shadcn/ui mit Tailwind CSS
 - **Responsive Design**: Mobile-first Ansatz
 - **Accessibility**: WCAG 2.1 konform
@@ -113,35 +128,41 @@ Veranstaltungs-Management:
 ## Entwicklungsrichtlinien
 
 ### Code Standards
+
 - TypeScript strict mode
 - ESLint Konfiguration
 - Prettier Code Formatting
 - Funktionale Komponenten mit Hooks
 
 ### Naming Conventions
+
 - Komponenten: PascalCase
 - Hooks: use + PascalCase
 - Services: camelCase + Service suffix
 - Dateien: kebab-case oder PascalCase für Komponenten
 
 ### Testing Strategy
+
 - Unit Tests für Services
 - Component Tests für UI-Komponenten
 - Integration Tests für kritische User Flows
 - Minimum 80% Code Coverage
 
 ## Deployment
+
 - **Development**: Firebase Hosting (dev environment)
 - **Production**: Firebase Hosting (prod environment)
 - **CI/CD**: GitHub Actions
 
 ## API Integration
+
 - **Base URL**: Konfigurierbar über Environment Variables
 - **Authentication**: Token-basiert
 - **Error Handling**: Zentrale Fehlerbehandlung
 - **Response Wrapping**: Konsistente API Response Struktur
 
 ## Umgebungsvariablen
+
 ```
 VITE_API_BASE_URL=
 VITE_FIREBASE_API_KEY=
@@ -166,8 +187,9 @@ npm run build
 ```
 
 ## Wichtige Packages
+
 - `@tanstack/react-query`: Server State Management
 - `react-hook-form`: Formular-Management
 - `zod`: Schema Validation
 - `sonner`: Toast Notifications
-- `lucide-react`: Icon Library 
+- `lucide-react`: Icon Library

@@ -17,21 +17,25 @@ import {
 
 // Mock für Dialog-Komponenten
 jest.mock('../dialog', () => ({
-  Dialog: ({ children, open, ...props }: any) => 
-    open ? <div role="dialog" {...props}>{children}</div> : null,
-  DialogContent: ({ children, ...props }: any) => 
-    <div {...props}>{children}</div>,
-  DialogHeader: ({ children, ...props }: any) => 
-    <div {...props}>{children}</div>,
-  DialogTitle: ({ children, ...props }: any) => 
-    <div {...props}>{children}</div>,
-  DialogDescription: ({ children, ...props }: any) => 
-    <div {...props}>{children}</div>,
+  Dialog: ({ children, open, ...props }: any) =>
+    open ? (
+      <div role="dialog" {...props}>
+        {children}
+      </div>
+    ) : null,
+  DialogContent: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  DialogHeader: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  DialogTitle: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+  DialogDescription: ({ children, ...props }: any) => <div {...props}>{children}</div>,
 }));
 
 // Mock für lucide-react Icons
 jest.mock('lucide-react', () => ({
-  SearchIcon: ({ ...props }) => <svg data-testid="search-icon" {...props}>🔍</svg>,
+  SearchIcon: ({ ...props }) => (
+    <svg data-testid="search-icon" {...props}>
+      🔍
+    </svg>
+  ),
 }));
 
 // Mock für scrollIntoView
@@ -89,11 +93,11 @@ describe('Command Components', () => {
           <div data-testid="test-content">Test content</div>
         </Command>
       );
-      
+
       const command = screen.getByTestId('command');
       expect(command).toHaveAttribute('data-slot', 'command');
       expect(command).toBeInTheDocument();
-      
+
       const testContent = screen.getByTestId('test-content');
       expect(testContent).toBeInTheDocument();
       expect(testContent).toHaveTextContent('Test content');
@@ -101,7 +105,7 @@ describe('Command Components', () => {
 
     it('sollte Standard-Styles haben', () => {
       render(<Command data-testid="command" />);
-      
+
       const command = screen.getByTestId('command');
       expect(command).toHaveClass(
         'bg-popover',
@@ -117,7 +121,7 @@ describe('Command Components', () => {
 
     it('sollte custom className akzeptieren', () => {
       render(<Command data-testid="command" className="custom-command" />);
-      
+
       const command = screen.getByTestId('command');
       expect(command).toHaveClass('custom-command');
     });
@@ -130,7 +134,7 @@ describe('Command Components', () => {
           <CommandInput data-testid="input" placeholder="Search..." />
         </Command>
       );
-      
+
       const input = screen.getByTestId('input');
       expect(input).toHaveAttribute('data-slot', 'command-input');
       expect(input).toHaveAttribute('placeholder', 'Search...');
@@ -142,7 +146,7 @@ describe('Command Components', () => {
           <CommandInput />
         </Command>
       );
-      
+
       const searchIcon = screen.getByTestId('search-icon');
       expect(searchIcon).toBeInTheDocument();
     });
@@ -153,31 +157,24 @@ describe('Command Components', () => {
           <CommandInput />
         </Command>
       );
-      
+
       const wrapper = screen.getByTestId('search-icon').parentElement;
       expect(wrapper).toHaveAttribute('data-slot', 'command-input-wrapper');
-      expect(wrapper).toHaveClass(
-        'flex',
-        'h-9',
-        'items-center',
-        'gap-2',
-        'border-b',
-        'px-3'
-      );
+      expect(wrapper).toHaveClass('flex', 'h-9', 'items-center', 'gap-2', 'border-b', 'px-3');
     });
 
     it('sollte Text-Input unterstützen', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <Command>
           <CommandInput placeholder="Type here..." />
         </Command>
       );
-      
+
       const input = screen.getByPlaceholderText('Type here...');
       await user.type(input, 'test command');
-      
+
       expect(input).toHaveValue('test command');
     });
   });
@@ -191,7 +188,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const list = screen.getByTestId('list');
       expect(list).toHaveAttribute('data-slot', 'command-list');
       expect(list).toHaveTextContent('List content');
@@ -203,7 +200,7 @@ describe('Command Components', () => {
           <CommandList data-testid="list" />
         </Command>
       );
-      
+
       const list = screen.getByTestId('list');
       expect(list).toHaveClass(
         'max-h-[300px]',
@@ -219,7 +216,7 @@ describe('Command Components', () => {
           <CommandList data-testid="list" className="custom-list" />
         </Command>
       );
-      
+
       const list = screen.getByTestId('list');
       expect(list).toHaveClass('custom-list');
     });
@@ -234,7 +231,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const empty = screen.getByTestId('empty');
       expect(empty).toHaveAttribute('data-slot', 'command-empty');
       expect(empty).toHaveTextContent('No results found');
@@ -248,7 +245,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const empty = screen.getByTestId('empty');
       expect(empty).toHaveClass('py-6', 'text-center', 'text-sm');
     });
@@ -265,7 +262,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const group = screen.getByTestId('group');
       expect(group).toHaveAttribute('data-slot', 'command-group');
       expect(group).toHaveTextContent('Group content');
@@ -281,7 +278,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       expect(screen.getByText('Test Heading')).toBeInTheDocument();
     });
 
@@ -295,13 +292,9 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const group = screen.getByTestId('group');
-      expect(group).toHaveClass(
-        'text-foreground',
-        'overflow-hidden',
-        'p-1'
-      );
+      expect(group).toHaveClass('text-foreground', 'overflow-hidden', 'p-1');
     });
   });
 
@@ -318,7 +311,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const item = screen.getByTestId('item');
       expect(item).toHaveAttribute('data-slot', 'command-item');
       expect(item).toHaveAttribute('data-value', 'test');
@@ -337,7 +330,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const item = screen.getByTestId('item');
       expect(item).toHaveClass(
         'relative',
@@ -366,7 +359,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const item = screen.getByTestId('item');
       expect(item).toHaveAttribute('data-disabled', 'true');
     });
@@ -383,7 +376,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const item = screen.getByTestId('item');
       expect(item).toHaveAttribute('data-selected', 'true');
     });
@@ -400,7 +393,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const item = screen.getByTestId('item');
       expect(item).toHaveClass('custom-item');
     });
@@ -420,7 +413,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const shortcut = screen.getByTestId('shortcut');
       expect(shortcut).toHaveAttribute('data-slot', 'command-shortcut');
       expect(shortcut).toHaveTextContent('⌘K');
@@ -439,7 +432,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const shortcut = screen.getByTestId('shortcut');
       expect(shortcut).toHaveClass(
         'text-muted-foreground',
@@ -464,7 +457,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const shortcut = screen.getByTestId('shortcut');
       expect(shortcut).toHaveClass('custom-shortcut');
     });
@@ -479,7 +472,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const separator = screen.getByTestId('separator');
       expect(separator).toHaveAttribute('data-slot', 'command-separator');
     });
@@ -492,7 +485,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const separator = screen.getByTestId('separator');
       expect(separator).toHaveClass('bg-border', '-mx-1', 'h-px');
     });
@@ -505,7 +498,7 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const separator = screen.getByTestId('separator');
       expect(separator).toHaveClass('custom-separator');
     });
@@ -521,7 +514,7 @@ describe('Command Components', () => {
           </CommandList>
         </CommandDialog>
       );
-      
+
       // Dialog sollte geöffnet sein
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getByPlaceholderText('Search...')).toBeInTheDocument();
@@ -534,7 +527,7 @@ describe('Command Components', () => {
           <CommandInput />
         </CommandDialog>
       );
-      
+
       // Screen reader only elements
       expect(screen.getByText('Command Palette')).toBeInTheDocument();
       expect(screen.getByText('Search for a command to run...')).toBeInTheDocument();
@@ -542,36 +535,32 @@ describe('Command Components', () => {
 
     it('sollte custom Title und Description akzeptieren', () => {
       render(
-        <CommandDialog 
-          open 
-          title="Custom Command" 
-          description="Custom description"
-        >
+        <CommandDialog open title="Custom Command" description="Custom description">
           <CommandInput />
         </CommandDialog>
       );
-      
+
       expect(screen.getByText('Custom Command')).toBeInTheDocument();
       expect(screen.getByText('Custom description')).toBeInTheDocument();
     });
 
     it('sollte Dialog schließen/öffnen unterstützen', () => {
       const onOpenChange = jest.fn();
-      
+
       const { rerender } = render(
         <CommandDialog open={false} onOpenChange={onOpenChange}>
           <CommandInput />
         </CommandDialog>
       );
-      
+
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      
+
       rerender(
         <CommandDialog open={true} onOpenChange={onOpenChange}>
           <CommandInput />
         </CommandDialog>
       );
-      
+
       expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
   });
@@ -579,19 +568,19 @@ describe('Command Components', () => {
   describe('Search Functionality', () => {
     it('sollte Filterung basierend auf Input unterstützen', async () => {
       const user = userEvent.setup();
-      
+
       render(<TestCommand />);
-      
+
       const input = screen.getByTestId('command-input');
-      
+
       // Alle Items sollten initial sichtbar sein
       expect(screen.getByText('Calendar')).toBeInTheDocument();
       expect(screen.getByText('Search Emoji')).toBeInTheDocument();
       expect(screen.getByText('Calculator')).toBeInTheDocument();
-      
+
       // Nach "calc" suchen
       await user.type(input, 'calc');
-      
+
       // Wait for filtering to complete
       await waitFor(() => {
         expect(screen.getByText('Calculator')).toBeInTheDocument();
@@ -602,27 +591,27 @@ describe('Command Components', () => {
   describe('Keyboard Navigation', () => {
     it('sollte Arrow-Keys Navigation unterstützen', async () => {
       render(<TestCommand />);
-      
+
       const command = screen.getByTestId('command');
-      
+
       // Focus auf Command setzen
       command.focus();
-      
+
       // ArrowDown drücken
       fireEvent.keyDown(command, { key: 'ArrowDown' });
-      
+
       // Prüfen, dass ein Item ausgewählt ist (kann variieren je nach cmdk-Verhalten)
       await waitFor(() => {
-        const selectedItems = screen.getAllByRole('option').filter(item => 
-          item.getAttribute('data-selected') === 'true'
-        );
+        const selectedItems = screen
+          .getAllByRole('option')
+          .filter(item => item.getAttribute('data-selected') === 'true');
         expect(selectedItems.length).toBeGreaterThan(0);
       });
     });
 
     it('sollte Enter für Auswahl unterstützen', async () => {
       const onSelect = jest.fn();
-      
+
       render(
         <Command data-testid="command">
           <CommandList>
@@ -634,14 +623,14 @@ describe('Command Components', () => {
           </CommandList>
         </Command>
       );
-      
+
       const command = screen.getByTestId('command');
       command.focus();
-      
+
       // Item auswählen
       fireEvent.keyDown(command, { key: 'ArrowDown' });
       fireEvent.keyDown(command, { key: 'Enter' });
-      
+
       await waitFor(() => {
         expect(onSelect).toHaveBeenCalledWith('test');
       });
@@ -651,33 +640,33 @@ describe('Command Components', () => {
   describe('Vollständiger Command Test', () => {
     it('sollte komplette Command-Palette mit allen Komponenten rendern', () => {
       render(<TestCommand />);
-      
+
       // Alle Hauptkomponenten sollten vorhanden sein
       expect(screen.getByTestId('command')).toBeInTheDocument();
       expect(screen.getByTestId('command-input')).toBeInTheDocument();
       expect(screen.getByTestId('command-list')).toBeInTheDocument();
       expect(screen.getByTestId('search-icon')).toBeInTheDocument();
-      
+
       // Groups sollten vorhanden sein
       expect(screen.getByText('Suggestions')).toBeInTheDocument();
       expect(screen.getAllByText('Settings')).toHaveLength(2); // Heading + Item
-      
+
       // Items sollten vorhanden sein
       expect(screen.getByText('Calendar')).toBeInTheDocument();
       expect(screen.getByText('Search Emoji')).toBeInTheDocument();
       expect(screen.getByText('Profile')).toBeInTheDocument();
-      
+
       // Shortcuts sollten vorhanden sein
       expect(screen.getByText('⌘K')).toBeInTheDocument();
       expect(screen.getByText('⌘J')).toBeInTheDocument();
-      
+
       // Separator sollte vorhanden sein
       expect(screen.getByTestId('command-separator')).toBeInTheDocument();
     });
 
     it('sollte alle data-slot Attribute korrekt setzen', () => {
       render(<TestCommand />);
-      
+
       expect(screen.getByTestId('command')).toHaveAttribute('data-slot', 'command');
       expect(screen.getByTestId('command-input')).toHaveAttribute('data-slot', 'command-input');
       expect(screen.getByTestId('command-list')).toHaveAttribute('data-slot', 'command-list');
@@ -688,8 +677,14 @@ describe('Command Components', () => {
       }
       expect(screen.getByTestId('command-group')).toHaveAttribute('data-slot', 'command-group');
       expect(screen.getByTestId('command-item-1')).toHaveAttribute('data-slot', 'command-item');
-      expect(screen.getByTestId('command-shortcut-1')).toHaveAttribute('data-slot', 'command-shortcut');
-      expect(screen.getByTestId('command-separator')).toHaveAttribute('data-slot', 'command-separator');
+      expect(screen.getByTestId('command-shortcut-1')).toHaveAttribute(
+        'data-slot',
+        'command-shortcut'
+      );
+      expect(screen.getByTestId('command-separator')).toHaveAttribute(
+        'data-slot',
+        'command-separator'
+      );
     });
   });
-}); 
+});

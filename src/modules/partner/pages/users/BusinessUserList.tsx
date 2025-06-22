@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBusinessUserService, BusinessUser } from '@/services/businessUserService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,7 +78,7 @@ export function BusinessUserList() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {businessUsers.map((user) => (
+              {businessUsers.map(user => (
                 <TableRow key={user.id}>
                   <TableCell>{user.email}</TableCell>
                   <TableCell>
@@ -112,4 +119,4 @@ export function BusinessUserList() {
       </Card>
     </div>
   );
-} 
+}

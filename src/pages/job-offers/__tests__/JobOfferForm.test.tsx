@@ -61,7 +61,7 @@ jest.mock('@/components/ui/LocationSearch', () => ({
       <input
         placeholder={placeholder}
         value={value?.title || ''}
-        onChange={(e) => {
+        onChange={e => {
           if (e.target.value) {
             onChange({
               id: 'test-location',
@@ -79,8 +79,8 @@ jest.mock('@/components/ui/LocationSearch', () => ({
                 district: '',
                 street: '',
                 postalCode: '',
-                houseNumber: ''
-              }
+                houseNumber: '',
+              },
             });
           }
         }}
@@ -98,7 +98,9 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock icon utils
 jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn((iconName: string) => <span data-testid={`icon-${iconName}`}>{iconName}</span>),
+  getIconComponent: jest.fn((iconName: string) => (
+    <span data-testid={`icon-${iconName}`}>{iconName}</span>
+  )),
 }));
 
 // Mock URL methods
@@ -184,17 +186,17 @@ describe('JobOfferForm', () => {
   describe('Create Mode', () => {
     it('sollte Formular im Erstellungsmodus rendern', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Neues Stellenangebot')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByRole('button', { name: /erstellen/i })).toBeInTheDocument();
     });
 
     it('sollte alle Haupt-Formularfelder anzeigen', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Titel')).toBeInTheDocument();
       });
@@ -211,7 +213,7 @@ describe('JobOfferForm', () => {
 
     it('sollte Kategorien laden', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(mockJobCategoryService.getCategories).toHaveBeenCalled();
       });
@@ -219,7 +221,7 @@ describe('JobOfferForm', () => {
 
     it('sollte Tasks und Benefits dynamisch verwalten', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Aufgaben')).toBeInTheDocument();
       });
@@ -236,31 +238,31 @@ describe('JobOfferForm', () => {
     it('sollte erfolgreiche Stellenangebot-Erstellung handhaben', async () => {
       const mockJobOffer = createMockJobOffer();
       mockJobOfferService.createJobOffer.mockResolvedValue(mockJobOffer);
-      
+
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Titel')).toBeInTheDocument();
       });
 
       // Minimal erforderliche Felder ausfüllen
       fireEvent.change(screen.getByLabelText('Titel'), {
-        target: { value: 'Test Job' }
+        target: { value: 'Test Job' },
       });
       fireEvent.change(screen.getByLabelText('Allgemeine Beschreibung'), {
-        target: { value: 'Test description' }
+        target: { value: 'Test description' },
       });
       fireEvent.change(screen.getByLabelText('Benötigtes Profil'), {
-        target: { value: 'Test profile' }
+        target: { value: 'Test profile' },
       });
       fireEvent.change(screen.getByLabelText('E-Mail'), {
-        target: { value: 'test@example.com' }
+        target: { value: 'test@example.com' },
       });
       fireEvent.change(screen.getByLabelText('Bewerbungslink'), {
-        target: { value: 'https://example.com/apply' }
+        target: { value: 'https://example.com/apply' },
       });
       fireEvent.change(screen.getByLabelText('Startdatum'), {
-        target: { value: '2024-02-01' }
+        target: { value: '2024-02-01' },
       });
 
       // Submit Form
@@ -279,31 +281,31 @@ describe('JobOfferForm', () => {
 
     it('sollte Fehler bei der Erstellung handhaben', async () => {
       mockJobOfferService.createJobOffer.mockRejectedValue(new Error('Network error'));
-      
+
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Titel')).toBeInTheDocument();
       });
 
       // Erforderliche Felder ausfüllen
       fireEvent.change(screen.getByLabelText('Titel'), {
-        target: { value: 'Test Job' }
+        target: { value: 'Test Job' },
       });
       fireEvent.change(screen.getByLabelText('Allgemeine Beschreibung'), {
-        target: { value: 'Test description' }
+        target: { value: 'Test description' },
       });
       fireEvent.change(screen.getByLabelText('Benötigtes Profil'), {
-        target: { value: 'Test profile' }
+        target: { value: 'Test profile' },
       });
       fireEvent.change(screen.getByLabelText('E-Mail'), {
-        target: { value: 'test@example.com' }
+        target: { value: 'test@example.com' },
       });
       fireEvent.change(screen.getByLabelText('Bewerbungslink'), {
-        target: { value: 'https://example.com/apply' }
+        target: { value: 'https://example.com/apply' },
       });
       fireEvent.change(screen.getByLabelText('Startdatum'), {
-        target: { value: '2024-02-01' }
+        target: { value: '2024-02-01' },
       });
 
       // Submit Form
@@ -325,9 +327,9 @@ describe('JobOfferForm', () => {
 
     it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
       mockJobOfferService.getJobOffer.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<JobOfferForm />);
-      
+
       // Sollte umfassende Form-Skeleton-Struktur anzeigen
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(70); // Detaillierte Form-Skeletons
@@ -335,9 +337,9 @@ describe('JobOfferForm', () => {
 
     it('sollte Fehler beim Laden handhaben', async () => {
       mockJobOfferService.getJobOffer.mockRejectedValue(new Error('Not found'));
-      
+
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden des Stellenangebots');
       });
@@ -349,9 +351,9 @@ describe('JobOfferForm', () => {
       const mockJobOffer = createMockJobOffer();
       mockJobOfferService.getJobOffer.mockResolvedValue(mockJobOffer);
       mockJobOfferService.updateJobOffer.mockResolvedValue(mockJobOffer);
-      
+
       renderWithRouter(<JobOfferForm />);
-      
+
       // Warten bis das JobOffer geladen ist
       await waitFor(() => {
         expect(mockJobOfferService.getJobOffer).toHaveBeenCalledWith('job-1');
@@ -377,7 +379,7 @@ describe('JobOfferForm', () => {
   describe('Navigation', () => {
     it('sollte zur Übersicht navigieren bei Zurück-Button', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Zurück zur Übersicht')).toBeInTheDocument();
       });
@@ -390,7 +392,7 @@ describe('JobOfferForm', () => {
 
     it('sollte bei Abbrechen zur Übersicht navigieren', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByRole('button', { name: /abbrechen/i })).toBeInTheDocument();
       });
@@ -405,7 +407,7 @@ describe('JobOfferForm', () => {
   describe('Location Handling', () => {
     it('sollte LocationSearch Komponente rendern', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('location-search')).toBeInTheDocument();
       });
@@ -413,7 +415,7 @@ describe('JobOfferForm', () => {
 
     it('sollte Adresseingabe ermöglichen', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('location-search')).toBeInTheDocument();
       });
@@ -428,7 +430,7 @@ describe('JobOfferForm', () => {
   describe('Home Office Conditional Fields', () => {
     it('sollte Home Office Notizen zeigen wenn aktiviert', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Home Office möglich')).toBeInTheDocument();
       });
@@ -445,7 +447,7 @@ describe('JobOfferForm', () => {
   describe('Form Validation', () => {
     it('sollte E-Mail-Input als E-Mail-Typ haben', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('E-Mail')).toBeInTheDocument();
       });
@@ -456,7 +458,7 @@ describe('JobOfferForm', () => {
 
     it('sollte URL-Input für Bewerbungslink haben', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Bewerbungslink')).toBeInTheDocument();
       });
@@ -467,7 +469,7 @@ describe('JobOfferForm', () => {
 
     it('sollte Date-Input für Startdatum haben', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByLabelText('Startdatum')).toBeInTheDocument();
       });
@@ -480,7 +482,7 @@ describe('JobOfferForm', () => {
   describe('Responsive Design', () => {
     it('sollte responsive Container-Klassen haben', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Neues Stellenangebot')).toBeInTheDocument();
       });
@@ -488,14 +490,14 @@ describe('JobOfferForm', () => {
       // Test für glassmorphism Layout-Container
       const mainContainer = document.querySelector('.min-h-screen.relative.overflow-hidden');
       expect(mainContainer).toBeInTheDocument();
-      
+
       const contentContainer = document.querySelector('.relative.z-10');
       expect(contentContainer).toBeInTheDocument();
     });
 
     it('sollte responsive Grid-Layout haben', async () => {
       renderWithRouter(<JobOfferForm />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Neues Stellenangebot')).toBeInTheDocument();
       });
@@ -504,4 +506,4 @@ describe('JobOfferForm', () => {
       expect(gridContainer).toBeInTheDocument();
     });
   });
-}); 
+});

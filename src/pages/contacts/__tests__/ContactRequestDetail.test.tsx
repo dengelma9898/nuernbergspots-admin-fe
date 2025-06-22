@@ -96,11 +96,7 @@ const mockContactRequest: ContactRequest = createMockContactRequest({
 });
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('ContactRequestDetail', () => {
@@ -139,8 +135,8 @@ describe('ContactRequestDetail', () => {
     });
 
     it('sollte Loading-State anzeigen', async () => {
-      mockContactService.getContactRequestById.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
+      mockContactService.getContactRequestById.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
       );
 
       renderWithRouter(<ContactRequestDetail />);
@@ -279,7 +275,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const refreshButton = screen.getByText('Aktualisieren');
-      
+
       await act(async () => {
         fireEvent.click(refreshButton);
       });
@@ -295,8 +291,8 @@ describe('ContactRequestDetail', () => {
       });
 
       // Mock langsame Antwort für zweiten Aufruf
-      mockContactService.getContactRequestById.mockImplementationOnce(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
+      mockContactService.getContactRequestById.mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
       );
 
       const refreshButton = screen.getByText('Aktualisieren');
@@ -315,7 +311,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const refreshButton = screen.getByText('Aktualisieren');
-      
+
       await act(async () => {
         fireEvent.click(refreshButton);
       });
@@ -369,7 +365,10 @@ describe('ContactRequestDetail', () => {
       });
 
       await waitFor(() => {
-        expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith('request-1', 'Neue Admin-Antwort');
+        expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith(
+          'request-1',
+          'Neue Admin-Antwort'
+        );
       });
     });
 
@@ -379,7 +378,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const sendButton = screen.getByText('Antwort senden');
-      
+
       expect(sendButton).toBeDisabled();
 
       fireEvent.click(sendButton);
@@ -388,8 +387,8 @@ describe('ContactRequestDetail', () => {
     });
 
     it('sollte Formular während des Sendens deaktivieren', async () => {
-      mockContactService.respondToContactRequest.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
+      mockContactService.respondToContactRequest.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
       );
 
       await act(async () => {
@@ -544,7 +543,10 @@ describe('ContactRequestDetail', () => {
         });
 
         await waitFor(() => {
-          expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith('request-1', 'Test-Antwort');
+          expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith(
+            'request-1',
+            'Test-Antwort'
+          );
         });
       } else {
         // Falls das Formular nicht gefunden wird, teste direkt den Submit Button
@@ -554,7 +556,10 @@ describe('ContactRequestDetail', () => {
         });
 
         await waitFor(() => {
-          expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith('request-1', 'Test-Antwort');
+          expect(mockContactService.respondToContactRequest).toHaveBeenCalledWith(
+            'request-1',
+            'Test-Antwort'
+          );
         });
       }
     });
@@ -596,4 +601,4 @@ describe('ContactRequestDetail', () => {
       expect(mockContactService.getContactRequestById).not.toHaveBeenCalled();
     });
   });
-}); 
+});

@@ -19,7 +19,7 @@ export const CalendarWeekSelect: React.FC<CalendarWeekSelectProps> = ({ value, o
       start,
       end,
       weekNumber: format(date, 'w', { locale: de }),
-      displayText: `${format(start, 'dd.MM.', { locale: de })} - ${format(end, 'dd.MM.yyyy', { locale: de })}`
+      displayText: `${format(start, 'dd.MM.', { locale: de })} - ${format(end, 'dd.MM.yyyy', { locale: de })}`,
     };
   };
 
@@ -41,25 +41,15 @@ export const CalendarWeekSelect: React.FC<CalendarWeekSelectProps> = ({ value, o
 
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handlePreviousWeek}
-        className="h-8 w-8"
-      >
+      <Button variant="outline" size="icon" onClick={handlePreviousWeek} className="h-8 w-8">
         <ChevronLeft className="h-4 w-4" />
       </Button>
       <div className="text-sm font-medium">
         KW {currentWeek.weekNumber} ({currentWeek.displayText})
       </div>
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={handleNextWeek}
-        className="h-8 w-8"
-      >
+      <Button variant="outline" size="icon" onClick={handleNextWeek} className="h-8 w-8">
         <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
   );
-}; 
+};

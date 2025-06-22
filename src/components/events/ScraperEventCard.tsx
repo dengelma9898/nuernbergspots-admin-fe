@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Event } from '@/models/events';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -12,11 +12,7 @@ interface ScraperEventCardProps {
   onEdit?: () => void;
 }
 
-export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({
-  event,
-  onDelete,
-  onEdit,
-}) => {
+export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({ event, onDelete, onEdit }) => {
   const formatTimeSlot = (slot: Event['dailyTimeSlots'][0]) => {
     const date = format(new Date(slot.date), 'dd.MM.yyyy', { locale: de });
     if (slot.from && slot.to) {
@@ -31,13 +27,7 @@ export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({
         <CardTitle className="text-lg line-clamp-2 mb-0">{event.title}</CardTitle>
         <div className="flex gap-2">
           {onEdit && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8"
-              onClick={onEdit}
-              title="Bearbeiten"
-            >
+            <Button variant="outline" size="sm" className="h-8" onClick={onEdit} title="Bearbeiten">
               <Pencil className="h-4 w-4 mr-1" /> Bearbeiten
             </Button>
           )}
@@ -56,9 +46,7 @@ export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({
       </CardHeader>
       <CardContent className="flex-1 flex flex-col gap-2 mt-1">
         {event.description && (
-          <p className="text-sm text-muted-foreground line-clamp-3">
-            {event.description}
-          </p>
+          <p className="text-sm text-muted-foreground line-clamp-3">{event.description}</p>
         )}
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -91,4 +79,4 @@ export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({
       </CardContent>
     </Card>
   );
-}; 
+};

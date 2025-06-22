@@ -16,17 +16,19 @@ jest.mock('@radix-ui/react-scroll-area', () => ({
       {children}
     </div>
   )),
-  ScrollAreaScrollbar: React.forwardRef<HTMLDivElement, any>(({ children, className, orientation, ...props }, ref) => (
-    <div 
-      ref={ref}
-      data-testid="scroll-area-scrollbar" 
-      data-orientation={orientation}
-      className={className} 
-      {...props}
-    >
-      {children}
-    </div>
-  )),
+  ScrollAreaScrollbar: React.forwardRef<HTMLDivElement, any>(
+    ({ children, className, orientation, ...props }, ref) => (
+      <div
+        ref={ref}
+        data-testid="scroll-area-scrollbar"
+        data-orientation={orientation}
+        className={className}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  ),
   ScrollAreaThumb: React.forwardRef<HTMLDivElement, any>(({ className, ...props }, ref) => (
     <div ref={ref} data-testid="scroll-area-thumb" className={className} {...props} />
   )),
@@ -43,12 +45,12 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       const viewport = screen.getByTestId('scroll-area-viewport');
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       const corner = screen.getByTestId('scroll-area-corner');
-      
+
       expect(root).toBeInTheDocument();
       expect(viewport).toBeInTheDocument();
       expect(scrollbar).toBeInTheDocument();
@@ -62,7 +64,7 @@ describe('ScrollArea Component', () => {
           <p>More content</p>
         </ScrollArea>
       );
-      
+
       expect(screen.getByText('Test Content')).toBeInTheDocument();
       expect(screen.getByText('More content')).toBeInTheDocument();
     });
@@ -73,12 +75,12 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       const viewport = screen.getByTestId('scroll-area-viewport');
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       const thumb = screen.getByTestId('scroll-area-thumb');
-      
+
       expect(root).toHaveAttribute('data-slot', 'scroll-area');
       expect(viewport).toHaveAttribute('data-slot', 'scroll-area-viewport');
       expect(scrollbar).toHaveAttribute('data-slot', 'scroll-area-scrollbar');
@@ -88,15 +90,23 @@ describe('ScrollArea Component', () => {
 
   describe('Styling Classes', () => {
     it('sollte Standard-Klassen für Root haben', () => {
-      render(<ScrollArea><div>Content</div></ScrollArea>);
-      
+      render(
+        <ScrollArea>
+          <div>Content</div>
+        </ScrollArea>
+      );
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveClass('relative');
     });
 
     it('sollte Standard-Klassen für Viewport haben', () => {
-      render(<ScrollArea><div>Content</div></ScrollArea>);
-      
+      render(
+        <ScrollArea>
+          <div>Content</div>
+        </ScrollArea>
+      );
+
       const viewport = screen.getByTestId('scroll-area-viewport');
       expect(viewport).toHaveClass('ring-ring/10');
       expect(viewport).toHaveClass('dark:ring-ring/20');
@@ -110,16 +120,24 @@ describe('ScrollArea Component', () => {
     });
 
     it('sollte custom className für Root akzeptieren', () => {
-      render(<ScrollArea className="custom-scroll"><div>Content</div></ScrollArea>);
-      
+      render(
+        <ScrollArea className="custom-scroll">
+          <div>Content</div>
+        </ScrollArea>
+      );
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveClass('custom-scroll');
       expect(root).toHaveClass('relative'); // Standard-Klasse sollte auch vorhanden sein
     });
 
     it('sollte Klassen mit cn utility kombinieren', () => {
-      render(<ScrollArea className="bg-red-500 p-4"><div>Content</div></ScrollArea>);
-      
+      render(
+        <ScrollArea className="bg-red-500 p-4">
+          <div>Content</div>
+        </ScrollArea>
+      );
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveClass('bg-red-500');
       expect(root).toHaveClass('p-4');
@@ -134,7 +152,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('data-testprop', 'value');
       expect(root).toHaveAttribute('id', 'test-scroll');
@@ -146,7 +164,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('type', 'hover');
     });
@@ -157,7 +175,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('scrollHideDelay', '1000');
     });
@@ -168,7 +186,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('dir', 'rtl');
     });
@@ -181,7 +199,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('aria-label', 'Scrollable content');
     });
@@ -192,7 +210,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('role', 'region');
     });
@@ -203,7 +221,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('aria-describedby', 'scroll-description');
     });
@@ -214,7 +232,7 @@ describe('ScrollArea Component', () => {
           <div>Content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toHaveAttribute('tabindex', '0');
     });
@@ -223,13 +241,13 @@ describe('ScrollArea Component', () => {
   describe('Content Handling', () => {
     it('sollte lange Inhalte handhaben', () => {
       const longContent = 'Lorem ipsum '.repeat(100);
-      
+
       render(
         <ScrollArea>
           <div data-testid="long-content">{longContent}</div>
         </ScrollArea>
       );
-      
+
       const content = screen.getByTestId('long-content');
       expect(content).toBeInTheDocument();
       expect(content.textContent).toBe(longContent);
@@ -243,7 +261,7 @@ describe('ScrollArea Component', () => {
           <div>Third child</div>
         </ScrollArea>
       );
-      
+
       expect(screen.getByText('First child')).toBeInTheDocument();
       expect(screen.getByText('Second child')).toBeInTheDocument();
       expect(screen.getByText('Third child')).toBeInTheDocument();
@@ -251,19 +269,19 @@ describe('ScrollArea Component', () => {
 
     it('sollte React-Elemente als Kinder unterstützen', () => {
       const CustomComponent = () => <span>Custom Component</span>;
-      
+
       render(
         <ScrollArea>
           <CustomComponent />
         </ScrollArea>
       );
-      
+
       expect(screen.getByText('Custom Component')).toBeInTheDocument();
     });
 
     it('sollte leere Inhalte handhaben', () => {
       render(<ScrollArea />);
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toBeInTheDocument();
     });
@@ -272,16 +290,16 @@ describe('ScrollArea Component', () => {
   describe('Scroll Behavior', () => {
     it('sollte Scroll-Events unterstützen', () => {
       const onScroll = jest.fn();
-      
+
       render(
         <ScrollArea onScroll={onScroll}>
           <div>Scrollable content</div>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       fireEvent.scroll(root);
-      
+
       expect(onScroll).toHaveBeenCalled();
     });
 
@@ -293,7 +311,7 @@ describe('ScrollArea Component', () => {
           </section>
         </ScrollArea>
       );
-      
+
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toBeInTheDocument();
     });
@@ -302,7 +320,7 @@ describe('ScrollArea Component', () => {
   describe('Integration Tests', () => {
     it('sollte komplette ScrollArea mit allen Komponenten rendern', () => {
       render(
-        <ScrollArea 
+        <ScrollArea
           className="h-64 w-full"
           type="hover"
           scrollHideDelay={600}
@@ -315,7 +333,7 @@ describe('ScrollArea Component', () => {
           </div>
         </ScrollArea>
       );
-      
+
       // Root Element
       const root = screen.getByTestId('scroll-area-root');
       expect(root).toBeInTheDocument();
@@ -323,44 +341,46 @@ describe('ScrollArea Component', () => {
       expect(root).toHaveAttribute('type', 'hover');
       expect(root).toHaveAttribute('scrollHideDelay', '600');
       expect(root).toHaveAttribute('aria-label', 'Main content');
-      
+
       // Viewport
       const viewport = screen.getByTestId('scroll-area-viewport');
       expect(viewport).toBeInTheDocument();
       expect(viewport).toHaveClass('size-full');
-      
+
       // Scrollbar
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toBeInTheDocument();
       expect(scrollbar).toHaveAttribute('data-orientation', 'vertical');
-      
+
       // Thumb
       const thumb = screen.getByTestId('scroll-area-thumb');
       expect(thumb).toBeInTheDocument();
-      
+
       // Corner
       const corner = screen.getByTestId('scroll-area-corner');
       expect(corner).toBeInTheDocument();
-      
+
       // Content
       expect(screen.getByText('Scrollable Content')).toBeInTheDocument();
-      expect(screen.getByText('This is a long content that should be scrollable.')).toBeInTheDocument();
+      expect(
+        screen.getByText('This is a long content that should be scrollable.')
+      ).toBeInTheDocument();
     });
 
     it('sollte mit verschiedenen Scroll-Typen funktionieren', () => {
       const scrollTypes = ['auto', 'always', 'scroll', 'hover'] as const;
-      
+
       scrollTypes.forEach(type => {
         const { unmount } = render(
           <ScrollArea type={type}>
             <div>Content for {type}</div>
           </ScrollArea>
         );
-        
+
         const root = screen.getByTestId('scroll-area-root');
         expect(root).toHaveAttribute('type', type);
         expect(screen.getByText(`Content for ${type}`)).toBeInTheDocument();
-        
+
         unmount();
       });
     });
@@ -371,20 +391,20 @@ describe('ScrollBar Component', () => {
   describe('Basic Rendering', () => {
     it('sollte korrekt gerendert werden', () => {
       render(<ScrollBar />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       const thumb = screen.getByTestId('scroll-area-thumb');
-      
+
       expect(scrollbar).toBeInTheDocument();
       expect(thumb).toBeInTheDocument();
     });
 
     it('sollte data-slot Attribute haben', () => {
       render(<ScrollBar />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       const thumb = screen.getByTestId('scroll-area-thumb');
-      
+
       expect(scrollbar).toHaveAttribute('data-slot', 'scroll-area-scrollbar');
       expect(thumb).toHaveAttribute('data-slot', 'scroll-area-thumb');
     });
@@ -393,21 +413,21 @@ describe('ScrollBar Component', () => {
   describe('Orientation', () => {
     it('sollte Standard-Orientation (vertical) haben', () => {
       render(<ScrollBar />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveAttribute('data-orientation', 'vertical');
     });
 
     it('sollte vertical orientation korrekt setzen', () => {
       render(<ScrollBar orientation="vertical" />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveAttribute('data-orientation', 'vertical');
     });
 
     it('sollte horizontal orientation korrekt setzen', () => {
       render(<ScrollBar orientation="horizontal" />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveAttribute('data-orientation', 'horizontal');
     });
@@ -416,7 +436,7 @@ describe('ScrollBar Component', () => {
   describe('Styling Classes', () => {
     it('sollte Standard-Klassen haben', () => {
       render(<ScrollBar />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveClass('flex');
       expect(scrollbar).toHaveClass('touch-none');
@@ -427,7 +447,7 @@ describe('ScrollBar Component', () => {
 
     it('sollte vertikale Klassen haben', () => {
       render(<ScrollBar orientation="vertical" />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveClass('h-full');
       expect(scrollbar).toHaveClass('w-2.5');
@@ -437,7 +457,7 @@ describe('ScrollBar Component', () => {
 
     it('sollte horizontale Klassen haben', () => {
       render(<ScrollBar orientation="horizontal" />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveClass('h-2.5');
       expect(scrollbar).toHaveClass('flex-col');
@@ -447,7 +467,7 @@ describe('ScrollBar Component', () => {
 
     it('sollte Thumb-Klassen haben', () => {
       render(<ScrollBar />);
-      
+
       const thumb = screen.getByTestId('scroll-area-thumb');
       expect(thumb).toHaveClass('bg-border');
       expect(thumb).toHaveClass('relative');
@@ -457,7 +477,7 @@ describe('ScrollBar Component', () => {
 
     it('sollte custom className akzeptieren', () => {
       render(<ScrollBar className="custom-scrollbar" />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveClass('custom-scrollbar');
       expect(scrollbar).toHaveClass('flex'); // Standard-Klasse sollte auch vorhanden sein
@@ -466,13 +486,8 @@ describe('ScrollBar Component', () => {
 
   describe('Props Forwarding', () => {
     it('sollte Props weiterleiten', () => {
-      render(
-        <ScrollBar 
-          id="scroll-bar"
-          orientation="horizontal"
-        />
-      );
-      
+      render(<ScrollBar id="scroll-bar" orientation="horizontal" />);
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveAttribute('id', 'scroll-bar');
       expect(scrollbar).toHaveAttribute('data-orientation', 'horizontal');
@@ -480,18 +495,18 @@ describe('ScrollBar Component', () => {
 
     it('sollte onPointerDown Events unterstützen', () => {
       const onPointerDown = jest.fn();
-      
+
       render(<ScrollBar onPointerDown={onPointerDown} />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       fireEvent.pointerDown(scrollbar);
-      
+
       expect(onPointerDown).toHaveBeenCalled();
     });
 
     it('sollte style prop unterstützen', () => {
       render(<ScrollBar style={{ backgroundColor: 'red' }} />);
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toHaveAttribute('style');
       expect(scrollbar.getAttribute('style')).toContain('background-color: red');
@@ -506,7 +521,7 @@ describe('ScrollBar Component', () => {
           <ScrollBar orientation="horizontal" className="my-custom-scrollbar" />
         </div>
       );
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       expect(scrollbar).toBeInTheDocument();
       expect(scrollbar).toHaveClass('my-custom-scrollbar');
@@ -520,14 +535,14 @@ describe('ScrollBar Component', () => {
           <ScrollBar orientation="horizontal" />
         </div>
       );
-      
+
       const scrollbars = screen.getAllByTestId('scroll-area-scrollbar');
       const verticalBar = scrollbars[0];
       const horizontalBar = scrollbars[1];
-      
+
       expect(verticalBar).toHaveAttribute('data-orientation', 'vertical');
       expect(horizontalBar).toHaveAttribute('data-orientation', 'horizontal');
-      
+
       // Unterschiedliche Styling-Klassen
       expect(verticalBar).toHaveClass('h-full', 'w-2.5');
       expect(horizontalBar).toHaveClass('h-2.5', 'flex-col');
@@ -537,17 +552,17 @@ describe('ScrollBar Component', () => {
   describe('Integration Tests', () => {
     it('sollte vollständige ScrollBar mit allen Features rendern', () => {
       render(
-        <ScrollBar 
+        <ScrollBar
           orientation="horizontal"
           className="custom-style bg-gray-200"
           style={{ minHeight: '12px' }}
           onPointerDown={jest.fn()}
         />
       );
-      
+
       const scrollbar = screen.getByTestId('scroll-area-scrollbar');
       const thumb = screen.getByTestId('scroll-area-thumb');
-      
+
       // Scrollbar
       expect(scrollbar).toBeInTheDocument();
       expect(scrollbar).toHaveAttribute('data-orientation', 'horizontal');
@@ -555,7 +570,7 @@ describe('ScrollBar Component', () => {
       expect(scrollbar).toHaveClass('h-2.5', 'flex-col', 'border-t');
       expect(scrollbar).toHaveAttribute('style');
       expect(scrollbar.getAttribute('style')).toContain('min-height: 12px');
-      
+
       // Thumb
       expect(thumb).toBeInTheDocument();
       expect(thumb).toHaveClass('bg-border', 'relative', 'flex-1', 'rounded-full');
@@ -574,24 +589,24 @@ describe('ScrollArea & ScrollBar Integration', () => {
         </div>
       </ScrollArea>
     );
-    
+
     // ScrollArea Komponenten
     const root = screen.getByTestId('scroll-area-root');
     const viewport = screen.getByTestId('scroll-area-viewport');
     const scrollbar = screen.getByTestId('scroll-area-scrollbar');
     const thumb = screen.getByTestId('scroll-area-thumb');
     const corner = screen.getByTestId('scroll-area-corner');
-    
+
     expect(root).toBeInTheDocument();
     expect(viewport).toBeInTheDocument();
     expect(scrollbar).toBeInTheDocument();
     expect(thumb).toBeInTheDocument();
     expect(corner).toBeInTheDocument();
-    
+
     // Content
     expect(screen.getByText('Item 1')).toBeInTheDocument();
     expect(screen.getByText('Item 20')).toBeInTheDocument();
-    
+
     // Styling
     expect(root).toHaveClass('h-32', 'w-full', 'relative');
     expect(scrollbar).toHaveAttribute('data-orientation', 'vertical');
@@ -599,12 +614,7 @@ describe('ScrollArea & ScrollBar Integration', () => {
 
   it('sollte mit verschiedenen Scroll-Konfigurationen funktionieren', () => {
     render(
-      <ScrollArea 
-        type="always"
-        scrollHideDelay={0}
-        dir="ltr"
-        className="max-h-40 overflow-hidden"
-      >
+      <ScrollArea type="always" scrollHideDelay={0} dir="ltr" className="max-h-40 overflow-hidden">
         <div className="space-y-4">
           <div>Section 1</div>
           <div>Section 2</div>
@@ -612,7 +622,7 @@ describe('ScrollArea & ScrollBar Integration', () => {
         </div>
       </ScrollArea>
     );
-    
+
     const root = screen.getByTestId('scroll-area-root');
     expect(root).toHaveAttribute('type', 'always');
     expect(root).toHaveAttribute('scrollHideDelay', '0');
@@ -622,7 +632,7 @@ describe('ScrollArea & ScrollBar Integration', () => {
 
   it('sollte Performance mit vielen Elementen handhaben', () => {
     const manyItems = Array.from({ length: 1000 }, (_, i) => `Item ${i + 1}`);
-    
+
     render(
       <ScrollArea className="h-48">
         <div>
@@ -632,14 +642,14 @@ describe('ScrollArea & ScrollBar Integration', () => {
         </div>
       </ScrollArea>
     );
-    
+
     // Erste und letzte Items sollten vorhanden sein
     expect(screen.getByText('Item 1')).toBeInTheDocument();
     expect(screen.getByText('Item 1000')).toBeInTheDocument();
-    
+
     // ScrollArea sollte funktionieren
     const root = screen.getByTestId('scroll-area-root');
     expect(root).toBeInTheDocument();
     expect(root).toHaveClass('h-48');
   });
-}); 
+});

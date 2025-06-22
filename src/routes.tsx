@@ -10,8 +10,8 @@ import { EventScraper } from '@/pages/events/EventScraper';
 import { EventScraperDetail } from '@/pages/events/EventScraperDetail';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from '@/components/PrivateRoute';
-import { CreateEvent } from "@/pages/events/CreateEvent";
-import { CreateBusiness } from "@/pages/businesses/CreateBusiness";
+import { CreateEvent } from '@/pages/events/CreateEvent';
+import { CreateBusiness } from '@/pages/businesses/CreateBusiness';
 import { BusinessUserReview } from './pages/users/BusinessUserReview';
 import { EventCategoryList } from '@/pages/events/EventCategoryList';
 import { Profile } from './pages/Profile';
@@ -35,7 +35,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      
+
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
         <Route path="/" element={<Dashboard />} />
@@ -76,4 +76,4 @@ export function AppRoutes() {
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
-} 
+}

@@ -18,22 +18,25 @@ export function ContactRequests() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const contactService = useContactService();
 
-  const fetchContactRequests = useCallback(async (showSuccessToast = false) => {
-    try {
-      setIsRefreshing(true);
-      const requests = await contactService.getContactRequests();
-      setContactRequests(requests);
-      if (showSuccessToast) {
-        toast.success('Kontaktanfragen erfolgreich aktualisiert');
+  const fetchContactRequests = useCallback(
+    async (showSuccessToast = false) => {
+      try {
+        setIsRefreshing(true);
+        const requests = await contactService.getContactRequests();
+        setContactRequests(requests);
+        if (showSuccessToast) {
+          toast.success('Kontaktanfragen erfolgreich aktualisiert');
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der Kontaktanfragen:', error);
+        toast.error('Fehler beim Laden der Kontaktanfragen');
+      } finally {
+        setLoading(false);
+        setIsRefreshing(false);
       }
-    } catch (error) {
-      console.error('Fehler beim Laden der Kontaktanfragen:', error);
-      toast.error('Fehler beim Laden der Kontaktanfragen');
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [contactService]);
+    },
+    [contactService]
+  );
 
   // Initiale Ladung der Daten - nur einmal beim Mount mit useRef um Doppelaufrufe zu verhindern
   const isInitialMount = React.useRef(true);
@@ -46,22 +49,26 @@ export function ContactRequests() {
 
   const getRequestTypeBadge = (type: ContactRequestType) => {
     const typeConfig = {
-      [ContactRequestType.GENERAL]: { 
-        label: 'Allgemein', 
-        className: 'backdrop-blur-2xl bg-blue-500/20 border-blue-300/30 text-blue-100 ring-1 ring-blue-300/40' 
+      [ContactRequestType.GENERAL]: {
+        label: 'Allgemein',
+        className:
+          'backdrop-blur-2xl bg-blue-500/20 border-blue-300/30 text-blue-100 ring-1 ring-blue-300/40',
       },
-      [ContactRequestType.FEEDBACK]: { 
-        label: 'Feedback', 
-        className: 'backdrop-blur-2xl bg-purple-500/20 border-purple-300/30 text-purple-100 ring-1 ring-purple-300/40' 
+      [ContactRequestType.FEEDBACK]: {
+        label: 'Feedback',
+        className:
+          'backdrop-blur-2xl bg-purple-500/20 border-purple-300/30 text-purple-100 ring-1 ring-purple-300/40',
       },
-      [ContactRequestType.BUSINESS_CLAIM]: { 
-        label: 'Geschäft beanspruchen', 
-        className: 'backdrop-blur-2xl bg-red-500/20 border-red-300/30 text-red-100 ring-1 ring-red-300/40' 
+      [ContactRequestType.BUSINESS_CLAIM]: {
+        label: 'Geschäft beanspruchen',
+        className:
+          'backdrop-blur-2xl bg-red-500/20 border-red-300/30 text-red-100 ring-1 ring-red-300/40',
       },
-      [ContactRequestType.BUSINESS_REQUEST]: { 
-        label: 'Geschäftsanfrage', 
-        className: 'backdrop-blur-2xl bg-green-500/20 border-green-300/30 text-green-100 ring-1 ring-green-300/40' 
-      }
+      [ContactRequestType.BUSINESS_REQUEST]: {
+        label: 'Geschäftsanfrage',
+        className:
+          'backdrop-blur-2xl bg-green-500/20 border-green-300/30 text-green-100 ring-1 ring-green-300/40',
+      },
     };
 
     const config = typeConfig[type];
@@ -138,7 +145,7 @@ export function ContactRequests() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
       </div>
 
-            {/* Main Content */}
+      {/* Main Content */}
       <div className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10">
         <div className="space-y-6">
           {/* Hidden compatibility container for tests */}
@@ -175,7 +182,7 @@ export function ContactRequests() {
             </div>
           </div>
 
-                  {/* Contact Requests Grid */}
+          {/* Contact Requests Grid */}
           <div className="grid gap-4 md:gap-6">
             {loading ? (
               // Show skeleton cards while loading
@@ -185,13 +192,15 @@ export function ContactRequests() {
             ) : contactRequests.length === 0 ? (
               <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 md:p-12 text-center">
                 <MessageSquare className="mx-auto h-16 w-16 text-white/60 mb-4" />
-                <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">Keine Kontaktanfragen</h3>
+                <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">
+                  Keine Kontaktanfragen
+                </h3>
                 <p className="text-white/70 text-sm md:text-base">
                   Es gibt aktuell keine offenen Kontaktanfragen.
                 </p>
               </div>
             ) : (
-              contactRequests.map((request) => (
+              contactRequests.map(request => (
                 <div
                   key={request.id}
                   className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 hover:bg-accent/40 transition-all duration-500 ring-1 ring-white/30 p-0 group cursor-pointer"
@@ -223,7 +232,8 @@ export function ContactRequests() {
                       <div className="flex items-center gap-2">
                         <MessageSquare className="h-4 w-4 text-white/60" />
                         <span className="text-xs md:text-sm text-white/70">
-                          {request.messages.length} {request.messages.length === 1 ? 'Nachricht' : 'Nachrichten'}
+                          {request.messages.length}{' '}
+                          {request.messages.length === 1 ? 'Nachricht' : 'Nachrichten'}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-white/80 group-hover:text-white transition-colors">
@@ -235,9 +245,9 @@ export function ContactRequests() {
                 </div>
               ))
             )}
+          </div>
         </div>
-      </div>
       </div>
     </div>
   );
-} 
+}

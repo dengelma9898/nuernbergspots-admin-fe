@@ -63,42 +63,40 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ onChange, value, ...props }: any) => (
-    <input
-      value={value || ''}
-      onChange={onChange}
-      {...props}
-    />
+    <input value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ onChange, value, ...props }: any) => (
-    <textarea
-      value={value || ''}
-      onChange={onChange}
-      {...props}
-    />
+    <textarea value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, ...props }: any) => (
-    <label {...props}>{children}</label>
-  ),
+  Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }));
 
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, className, ...props }: any) => (
-    <div data-testid="card" className={className} {...props}>{children}</div>
+    <div data-testid="card" className={className} {...props}>
+      {children}
+    </div>
   ),
   CardContent: ({ children, className, ...props }: any) => (
-    <div data-testid="card-content" className={className} {...props}>{children}</div>
+    <div data-testid="card-content" className={className} {...props}>
+      {children}
+    </div>
   ),
   CardHeader: ({ children, className, ...props }: any) => (
-    <div data-testid="card-header" className={className} {...props}>{children}</div>
+    <div data-testid="card-header" className={className} {...props}>
+      {children}
+    </div>
   ),
   CardTitle: ({ children, ...props }: any) => (
-    <h3 data-testid="card-title" {...props}>{children}</h3>
+    <h3 data-testid="card-title" {...props}>
+      {children}
+    </h3>
   ),
 }));
 
@@ -108,7 +106,7 @@ jest.mock('@/components/ui/slider', () => ({
       data-testid="slider"
       type="range"
       value={value?.[0] || 0}
-      onChange={(e) => onValueChange?.([parseInt(e.target.value)])}
+      onChange={e => onValueChange?.([parseInt(e.target.value)])}
       min={min}
       max={max}
       step={step}
@@ -119,16 +117,20 @@ jest.mock('@/components/ui/slider', () => ({
 
 jest.mock('@/components/ui/tabs', () => ({
   Tabs: ({ children, defaultValue }: any) => (
-    <div data-testid="tabs" data-default-value={defaultValue}>{children}</div>
+    <div data-testid="tabs" data-default-value={defaultValue}>
+      {children}
+    </div>
   ),
   TabsContent: ({ children, value }: any) => (
-    <div data-testid="tabs-content" data-value={value}>{children}</div>
+    <div data-testid="tabs-content" data-value={value}>
+      {children}
+    </div>
   ),
-  TabsList: ({ children }: any) => (
-    <div data-testid="tabs-list">{children}</div>
-  ),
+  TabsList: ({ children }: any) => <div data-testid="tabs-list">{children}</div>,
   TabsTrigger: ({ children, value }: any) => (
-    <button data-testid="tabs-trigger" data-value={value}>{children}</button>
+    <button data-testid="tabs-trigger" data-value={value}>
+      {children}
+    </button>
   ),
 }));
 
@@ -138,7 +140,7 @@ jest.mock('@/components/ui/color-picker', () => ({
       data-testid="color-picker"
       type="color"
       value={value}
-      onChange={(e) => onChange?.(e.target.value)}
+      onChange={e => onChange?.(e.target.value)}
       {...props}
     />
   ),
@@ -150,18 +152,14 @@ jest.mock('@/components/ui/select', () => ({
       <div onClick={() => onValueChange?.('test-value')}>{children}</div>
     </div>
   ),
-  SelectContent: ({ children }: any) => (
-    <div data-testid="select-content">{children}</div>
-  ),
+  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
   SelectItem: ({ children, value }: any) => (
-    <div data-testid="select-item" data-value={value}>{children}</div>
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
   ),
-  SelectTrigger: ({ children }: any) => (
-    <div data-testid="select-trigger">{children}</div>
-  ),
-  SelectValue: ({ placeholder }: any) => (
-    <span data-testid="select-value">{placeholder}</span>
-  ),
+  SelectTrigger: ({ children }: any) => <div data-testid="select-trigger">{children}</div>,
+  SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
 // Mock Lucide icons
@@ -182,15 +180,15 @@ const mockEvent: Event = {
     {
       date: '2024-01-01',
       from: '10:00',
-      to: '18:00'
-    }
+      to: '18:00',
+    },
   ],
   location: {
     address: 'Test Address, Nürnberg',
     latitude: 49.4521,
-    longitude: 11.0767
+    longitude: 11.0767,
   },
-  price: 25.50,
+  price: 25.5,
   ticketsNeeded: true,
   isPromoted: false,
   categoryId: 'category-1',
@@ -200,12 +198,12 @@ const mockEvent: Event = {
   socialMedia: {
     instagram: '@testevent',
     facebook: 'testevent',
-    tiktok: '@testevent'
+    tiktok: '@testevent',
   },
   titleImageUrl: 'https://example.com/title.jpg',
   imageUrls: ['https://example.com/image1.jpg'],
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 const mockCategory: EventCategory = {
@@ -216,7 +214,7 @@ const mockCategory: EventCategory = {
   iconName: 'Music',
   fallbackImages: [],
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 const mockEventService = {
@@ -233,11 +231,7 @@ const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
 const mockUseLocation = useLocation as jest.MockedFunction<typeof useLocation>;
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('EventImageEditor Component', () => {
@@ -250,12 +244,14 @@ describe('EventImageEditor Component', () => {
       pathname: '/events/image-editor',
       search: '',
       hash: '',
-      key: 'default'
+      key: 'default',
     });
-    
+
     require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(mockEventCategoryService);
-    
+    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(
+      mockEventCategoryService
+    );
+
     mockEventService.getEvent.mockResolvedValue(mockEvent);
     mockEventCategoryService.getCategory.mockResolvedValue(mockCategory);
   });
@@ -274,11 +270,11 @@ describe('EventImageEditor Component', () => {
 
       expect(screen.getByTestId('tabs')).toBeInTheDocument();
       expect(screen.getByTestId('tabs-list')).toBeInTheDocument();
-      
+
       const titleTab = screen.getByText('Titel');
       const contentTab = screen.getByText('Inhalt');
       const logoTab = screen.getByText('Logo');
-      
+
       expect(titleTab).toBeInTheDocument();
       expect(contentTab).toBeInTheDocument();
       expect(logoTab).toBeInTheDocument();
@@ -299,12 +295,12 @@ describe('EventImageEditor Component', () => {
       mockUseLocation.mockReturnValue({
         state: {
           events: [mockEvent],
-          categoryName: 'Test Category'
+          categoryName: 'Test Category',
         },
         pathname: '/events/image-editor',
         search: '',
         hash: '',
-        key: 'default'
+        key: 'default',
       });
 
       renderWithRouter(<EventImageEditor />);
@@ -471,12 +467,12 @@ describe('EventImageEditor Component', () => {
       mockUseLocation.mockReturnValue({
         state: {
           events: [mockEvent],
-          categoryName: 'Test Category'
+          categoryName: 'Test Category',
         },
         pathname: '/events/image-editor',
         search: '',
         hash: '',
-        key: 'default'
+        key: 'default',
       });
 
       renderWithRouter(<EventImageEditor />);
@@ -490,20 +486,32 @@ describe('EventImageEditor Component', () => {
   describe('Event Grouping', () => {
     it('sollte Events nach Datum gruppieren', () => {
       const multipleEvents = [
-        { ...mockEvent, id: 'event-1', dailyTimeSlots: [{ date: '2024-01-01', from: '10:00', to: '12:00' }] },
-        { ...mockEvent, id: 'event-2', dailyTimeSlots: [{ date: '2024-01-01', from: '14:00', to: '16:00' }] },
-        { ...mockEvent, id: 'event-3', dailyTimeSlots: [{ date: '2024-01-02', from: '10:00', to: '12:00' }] }
+        {
+          ...mockEvent,
+          id: 'event-1',
+          dailyTimeSlots: [{ date: '2024-01-01', from: '10:00', to: '12:00' }],
+        },
+        {
+          ...mockEvent,
+          id: 'event-2',
+          dailyTimeSlots: [{ date: '2024-01-01', from: '14:00', to: '16:00' }],
+        },
+        {
+          ...mockEvent,
+          id: 'event-3',
+          dailyTimeSlots: [{ date: '2024-01-02', from: '10:00', to: '12:00' }],
+        },
       ];
 
       mockUseLocation.mockReturnValue({
         state: {
           events: multipleEvents,
-          categoryName: 'Test Category'
+          categoryName: 'Test Category',
         },
         pathname: '/events/image-editor',
         search: '',
         hash: '',
-        key: 'default'
+        key: 'default',
       });
 
       renderWithRouter(<EventImageEditor />);
@@ -518,12 +526,12 @@ describe('EventImageEditor Component', () => {
       mockUseLocation.mockReturnValue({
         state: {
           events: [],
-          categoryName: 'Empty Category'
+          categoryName: 'Empty Category',
         },
         pathname: '/events/image-editor',
         search: '',
         hash: '',
-        key: 'default'
+        key: 'default',
       });
 
       renderWithRouter(<EventImageEditor />);
@@ -537,7 +545,7 @@ describe('EventImageEditor Component', () => {
         pathname: '/events/image-editor',
         search: '',
         hash: '',
-        key: 'default'
+        key: 'default',
       });
 
       renderWithRouter(<EventImageEditor />);
@@ -550,7 +558,7 @@ describe('EventImageEditor Component', () => {
     it('sollte RGBA zu Hex konvertieren', () => {
       // Da die rgbaToHex Funktion exportiert sein müsste, testen wir indirekt
       renderWithRouter(<EventImageEditor />);
-      
+
       // Testen der grundlegenden Funktionalität
       expect(screen.getByText('Event-Bild Editor')).toBeInTheDocument();
     });
@@ -558,9 +566,9 @@ describe('EventImageEditor Component', () => {
     it('sollte Hex zu RGBA konvertieren', () => {
       // Da die hexToRgba Funktion exportiert sein müsste, testen wir indirekt
       renderWithRouter(<EventImageEditor />);
-      
+
       // Testen der grundlegenden Funktionalität
       expect(screen.getByText('Event-Bild Editor')).toBeInTheDocument();
     });
   });
-}); 
+});

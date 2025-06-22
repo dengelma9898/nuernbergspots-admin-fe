@@ -13,14 +13,16 @@ describe('Analytics Service', () => {
   const createMockScan = (overrides: Partial<CustomerScan> = {}): CustomerScan => ({
     customerId: 'customer1',
     scannedAt: '2024-01-15T10:30:00Z',
-    price: 25.50,
+    price: 25.5,
     numberOfPeople: 2,
     benefit: '10% Rabatt',
     businessName: 'Test Business',
     ...overrides,
   });
 
-  const createMockBusiness = (overrides: Partial<BusinessCustomerScans> = {}): BusinessCustomerScans => ({
+  const createMockBusiness = (
+    overrides: Partial<BusinessCustomerScans> = {}
+  ): BusinessCustomerScans => ({
     businessName: 'Test Business',
     scans: [createMockScan()],
     ...overrides,
@@ -114,9 +116,7 @@ describe('Analytics Service', () => {
         }),
         createMockBusiness({
           businessName: 'Business 2',
-          scans: [
-            createMockScan({ price: 40, customerId: 'customer3' }),
-          ],
+          scans: [createMockScan({ price: 40, customerId: 'customer3' })],
         }),
       ];
 
@@ -192,9 +192,7 @@ describe('Analytics Service', () => {
 
     it('should handle very large numbers', () => {
       const business = createMockBusiness({
-        scans: [
-          createMockScan({ price: 999999.99, numberOfPeople: 1000 }),
-        ],
+        scans: [createMockScan({ price: 999999.99, numberOfPeople: 1000 })],
       });
 
       const result = analyticsService.calculateBusinessAnalytics(business);
@@ -239,4 +237,4 @@ describe('Analytics Service', () => {
       expect(result.yearlyScans).toBe(3);
     });
   });
-}); 
+});

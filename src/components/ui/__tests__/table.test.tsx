@@ -17,9 +17,7 @@ import {
 // Test Table Komponente für bessere Testbarkeit
 const TestTable = ({ children, ...props }: { children?: React.ReactNode }) => (
   <Table data-testid="table" {...props}>
-    <TableCaption data-testid="table-caption">
-      Eine Liste der neuesten Rechnungen.
-    </TableCaption>
+    <TableCaption data-testid="table-caption">Eine Liste der neuesten Rechnungen.</TableCaption>
     <TableHeader data-testid="table-header">
       <TableRow data-testid="header-row">
         <TableHead data-testid="table-head-1" className="w-[100px]">
@@ -85,7 +83,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const table = screen.getByTestId('test-table');
       expect(table).toHaveAttribute('data-slot', 'table');
       expect(table.tagName).toBe('TABLE');
@@ -101,7 +99,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const container = screen.getByTestId('test-table').parentElement;
       expect(container).toHaveAttribute('data-slot', 'table-container');
       expect(container).toHaveClass('relative', 'w-full', 'overflow-x-auto');
@@ -117,7 +115,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const table = screen.getByTestId('test-table');
       expect(table).toHaveClass('w-full', 'caption-bottom', 'text-sm');
     });
@@ -132,7 +130,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const table = screen.getByTestId('test-table');
       expect(table).toHaveClass('custom-table');
     });
@@ -147,7 +145,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const table = screen.getByTestId('test-table');
       expect(table).toHaveAttribute('id', 'my-table');
       expect(table).toHaveAttribute('role', 'grid');
@@ -165,7 +163,7 @@ describe('Table Components', () => {
           </TableHeader>
         </Table>
       );
-      
+
       const header = screen.getByTestId('test-header');
       expect(header).toHaveAttribute('data-slot', 'table-header');
       expect(header.tagName).toBe('THEAD');
@@ -181,7 +179,7 @@ describe('Table Components', () => {
           </TableHeader>
         </Table>
       );
-      
+
       const header = screen.getByTestId('test-header');
       expect(header).toHaveClass('[&_tr]:border-b');
     });
@@ -196,7 +194,7 @@ describe('Table Components', () => {
           </TableHeader>
         </Table>
       );
-      
+
       const header = screen.getByTestId('test-header');
       expect(header).toHaveClass('custom-header');
     });
@@ -213,7 +211,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       );
-      
+
       const body = screen.getByTestId('test-body');
       expect(body).toHaveAttribute('data-slot', 'table-body');
       expect(body.tagName).toBe('TBODY');
@@ -229,7 +227,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       );
-      
+
       const body = screen.getByTestId('test-body');
       expect(body).toHaveClass('[&_tr:last-child]:border-0');
     });
@@ -244,7 +242,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       );
-      
+
       const body = screen.getByTestId('test-body');
       expect(body).toHaveClass('custom-body');
     });
@@ -261,7 +259,7 @@ describe('Table Components', () => {
           </TableFooter>
         </Table>
       );
-      
+
       const footer = screen.getByTestId('test-footer');
       expect(footer).toHaveAttribute('data-slot', 'table-footer');
       expect(footer.tagName).toBe('TFOOT');
@@ -277,7 +275,7 @@ describe('Table Components', () => {
           </TableFooter>
         </Table>
       );
-      
+
       const footer = screen.getByTestId('test-footer');
       expect(footer).toHaveClass(
         'bg-muted/50',
@@ -297,7 +295,7 @@ describe('Table Components', () => {
           </TableFooter>
         </Table>
       );
-      
+
       const footer = screen.getByTestId('test-footer');
       expect(footer).toHaveClass('custom-footer');
     });
@@ -314,7 +312,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const row = screen.getByTestId('test-row');
       expect(row).toHaveAttribute('data-slot', 'table-row');
       expect(row.tagName).toBe('TR');
@@ -330,7 +328,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const row = screen.getByTestId('test-row');
       expect(row).toHaveClass(
         'hover:bg-muted/50',
@@ -350,7 +348,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const row = screen.getByTestId('test-row');
       expect(row).toHaveClass('custom-row');
     });
@@ -365,7 +363,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const row = screen.getByTestId('test-row');
       expect(row).toHaveAttribute('data-state', 'selected');
     });
@@ -382,7 +380,7 @@ describe('Table Components', () => {
           </thead>
         </Table>
       );
-      
+
       const head = screen.getByTestId('test-head');
       expect(head).toHaveAttribute('data-slot', 'table-head');
       expect(head.tagName).toBe('TH');
@@ -398,7 +396,7 @@ describe('Table Components', () => {
           </thead>
         </Table>
       );
-      
+
       const head = screen.getByTestId('test-head');
       expect(head).toHaveClass(
         'text-foreground',
@@ -423,7 +421,7 @@ describe('Table Components', () => {
           </thead>
         </Table>
       );
-      
+
       const head = screen.getByTestId('test-head');
       expect(head).toHaveClass('custom-head');
     });
@@ -438,7 +436,7 @@ describe('Table Components', () => {
           </thead>
         </Table>
       );
-      
+
       const head = screen.getByTestId('test-head');
       expect(head).toHaveTextContent('Name');
     });
@@ -455,7 +453,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('test-cell');
       expect(cell).toHaveAttribute('data-slot', 'table-cell');
       expect(cell.tagName).toBe('TD');
@@ -471,13 +469,9 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('test-cell');
-      expect(cell).toHaveClass(
-        'p-2',
-        'align-middle',
-        'whitespace-nowrap'
-      );
+      expect(cell).toHaveClass('p-2', 'align-middle', 'whitespace-nowrap');
     });
 
     it('sollte custom className akzeptieren', () => {
@@ -492,7 +486,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('test-cell');
       expect(cell).toHaveClass('custom-cell');
     });
@@ -507,7 +501,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('test-cell');
       expect(cell).toHaveTextContent('Test Data');
     });
@@ -524,7 +518,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('test-cell');
       expect(cell).toHaveAttribute('colSpan', '2');
       expect(cell).toHaveAttribute('rowSpan', '3');
@@ -535,9 +529,7 @@ describe('Table Components', () => {
     it('sollte korrekt mit data-slot="table-caption" gerendert werden', () => {
       render(
         <Table>
-          <TableCaption data-testid="test-caption">
-            Table Caption
-          </TableCaption>
+          <TableCaption data-testid="test-caption">Table Caption</TableCaption>
           <tbody>
             <tr>
               <td>Content</td>
@@ -545,7 +537,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const caption = screen.getByTestId('test-caption');
       expect(caption).toHaveAttribute('data-slot', 'table-caption');
       expect(caption.tagName).toBe('CAPTION');
@@ -554,9 +546,7 @@ describe('Table Components', () => {
     it('sollte Standard-Styles haben', () => {
       render(
         <Table>
-          <TableCaption data-testid="test-caption">
-            Table Caption
-          </TableCaption>
+          <TableCaption data-testid="test-caption">Table Caption</TableCaption>
           <tbody>
             <tr>
               <td>Content</td>
@@ -564,7 +554,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const caption = screen.getByTestId('test-caption');
       expect(caption).toHaveClass('text-muted-foreground', 'mt-4', 'text-sm');
     });
@@ -582,7 +572,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const caption = screen.getByTestId('test-caption');
       expect(caption).toHaveClass('custom-caption');
     });
@@ -590,9 +580,7 @@ describe('Table Components', () => {
     it('sollte Text-Inhalt anzeigen', () => {
       render(
         <Table>
-          <TableCaption data-testid="test-caption">
-            Eine Liste der Benutzer
-          </TableCaption>
+          <TableCaption data-testid="test-caption">Eine Liste der Benutzer</TableCaption>
           <tbody>
             <tr>
               <td>Content</td>
@@ -600,7 +588,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const caption = screen.getByTestId('test-caption');
       expect(caption).toHaveTextContent('Eine Liste der Benutzer');
     });
@@ -630,7 +618,7 @@ describe('Table Components', () => {
           </TableFooter>
         </Table>
       );
-      
+
       expect(screen.getByTestId('complete-table')).toBeInTheDocument();
       expect(screen.getByText('Test Caption')).toBeInTheDocument();
       expect(screen.getByText('Name')).toBeInTheDocument();
@@ -642,13 +630,13 @@ describe('Table Components', () => {
   describe('Accessibility', () => {
     it('sollte korrekte Table-Semantik haben', () => {
       render(<TestTable />);
-      
+
       const table = screen.getByRole('table');
       expect(table).toBeInTheDocument();
-      
+
       const columnHeaders = screen.getAllByRole('columnheader');
       expect(columnHeaders).toHaveLength(4);
-      
+
       const rows = screen.getAllByRole('row');
       expect(rows.length).toBeGreaterThan(0);
     });
@@ -663,7 +651,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const table = screen.getByLabelText('Rechnungen Tabelle');
       expect(table).toBeInTheDocument();
     });
@@ -681,7 +669,7 @@ describe('Table Components', () => {
           </Table>
         </div>
       );
-      
+
       const table = screen.getByTestId('table');
       expect(table).toHaveAttribute('aria-describedby', 'table-description');
     });
@@ -703,7 +691,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const head = screen.getByTestId('sortable-head');
       expect(head).toHaveAttribute('aria-sort', 'ascending');
     });
@@ -713,7 +701,7 @@ describe('Table Components', () => {
     it('sollte Row Click Handler unterstützen', async () => {
       const user = userEvent.setup();
       const onRowClick = jest.fn();
-      
+
       render(
         <Table>
           <tbody>
@@ -723,7 +711,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       await user.click(screen.getByTestId('clickable-row'));
       expect(onRowClick).toHaveBeenCalledTimes(1);
     });
@@ -731,7 +719,7 @@ describe('Table Components', () => {
     it('sollte Cell Click Handler unterstützen', async () => {
       const user = userEvent.setup();
       const onCellClick = jest.fn();
-      
+
       render(
         <Table>
           <tbody>
@@ -743,7 +731,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       await user.click(screen.getByTestId('clickable-cell'));
       expect(onCellClick).toHaveBeenCalledTimes(1);
     });
@@ -758,7 +746,7 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const row = screen.getByTestId('hoverable-row');
       expect(row).toHaveClass('hover:bg-muted/50');
     });
@@ -766,11 +754,8 @@ describe('Table Components', () => {
 
   describe('Edge Cases', () => {
     it('sollte leere Tabelle handhaben', () => {
-      render(
-        <Table data-testid="empty-table">
-        </Table>
-      );
-      
+      render(<Table data-testid="empty-table"></Table>);
+
       const table = screen.getByTestId('empty-table');
       expect(table).toBeInTheDocument();
       expect(table).toBeEmptyDOMElement();
@@ -786,7 +771,7 @@ describe('Table Components', () => {
           </TableHeader>
         </Table>
       );
-      
+
       expect(screen.getByText('Name')).toBeInTheDocument();
     });
 
@@ -800,7 +785,7 @@ describe('Table Components', () => {
           </TableBody>
         </Table>
       );
-      
+
       expect(screen.getByText('Data')).toBeInTheDocument();
     });
 
@@ -810,15 +795,13 @@ describe('Table Components', () => {
           <TableCell>Row {i}</TableCell>
         </TableRow>
       ));
-      
+
       render(
         <Table>
-          <TableBody>
-            {manyRows}
-          </TableBody>
+          <TableBody>{manyRows}</TableBody>
         </Table>
       );
-      
+
       expect(screen.getByText('Row 0')).toBeInTheDocument();
       expect(screen.getByText('Row 99')).toBeInTheDocument();
     });
@@ -840,11 +823,11 @@ describe('Table Components', () => {
           </tbody>
         </Table>
       );
-      
+
       const cell = screen.getByTestId('complex-cell');
       expect(cell).toContainHTML('<strong>Name:</strong>');
       expect(cell).toContainHTML('<em>Email:</em>');
       expect(screen.getByRole('button', { name: 'Action' })).toBeInTheDocument();
     });
   });
-}); 
+});

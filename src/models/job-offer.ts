@@ -64,4 +64,4 @@ export interface JobOfferCreation {
   isHighlight: boolean;
   businessIds?: string[];
   jobOfferCategoryId: string;
-} 
+}

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { BusinessAnalytics } from "@/models/business";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { BusinessAnalytics } from '@/models/business';
 
 interface PricingCalculatorProps {
   analytics: BusinessAnalytics[];
@@ -21,8 +21,8 @@ export function PricingCalculator({ analytics }: PricingCalculatorProps) {
   const [pricingModel, setPricingModel] = useState<PricingModel>({
     baseFee: 29.99,
     scanThreshold: 100,
-    scanFee: 0.10,
-    maxFee: 99.99
+    scanFee: 0.1,
+    maxFee: 99.99,
   });
 
   const [hasMaxFee, setHasMaxFee] = useState(true);
@@ -41,7 +41,7 @@ export function PricingCalculator({ analytics }: PricingCalculatorProps) {
 
     analytics.forEach(business => {
       let fee = pricingModel.baseFee;
-      
+
       if (business.monthlyScans > pricingModel.scanThreshold) {
         const additionalScans = business.monthlyScans - pricingModel.scanThreshold;
         fee += additionalScans * pricingModel.scanFee;
@@ -83,7 +83,9 @@ export function PricingCalculator({ analytics }: PricingCalculatorProps) {
             <Label>Scan-Schwelle</Label>
             <Slider
               value={[pricingModel.scanThreshold]}
-              onValueChange={([value]) => setPricingModel(prev => ({ ...prev, scanThreshold: value }))}
+              onValueChange={([value]) =>
+                setPricingModel(prev => ({ ...prev, scanThreshold: value }))
+              }
               min={0}
               max={1000}
               step={10}
@@ -108,10 +110,7 @@ export function PricingCalculator({ analytics }: PricingCalculatorProps) {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Switch
-              checked={hasMaxFee}
-              onCheckedChange={setHasMaxFee}
-            />
+            <Switch checked={hasMaxFee} onCheckedChange={setHasMaxFee} />
             <Label>Maximale Gebühr aktivieren</Label>
           </div>
 
@@ -162,4 +161,4 @@ export function PricingCalculator({ analytics }: PricingCalculatorProps) {
       </CardContent>
     </Card>
   );
-} 
+}

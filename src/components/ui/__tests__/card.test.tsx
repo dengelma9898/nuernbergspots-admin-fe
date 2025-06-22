@@ -1,21 +1,21 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter, 
-  CardAction 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  CardAction,
 } from '../card';
 
 describe('Card Components', () => {
   describe('Card', () => {
     it('sollte Card mit Standard-Props rendern', () => {
       render(<Card>Card Content</Card>);
-      
+
       const card = screen.getByText('Card Content');
       expect(card).toBeInTheDocument();
       expect(card).toHaveAttribute('data-slot', 'card');
@@ -23,14 +23,14 @@ describe('Card Components', () => {
 
     it('sollte custom className korrekt anwenden', () => {
       render(<Card className="custom-card">Custom Card</Card>);
-      
+
       const card = screen.getByText('Custom Card');
       expect(card).toHaveClass('custom-card');
     });
 
     it('sollte Standard-CSS-Klassen haben', () => {
       render(<Card>Standard Card</Card>);
-      
+
       const card = screen.getByText('Standard Card');
       expect(card).toHaveClass(
         'bg-card',
@@ -49,7 +49,7 @@ describe('Card Components', () => {
   describe('CardHeader', () => {
     it('sollte CardHeader korrekt rendern', () => {
       render(<CardHeader>Header Content</CardHeader>);
-      
+
       const header = screen.getByText('Header Content');
       expect(header).toBeInTheDocument();
       expect(header).toHaveAttribute('data-slot', 'card-header');
@@ -62,7 +62,7 @@ describe('Card Components', () => {
           <CardAction>Action</CardAction>
         </CardHeader>
       );
-      
+
       const header = screen.getByText('Title').parentElement;
       expect(header).toHaveClass('has-data-[slot=card-action]:grid-cols-[1fr_auto]');
     });
@@ -71,7 +71,7 @@ describe('Card Components', () => {
   describe('CardTitle', () => {
     it('sollte CardTitle korrekt rendern', () => {
       render(<CardTitle>Card Title</CardTitle>);
-      
+
       const title = screen.getByText('Card Title');
       expect(title).toBeInTheDocument();
       expect(title).toHaveAttribute('data-slot', 'card-title');
@@ -80,7 +80,7 @@ describe('Card Components', () => {
 
     it('sollte custom className für Title anwenden', () => {
       render(<CardTitle className="custom-title">Custom Title</CardTitle>);
-      
+
       const title = screen.getByText('Custom Title');
       expect(title).toHaveClass('custom-title');
     });
@@ -89,7 +89,7 @@ describe('Card Components', () => {
   describe('CardDescription', () => {
     it('sollte CardDescription korrekt rendern', () => {
       render(<CardDescription>Card Description</CardDescription>);
-      
+
       const description = screen.getByText('Card Description');
       expect(description).toBeInTheDocument();
       expect(description).toHaveAttribute('data-slot', 'card-description');
@@ -100,7 +100,7 @@ describe('Card Components', () => {
   describe('CardAction', () => {
     it('sollte CardAction korrekt rendern', () => {
       render(<CardAction>Action Button</CardAction>);
-      
+
       const action = screen.getByText('Action Button');
       expect(action).toBeInTheDocument();
       expect(action).toHaveAttribute('data-slot', 'card-action');
@@ -108,7 +108,7 @@ describe('Card Components', () => {
 
     it('sollte korrekte Grid-Position haben', () => {
       render(<CardAction>Action</CardAction>);
-      
+
       const action = screen.getByText('Action');
       expect(action).toHaveClass(
         'col-start-2',
@@ -123,7 +123,7 @@ describe('Card Components', () => {
   describe('CardContent', () => {
     it('sollte CardContent korrekt rendern', () => {
       render(<CardContent>Content Area</CardContent>);
-      
+
       const content = screen.getByText('Content Area');
       expect(content).toBeInTheDocument();
       expect(content).toHaveAttribute('data-slot', 'card-content');
@@ -134,7 +134,7 @@ describe('Card Components', () => {
   describe('CardFooter', () => {
     it('sollte CardFooter korrekt rendern', () => {
       render(<CardFooter>Footer Content</CardFooter>);
-      
+
       const footer = screen.getByText('Footer Content');
       expect(footer).toBeInTheDocument();
       expect(footer).toHaveAttribute('data-slot', 'card-footer');
@@ -143,7 +143,7 @@ describe('Card Components', () => {
 
     it('sollte border-top Styling haben', () => {
       render(<CardFooter className="border-t">Footer with Border</CardFooter>);
-      
+
       const footer = screen.getByText('Footer with Border');
       expect(footer).toHaveClass('[.border-t]:pt-6');
     });
@@ -168,7 +168,7 @@ describe('Card Components', () => {
           </CardFooter>
         </Card>
       );
-      
+
       expect(screen.getByText('Test Card')).toBeInTheDocument();
       expect(screen.getByText('This is a test card')).toBeInTheDocument();
       expect(screen.getByText('Main content goes here')).toBeInTheDocument();
@@ -182,7 +182,7 @@ describe('Card Components', () => {
           <CardContent>Content only</CardContent>
         </Card>
       );
-      
+
       expect(screen.getByText('Content only')).toBeInTheDocument();
     });
 
@@ -195,7 +195,7 @@ describe('Card Components', () => {
           <CardContent>Content without footer</CardContent>
         </Card>
       );
-      
+
       expect(screen.getByText('No Footer Card')).toBeInTheDocument();
       expect(screen.getByText('Content without footer')).toBeInTheDocument();
     });
@@ -204,14 +204,14 @@ describe('Card Components', () => {
   describe('Accessibility', () => {
     it('sollte aria-label für Card setzen', () => {
       render(<Card aria-label="Product card">Product Info</Card>);
-      
+
       const card = screen.getByLabelText('Product card');
       expect(card).toBeInTheDocument();
     });
 
     it('sollte role für Card setzen', () => {
       render(<Card role="article">Article Card</Card>);
-      
+
       const card = screen.getByRole('article');
       expect(card).toBeInTheDocument();
     });
@@ -224,7 +224,7 @@ describe('Card Components', () => {
           </CardHeader>
         </Card>
       );
-      
+
       // Da CardTitle ein div ist, prüfen wir die Klassen
       const title = screen.getByText('Main Title');
       expect(title).toHaveClass('font-semibold');
@@ -243,7 +243,7 @@ describe('Card Components', () => {
           <CardFooter data-testid="footer">Footer</CardFooter>
         </Card>
       );
-      
+
       expect(screen.getByTestId('card')).toBeInTheDocument();
       expect(screen.getByTestId('header')).toBeInTheDocument();
       expect(screen.getByTestId('title')).toBeInTheDocument();
@@ -261,7 +261,7 @@ describe('Card Components', () => {
           <CardContent>Right Content</CardContent>
         </Card>
       );
-      
+
       const card = screen.getByText('Left Content').parentElement;
       expect(card).toHaveClass('flex-row');
     });
@@ -272,7 +272,7 @@ describe('Card Components', () => {
           <CardContent className="p-4">Compact Content</CardContent>
         </Card>
       );
-      
+
       const card = screen.getByTestId('compact-card');
       expect(card).toHaveClass('p-0');
     });
@@ -286,7 +286,7 @@ describe('Card Components', () => {
           <CardContent>Clickable Card</CardContent>
         </Card>
       );
-      
+
       const card = screen.getByTestId('clickable-card');
       expect(card).toHaveClass('cursor-pointer');
     });
@@ -297,7 +297,7 @@ describe('Card Components', () => {
           <CardContent>Hover Card</CardContent>
         </Card>
       );
-      
+
       const card = screen.getByTestId('hover-card');
       expect(card).toHaveClass('hover:shadow-lg');
     });
@@ -318,7 +318,7 @@ describe('Card Components', () => {
           </CardContent>
         </Card>
       );
-      
+
       expect(screen.getByText('Nested Title')).toBeInTheDocument();
       expect(screen.getByText('Item 1')).toBeInTheDocument();
       expect(screen.getByText('Item 2')).toBeInTheDocument();
@@ -332,7 +332,7 @@ describe('Card Components', () => {
           </CardContent>
         </Card>
       );
-      
+
       const image = screen.getByAltText('Test Image');
       expect(image).toBeInTheDocument();
     });
@@ -341,7 +341,7 @@ describe('Card Components', () => {
   describe('Edge Cases', () => {
     it('sollte mit leerem Content umgehen', () => {
       render(<Card data-testid="empty-card"></Card>);
-      
+
       const card = screen.getByTestId('empty-card');
       expect(card).toBeInTheDocument();
       expect(card).toBeEmptyDOMElement();
@@ -354,7 +354,7 @@ describe('Card Components', () => {
           <CardContent data-testid="long-content">{longContent}</CardContent>
         </Card>
       );
-      
+
       const content = screen.getByTestId('long-content');
       expect(content).toBeInTheDocument();
       // Prüfe nur, dass der Content vorhanden ist (Whitespace kann variieren)
@@ -362,4 +362,4 @@ describe('Card Components', () => {
       expect(content.textContent!.length).toBeGreaterThan(1000);
     });
   });
-}); 
+});

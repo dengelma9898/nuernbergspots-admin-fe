@@ -8,4 +8,4 @@ export const convertHexToFF = (hexColor: string): string => {
   // Entfernt "#" und fügt "0xff" hinzu
   const ff = hexColor.replace('#', '');
   return `0xff${ff}`;
-}; 
+};

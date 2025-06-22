@@ -17,7 +17,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useEventService } from '../eventService';
@@ -65,17 +65,22 @@ describe('Event Service', () => {
 
   describe('createEvent', () => {
     it('should create a new event', async () => {
-      const newEvent = { 
-        title: 'New Event', 
+      const newEvent = {
+        title: 'New Event',
         description: 'New Description',
         location: {
           address: 'Test Location',
           latitude: 49.4521,
-          longitude: 11.0767
+          longitude: 11.0767,
         },
-        dailyTimeSlots: []
+        dailyTimeSlots: [],
       };
-      const createdEvent = { id: '1', ...newEvent, createdAt: '2024-01-01', updatedAt: '2024-01-01' };
+      const createdEvent = {
+        id: '1',
+        ...newEvent,
+        createdAt: '2024-01-01',
+        updatedAt: '2024-01-01',
+      };
       mockApi.post.mockResolvedValue({ data: createdEvent });
 
       const result = await eventService.createEvent(newEvent);
@@ -115,7 +120,9 @@ describe('Event Service', () => {
 
       const result = await eventService.getEventsByDateRange('2024-01-01', '2024-01-31');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/range?startDate=2024-01-01&endDate=2024-01-31');
+      expect(mockApi.get).toHaveBeenCalledWith(
+        '/events/range?startDate=2024-01-01&endDate=2024-01-31'
+      );
       expect(result).toEqual(mockEvents);
     });
   });
@@ -139,7 +146,9 @@ describe('Event Service', () => {
 
       const result = await eventService.getNearbyEvents(49.4521, 11.0767, 10);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/nearby?latitude=49.4521&longitude=11.0767&radiusKm=10');
+      expect(mockApi.get).toHaveBeenCalledWith(
+        '/events/nearby?latitude=49.4521&longitude=11.0767&radiusKm=10'
+      );
       expect(result).toEqual(mockEvents);
     });
   });
@@ -177,11 +186,9 @@ describe('Event Service', () => {
 
       const result = await eventService.uploadEventImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
-        '/events/1/images',
-        expect.any(FormData),
-        { isFormData: true }
-      );
+      expect(mockApi.patch).toHaveBeenCalledWith('/events/1/images', expect.any(FormData), {
+        isFormData: true,
+      });
       expect(result).toEqual(mockUrls);
     });
   });
@@ -207,4 +214,4 @@ describe('Event Service', () => {
       expect(result).toEqual(mockEvents);
     });
   });
-}); 
+});

@@ -22,20 +22,18 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Dialog Testkomponente für bessere Testbarkeit
-const TestDialog = ({ 
-  open = false, 
+const TestDialog = ({
+  open = false,
   onOpenChange = jest.fn(),
   children,
-  ...props 
+  ...props
 }: {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   children?: React.ReactNode;
 }) => (
   <Dialog open={open} onOpenChange={onOpenChange} {...props}>
-    <DialogTrigger data-testid="dialog-trigger">
-      Open Dialog
-    </DialogTrigger>
+    <DialogTrigger data-testid="dialog-trigger">Open Dialog</DialogTrigger>
     <DialogContent data-testid="dialog-content">
       <DialogHeader>
         <DialogTitle data-testid="dialog-title">Test Dialog Title</DialogTitle>
@@ -62,7 +60,7 @@ describe('Dialog Components', () => {
           <div data-testid="test-content">Test content</div>
         </Dialog>
       );
-      
+
       // Dialog Root ist ein unsichtbarer Wrapper, prüfen wir ob der Inhalt gerendert wird
       const testContent = screen.getByTestId('test-content');
       expect(testContent).toBeInTheDocument();
@@ -80,12 +78,12 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       // Trigger sollte vorhanden sein
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toBeInTheDocument();
       expect(trigger).toHaveTextContent('Open Dialog');
-      
+
       // Content sollte nicht sichtbar sein (da Dialog geschlossen)
       const content = screen.queryByTestId('content');
       expect(content).not.toBeInTheDocument();
@@ -99,7 +97,7 @@ describe('Dialog Components', () => {
           <DialogTrigger data-testid="trigger">Open</DialogTrigger>
         </Dialog>
       );
-      
+
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveAttribute('data-slot', 'dialog-trigger');
       expect(trigger).toHaveTextContent('Open');
@@ -107,16 +105,16 @@ describe('Dialog Components', () => {
 
     it('sollte Dialog öffnen wenn geklickt', async () => {
       const onOpenChange = jest.fn();
-      
+
       render(
         <Dialog onOpenChange={onOpenChange}>
           <DialogTrigger data-testid="trigger">Open</DialogTrigger>
           <DialogContent data-testid="content">Dialog Content</DialogContent>
         </Dialog>
       );
-      
+
       await user.click(screen.getByTestId('trigger'));
-      
+
       expect(onOpenChange).toHaveBeenCalledWith(true);
     });
   });
@@ -130,7 +128,7 @@ describe('Dialog Components', () => {
           </DialogPortal>
         </Dialog>
       );
-      
+
       // Portal Inhalt sollte gerendert werden
       const portalContent = screen.getByTestId('portal-content');
       expect(portalContent).toHaveTextContent('Portal Content');
@@ -148,7 +146,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const closeButton = screen.getByTestId('close');
       expect(closeButton).toHaveAttribute('data-slot', 'dialog-close');
       expect(closeButton).toHaveTextContent('Close');
@@ -156,7 +154,7 @@ describe('Dialog Components', () => {
 
     it('sollte Dialog schließen wenn geklickt', async () => {
       const onOpenChange = jest.fn();
-      
+
       render(
         <Dialog open onOpenChange={onOpenChange}>
           <DialogContent>
@@ -166,9 +164,9 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       await user.click(screen.getByTestId('close'));
-      
+
       expect(onOpenChange).toHaveBeenCalledWith(false);
     });
   });
@@ -180,7 +178,7 @@ describe('Dialog Components', () => {
           <DialogOverlay data-testid="overlay" />
         </Dialog>
       );
-      
+
       const overlay = screen.getByTestId('overlay');
       expect(overlay).toHaveAttribute('data-slot', 'dialog-overlay');
       expect(overlay).toHaveClass(
@@ -199,7 +197,7 @@ describe('Dialog Components', () => {
           <DialogOverlay data-testid="overlay" className="custom-overlay" />
         </Dialog>
       );
-      
+
       const overlay = screen.getByTestId('overlay');
       expect(overlay).toHaveClass('custom-overlay');
     });
@@ -216,7 +214,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toHaveAttribute('data-slot', 'dialog-content');
       expect(content).toHaveClass(
@@ -243,17 +241,17 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const xIcon = screen.getByTestId('x-icon');
       expect(xIcon).toBeInTheDocument();
-      
+
       const srOnlyText = screen.getByText('Close');
       expect(srOnlyText).toHaveClass('sr-only');
     });
 
     it('sollte Dialog schließen wenn X-Button geklickt wird', async () => {
       const onOpenChange = jest.fn();
-      
+
       render(
         <Dialog open onOpenChange={onOpenChange}>
           <DialogContent>
@@ -263,10 +261,10 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const xIcon = screen.getByTestId('x-icon').closest('button');
       expect(xIcon).toBeInTheDocument();
-      
+
       if (xIcon) {
         await user.click(xIcon);
         expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -283,7 +281,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       expect(screen.getByTestId('child')).toHaveTextContent('Child Content');
     });
   });
@@ -295,16 +293,10 @@ describe('Dialog Components', () => {
           <h2>Header Content</h2>
         </DialogHeader>
       );
-      
+
       const header = screen.getByTestId('header');
       expect(header).toHaveAttribute('data-slot', 'dialog-header');
-      expect(header).toHaveClass(
-        'flex',
-        'flex-col',
-        'gap-2',
-        'text-center',
-        'sm:text-left'
-      );
+      expect(header).toHaveClass('flex', 'flex-col', 'gap-2', 'text-center', 'sm:text-left');
     });
 
     it('sollte custom className akzeptieren', () => {
@@ -313,7 +305,7 @@ describe('Dialog Components', () => {
           Header
         </DialogHeader>
       );
-      
+
       const header = screen.getByTestId('header');
       expect(header).toHaveClass('custom-header');
     });
@@ -326,7 +318,7 @@ describe('Dialog Components', () => {
           <button>Footer Button</button>
         </DialogFooter>
       );
-      
+
       const footer = screen.getByTestId('footer');
       expect(footer).toHaveAttribute('data-slot', 'dialog-footer');
       expect(footer).toHaveClass(
@@ -344,7 +336,7 @@ describe('Dialog Components', () => {
           Footer
         </DialogFooter>
       );
-      
+
       const footer = screen.getByTestId('footer');
       expect(footer).toHaveClass('custom-footer');
     });
@@ -360,7 +352,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const title = screen.getByTestId('title');
       expect(title).toHaveAttribute('data-slot', 'dialog-title');
       expect(title).toHaveClass('text-lg', 'leading-none', 'font-semibold');
@@ -378,7 +370,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const title = screen.getByTestId('title');
       expect(title).toHaveClass('custom-title');
     });
@@ -390,13 +382,11 @@ describe('Dialog Components', () => {
         <Dialog open>
           <DialogContent>
             <DialogTitle>Test Title</DialogTitle>
-            <DialogDescription data-testid="description">
-              Dialog Description
-            </DialogDescription>
+            <DialogDescription data-testid="description">Dialog Description</DialogDescription>
           </DialogContent>
         </Dialog>
       );
-      
+
       const description = screen.getByTestId('description');
       expect(description).toHaveAttribute('data-slot', 'dialog-description');
       expect(description).toHaveClass('text-muted-foreground', 'text-sm');
@@ -414,7 +404,7 @@ describe('Dialog Components', () => {
           </DialogContent>
         </Dialog>
       );
-      
+
       const description = screen.getByTestId('description');
       expect(description).toHaveClass('custom-description');
     });
@@ -423,24 +413,26 @@ describe('Dialog Components', () => {
   describe('Vollständiger Dialog Test', () => {
     it('sollte kompletten Dialog-Workflow testen', async () => {
       const onOpenChange = jest.fn();
-      
+
       render(<TestDialog onOpenChange={onOpenChange} />);
-      
+
       // Dialog sollte initial geschlossen sein
       expect(screen.queryByTestId('dialog-content')).not.toBeInTheDocument();
-      
+
       // Dialog öffnen
       await user.click(screen.getByTestId('dialog-trigger'));
       expect(onOpenChange).toHaveBeenCalledWith(true);
-      
+
       // Rerender mit open=true um geöffneten Zustand zu simulieren
       render(<TestDialog open={true} onOpenChange={onOpenChange} />);
-      
+
       // Dialog-Inhalte sollten sichtbar sein
       expect(screen.getByTestId('dialog-title')).toHaveTextContent('Test Dialog Title');
-      expect(screen.getByTestId('dialog-description')).toHaveTextContent('This is a test dialog description');
+      expect(screen.getByTestId('dialog-description')).toHaveTextContent(
+        'This is a test dialog description'
+      );
       expect(screen.getByTestId('dialog-body')).toHaveTextContent('Dialog content goes here');
-      
+
       // Dialog schließen über Close-Button
       await user.click(screen.getByTestId('dialog-close'));
       expect(onOpenChange).toHaveBeenCalledWith(false);
@@ -448,12 +440,12 @@ describe('Dialog Components', () => {
 
     it('sollte Escape-Taste zum Schließen unterstützen', async () => {
       const onOpenChange = jest.fn();
-      
+
       render(<TestDialog open={true} onOpenChange={onOpenChange} />);
-      
+
       // ESC-Taste drücken
       fireEvent.keyDown(document.body, { key: 'Escape', code: 'Escape' });
-      
+
       await waitFor(() => {
         expect(onOpenChange).toHaveBeenCalledWith(false);
       });
@@ -461,15 +453,15 @@ describe('Dialog Components', () => {
 
     it('sollte Accessibility-Attribute korrekt setzen', () => {
       render(<TestDialog open={true} />);
-      
+
       const title = screen.getByTestId('dialog-title');
       const description = screen.getByTestId('dialog-description');
-      
+
       // Title sollte als heading erkannt werden
       expect(title.tagName).toBe('H2');
-      
+
       // Description sollte korrekte Rolle haben
       expect(description).toBeInTheDocument();
     });
   });
-}); 
+});

@@ -29,7 +29,7 @@ export const useContactService = () => {
       if (!userId) {
         throw new Error('Kein Benutzer angemeldet');
       }
-      
+
       const response = await api.get<ApiResponse<ContactRequest>>(
         `${baseUrl}/user/${userId}/request/${requestId}`
       );
@@ -40,7 +40,10 @@ export const useContactService = () => {
     }
   };
 
-  const respondToContactRequest = async (requestId: string, message: string): Promise<ContactRequest> => {
+  const respondToContactRequest = async (
+    requestId: string,
+    message: string
+  ): Promise<ContactRequest> => {
     try {
       const userId = getUserId();
       if (!userId) {
@@ -64,4 +67,4 @@ export const useContactService = () => {
     getContactRequestById,
     respondToContactRequest,
   };
-}; 
+};

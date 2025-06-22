@@ -15,4 +15,4 @@ export interface JobCategoryCreation {
   colorCode: string;
   iconName: string;
   fallbackImages: string[];
-} 
+}

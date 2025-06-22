@@ -3,7 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useBusinessUserService, BusinessUser } from '@/services/businessUserService';
 import { useBusinessService } from '@/services/businessService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +23,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
 export function EditBusinessUser() {
@@ -38,7 +45,7 @@ export function EditBusinessUser() {
 
         const [user, businesses] = await Promise.all([
           businessUserService.getBusinessUser(id),
-          businessService.getBusinesses()
+          businessService.getBusinesses(),
         ]);
 
         setBusinessUser(user);
@@ -66,15 +73,17 @@ export function EditBusinessUser() {
     try {
       setIsAddingBusiness(true);
       await businessUserService.addBusinessToUser(businessUser.id, selectedBusiness.id);
-      
+
       // Aktualisiere die Daten
       const updatedUser = await businessUserService.getBusinessUser(businessUser.id);
       setBusinessUser(updatedUser);
-      
-      toast.success(`${selectedBusiness.name} wurde erfolgreich zu ${businessUser.email} hinzugefügt.`);
+
+      toast.success(
+        `${selectedBusiness.name} wurde erfolgreich zu ${businessUser.email} hinzugefügt.`
+      );
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Geschäfts:', error);
-      toast.error("Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.");
+      toast.error('Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.');
     } finally {
       setIsAddingBusiness(false);
       setIsConfirmDialogOpen(false);
@@ -89,7 +98,7 @@ export function EditBusinessUser() {
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
         <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-        
+
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -102,10 +111,10 @@ export function EditBusinessUser() {
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => navigate('/business-users')} 
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/business-users')}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-full p-2 border"
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -135,7 +144,7 @@ export function EditBusinessUser() {
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
         <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-        
+
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -148,10 +157,10 @@ export function EditBusinessUser() {
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
               <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => navigate('/business-users')} 
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/business-users')}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-full p-2 border"
                 >
                   <ArrowLeft className="h-5 w-5" />
@@ -172,13 +181,11 @@ export function EditBusinessUser() {
     );
   }
 
-  const assignedBusinesses = availableBusinesses.filter(business => 
+  const assignedBusinesses = availableBusinesses.filter(business =>
     businessUser.businessIds.includes(business.id)
   );
 
-  const unassignedBusinesses = availableBusinesses.filter(business => 
-    !business.hasAccount
-  );
+  const unassignedBusinesses = availableBusinesses.filter(business => !business.hasAccount);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -186,7 +193,7 @@ export function EditBusinessUser() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -199,10 +206,10 @@ export function EditBusinessUser() {
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 mb-8">
             <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => navigate('/business-users')} 
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/business-users')}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-full p-2 border"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -231,17 +238,26 @@ export function EditBusinessUser() {
                   <p className="text-sm font-medium text-white/70 mb-2">Status</p>
                   <div className="flex items-center gap-2">
                     {businessUser.isDeleted ? (
-                      <Badge variant="destructive" className="bg-destructive backdrop-blur-2xl border border-red-400/30 text-red-200 rounded-xl flex items-center gap-1">
+                      <Badge
+                        variant="destructive"
+                        className="bg-destructive backdrop-blur-2xl border border-red-400/30 text-red-200 rounded-xl flex items-center gap-1"
+                      >
                         <Trash2 className="h-3 w-3" />
                         Gelöscht
                       </Badge>
                     ) : businessUser.needsReview ? (
-                      <Badge variant="secondary" className="bg-secondary backdrop-blur-2xl border border-orange-400/30 text-orange-200 rounded-xl flex items-center gap-1">
+                      <Badge
+                        variant="secondary"
+                        className="bg-secondary backdrop-blur-2xl border border-orange-400/30 text-orange-200 rounded-xl flex items-center gap-1"
+                      >
                         <AlertCircle className="h-3 w-3" />
                         Überprüfung erforderlich
                       </Badge>
                     ) : (
-                      <Badge variant="default" className="bg-primary backdrop-blur-2xl border border-green-400/30 text-green-200 rounded-xl flex items-center gap-1">
+                      <Badge
+                        variant="default"
+                        className="bg-primary backdrop-blur-2xl border border-green-400/30 text-green-200 rounded-xl flex items-center gap-1"
+                      >
                         <CheckCircle2 className="h-3 w-3" />
                         Aktiv
                       </Badge>
@@ -252,18 +268,21 @@ export function EditBusinessUser() {
             </div>
           </div>
 
-                     {/* Zugewiesene Geschäfte */}
-           <div>
-             {/* Mobile Card Layout */}
-             <div className="md:hidden space-y-2">
+          {/* Zugewiesene Geschäfte */}
+          <div>
+            {/* Mobile Card Layout */}
+            <div className="md:hidden space-y-2">
               <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4">
                 <div className="text-lg font-semibold text-white mb-4">Zugewiesene Geschäfte</div>
                 {assignedBusinesses.length === 0 ? (
                   <div className="text-white/60 text-sm">Keine zugewiesenen Geschäfte</div>
                 ) : (
                   <div className="space-y-3">
-                    {assignedBusinesses.map((business) => (
-                      <div key={business.id} className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-3 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                    {assignedBusinesses.map(business => (
+                      <div
+                        key={business.id}
+                        className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-3 hover:shadow-xl hover:scale-105 transition-all duration-300"
+                      >
                         <div className="font-medium text-white">{business.name}</div>
                         <div className="text-xs text-white/70 break-all mt-1">{business.id}</div>
                       </div>
@@ -273,8 +292,11 @@ export function EditBusinessUser() {
               </div>
             </div>
 
-                         {/* Desktop Table Layout */}
-             <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden" data-slot="card">
+            {/* Desktop Table Layout */}
+            <div
+              className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden"
+              data-slot="card"
+            >
               <div className="p-6 border-b border-white/10">
                 <h2 className="text-lg font-semibold text-white">Zugewiesene Geschäfte</h2>
               </div>
@@ -287,8 +309,11 @@ export function EditBusinessUser() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {assignedBusinesses.map((business) => (
-                      <TableRow key={business.id} className="border-b border-white/5 hover:bg-white/5 transition-colors duration-200">
+                    {assignedBusinesses.map(business => (
+                      <TableRow
+                        key={business.id}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors duration-200"
+                      >
                         <TableCell className="text-white font-medium">{business.name}</TableCell>
                         <TableCell className="text-white/80">{business.id}</TableCell>
                       </TableRow>
@@ -309,8 +334,11 @@ export function EditBusinessUser() {
                   <div className="text-white/60 text-sm">Keine verfügbaren Geschäfte</div>
                 ) : (
                   <div className="space-y-3">
-                    {unassignedBusinesses.map((business) => (
-                      <div key={business.id} className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-3 hover:shadow-xl hover:scale-105 transition-all duration-300">
+                    {unassignedBusinesses.map(business => (
+                      <div
+                        key={business.id}
+                        className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-3 hover:shadow-xl hover:scale-105 transition-all duration-300"
+                      >
                         <div className="font-medium text-white">{business.name}</div>
                         <div className="text-xs text-white/70 break-all mt-1">{business.id}</div>
                         <div className="flex justify-end mt-3">
@@ -345,8 +373,11 @@ export function EditBusinessUser() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {unassignedBusinesses.map((business) => (
-                      <TableRow key={business.id} className="border-b border-white/5 hover:bg-white/5 transition-colors duration-200">
+                    {unassignedBusinesses.map(business => (
+                      <TableRow
+                        key={business.id}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors duration-200"
+                      >
                         <TableCell className="text-white font-medium">{business.name}</TableCell>
                         <TableCell className="text-white/80">{business.id}</TableCell>
                         <TableCell>
@@ -373,9 +404,12 @@ export function EditBusinessUser() {
         <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
           <DialogContent className="backdrop-blur-3xl bg-white/10 border border-white/20 text-white rounded-3xl shadow-2xl ring-1 ring-white/30">
             <DialogHeader>
-              <DialogTitle className="text-white text-lg font-semibold">Geschäft zuweisen</DialogTitle>
+              <DialogTitle className="text-white text-lg font-semibold">
+                Geschäft zuweisen
+              </DialogTitle>
               <DialogDescription className="text-white/80">
-                Möchten Sie das Geschäft "{selectedBusiness?.name}" (ID: {selectedBusiness?.id}) wirklich dem Business-User "{businessUser.email}" zuweisen?
+                Möchten Sie das Geschäft "{selectedBusiness?.name}" (ID: {selectedBusiness?.id})
+                wirklich dem Business-User "{businessUser.email}" zuweisen?
               </DialogDescription>
             </DialogHeader>
             <DialogFooter className="gap-2">
@@ -394,7 +428,7 @@ export function EditBusinessUser() {
                 disabled={isAddingBusiness}
                 className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-green-400/30 text-white hover:from-green-400/90 hover:to-emerald-400/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg"
               >
-                {isAddingBusiness ? "Wird hinzugefügt..." : "Zuweisen"}
+                {isAddingBusiness ? 'Wird hinzugefügt...' : 'Zuweisen'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -402,4 +436,4 @@ export function EditBusinessUser() {
       </div>
     </div>
   );
-} 
+}

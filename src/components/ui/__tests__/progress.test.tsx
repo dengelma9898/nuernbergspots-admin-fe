@@ -96,13 +96,7 @@ describe('Progress Komponente', () => {
       render(<Progress data-testid="progress" />);
       const progress = screen.getByTestId('progress');
       const indicator = progress.querySelector('[data-slot="progress-indicator"]');
-      expect(indicator).toHaveClass(
-        'bg-primary',
-        'h-full',
-        'w-full',
-        'flex-1',
-        'transition-all'
-      );
+      expect(indicator).toHaveClass('bg-primary', 'h-full', 'w-full', 'flex-1', 'transition-all');
     });
 
     it('sollte Indicator data-slot Attribut haben', () => {
@@ -153,14 +147,7 @@ describe('Progress Komponente', () => {
 
   describe('Props Weiterleitung', () => {
     it('sollte zusätzliche Props weiterleiten', () => {
-      render(
-        <Progress 
-          value={40} 
-          data-testid="progress" 
-          id="my-progress" 
-          title="Progress bar"
-        />
-      );
+      render(<Progress value={40} data-testid="progress" id="my-progress" title="Progress bar" />);
       const progress = screen.getByTestId('progress');
       expect(progress).toHaveAttribute('id', 'my-progress');
       expect(progress).toHaveAttribute('title', 'Progress bar');
@@ -234,9 +221,9 @@ describe('Progress Komponente', () => {
       const { rerender } = render(<Progress value={20} data-testid="progress" />);
       const progress = screen.getByTestId('progress');
       const indicator = progress.querySelector('[data-slot="progress-indicator"]');
-      
+
       expect(indicator).toHaveStyle('transform: translateX(-80%)');
-      
+
       rerender(<Progress value={60} data-testid="progress" />);
       expect(indicator).toHaveStyle('transform: translateX(-40%)');
     });
@@ -309,4 +296,4 @@ describe('Progress Komponente', () => {
       expect(indicator).toHaveStyle('transform: translateX(-15%)');
     });
   });
-}); 
+});

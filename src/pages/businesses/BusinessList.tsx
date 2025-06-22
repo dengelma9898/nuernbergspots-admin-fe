@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
   DialogContent,
@@ -17,17 +17,17 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  MapPin, 
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  MapPin,
   Phone,
   Mail,
   Globe,
@@ -41,16 +41,16 @@ import {
   Pencil,
   Image as ImageIcon,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
 import { useBusinessService } from '@/services/businessService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BusinessCategory } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
@@ -74,8 +74,9 @@ export const BusinessList: React.FC = () => {
       const fetchedBusinesses = await businessService.getBusinesses();
       setBusinesses(fetchedBusinesses);
     } catch (error) {
-      toast.error("Fehler beim Laden der Geschäfte", {
-        description: "Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Laden der Geschäfte', {
+        description:
+          'Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
       });
     } finally {
       setLoading(false);
@@ -118,13 +119,14 @@ export const BusinessList: React.FC = () => {
   const handleDelete = async (businessId: string) => {
     try {
       await businessService.deleteBusiness(businessId);
-      toast.success("Geschäft gelöscht", {
-        description: "Das Geschäft wurde erfolgreich gelöscht.",
+      toast.success('Geschäft gelöscht', {
+        description: 'Das Geschäft wurde erfolgreich gelöscht.',
       });
       loadBusinesses();
     } catch (error) {
-      toast.error("Fehler beim Löschen", {
-        description: "Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Löschen', {
+        description:
+          'Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
       });
     }
   };
@@ -143,25 +145,25 @@ export const BusinessList: React.FC = () => {
         return {
           label: 'Aktiv',
           icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'default' as const
+          variant: 'default' as const,
         };
       case BusinessStatus.PENDING:
         return {
           label: 'Ausstehend',
           icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
+          variant: 'outline' as const,
         };
       case BusinessStatus.INACTIVE:
         return {
           label: 'Inaktiv',
           icon: <XCircle className="h-4 w-4" />,
-          variant: 'secondary' as const
+          variant: 'secondary' as const,
         };
       default:
         return {
           label: 'Unbekannt',
           icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'secondary' as const
+          variant: 'secondary' as const,
         };
     }
   };
@@ -201,7 +203,7 @@ export const BusinessList: React.FC = () => {
           <Skeleton className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-xl" />
         </div>
       </div>
-      
+
       <div className="p-4 sm:p-6">
         {/* Header Row Skeleton */}
         <div className="flex justify-between items-start mb-4">
@@ -225,7 +227,7 @@ export const BusinessList: React.FC = () => {
           <Skeleton className="h-4 w-5/6 bg-white/10 backdrop-blur-xl rounded" />
           <Skeleton className="h-4 w-2/3 bg-white/10 backdrop-blur-xl rounded" />
         </div>
-        
+
         {/* Contact Info Skeletons */}
         <div className="space-y-2 mb-4">
           {Array.from({ length: 5 }, (_, index) => (
@@ -262,8 +264,7 @@ export const BusinessList: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
             {business.imageUrls.length > 1 && (
               <div className="absolute top-3 right-3 backdrop-blur-2xl bg-white/20 border border-white/30 text-white rounded-xl px-2 py-1 text-xs font-medium flex items-center gap-1">
-                <ImageIcon className="h-3 w-3" />
-                +{business.imageUrls.length - 1}
+                <ImageIcon className="h-3 w-3" />+{business.imageUrls.length - 1}
               </div>
             )}
             {business.isPromoted && (
@@ -293,22 +294,21 @@ export const BusinessList: React.FC = () => {
                 </p>
               </div>
             </div>
-            <Badge variant={status.variant} className="backdrop-blur-2xl bg-white/20 border-white/30 text-white text-xs flex items-center gap-1 px-2 py-1 rounded-xl shrink-0">
+            <Badge
+              variant={status.variant}
+              className="backdrop-blur-2xl bg-white/20 border-white/30 text-white text-xs flex items-center gap-1 px-2 py-1 rounded-xl shrink-0"
+            >
               {status.icon}
               <span>{status.label}</span>
             </Badge>
           </div>
 
-          <p className="text-sm text-white/80 line-clamp-3 mb-4">
-            {business.description}
-          </p>
-          
+          <p className="text-sm text-white/80 line-clamp-3 mb-4">{business.description}</p>
+
           <div className="space-y-2 mb-4">
             <div className="flex items-center text-sm text-white/90">
               <MapPin className="mr-2 h-4 w-4 text-white/70" />
-              <span className="truncate">
-                {formatAddress(business.address)}
-              </span>
+              <span className="truncate">{formatAddress(business.address)}</span>
             </div>
             {business.contact.phoneNumber && (
               <div className="flex items-center text-sm text-white/90">
@@ -325,7 +325,12 @@ export const BusinessList: React.FC = () => {
             {business.contact.website && (
               <div className="flex items-center text-sm text-white/90">
                 <Globe className="mr-2 h-4 w-4 text-white/70" />
-                <a href={business.contact.website} target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 transition-colors hover:underline">
+                <a
+                  href={business.contact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-300 hover:text-blue-200 transition-colors hover:underline"
+                >
                   Website besuchen
                 </a>
               </div>
@@ -359,17 +364,17 @@ export const BusinessList: React.FC = () => {
               Erstellt am {formatDate(business.createdAt)}
             </div>
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => handleEditClick(business)}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl text-xs"
               >
                 <Pencil className="mr-1 h-3 w-3" />
                 Bearbeiten
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 size="sm"
                 onClick={() => handleDelete(business.id)}
                 className="backdrop-blur-2xl bg-red-500/80 border border-red-400/30 text-white hover:bg-red-400/90 hover:scale-105 transition-all duration-300 rounded-xl text-xs"
@@ -390,7 +395,7 @@ export const BusinessList: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
         <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-        
+
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -416,7 +421,10 @@ export const BusinessList: React.FC = () => {
               <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded-xl" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Array.from({ length: 3 }, (_, index) => (
-                  <div key={index} className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
+                  <div
+                    key={index}
+                    className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3"
+                  >
                     <div className="flex items-center space-x-3">
                       <Skeleton className="h-5 w-9 bg-white/10 backdrop-blur-xl rounded-full" />
                       <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
@@ -450,11 +458,15 @@ export const BusinessList: React.FC = () => {
   const filteredBusinesses = businesses.filter(business => {
     const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPendingFilter = !showOnlyPending || business.status === BusinessStatus.PENDING;
-    const matchesReviewFilter = !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
-    const matchesPendingPartnersFilter = !showOnlyPendingPartners || 
+    const matchesReviewFilter =
+      !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
+    const matchesPendingPartnersFilter =
+      !showOnlyPendingPartners ||
       (business.status === BusinessStatus.PENDING && business.hasAccount === true);
-    
-    return matchesSearch && matchesPendingFilter && matchesReviewFilter && matchesPendingPartnersFilter;
+
+    return (
+      matchesSearch && matchesPendingFilter && matchesReviewFilter && matchesPendingPartnersFilter
+    );
   });
 
   const activeBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.ACTIVE);
@@ -467,7 +479,7 @@ export const BusinessList: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -489,9 +501,9 @@ export const BusinessList: React.FC = () => {
                 <ArrowLeft className="h-5 w-5" />
                 <span className="sr-only">Zurück zum Dashboard</span>
               </Button>
-                             <h1 className="text-2xl font-bold text-xl sm:text-2xl md:text-3xl text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                 Geschäfte
-               </h1>
+              <h1 className="text-2xl font-bold text-xl sm:text-2xl md:text-3xl text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+                Geschäfte
+              </h1>
             </div>
             <Button
               variant="default"
@@ -511,7 +523,7 @@ export const BusinessList: React.FC = () => {
             <Input
               placeholder="Nach Geschäftsnamen suchen..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
               className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -523,7 +535,9 @@ export const BusinessList: React.FC = () => {
                     onCheckedChange={setShowOnlyPending}
                     className="data-[state=checked]:bg-white/30"
                   />
-                  <Label htmlFor="pending-filter" className="text-white/90 text-sm">Nur ausstehende</Label>
+                  <Label htmlFor="pending-filter" className="text-white/90 text-sm">
+                    Nur ausstehende
+                  </Label>
                 </div>
               </div>
               <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
@@ -534,7 +548,9 @@ export const BusinessList: React.FC = () => {
                     onCheckedChange={setShowOnlyWithoutReview}
                     className="data-[state=checked]:bg-white/30"
                   />
-                  <Label htmlFor="review-filter" className="text-white/90 text-sm">Ohne Review</Label>
+                  <Label htmlFor="review-filter" className="text-white/90 text-sm">
+                    Ohne Review
+                  </Label>
                 </div>
               </div>
               <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-3">
@@ -545,7 +561,9 @@ export const BusinessList: React.FC = () => {
                     onCheckedChange={setShowOnlyPendingPartners}
                     className="data-[state=checked]:bg-white/30"
                   />
-                  <Label htmlFor="pending-partners-filter" className="text-white/90 text-sm">Ausstehende Partner mit Konto</Label>
+                  <Label htmlFor="pending-partners-filter" className="text-white/90 text-sm">
+                    Ausstehende Partner mit Konto
+                  </Label>
                 </div>
               </div>
             </div>
@@ -608,4 +626,4 @@ export const BusinessList: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

@@ -18,7 +18,13 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 interface GroupedEvent {
@@ -130,7 +136,7 @@ const rgbaToHex = (rgba: string): { color: string; opacity: number } => {
     const g = parseInt(rgbaMatch[2]);
     const b = parseInt(rgbaMatch[3]);
     const a = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) : 1;
-    
+
     const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
     return { color: hex, opacity: a };
   }
@@ -171,7 +177,7 @@ export const EventImageEditor: React.FC = () => {
         try {
           const event = await eventService.getEvent(id);
           setEvents([event]);
-          
+
           // Lade die Kategorie separat
           const category = await categoryService.getCategory(event.categoryId!);
           setCategoryName(category.name);
@@ -198,7 +204,7 @@ export const EventImageEditor: React.FC = () => {
         dayDate: `${dayStr} ${dateStr}`,
         time: timeStr ? `${timeStr} Uhr` : '',
         dayOnly: dayStr,
-        dateOnly: dateStr
+        dateOnly: dateStr,
       };
     } catch (error) {
       console.error('Fehler beim Formatieren des Datums:', error);
@@ -206,7 +212,7 @@ export const EventImageEditor: React.FC = () => {
         dayDate: 'Ungültiges Datum',
         time: '',
         dayOnly: '',
-        dateOnly: ''
+        dateOnly: '',
       };
     }
   };
@@ -215,7 +221,7 @@ export const EventImageEditor: React.FC = () => {
     if (event.dailyTimeSlots && event.dailyTimeSlots.length > 0) {
       const firstSlot = event.dailyTimeSlots[0];
       const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-      
+
       if (firstSlot.date !== lastSlot.date) {
         const { dayOnly, dateOnly } = formatDate(lastSlot.date);
         return `${event.title} (bis ${dayOnly} ${dateOnly})`;
@@ -239,12 +245,12 @@ export const EventImageEditor: React.FC = () => {
     });
 
     const groupedEvents: { [key: string]: Event[] } = {};
-    
+
     sortedEvents.forEach(event => {
       const eventDate = event.dailyTimeSlots?.[0]?.date;
       const startDate = new Date(eventDate);
       const dateKey = format(startDate, 'yyyy-MM-dd');
-      
+
       if (!groupedEvents[dateKey]) {
         groupedEvents[dateKey] = [];
       }
@@ -253,7 +259,7 @@ export const EventImageEditor: React.FC = () => {
 
     return Object.entries(groupedEvents).map(([dateStr, events]) => ({
       date: new Date(dateStr),
-      events
+      events,
     }));
   };
 
@@ -279,8 +285,8 @@ export const EventImageEditor: React.FC = () => {
       ...prev,
       [section]: {
         ...prev[section],
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -288,7 +294,7 @@ export const EventImageEditor: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
+      reader.onload = ev => {
         setBackgroundImage(ev.target?.result as string);
       };
       reader.readAsDataURL(file);
@@ -305,7 +311,7 @@ export const EventImageEditor: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -317,9 +323,9 @@ export const EventImageEditor: React.FC = () => {
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/events')} 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/events')}
               className="mb-2 sm:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -343,15 +349,24 @@ export const EventImageEditor: React.FC = () => {
               <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
                 <Tabs defaultValue="title">
                   <TabsList className="grid grid-cols-3 backdrop-blur-2xl bg-white/10 border-white/20 rounded-xl">
-                    <TabsTrigger value="title" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                    <TabsTrigger
+                      value="title"
+                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
+                    >
                       <Type className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Titel</span>
                     </TabsTrigger>
-                    <TabsTrigger value="content" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                    <TabsTrigger
+                      value="content"
+                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
+                    >
                       <Palette className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Inhalt</span>
                     </TabsTrigger>
-                    <TabsTrigger value="logo" className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg">
+                    <TabsTrigger
+                      value="logo"
+                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
+                    >
                       <ImageIcon className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Logo</span>
                     </TabsTrigger>
@@ -359,11 +374,13 @@ export const EventImageEditor: React.FC = () => {
 
                   <TabsContent value="title" className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="custom-title" className="text-white/90 font-medium">Titel Text</Label>
+                      <Label htmlFor="custom-title" className="text-white/90 font-medium">
+                        Titel Text
+                      </Label>
                       <Textarea
                         id="custom-title"
                         value={customTitle}
-                        onChange={(e) => {
+                        onChange={e => {
                           const newValue = e.target.value;
                           console.log('Neuer Titel:', newValue);
                           setCustomTitle(newValue);
@@ -393,7 +410,7 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Textfarbe</Label>
                       <ColorPicker
                         value={settings.title.color}
-                        onChange={(value) => updateSetting('title', 'color', value)}
+                        onChange={value => updateSetting('title', 'color', value)}
                       />
                     </div>
 
@@ -401,7 +418,7 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
                       <ColorPicker
                         value={settings.title.backgroundColor}
-                        onChange={(value) => updateSetting('title', 'backgroundColor', value)}
+                        onChange={value => updateSetting('title', 'backgroundColor', value)}
                       />
                     </div>
 
@@ -409,7 +426,7 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Rahmenfarbe</Label>
                       <ColorPicker
                         value={settings.title.borderColor}
-                        onChange={(value) => updateSetting('title', 'borderColor', value)}
+                        onChange={value => updateSetting('title', 'borderColor', value)}
                       />
                     </div>
 
@@ -417,7 +434,7 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Schattenfarbe</Label>
                       <ColorPicker
                         value={settings.title.shadowColor}
-                        onChange={(value) => updateSetting('title', 'shadowColor', value)}
+                        onChange={value => updateSetting('title', 'shadowColor', value)}
                       />
                     </div>
 
@@ -425,15 +442,24 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Schriftart</Label>
                       <Select
                         value={settings.title.fontFamily}
-                        onValueChange={(value) => updateSetting('title', 'fontFamily', value)}
+                        onValueChange={value => updateSetting('title', 'fontFamily', value)}
                       >
                         <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
                           <SelectValue placeholder="Schriftart wählen" />
                         </SelectTrigger>
                         <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="league-spartan" className="text-white hover:bg-white/20">League Spartan</SelectItem>
-                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">Montserrat</SelectItem>
-                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">System</SelectItem>
+                          <SelectItem
+                            value="league-spartan"
+                            className="text-white hover:bg-white/20"
+                          >
+                            League Spartan
+                          </SelectItem>
+                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">
+                            Montserrat
+                          </SelectItem>
+                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">
+                            System
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -442,31 +468,55 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Schriftschnitt</Label>
                       <Select
                         value={settings.title.fontWeight.toString()}
-                        onValueChange={(value) => updateSetting('title', 'fontWeight', parseInt(value))}
+                        onValueChange={value =>
+                          updateSetting('title', 'fontWeight', parseInt(value))
+                        }
                       >
                         <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
                           <SelectValue placeholder="Schriftschnitt wählen" />
                         </SelectTrigger>
                         <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="100" className="text-white hover:bg-white/20">100</SelectItem>
-                          <SelectItem value="200" className="text-white hover:bg-white/20">200</SelectItem>
-                          <SelectItem value="300" className="text-white hover:bg-white/20">300</SelectItem>
-                          <SelectItem value="400" className="text-white hover:bg-white/20">400</SelectItem>
-                          <SelectItem value="500" className="text-white hover:bg-white/20">500</SelectItem>
-                          <SelectItem value="600" className="text-white hover:bg-white/20">600</SelectItem>
-                          <SelectItem value="700" className="text-white hover:bg-white/20">700</SelectItem>
-                          <SelectItem value="800" className="text-white hover:bg-white/20">800</SelectItem>
-                          <SelectItem value="900" className="text-white hover:bg-white/20">900</SelectItem>
+                          <SelectItem value="100" className="text-white hover:bg-white/20">
+                            100
+                          </SelectItem>
+                          <SelectItem value="200" className="text-white hover:bg-white/20">
+                            200
+                          </SelectItem>
+                          <SelectItem value="300" className="text-white hover:bg-white/20">
+                            300
+                          </SelectItem>
+                          <SelectItem value="400" className="text-white hover:bg-white/20">
+                            400
+                          </SelectItem>
+                          <SelectItem value="500" className="text-white hover:bg-white/20">
+                            500
+                          </SelectItem>
+                          <SelectItem value="600" className="text-white hover:bg-white/20">
+                            600
+                          </SelectItem>
+                          <SelectItem value="700" className="text-white hover:bg-white/20">
+                            700
+                          </SelectItem>
+                          <SelectItem value="800" className="text-white hover:bg-white/20">
+                            800
+                          </SelectItem>
+                          <SelectItem value="900" className="text-white hover:bg-white/20">
+                            900
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="flex items-center gap-2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
-                      <Label className="text-white/90 font-medium cursor-pointer">Hintergrund transparent</Label>
+                      <Label className="text-white/90 font-medium cursor-pointer">
+                        Hintergrund transparent
+                      </Label>
                       <input
                         type="checkbox"
                         checked={settings.title.backgroundTransparent}
-                        onChange={e => updateSetting('title', 'backgroundTransparent', e.target.checked)}
+                        onChange={e =>
+                          updateSetting('title', 'backgroundTransparent', e.target.checked)
+                        }
                         className="ml-auto accent-blue-500"
                       />
                     </div>
@@ -477,15 +527,24 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Schriftart</Label>
                       <Select
                         value={settings.content.fontFamily}
-                        onValueChange={(value) => updateSetting('content', 'fontFamily', value)}
+                        onValueChange={value => updateSetting('content', 'fontFamily', value)}
                       >
                         <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
                           <SelectValue placeholder="Schriftart wählen" />
                         </SelectTrigger>
                         <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="league-spartan" className="text-white hover:bg-white/20">League Spartan</SelectItem>
-                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">Montserrat</SelectItem>
-                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">System</SelectItem>
+                          <SelectItem
+                            value="league-spartan"
+                            className="text-white hover:bg-white/20"
+                          >
+                            League Spartan
+                          </SelectItem>
+                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">
+                            Montserrat
+                          </SelectItem>
+                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">
+                            System
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -494,21 +553,41 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Schriftschnitt</Label>
                       <Select
                         value={settings.content.fontWeight.toString()}
-                        onValueChange={(value) => updateSetting('content', 'fontWeight', parseInt(value))}
+                        onValueChange={value =>
+                          updateSetting('content', 'fontWeight', parseInt(value))
+                        }
                       >
                         <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
                           <SelectValue placeholder="Schriftschnitt wählen" />
                         </SelectTrigger>
                         <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="100" className="text-white hover:bg-white/20">100</SelectItem>
-                          <SelectItem value="200" className="text-white hover:bg-white/20">200</SelectItem>
-                          <SelectItem value="300" className="text-white hover:bg-white/20">300</SelectItem>
-                          <SelectItem value="400" className="text-white hover:bg-white/20">400</SelectItem>
-                          <SelectItem value="500" className="text-white hover:bg-white/20">500</SelectItem>
-                          <SelectItem value="600" className="text-white hover:bg-white/20">600</SelectItem>
-                          <SelectItem value="700" className="text-white hover:bg-white/20">700</SelectItem>
-                          <SelectItem value="800" className="text-white hover:bg-white/20">800</SelectItem>
-                          <SelectItem value="900" className="text-white hover:bg-white/20">900</SelectItem>
+                          <SelectItem value="100" className="text-white hover:bg-white/20">
+                            100
+                          </SelectItem>
+                          <SelectItem value="200" className="text-white hover:bg-white/20">
+                            200
+                          </SelectItem>
+                          <SelectItem value="300" className="text-white hover:bg-white/20">
+                            300
+                          </SelectItem>
+                          <SelectItem value="400" className="text-white hover:bg-white/20">
+                            400
+                          </SelectItem>
+                          <SelectItem value="500" className="text-white hover:bg-white/20">
+                            500
+                          </SelectItem>
+                          <SelectItem value="600" className="text-white hover:bg-white/20">
+                            600
+                          </SelectItem>
+                          <SelectItem value="700" className="text-white hover:bg-white/20">
+                            700
+                          </SelectItem>
+                          <SelectItem value="800" className="text-white hover:bg-white/20">
+                            800
+                          </SelectItem>
+                          <SelectItem value="900" className="text-white hover:bg-white/20">
+                            900
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -517,7 +596,7 @@ export const EventImageEditor: React.FC = () => {
                       <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
                       <ColorPicker
                         value={settings.content.backgroundColor}
-                        onChange={(value) => {
+                        onChange={value => {
                           updateSetting('content', 'backgroundColor', value);
                         }}
                       />
@@ -581,17 +660,21 @@ export const EventImageEditor: React.FC = () => {
 
                     <div className="space-y-2">
                       <Label className="text-white/90 font-medium">Hintergrundbild</Label>
-                      <Input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleBackgroundImageChange} 
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBackgroundImageChange}
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white file:text-white file:bg-white/20 file:border-white/20 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
                       />
                       {backgroundImage && (
                         <div className="mt-2 flex items-center gap-4 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
-                          <img src={backgroundImage} alt="Vorschau" className="h-16 rounded shadow" />
-                          <Button 
-                            variant="outline" 
+                          <img
+                            src={backgroundImage}
+                            alt="Vorschau"
+                            className="h-16 rounded shadow"
+                          />
+                          <Button
+                            variant="outline"
                             onClick={removeBackgroundImage}
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl"
                           >
@@ -626,7 +709,9 @@ export const EventImageEditor: React.FC = () => {
                         step={1}
                         className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
                       />
-                      <div className="text-sm text-white/70">{Math.round(settings.logo.opacity * 100)}%</div>
+                      <div className="text-sm text-white/70">
+                        {Math.round(settings.logo.opacity * 100)}%
+                      </div>
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -649,125 +734,144 @@ export const EventImageEditor: React.FC = () => {
                 }}
               >
                 <div className="space-y-6">
-                  <div 
+                  <div
                     className="absolute top-4 left-4 sm:left-8 z-10"
                     style={{
                       transform: 'rotate(-2deg) translateY(-40%)',
                     }}
                   >
-                    <h1 
+                    <h1
                       className={`text-2xl sm:text-4xl font-black tracking-tight inline-block whitespace-pre-line ${
-                        settings.title.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                        settings.title.fontFamily === 'montserrat' ? 'font-montserrat' :
-                        'font-sans'
+                        settings.title.fontFamily === 'league-spartan'
+                          ? 'font-league-spartan'
+                          : settings.title.fontFamily === 'montserrat'
+                            ? 'font-montserrat'
+                            : 'font-sans'
                       }`}
-                      style={{ 
+                      style={{
                         color: settings.title.color,
                         fontSize: `${settings.title.fontSize}px`,
-                        backgroundColor: settings.title.backgroundTransparent ? 'transparent' : settings.title.backgroundColor,
+                        backgroundColor: settings.title.backgroundTransparent
+                          ? 'transparent'
+                          : settings.title.backgroundColor,
                         borderRadius: '4px',
                         WebkitTextStroke: '2px white',
                         textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
                         border: `2px solid ${settings.title.borderColor}`,
                         padding: '0.5rem 1rem',
-                        fontWeight: settings.title.fontWeight
+                        fontWeight: settings.title.fontWeight,
                       }}
                     >
                       {customTitle || categoryName}
                     </h1>
                   </div>
-                  
-                  <div 
+
+                  <div
                     className="space-y-4 rounded-lg overflow-hidden mt-12"
                     style={{
-                      backgroundColor: hexToRgba(settings.content.backgroundColor, settings.content.containerOpacity),
+                      backgroundColor: hexToRgba(
+                        settings.content.backgroundColor,
+                        settings.content.containerOpacity
+                      ),
                       padding: `${settings.content.padding}rem`,
-                      paddingBottom: '1rem'
+                      paddingBottom: '1rem',
                     }}
                   >
                     {groupedEvents.map((group, groupIndex) => {
                       const { dayDate } = formatDate(group.date.toISOString());
                       return (
                         <div key={groupIndex} className="space-y-2">
-                          <div 
+                          <div
                             className={
-                              settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                              settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                              'font-sans'
+                              settings.content.fontFamily === 'league-spartan'
+                                ? 'font-league-spartan'
+                                : settings.content.fontFamily === 'montserrat'
+                                  ? 'font-montserrat'
+                                  : 'font-sans'
                             }
                             style={{
                               color: settings.date.color,
                               fontSize: `${settings.date.fontSize}px`,
-                              fontWeight: settings.content.fontWeight
+                              fontWeight: settings.content.fontWeight,
                             }}
                           >
                             {dayDate}
                           </div>
                           <div className="space-y-1">
-                            {group.events.map((event) => {
-                              const time = event.dailyTimeSlots?.[0]?.from 
+                            {group.events.map(event => {
+                              const time = event.dailyTimeSlots?.[0]?.from
                                 ? `${event.dailyTimeSlots[0].from} Uhr`
                                 : '';
                               return (
                                 <div key={event.id} className="ml-4">
                                   <div className="flex items-baseline">
-                                    <span 
+                                    <span
                                       className={`inline-block min-w-[70px] ${
-                                        settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                        settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                        'font-sans'
+                                        settings.content.fontFamily === 'league-spartan'
+                                          ? 'font-league-spartan'
+                                          : settings.content.fontFamily === 'montserrat'
+                                            ? 'font-montserrat'
+                                            : 'font-sans'
                                       }`}
                                       style={{
                                         color: settings.time.color,
                                         fontSize: `${settings.time.fontSize}px`,
                                         fontWeight: settings.content.fontWeight,
-                                        visibility: time ? 'visible' : 'hidden'
+                                        visibility: time ? 'visible' : 'hidden',
                                       }}
                                     >
                                       {time || '00:00 Uhr'}
                                     </span>
                                     <div className="flex-1">
-                                      <span 
+                                      <span
                                         className={
-                                          settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                          settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                          'font-sans'
+                                          settings.content.fontFamily === 'league-spartan'
+                                            ? 'font-league-spartan'
+                                            : settings.content.fontFamily === 'montserrat'
+                                              ? 'font-montserrat'
+                                              : 'font-sans'
                                         }
                                         style={{
                                           color: settings.event.color,
                                           fontSize: `${settings.event.fontSize}px`,
-                                          fontWeight: settings.content.fontWeight
+                                          fontWeight: settings.content.fontWeight,
                                         }}
                                       >
                                         {formatEventTitle(event)}
                                       </span>
                                       {event.location.address && (
-                                        <div 
+                                        <div
                                           className={`${
-                                            settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                            settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                            'font-sans'
+                                            settings.content.fontFamily === 'league-spartan'
+                                              ? 'font-league-spartan'
+                                              : settings.content.fontFamily === 'montserrat'
+                                                ? 'font-montserrat'
+                                                : 'font-sans'
                                           }`}
                                           style={{
                                             color: settings.location.color,
                                             fontSize: `${settings.location.fontSize}px`,
-                                            fontWeight: settings.content.fontWeight
+                                            fontWeight: settings.content.fontWeight,
                                           }}
                                         >
                                           {formatAddress(event.location.address)}
                                         </div>
                                       )}
-                                      {(event.socialMedia?.instagram || event.socialMedia?.facebook || event.socialMedia?.tiktok) && (
-                                        <div 
+                                      {(event.socialMedia?.instagram ||
+                                        event.socialMedia?.facebook ||
+                                        event.socialMedia?.tiktok) && (
+                                        <div
                                           className={`flex items-center gap-2 ${
-                                            settings.content.fontFamily === 'league-spartan' ? 'font-league-spartan' :
-                                            settings.content.fontFamily === 'montserrat' ? 'font-montserrat' :
-                                            'font-sans'
+                                            settings.content.fontFamily === 'league-spartan'
+                                              ? 'font-league-spartan'
+                                              : settings.content.fontFamily === 'montserrat'
+                                                ? 'font-montserrat'
+                                                : 'font-sans'
                                           }`}
                                           style={{
                                             color: settings.location.color,
                                             fontSize: `${settings.location.fontSize}px`,
-                                            fontWeight: settings.content.fontWeight
+                                            fontWeight: settings.content.fontWeight,
                                           }}
                                         >
                                           {event.socialMedia?.instagram && (
@@ -824,22 +928,22 @@ export const EventImageEditor: React.FC = () => {
                       );
                     })}
                   </div>
-                
+
                   <div className="mt-4 flex justify-center items-center">
-                    <div 
+                    <div
                       className="rounded-full bg-black flex items-center justify-center overflow-hidden"
                       style={{
                         width: `${settings.logo.size}rem`,
-                        height: `${settings.logo.size}rem`
+                        height: `${settings.logo.size}rem`,
                       }}
                     >
-                      <img 
-                        src={LogoImage} 
-                        alt="nuernbergspots.com" 
+                      <img
+                        src={LogoImage}
+                        alt="nuernbergspots.com"
                         style={{
                           width: `${settings.logo.size - 2}rem`,
                           height: `${settings.logo.size - 2}rem`,
-                          opacity: settings.logo.opacity
+                          opacity: settings.logo.opacity,
                         }}
                       />
                     </div>
@@ -849,8 +953,8 @@ export const EventImageEditor: React.FC = () => {
             </div>
 
             <div className="flex justify-center">
-              <Button 
-                onClick={handleDownload} 
+              <Button
+                onClick={handleDownload}
                 className="backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg gap-2"
               >
                 <Download className="h-4 w-4" />
@@ -862,4 +966,4 @@ export const EventImageEditor: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

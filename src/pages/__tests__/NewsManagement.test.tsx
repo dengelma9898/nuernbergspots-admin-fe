@@ -22,25 +22,49 @@ jest.mock('@/contexts/AuthContext', () => ({
 
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div data-testid="card" className={className}>{children}</div>,
-  CardContent: ({ children, className }: any) => <div data-testid="card-content" className={className}>{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div data-testid="card" className={className}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div data-testid="card-content" className={className}>
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className }: any) => (
-    <span data-testid="badge" data-variant={variant} className={className}>{children}</span>
+    <span data-testid="badge" data-variant={variant} className={className}>
+      {children}
+    </span>
   ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, disabled, variant, size, type, title, className, asChild }: any) => {
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    variant,
+    size,
+    type,
+    title,
+    className,
+    asChild,
+  }: any) => {
     if (asChild) {
-      return <div data-testid="button-as-child" className={className}>{children}</div>;
+      return (
+        <div data-testid="button-as-child" className={className}>
+          {children}
+        </div>
+      );
     }
     return (
-      <button 
-        onClick={onClick} 
-        disabled={disabled} 
+      <button
+        onClick={onClick}
+        disabled={disabled}
         data-variant={variant}
         data-size={size}
         type={type}
@@ -56,8 +80,8 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, disabled, className, autoFocus, type, id }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
@@ -72,8 +96,8 @@ jest.mock('@/components/ui/input', () => ({
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ value, onChange, placeholder, disabled }: any) => (
-    <textarea 
-      value={value} 
+    <textarea
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       disabled={disabled}
@@ -88,19 +112,29 @@ jest.mock('@/components/ui/dialog', () => ({
       {children}
     </div>
   ),
-  DialogContent: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-content">{children}</div>,
-  DialogHeader: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-header">{children}</div>,
-  DialogTitle: ({ children }: { children: React.ReactNode }) => <h3 data-testid="dialog-title">{children}</h3>,
-  DialogFooter: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-footer">{children}</div>,
-  DialogClose: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-close">{children}</div>,
+  DialogContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-content">{children}</div>
+  ),
+  DialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-header">{children}</div>
+  ),
+  DialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <h3 data-testid="dialog-title">{children}</h3>
+  ),
+  DialogFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-footer">{children}</div>
+  ),
+  DialogClose: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-close">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, disabled, id }: any) => (
-    <input 
+    <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange && onCheckedChange(e.target.checked)}
+      onChange={e => onCheckedChange && onCheckedChange(e.target.checked)}
       disabled={disabled}
       id={id}
       data-testid="switch"
@@ -110,7 +144,9 @@ jest.mock('@/components/ui/switch', () => ({
 
 jest.mock('@/components/ui/label', () => ({
   Label: ({ children, htmlFor }: any) => (
-    <label htmlFor={htmlFor} data-testid="label">{children}</label>
+    <label htmlFor={htmlFor} data-testid="label">
+      {children}
+    </label>
   ),
 }));
 
@@ -126,7 +162,11 @@ jest.mock('lucide-react', () => ({
   UserCircle: () => <div data-testid="user-circle-icon">UserCircle</div>,
   Image: () => <div data-testid="image-icon">Image</div>,
   BarChart2: () => <div data-testid="bar-chart2-icon">BarChart2</div>,
-  RefreshCw: ({ className }: any) => <div data-testid="refresh-cw-icon" className={className}>RefreshCw</div>,
+  RefreshCw: ({ className }: any) => (
+    <div data-testid="refresh-cw-icon" className={className}>
+      RefreshCw
+    </div>
+  ),
   Send: () => <div data-testid="send-icon">Send</div>,
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
@@ -159,7 +199,7 @@ jest.mock('date-fns/locale', () => ({
 // Mock scrollTo for JSDOM
 Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
   value: jest.fn(),
-  writable: true
+  writable: true,
 });
 
 describe('NewsManagement Component', () => {
@@ -176,8 +216,8 @@ describe('NewsManagement Component', () => {
     updatedAt: '2024-01-15T10:00:00.000Z',
     reactions: [
       { type: '👍', userId: 'user-2' },
-      { type: '❤️', userId: 'user-3' }
-    ]
+      { type: '❤️', userId: 'user-3' },
+    ],
   };
 
   const mockImageNews: ImageNewsItem = {
@@ -190,7 +230,7 @@ describe('NewsManagement Component', () => {
     createdAt: '2024-01-15T11:00:00.000Z',
     updatedAt: '2024-01-15T11:00:00.000Z',
     imageUrls: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
-    reactions: []
+    reactions: [],
   };
 
   const mockPollNews: PollNewsItem = {
@@ -204,12 +244,12 @@ describe('NewsManagement Component', () => {
     question: 'Was ist euer Lieblingswetter?',
     options: [
       { id: 'opt-1', text: 'Sonnig', voters: ['user-2', 'user-3'] },
-      { id: 'opt-2', text: 'Regnerisch', voters: ['user-4'] }
+      { id: 'opt-2', text: 'Regnerisch', voters: ['user-4'] },
     ],
     expiresAt: '2024-01-20T12:00:00.000Z',
     allowMultipleAnswers: false,
     votes: 3,
-    reactions: []
+    reactions: [],
   };
 
   beforeEach(() => {
@@ -253,7 +293,7 @@ describe('NewsManagement Component', () => {
     // Überprüfe, dass Skeleton-Elemente gerendert werden
     const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
     expect(skeletonElements.length).toBeGreaterThan(0);
-    
+
     // Sollte mindestens 40+ Skeleton-Elemente haben (5 News Cards mit verschiedenen Typen)
     expect(skeletonElements.length).toBeGreaterThan(40);
   });
@@ -345,7 +385,7 @@ describe('NewsManagement Component', () => {
     await waitFor(() => {
       expect(mockNewsService.createTextNews).toHaveBeenCalledWith({
         content: 'Neue Test-Nachricht',
-        authorId: 'user-1'
+        authorId: 'user-1',
       });
     });
   });
@@ -374,7 +414,7 @@ describe('NewsManagement Component', () => {
     await waitFor(() => {
       expect(mockNewsService.createTextNews).toHaveBeenCalledWith({
         content: 'Enter key message',
-        authorId: 'user-1'
+        authorId: 'user-1',
       });
     });
   });
@@ -463,7 +503,7 @@ describe('NewsManagement Component', () => {
       expect(screen.getByPlaceholderText('Neue Nachricht schreiben...')).toBeTruthy();
     });
 
-    // Open poll modal - find the button, not the icon in news items  
+    // Open poll modal - find the button, not the icon in news items
     const pollButton = screen.getByTitle('Umfrage erstellen');
     await user.click(pollButton!);
 
@@ -539,8 +579,8 @@ describe('NewsManagement Component', () => {
   });
 
   it('disables buttons during sending state', async () => {
-    mockNewsService.createTextNews.mockImplementation(() => 
-      new Promise(resolve => setTimeout(resolve, 100))
+    mockNewsService.createTextNews.mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
     );
 
     renderComponent();
@@ -620,4 +660,4 @@ describe('NewsManagement Component', () => {
       expect(screen.getByText('❤️')).toBeTruthy();
     });
   });
-}); 
+});

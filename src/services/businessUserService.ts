@@ -19,33 +19,40 @@ export function useBusinessUserService() {
   const api = useApi();
   const { user } = useAuth();
 
-  return useMemo(() => ({
-    /**
-     * Lädt alle Business-User für den eingeloggten Benutzer
-     */
-    getBusinessUsers: async (): Promise<BusinessUser[]> => {
-      if (!user?.uid) {
-        throw new Error('Kein eingeloggter Benutzer gefunden');
-      }
-      
-      const response = await api.get<ApiResponse<BusinessUser[]>>(`/users/${user.uid}/business-users`);
-      return unwrapData(response);
-    },
+  return useMemo(
+    () => ({
+      /**
+       * Lädt alle Business-User für den eingeloggten Benutzer
+       */
+      getBusinessUsers: async (): Promise<BusinessUser[]> => {
+        if (!user?.uid) {
+          throw new Error('Kein eingeloggter Benutzer gefunden');
+        }
 
-    getBusinessUser: async (businessUserId: string): Promise<BusinessUser> => {
-        const response = await api.get<ApiResponse<BusinessUser>>(`/users/${businessUserId}/profile`);
+        const response = await api.get<ApiResponse<BusinessUser[]>>(
+          `/users/${user.uid}/business-users`
+        );
         return unwrapData(response);
-    },
+      },
 
-    /**
-     * Fügt ein Geschäft zu einem Business-User hinzu
-     */
-    addBusinessToUser: async (businessUserId: string, businessId: string): Promise<void> => {
-      if (!user?.uid) {
-        throw new Error('Kein eingeloggter Benutzer gefunden');
-      }
+      getBusinessUser: async (businessUserId: string): Promise<BusinessUser> => {
+        const response = await api.get<ApiResponse<BusinessUser>>(
+          `/users/${businessUserId}/profile`
+        );
+        return unwrapData(response);
+      },
 
-      await api.post(`/users/${businessUserId}/business-user/businesses/${businessId}`, {});
-    }
-  }), [api, user?.uid]);
-} 
+      /**
+       * Fügt ein Geschäft zu einem Business-User hinzu
+       */
+      addBusinessToUser: async (businessUserId: string, businessId: string): Promise<void> => {
+        if (!user?.uid) {
+          throw new Error('Kein eingeloggter Benutzer gefunden');
+        }
+
+        await api.post(`/users/${businessUserId}/business-user/businesses/${businessId}`, {});
+      },
+    }),
+    [api, user?.uid]
+  );
+}

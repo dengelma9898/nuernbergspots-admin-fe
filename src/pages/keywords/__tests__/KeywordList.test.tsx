@@ -33,20 +33,36 @@ jest.mock('@/services/keywordService', () => ({
 
 // UI Component Mocks
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,
-  CardHeader: ({ children, ...props }: any) => <div data-testid="card-header" {...props}>{children}</div>,
-  CardTitle: ({ children, ...props }: any) => <div data-testid="card-title" {...props}>{children}</div>,
-  CardContent: ({ children, ...props }: any) => <div data-testid="card-content" {...props}>{children}</div>,
+  Card: ({ children, ...props }: any) => (
+    <div data-testid="card" {...props}>
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, ...props }: any) => (
+    <div data-testid="card-header" {...props}>
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, ...props }: any) => (
+    <div data-testid="card-title" {...props}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, ...props }: any) => (
+    <div data-testid="card-content" {...props}>
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
-    <button 
-      data-testid="button" 
+    <button
+      data-testid="button"
       data-variant={variant}
       data-size={size}
       className={className}
-      onClick={onClick} 
+      onClick={onClick}
       role="button"
       {...props}
     >
@@ -57,7 +73,7 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, ...props }: any) => (
-    <input 
+    <input
       data-testid="input"
       value={value}
       onChange={onChange}
@@ -68,12 +84,20 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/table', () => ({
-  Table: ({ children, className }: any) => <table data-testid="table" className={className}>{children}</table>,
+  Table: ({ children, className }: any) => (
+    <table data-testid="table" className={className}>
+      {children}
+    </table>
+  ),
   TableHeader: ({ children }: any) => <thead data-testid="table-header">{children}</thead>,
   TableBody: ({ children }: any) => <tbody data-testid="table-body">{children}</tbody>,
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
   TableHead: ({ children }: any) => <th data-testid="table-head">{children}</th>,
-  TableCell: ({ children, className }: any) => <td data-testid="table-cell" className={className}>{children}</td>,
+  TableCell: ({ children, className }: any) => (
+    <td data-testid="table-cell" className={className}>
+      {children}
+    </td>
+  ),
 }));
 
 jest.mock('@/components/ui/dialog', () => ({
@@ -90,11 +114,17 @@ jest.mock('@/components/ui/dialog', () => ({
 
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-menu-content">{children}</div>,
-  DropdownMenuItem: ({ children, onClick, className }: any) => (
-    <div data-testid="dropdown-menu-item" className={className} onClick={onClick}>{children}</div>
+  DropdownMenuContent: ({ children }: any) => (
+    <div data-testid="dropdown-menu-content">{children}</div>
   ),
-  DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-menu-trigger">{children}</div>,
+  DropdownMenuItem: ({ children, onClick, className }: any) => (
+    <div data-testid="dropdown-menu-item" className={className} onClick={onClick}>
+      {children}
+    </div>
+  ),
+  DropdownMenuTrigger: ({ children, asChild }: any) => (
+    <div data-testid="dropdown-menu-trigger">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({
@@ -143,11 +173,7 @@ const singleKeyword = mockKeywords[0];
 
 // Helper function
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('KeywordList Component', () => {
@@ -163,7 +189,7 @@ describe('KeywordList Component', () => {
       expect(screen.getByText('Keywords verwalten')).toBeInTheDocument();
       expect(screen.getByTestId('plus-icon')).toBeInTheDocument();
       expect(screen.getByText('Zurück zum Dashboard')).toBeInTheDocument();
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
       });
@@ -179,7 +205,7 @@ describe('KeywordList Component', () => {
       // Überprüfe, dass Skeleton-Elemente gerendert werden
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(0);
-      
+
       // Es sollten sowohl Mobile-Card-Skeletons als auch Desktop-Table-Skeletons vorhanden sein
       expect(skeletonElements.length).toBeGreaterThan(20);
     });
@@ -237,7 +263,7 @@ describe('KeywordList Component', () => {
 
       const backButton = screen.getByText('Zurück zum Dashboard');
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
   });
@@ -245,7 +271,7 @@ describe('KeywordList Component', () => {
   describe('Keyword Display', () => {
     beforeEach(async () => {
       renderWithRouter(<KeywordList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
       });
@@ -263,9 +289,9 @@ describe('KeywordList Component', () => {
     it('sollte Keywords ohne Beschreibung korrekt anzeigen', async () => {
       const keywordWithoutDescription = {
         ...singleKeyword,
-        description: ''
+        description: '',
       };
-      
+
       mockKeywordService.getKeywords.mockResolvedValue([keywordWithoutDescription]);
 
       renderWithRouter(<KeywordList />);
@@ -297,7 +323,7 @@ describe('KeywordList Component', () => {
         createdAt: '2024-01-04T00:00:00.000Z',
         updatedAt: '2024-01-04T00:00:00.000Z',
       };
-      
+
       mockKeywordService.createKeyword.mockResolvedValue(newKeyword);
 
       renderWithRouter(<KeywordList />);
@@ -322,7 +348,7 @@ describe('KeywordList Component', () => {
       await waitFor(() => {
         expect(mockKeywordService.createKeyword).toHaveBeenCalledWith({
           name: 'Neues Keyword',
-          description: 'Test Beschreibung'
+          description: 'Test Beschreibung',
         });
         expect(mockToast.success).toHaveBeenCalledWith('Keyword hinzugefügt');
       });
@@ -353,7 +379,7 @@ describe('KeywordList Component', () => {
         createdAt: '2024-01-04T00:00:00.000Z',
         updatedAt: '2024-01-04T00:00:00.000Z',
       };
-      
+
       mockKeywordService.createKeyword.mockResolvedValue(newKeyword);
 
       renderWithRouter(<KeywordList />);
@@ -375,7 +401,7 @@ describe('KeywordList Component', () => {
       await waitFor(() => {
         expect(mockKeywordService.createKeyword).toHaveBeenCalledWith({
           name: 'Test',
-          description: 'Beschreibung'
+          description: 'Beschreibung',
         });
       });
     });
@@ -407,7 +433,7 @@ describe('KeywordList Component', () => {
   describe('Keyword Editing', () => {
     beforeEach(async () => {
       renderWithRouter(<KeywordList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
       });
@@ -436,7 +462,7 @@ describe('KeywordList Component', () => {
       // Trigger dropdown and click edit
       const moreButtons = screen.getAllByTestId('more-horizontal-icon');
       fireEvent.click(moreButtons[0]);
-      
+
       const editMenuItems = screen.getAllByTestId('dropdown-menu-item');
       const editItem = editMenuItems.find(item => item.textContent?.includes('Bearbeiten'));
       fireEvent.click(editItem!);
@@ -452,7 +478,7 @@ describe('KeywordList Component', () => {
       await waitFor(() => {
         expect(mockKeywordService.updateKeyword).toHaveBeenCalledWith('keyword-1', {
           name: 'Updated Pizza',
-          description: 'Italienisches Gericht'
+          description: 'Italienisches Gericht',
         });
         expect(mockToast.success).toHaveBeenCalledWith('Keyword aktualisiert');
       });
@@ -465,7 +491,7 @@ describe('KeywordList Component', () => {
       // Trigger dropdown and click edit
       const moreButtons = screen.getAllByTestId('more-horizontal-icon');
       fireEvent.click(moreButtons[0]);
-      
+
       const editMenuItems = screen.getAllByTestId('dropdown-menu-item');
       const editItem = editMenuItems.find(item => item.textContent?.includes('Bearbeiten'));
       fireEvent.click(editItem!);
@@ -484,7 +510,7 @@ describe('KeywordList Component', () => {
   describe('Keyword Deletion', () => {
     beforeEach(async () => {
       renderWithRouter(<KeywordList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
       });
@@ -497,7 +523,7 @@ describe('KeywordList Component', () => {
       // Trigger dropdown menu and click delete
       const moreButtons = screen.getAllByTestId('more-horizontal-icon');
       fireEvent.click(moreButtons[0]);
-      
+
       const deleteMenuItems = screen.getAllByTestId('dropdown-menu-item');
       const deleteItem = deleteMenuItems.find(item => item.textContent?.includes('Löschen'));
       fireEvent.click(deleteItem!);
@@ -515,7 +541,7 @@ describe('KeywordList Component', () => {
       // Trigger dropdown menu and click delete
       const moreButtons = screen.getAllByTestId('more-horizontal-icon');
       fireEvent.click(moreButtons[0]);
-      
+
       const deleteMenuItems = screen.getAllByTestId('dropdown-menu-item');
       const deleteItem = deleteMenuItems.find(item => item.textContent?.includes('Löschen'));
       fireEvent.click(deleteItem!);
@@ -605,9 +631,9 @@ describe('KeywordList Component', () => {
     it('sollte leere Beschreibung mit Bindestrich anzeigen', async () => {
       const keywordWithoutDescription = {
         ...singleKeyword,
-        description: ''
+        description: '',
       };
-      
+
       mockKeywordService.getKeywords.mockResolvedValue([keywordWithoutDescription]);
 
       renderWithRouter(<KeywordList />);
@@ -622,24 +648,26 @@ describe('KeywordList Component', () => {
     it('sollte mit sehr langen Keyword-Namen umgehen', async () => {
       const longKeyword = {
         ...singleKeyword,
-        name: 'Dies ist ein sehr langer Keyword-Name der getestet werden soll'
+        name: 'Dies ist ein sehr langer Keyword-Name der getestet werden soll',
       };
-      
+
       mockKeywordService.getKeywords.mockResolvedValue([longKeyword]);
 
       renderWithRouter(<KeywordList />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Dies ist ein sehr langer Keyword-Name der getestet werden soll')[0]).toBeInTheDocument();
+        expect(
+          screen.getAllByText('Dies ist ein sehr langer Keyword-Name der getestet werden soll')[0]
+        ).toBeInTheDocument();
       });
     });
 
     it('sollte mit speziellen Zeichen im Namen umgehen', async () => {
       const specialKeyword = {
         ...singleKeyword,
-        name: 'Äöü-ß & Co.'
+        name: 'Äöü-ß & Co.',
       };
-      
+
       mockKeywordService.getKeywords.mockResolvedValue([specialKeyword]);
 
       renderWithRouter(<KeywordList />);
@@ -649,4 +677,4 @@ describe('KeywordList Component', () => {
       });
     });
   });
-}); 
+});

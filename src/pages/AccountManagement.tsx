@@ -1,21 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle,
-  CardContent,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  ArrowLeft,
-  Trash2,
-  Users,
-  Clock,
-  Calendar
-} from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ArrowLeft, Trash2, Users, Clock, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAccountManagementService } from '@/services/accountManagementService';
 import {
@@ -28,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -132,9 +120,9 @@ export function AccountManagement() {
   const pageContent = (
     <div className="container mx-auto max-w-full p-4 sm:p-6 md:p-8 px-2 overflow-x-hidden relative z-10">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate('/dashboard')} 
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/dashboard')}
           className="cursor-pointer text-white/90 hover:text-white hover:bg-white/10 backdrop-blur-xl border-white/20"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -165,7 +153,9 @@ export function AccountManagement() {
                   <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-white/90" />
                   <div>
                     <div className="text-xs sm:text-sm text-white/70">Älter als 5 Tage</div>
-                    <div className="text-lg sm:text-2xl font-bold text-white">{stats.oldAccounts}</div>
+                    <div className="text-lg sm:text-2xl font-bold text-white">
+                      {stats.oldAccounts}
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 p-4 backdrop-blur-xl bg-white/10 rounded-2xl border border-white/20 shadow-lg">
@@ -173,7 +163,7 @@ export function AccountManagement() {
                   <div>
                     <div className="text-xs sm:text-sm text-white/70">Alle Accounts älter als</div>
                     <div className="text-lg sm:text-2xl font-bold text-white">
-                      {stats.cutoffDate 
+                      {stats.cutoffDate
                         ? format(new Date(stats.cutoffDate), 'dd.MM.yyyy', { locale: de })
                         : 'Nie'}
                     </div>
@@ -183,7 +173,7 @@ export function AccountManagement() {
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button 
+                  <Button
                     variant="destructive"
                     disabled={stats.oldAccounts === 0 || isCleaning}
                     className="cursor-pointer backdrop-blur-xl bg-red-500/20 hover:bg-red-500/30 text-white border border-red-400/30 hover:border-red-400/50 shadow-lg hover:shadow-xl transition-all duration-300"
@@ -203,17 +193,19 @@ export function AccountManagement() {
                 </AlertDialogTrigger>
                 <AlertDialogContent className="backdrop-blur-3xl bg-white/10 border border-white/20 text-white">
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-white">Anonyme Accounts bereinigen</AlertDialogTitle>
+                    <AlertDialogTitle className="text-white">
+                      Anonyme Accounts bereinigen
+                    </AlertDialogTitle>
                     <AlertDialogDescription className="text-white/80">
-                      Möchten Sie wirklich alle anonymen Accounts löschen, die älter als 5 Tage sind?
-                      Diese Aktion kann nicht rückgängig gemacht werden.
+                      Möchten Sie wirklich alle anonymen Accounts löschen, die älter als 5 Tage
+                      sind? Diese Aktion kann nicht rückgängig gemacht werden.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel className="backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white border border-white/20">
                       Abbrechen
                     </AlertDialogCancel>
-                    <AlertDialogAction 
+                    <AlertDialogAction
                       onClick={handleCleanup}
                       className="backdrop-blur-xl bg-red-500/20 hover:bg-red-500/30 text-white border border-red-400/30"
                     >
@@ -224,9 +216,7 @@ export function AccountManagement() {
               </AlertDialog>
             </div>
           ) : (
-            <div className="text-center py-4 text-white/80 text-base">
-              Keine Daten verfügbar
-            </div>
+            <div className="text-center py-4 text-white/80 text-base">Keine Daten verfügbar</div>
           )}
         </CardContent>
       </Card>
@@ -240,14 +230,14 @@ export function AccountManagement() {
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500" />
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
         <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
-        
+
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
         <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
         <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
-        
+
         <AccountManagementSkeleton />
       </div>
     );
@@ -259,15 +249,15 @@ export function AccountManagement() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500" />
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
       <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
       <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
-      
+
       {pageContent}
     </div>
   );
-} 
+}

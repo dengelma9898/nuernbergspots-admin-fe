@@ -15,19 +15,39 @@ jest.mock('react-router-dom', () => ({
 
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div data-testid="card" className={className}>{children}</div>,
-  CardContent: ({ children, className }: any) => <div data-testid="card-content" className={className}>{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div data-testid="card" className={className}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div data-testid="card-content" className={className}>
+      {children}
+    </div>
+  ),
   CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <h3 data-testid="card-title" className={className}>{children}</h3>,
-  CardFooter: ({ children, className }: any) => <div data-testid="card-footer" className={className}>{children}</div>,
-  CardDescription: ({ children, className }: any) => <div data-testid="card-description" className={className}>{children}</div>,
+  CardTitle: ({ children, className }: any) => (
+    <h3 data-testid="card-title" className={className}>
+      {children}
+    </h3>
+  ),
+  CardFooter: ({ children, className }: any) => (
+    <div data-testid="card-footer" className={className}>
+      {children}
+    </div>
+  ),
+  CardDescription: ({ children, className }: any) => (
+    <div data-testid="card-description" className={className}>
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, size, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       data-variant={variant}
       data-size={size}
       className={className}
@@ -40,14 +60,16 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className }: any) => (
-    <span data-testid="badge" data-variant={variant} className={className}>{children}</span>
+    <span data-testid="badge" data-variant={variant} className={className}>
+      {children}
+    </span>
   ),
 }));
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -58,13 +80,25 @@ jest.mock('@/components/ui/input', () => ({
 
 jest.mock('@/components/ui/select', () => ({
   Select: ({ children, value, onValueChange }: any) => (
-    <div data-testid="select" data-value={value} onClick={() => onValueChange && onValueChange('test-value')}>
+    <div
+      data-testid="select"
+      data-value={value}
+      onClick={() => onValueChange && onValueChange('test-value')}
+    >
       {children}
     </div>
   ),
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
-  SelectTrigger: ({ children, className }: any) => <div data-testid="select-trigger" className={className}>{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children, className }: any) => (
+    <div data-testid="select-trigger" className={className}>
+      {children}
+    </div>
+  ),
   SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
@@ -159,7 +193,7 @@ describe('JobOffers Component', () => {
     location: {
       address: 'München, Deutschland',
       latitude: 48.1351,
-      longitude: 11.5820,
+      longitude: 11.582,
     },
     contactData: {
       email: 'jobs@company.com',
@@ -187,8 +221,8 @@ describe('JobOffers Component', () => {
     jobOfferCategoryId: 'cat-2',
     location: {
       address: 'Berlin, Deutschland',
-      latitude: 52.5200,
-      longitude: 13.4050,
+      latitude: 52.52,
+      longitude: 13.405,
     },
     contactData: {
       email: 'hr@company2.com',
@@ -209,7 +243,10 @@ describe('JobOffers Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockJobOfferService.getJobOffers.mockResolvedValue([mockJobOffer, mockJobOfferWithoutOptionalFields]);
+    mockJobOfferService.getJobOffers.mockResolvedValue([
+      mockJobOffer,
+      mockJobOfferWithoutOptionalFields,
+    ]);
     mockJobCategoryService.getCategories.mockResolvedValue([mockCategory]);
   });
 
@@ -306,20 +343,22 @@ describe('JobOffers Component', () => {
     await waitFor(() => {
       // Check job title
       expect(screen.getAllByText('Software Developer').length).toBeGreaterThan(0);
-      
+
       // Check description
-      expect(screen.getAllByText('We are looking for a talented software developer...').length).toBeGreaterThan(0);
-      
+      expect(
+        screen.getAllByText('We are looking for a talented software developer...').length
+      ).toBeGreaterThan(0);
+
       // Check employment type
       expect(screen.getAllByText('Vollzeit').length).toBeGreaterThan(0);
-      
+
       // Check location
       expect(screen.getAllByText('München, Deutschland').length).toBeGreaterThan(0);
-      
+
       // Check contact info
       expect(screen.getAllByText('jobs@company.com').length).toBeGreaterThan(0);
       expect(screen.getAllByText('+49 123 456789').length).toBeGreaterThan(0);
-      
+
       // Check wage
       expect(screen.getAllByText('50.000 - 70.000 €').length).toBeGreaterThan(0);
     });
@@ -331,7 +370,7 @@ describe('JobOffers Component', () => {
     await waitFor(() => {
       const homeOfficeBadges = screen.getAllByText('Home Office');
       expect(homeOfficeBadges.length).toBeGreaterThan(0);
-      
+
       const onSiteBadges = screen.getAllByText('Vor Ort');
       expect(onSiteBadges.length).toBeGreaterThan(0);
     });
@@ -379,7 +418,9 @@ describe('JobOffers Component', () => {
     await waitFor(() => {
       const applicationLinks = screen.getAllByText('Zur Bewerbung');
       expect(applicationLinks.length).toBeGreaterThan(0);
-      expect(applicationLinks[0].closest('a')?.getAttribute('href')).toBe('https://company.com/apply');
+      expect(applicationLinks[0].closest('a')?.getAttribute('href')).toBe(
+        'https://company.com/apply'
+      );
       expect(applicationLinks[0].closest('a')?.getAttribute('target')).toBe('_blank');
     });
   });
@@ -446,14 +487,15 @@ describe('JobOffers Component', () => {
   it('shows error message when loading fails', async () => {
     const { toast } = require('sonner');
     mockJobOfferService.getJobOffers.mockRejectedValue(new Error('Loading failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
         'Fehler beim Laden der Daten',
         expect.objectContaining({
-          description: 'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+          description:
+            'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
         })
       );
     });
@@ -462,7 +504,7 @@ describe('JobOffers Component', () => {
   it('shows error message when delete fails', async () => {
     const { toast } = require('sonner');
     mockJobOfferService.deleteJobOffer.mockRejectedValue(new Error('Delete failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -477,7 +519,8 @@ describe('JobOffers Component', () => {
       expect(toast.error).toHaveBeenCalledWith(
         'Fehler beim Löschen',
         expect.objectContaining({
-          description: 'Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
+          description:
+            'Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
         })
       );
     });
@@ -486,7 +529,7 @@ describe('JobOffers Component', () => {
   it('shows success message when delete succeeds', async () => {
     const { toast } = require('sonner');
     mockJobOfferService.deleteJobOffer.mockResolvedValue(undefined);
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -509,7 +552,7 @@ describe('JobOffers Component', () => {
 
   it('reloads data after successful deletion', async () => {
     mockJobOfferService.deleteJobOffer.mockResolvedValue(undefined);
-    
+
     renderComponent();
 
     // Clear the initial call
@@ -531,7 +574,7 @@ describe('JobOffers Component', () => {
 
   it('shows no results message when no job offers match filters', async () => {
     mockJobOfferService.getJobOffers.mockResolvedValue([]);
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -645,4 +688,4 @@ describe('JobOffers Component', () => {
       expect(screen.getAllByText('Software Developer').length).toBeGreaterThan(0);
     });
   });
-}); 
+});

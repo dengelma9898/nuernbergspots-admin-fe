@@ -8,4 +8,4 @@ export interface BusinessCustomer {
    * ISO string of when the customer was scanned
    */
   scannedAt: string;
-} 
+}

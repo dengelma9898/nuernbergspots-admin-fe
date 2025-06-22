@@ -25,7 +25,9 @@ export function useKeywordService() {
     /**
      * Erstellt ein neues Keyword
      */
-    createKeyword: async (keyword: Omit<Keyword, 'id' | 'createdAt' | 'updatedAt'>): Promise<Keyword> => {
+    createKeyword: async (
+      keyword: Omit<Keyword, 'id' | 'createdAt' | 'updatedAt'>
+    ): Promise<Keyword> => {
       const response = await api.post<ApiResponse<Keyword>>(endpoints.keywords, keyword);
       return unwrapData(response);
     },
@@ -34,7 +36,10 @@ export function useKeywordService() {
      * Aktualisiert ein Keyword
      */
     updateKeyword: async (keywordId: string, keyword: Partial<Keyword>): Promise<Keyword> => {
-      const response = await api.patch<ApiResponse<Keyword>>(`${endpoints.keywords}/${keywordId}`, keyword);
+      const response = await api.patch<ApiResponse<Keyword>>(
+        `${endpoints.keywords}/${keywordId}`,
+        keyword
+      );
       return unwrapData(response);
     },
 
@@ -49,8 +54,10 @@ export function useKeywordService() {
      * Lädt Keywords nach Namen (Suche)
      */
     searchKeywords: async (query: string): Promise<Keyword[]> => {
-      const response = await api.get<ApiResponse<Keyword[]>>(`${endpoints.keywords}/search?q=${encodeURIComponent(query)}`);
+      const response = await api.get<ApiResponse<Keyword[]>>(
+        `${endpoints.keywords}/search?q=${encodeURIComponent(query)}`
+      );
       return unwrapData(response);
-    }
+    },
   };
-} 
+}

@@ -28,11 +28,7 @@ export function MaterialIcon({
 }: MaterialIconProps) {
   return (
     <span
-      className={cn(
-        'material-symbols-rounded',
-        sizeMap[size],
-        className
-      )}
+      className={cn('material-symbols-rounded', sizeMap[size], className)}
       style={{
         fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' ${weight}, 'GRAD' ${grade}, 'opsz' ${opticalSize}`,
       }}
@@ -41,4 +37,4 @@ export function MaterialIcon({
       {icon}
     </span>
   );
-} 
+}

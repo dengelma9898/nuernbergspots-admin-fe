@@ -16,12 +16,14 @@ export const useAccountManagementService = () => {
   };
 
   const getAnonymousAccountStats = async (): Promise<AnonymousAccountStats> => {
-    const response = await api.get<ApiResponse<AnonymousAccountStats>>(`${baseUrl}/anonymous-stats`);
+    const response = await api.get<ApiResponse<AnonymousAccountStats>>(
+      `${baseUrl}/anonymous-stats`
+    );
     return unwrapData(response);
   };
 
   return {
     cleanupAnonymousAccounts,
-    getAnonymousAccountStats
+    getAnonymousAccountStats,
   };
-}; 
+};

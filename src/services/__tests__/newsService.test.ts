@@ -17,7 +17,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useNewsService } from '../newsService';
@@ -78,10 +78,10 @@ describe('News Service', () => {
 
   describe('createImageNews', () => {
     it('should create an image news item', async () => {
-      const newsData = { 
-        content: 'New image news', 
+      const newsData = {
+        content: 'New image news',
         authorId: 'author1',
-        imageUrls: ['image1.jpg', 'image2.jpg']
+        imageUrls: ['image1.jpg', 'image2.jpg'],
       };
       const createdNews = { id: '1', type: 'image', ...newsData, createdAt: '2024-01-01' };
       mockApi.post.mockResolvedValue({ data: createdNews });
@@ -101,11 +101,11 @@ describe('News Service', () => {
         pollInfo: {
           options: [
             { id: '1', text: 'Option 1', voters: [] },
-            { id: '2', text: 'Option 2', voters: [] }
+            { id: '2', text: 'Option 2', voters: [] },
           ],
           allowMultipleChoices: false,
-          expiresAt: '2024-12-31T23:59:59Z'
-        }
+          expiresAt: '2024-12-31T23:59:59Z',
+        },
       };
       const createdNews = { id: '1', type: 'poll', ...newsData, createdAt: '2024-01-01' };
       mockApi.post.mockResolvedValue({ data: createdNews });
@@ -120,17 +120,17 @@ describe('News Service', () => {
   describe('votePoll', () => {
     it('should vote on a poll', async () => {
       const voteData = { optionId: '1' };
-      const updatedPoll = { 
-        id: '1', 
-        type: 'poll', 
+      const updatedPoll = {
+        id: '1',
+        type: 'poll',
         content: 'Poll question',
         pollInfo: {
           options: [
             { id: '1', text: 'Option 1', voters: ['voter1'] },
-            { id: '2', text: 'Option 2', voters: [] }
+            { id: '2', text: 'Option 2', voters: [] },
           ],
-          allowMultipleChoices: false
-        }
+          allowMultipleChoices: false,
+        },
       };
       mockApi.patch.mockResolvedValue({ data: updatedPoll });
 
@@ -144,10 +144,10 @@ describe('News Service', () => {
   describe('postReaction', () => {
     it('should post a reaction to news', async () => {
       const reactionData = { type: 'like', userId: 'user1' };
-      const updatedNews = { 
-        id: '1', 
+      const updatedNews = {
+        id: '1',
         content: 'Test news',
-        reactions: [reactionData]
+        reactions: [reactionData],
       };
       mockApi.patch.mockResolvedValue({ data: updatedNews });
 
@@ -187,21 +187,19 @@ describe('News Service', () => {
         new File(['test'], 'test1.jpg', { type: 'image/jpeg' }),
         new File(['test'], 'test2.jpg', { type: 'image/jpeg' }),
       ];
-      const updatedNews = { 
-        id: '1', 
+      const updatedNews = {
+        id: '1',
         type: 'image',
         content: 'Image news',
-        imageUrls: ['new1.jpg', 'new2.jpg']
+        imageUrls: ['new1.jpg', 'new2.jpg'],
       };
       mockApi.patch.mockResolvedValue({ data: updatedNews });
 
       const result = await newsService.updateNewsImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
-        '/news/1/images',
-        expect.any(FormData),
-        { isFormData: true }
-      );
+      expect(mockApi.patch).toHaveBeenCalledWith('/news/1/images', expect.any(FormData), {
+        isFormData: true,
+      });
       expect(result).toEqual(updatedNews);
     });
   });
@@ -210,22 +208,23 @@ describe('News Service', () => {
     it('should handle create text news errors', async () => {
       mockApi.post.mockRejectedValue(new Error('Creation failed'));
 
-      await expect(newsService.createTextNews({ content: 'test', authorId: 'author1' }))
-        .rejects.toThrow('Creation failed');
+      await expect(
+        newsService.createTextNews({ content: 'test', authorId: 'author1' })
+      ).rejects.toThrow('Creation failed');
     });
 
     it('should handle vote poll errors', async () => {
       mockApi.patch.mockRejectedValue(new Error('Vote failed'));
 
-      await expect(newsService.votePoll('1', { optionId: '1' }))
-        .rejects.toThrow('Vote failed');
+      await expect(newsService.votePoll('1', { optionId: '1' })).rejects.toThrow('Vote failed');
     });
 
     it('should handle update errors', async () => {
       mockApi.put.mockRejectedValue(new Error('Update failed'));
 
-      await expect(newsService.update('1', { content: 'new content' }))
-        .rejects.toThrow('Update failed');
+      await expect(newsService.update('1', { content: 'new content' })).rejects.toThrow(
+        'Update failed'
+      );
     });
   });
-}); 
+});

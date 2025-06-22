@@ -23,7 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+    const unsubscribe = auth.onAuthStateChanged(async user => {
       setUser(user);
       if (user) {
         const token = await user.getIdToken();
@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/profile`, {
       headers: {
-        'Authorization': `Bearer ${currentToken}`
-      }
+        Authorization: `Bearer ${currentToken}`,
+      },
     });
 
     if (!response.ok) {
@@ -79,18 +79,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      token, 
-      isAuthenticated: !!user,
-      isLoading: loading,
-      login, 
-      logout, 
-      getUserId, 
-      getToken,
-      getUserProfile
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        token,
+        isAuthenticated: !!user,
+        isLoading: loading,
+        login,
+        logout,
+        getUserId,
+        getToken,
+        getUserProfile,
+      }}
+    >
       {!loading && children}
     </AuthContext.Provider>
   );
@@ -102,4 +104,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-} 
+}

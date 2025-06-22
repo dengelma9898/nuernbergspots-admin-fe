@@ -1,43 +1,30 @@
 import { useState, useEffect } from 'react';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle,
-  CardContent 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { 
+} from '@/components/ui/table';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { 
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Plus, 
-  MoreHorizontal, 
-  Pencil, 
-  Trash2,
-  Check,
-  X,
-  ArrowLeft
-} from 'lucide-react';
+} from '@/components/ui/dropdown-menu';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
@@ -76,9 +63,9 @@ export function KeywordList() {
     }
 
     try {
-      const keyword = await keywordService.createKeyword({ 
+      const keyword = await keywordService.createKeyword({
         name: newKeyword.name.trim(),
-        description: newKeyword.description.trim()
+        description: newKeyword.description.trim(),
       });
       setKeywords([...keywords, keyword]);
       setNewKeyword({ name: '', description: '' });
@@ -94,7 +81,7 @@ export function KeywordList() {
     setEditingKeyword(keyword);
     setNewKeyword({
       name: keyword.name,
-      description: keyword.description
+      description: keyword.description,
     });
     setIsDialogOpen(true);
   };
@@ -106,13 +93,11 @@ export function KeywordList() {
     }
 
     try {
-      const updatedKeyword = await keywordService.updateKeyword(editingKeyword.id, { 
+      const updatedKeyword = await keywordService.updateKeyword(editingKeyword.id, {
         name: newKeyword.name.trim(),
-        description: newKeyword.description.trim()
+        description: newKeyword.description.trim(),
       });
-      setKeywords(keywords.map(kw => 
-        kw.id === editingKeyword.id ? updatedKeyword : kw
-      ));
+      setKeywords(keywords.map(kw => (kw.id === editingKeyword.id ? updatedKeyword : kw)));
       setEditingKeyword(null);
       setNewKeyword({ name: '', description: '' });
       setIsDialogOpen(false);
@@ -153,7 +138,7 @@ export function KeywordList() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -166,16 +151,16 @@ export function KeywordList() {
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-6">
           {/* Back Button */}
           <div className="mb-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')} 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/dashboard')}
               className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border w-full sm:w-auto"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Zurück zum Dashboard
             </Button>
           </div>
-          
+
           {/* Header und Button */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
@@ -183,7 +168,7 @@ export function KeywordList() {
             </h1>
             <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   onClick={resetModalState}
                   className="backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
                 >
@@ -202,7 +187,7 @@ export function KeywordList() {
                     <label className="text-sm font-medium text-white/90">Name</label>
                     <Input
                       value={newKeyword.name}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, name: e.target.value })}
+                      onChange={e => setNewKeyword({ ...newKeyword, name: e.target.value })}
                       placeholder="Keyword Name"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
                     />
@@ -211,21 +196,21 @@ export function KeywordList() {
                     <label className="text-sm font-medium text-white/90">Beschreibung</label>
                     <Input
                       value={newKeyword.description}
-                      onChange={(e) => setNewKeyword({ ...newKeyword, description: e.target.value })}
+                      onChange={e => setNewKeyword({ ...newKeyword, description: e.target.value })}
                       placeholder="Beschreibung"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
                     />
                   </div>
                   <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 pt-4">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl order-2 sm:order-1"
                     >
                       <X className="mr-2 h-4 w-4" />
                       Abbrechen
                     </Button>
-                    <Button 
+                    <Button
                       onClick={editingKeyword ? handleUpdateKeyword : handleAddKeyword}
                       className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-white/20 text-white hover:from-green-600/90 hover:to-emerald-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg order-1 sm:order-2"
                     >
@@ -243,19 +228,22 @@ export function KeywordList() {
         {isLoading ? (
           <div className="block md:hidden space-y-4">
             {[...Array(4)].map((_, index) => (
-              <div key={index} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
+              <div
+                key={index}
+                className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6"
+              >
                 {/* Header */}
                 <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-3/4 mb-2 rounded" />
-                
+
                 {/* Description */}
                 <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full mb-3 rounded" />
-                
+
                 {/* Dates */}
                 <div className="space-y-1 mb-4">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-full sm:flex-1 rounded-xl" />
@@ -270,8 +258,11 @@ export function KeywordList() {
           </div>
         ) : (
           <div className="block md:hidden space-y-4">
-            {keywords.map((keyword) => (
-              <div key={keyword.id} className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-500 p-4 sm:p-6">
+            {keywords.map(keyword => (
+              <div
+                key={keyword.id}
+                className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-500 p-4 sm:p-6"
+              >
                 <div className="font-bold text-lg mb-2 text-white">{keyword.name}</div>
                 <div className="text-sm text-white/80 mb-3">{keyword.description || '-'}</div>
                 <div className="text-xs text-white/60 mb-4 space-y-1">
@@ -279,18 +270,18 @@ export function KeywordList() {
                   <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => handleEditKeyword(keyword)} 
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditKeyword(keyword)}
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl cursor-pointer flex-1"
                   >
                     <Pencil className="mr-2 h-4 w-4" /> Bearbeiten
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="destructive" 
-                    onClick={() => handleDeleteKeyword(keyword.id)} 
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteKeyword(keyword.id)}
                     className="backdrop-blur-2xl bg-red-500/80 border-red-400/50 text-white hover:bg-red-600/90 hover:scale-105 transition-all duration-300 rounded-xl cursor-pointer flex-1"
                   >
                     <Trash2 className="mr-2 h-4 w-4" /> Löschen
@@ -343,31 +334,41 @@ export function KeywordList() {
                   </TableCell>
                 </TableRow>
               ) : (
-                keywords.map((keyword) => (
-                  <TableRow key={keyword.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                keywords.map(keyword => (
+                  <TableRow
+                    key={keyword.id}
+                    className="border-white/10 hover:bg-white/5 transition-colors"
+                  >
                     <TableCell className="font-medium text-white">{keyword.name}</TableCell>
                     <TableCell className="text-white/80">{keyword.description || '-'}</TableCell>
-                    <TableCell className="text-white/70">{new Date(keyword.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-white/70">{new Date(keyword.updatedAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-white/70">
+                      {new Date(keyword.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-white/70">
+                      {new Date(keyword.updatedAt).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             className="h-8 w-8 p-0 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 rounded-lg"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
-                          <DropdownMenuItem 
+                        <DropdownMenuContent
+                          align="end"
+                          className="backdrop-blur-3xl bg-white/10 border-white/20 text-white"
+                        >
+                          <DropdownMenuItem
                             onClick={() => handleEditKeyword(keyword)}
                             className="text-white hover:bg-white/20 focus:bg-white/20 cursor-pointer"
                           >
                             <Pencil className="mr-2 h-4 w-4" />
                             Bearbeiten
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteKeyword(keyword.id)}
                             className="text-red-300 hover:text-red-200 hover:bg-red-500/20 focus:bg-red-500/20 cursor-pointer"
                           >
@@ -386,4 +387,4 @@ export function KeywordList() {
       </div>
     </div>
   );
-} 
+}

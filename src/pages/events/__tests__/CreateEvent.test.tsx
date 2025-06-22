@@ -20,18 +20,38 @@ jest.mock('react-router-dom', () => ({
 
 // Mock shadcn/ui components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
-  CardDescription: ({ children, className }: any) => <div className={className} data-testid="card-description">{children}</div>,
-  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div className={className} data-testid="card-content">
+      {children}
+    </div>
+  ),
+  CardDescription: ({ children, className }: any) => (
+    <div className={className} data-testid="card-description">
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, className }: any) => (
+    <div className={className} data-testid="card-header">
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       className={className}
       data-variant={variant}
       data-testid="button"
@@ -43,10 +63,10 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, type, id, className }: any) => (
-    <input 
+    <input
       id={id}
       type={type}
-      value={value} 
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -57,9 +77,9 @@ jest.mock('@/components/ui/input', () => ({
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ value, onChange, placeholder, id, className }: any) => (
-    <textarea 
+    <textarea
       id={id}
-      value={value} 
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -70,17 +90,19 @@ jest.mock('@/components/ui/textarea', () => ({
 
 jest.mock('@/components/ui/label', () => ({
   Label: ({ children, htmlFor }: any) => (
-    <label htmlFor={htmlFor} data-testid="label">{children}</label>
+    <label htmlFor={htmlFor} data-testid="label">
+      {children}
+    </label>
   ),
 }));
 
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
-    <input 
+    <input
       id={id}
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={e => onCheckedChange?.(e.target.checked)}
       data-testid="switch"
     />
   ),
@@ -88,27 +110,41 @@ jest.mock('@/components/ui/switch', () => ({
 
 jest.mock('@/components/ui/select', () => ({
   Select: ({ children, value, onValueChange }: any) => (
-    <div data-testid="select" data-value={value} onClick={() => onValueChange?.('test-category-id')}>
+    <div
+      data-testid="select"
+      data-value={value}
+      onClick={() => onValueChange?.('test-category-id')}
+    >
       {children}
     </div>
   ),
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
-  SelectTrigger: ({ children, className }: any) => <div className={className} data-testid="select-trigger">{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children, className }: any) => (
+    <div className={className} data-testid="select-trigger">
+      {children}
+    </div>
+  ),
   SelectValue: ({ placeholder }: any) => <div data-testid="select-value">{placeholder}</div>,
 }));
 
 jest.mock('@/components/ui/LocationSearch', () => ({
   LocationSearch: ({ value, onChange, placeholder }: any) => (
-    <div 
-      data-testid="location-search" 
-      onClick={() => onChange?.({
-        id: 'test-location',
-        title: 'Test Location',
-        resultType: 'place',
-        position: { lat: 49.4521, lng: 11.0767 },
-        address: { label: 'Teststraße 1, 90402 Nürnberg' }
-      })}
+    <div
+      data-testid="location-search"
+      onClick={() =>
+        onChange?.({
+          id: 'test-location',
+          title: 'Test Location',
+          resultType: 'place',
+          position: { lat: 49.4521, lng: 11.0767 },
+          address: { label: 'Teststraße 1, 90402 Nürnberg' },
+        })
+      }
     >
       {placeholder}
     </div>
@@ -142,7 +178,7 @@ jest.mock('date-fns', () => ({
     return '15. Januar 2024';
   },
   eachDayOfInterval: jest.fn(() => [new Date('2024-01-15'), new Date('2024-01-16')]),
-  parseISO: jest.fn((date) => new Date(date)),
+  parseISO: jest.fn(date => new Date(date)),
 }));
 
 // Mock icon utils
@@ -171,11 +207,7 @@ const mockEventCategory: EventCategory = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('CreateEvent Component', () => {
@@ -184,7 +216,7 @@ describe('CreateEvent Component', () => {
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useEventService as jest.Mock).mockReturnValue(mockEventService);
     (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
-    
+
     mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
     mockEventService.createEvent.mockResolvedValue({ id: 'new-event-id' });
   });
@@ -270,7 +302,8 @@ describe('CreateEvent Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Laden der Kategorien',
           expect.objectContaining({
-            description: 'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
           })
         );
       });
@@ -397,7 +430,8 @@ describe('CreateEvent Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Erstellen',
           expect.objectContaining({
-            description: 'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
+            description:
+              'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
           })
         );
       });
@@ -406,7 +440,10 @@ describe('CreateEvent Component', () => {
     it('sollte Loading-State während Erstellung anzeigen', async () => {
       let resolveCreate: any;
       mockEventService.createEvent.mockImplementation(
-        () => new Promise((resolve) => { resolveCreate = resolve; })
+        () =>
+          new Promise(resolve => {
+            resolveCreate = resolve;
+          })
       );
 
       renderWithRouter(<CreateEvent />);
@@ -491,4 +528,4 @@ describe('CreateEvent Component', () => {
       });
     });
   });
-}); 
+});

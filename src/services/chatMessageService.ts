@@ -7,7 +7,7 @@ export enum ReactionType {
   LAUGH = 'laugh',
   WOW = 'wow',
   SAD = 'sad',
-  ANGRY = 'angry'
+  ANGRY = 'angry',
 }
 
 export interface Reaction {
@@ -59,7 +59,11 @@ export function useChatMessageService() {
       return unwrapData(response);
     },
 
-    updateMessage: async (chatroomId: string, messageId: string, data: UpdateMessageDto): Promise<ChatMessage> => {
+    updateMessage: async (
+      chatroomId: string,
+      messageId: string,
+      data: UpdateMessageDto
+    ): Promise<ChatMessage> => {
       const response = await api.patch<ApiResponse<ChatMessage>>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}`,
         data
@@ -71,7 +75,11 @@ export function useChatMessageService() {
       await api.delete(`${endpoints.chatroomMessages(chatroomId)}/${messageId}`);
     },
 
-    addReaction: async (chatroomId: string, messageId: string, reaction: UpdateMessageReactionDto): Promise<ChatMessage> => {
+    addReaction: async (
+      chatroomId: string,
+      messageId: string,
+      reaction: UpdateMessageReactionDto
+    ): Promise<ChatMessage> => {
       const response = await api.post<ApiResponse<ChatMessage>>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}/reactions`,
         reaction
@@ -84,6 +92,6 @@ export function useChatMessageService() {
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}/reactions`
       );
       return unwrapData(response);
-    }
+    },
   };
-} 
+}

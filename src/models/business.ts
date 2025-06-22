@@ -3,7 +3,7 @@ import { BusinessCustomer } from './business-customer';
 export enum BusinessStatus {
   PENDING = 'PENDING',
   ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE'
+  INACTIVE = 'INACTIVE',
 }
 
 export interface NuernbergspotsReview {
@@ -103,7 +103,6 @@ export interface BusinessCustomerScans {
   businessName: string;
 
   scans: CustomerScan[];
-
 }
 
 export interface BusinessAnalytics {
@@ -167,4 +166,4 @@ export interface DashboardAnalytics {
     mostPopularTime: string;
     averageVisitsPerDay: number;
   };
-} 
+}

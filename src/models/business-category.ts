@@ -5,14 +5,14 @@ export interface BusinessCategoryCreation {
   iconName: string;
   description: string;
   keywordIds?: string[];
-} 
+}
 
 export interface BusinessCategory {
-    id: string;
-    name: string;
-    iconName: string;
-    description: string;
-    keywords: Keyword[];
-    createdAt: string;
-    updatedAt: string;
-  } 
+  id: string;
+  name: string;
+  iconName: string;
+  description: string;
+  keywords: Keyword[];
+  createdAt: string;
+  updatedAt: string;
+}

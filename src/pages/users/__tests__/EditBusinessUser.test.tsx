@@ -38,7 +38,9 @@ jest.mock('@/contexts/AuthContext', () => ({
 // Mock der Services
 jest.mock('@/services/businessUserService');
 jest.mock('@/services/businessService');
-const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<typeof useBusinessUserService>;
+const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<
+  typeof useBusinessUserService
+>;
 const mockBusinessService = useBusinessService as jest.MockedFunction<typeof useBusinessService>;
 
 // Mock von React Router
@@ -130,7 +132,10 @@ const mockAvailableBusiness = createMockBusiness({
 });
 
 // Helper function to render component with router and params
-const renderWithRouter = (component: React.ReactElement, initialEntries = ['/business-users/user-1/edit']) => {
+const renderWithRouter = (
+  component: React.ReactElement,
+  initialEntries = ['/business-users/user-1/edit']
+) => {
   return render(
     <MemoryRouter initialEntries={initialEntries}>
       <Routes>
@@ -175,24 +180,28 @@ describe('EditBusinessUser', () => {
 
   describe('Loading State', () => {
     it('sollte Loading-State anzeigen', () => {
-      mockBusinessUserServiceInstance.getBusinessUser.mockImplementation(() => new Promise(() => {}));
+      mockBusinessUserServiceInstance.getBusinessUser.mockImplementation(
+        () => new Promise(() => {})
+      );
       mockBusinessServiceInstance.getBusinesses.mockImplementation(() => new Promise(() => {}));
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       expect(screen.getByText('Business-User bearbeiten')).toBeInTheDocument();
       expect(document.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(2);
     });
 
     it('sollte Zurück-Button im Loading-State rendern', () => {
-      mockBusinessUserServiceInstance.getBusinessUser.mockImplementation(() => new Promise(() => {}));
+      mockBusinessUserServiceInstance.getBusinessUser.mockImplementation(
+        () => new Promise(() => {})
+      );
       mockBusinessServiceInstance.getBusinesses.mockImplementation(() => new Promise(() => {}));
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       const backButton = document.querySelector('button svg.lucide-arrow-left')?.closest('button');
       expect(backButton).toBeInTheDocument();
-      
+
       fireEvent.click(backButton!);
       expect(mockNavigate).toHaveBeenCalledWith('/business-users');
     });
@@ -270,9 +279,9 @@ describe('EditBusinessUser', () => {
         mockAssignedBusiness2,
         mockAvailableBusiness,
       ]);
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -340,9 +349,9 @@ describe('EditBusinessUser', () => {
         mockAssignedBusiness2,
         mockAvailableBusiness,
       ]);
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -358,7 +367,7 @@ describe('EditBusinessUser', () => {
       // Desktop Table Headers
       expect(screen.getAllByText('Name')).toHaveLength(2); // Assigned + Available
       expect(screen.getAllByText('ID')).toHaveLength(2); // Assigned + Available
-      
+
       // Business IDs
       expect(screen.getAllByText('business-1').length).toBeGreaterThan(0);
       expect(screen.getAllByText('business-2').length).toBeGreaterThan(0);
@@ -368,7 +377,7 @@ describe('EditBusinessUser', () => {
       // Mobile Cards (md:hidden)
       const mobileAssigned = document.querySelector('.md\\:hidden.space-y-2');
       expect(mobileAssigned).toHaveClass('md:hidden');
-      
+
       // Desktop Table (hidden md:block)
       const desktopAssigned = document.querySelector('.hidden.md\\:block[data-slot="card"]');
       expect(desktopAssigned).toHaveClass('hidden', 'md:block');
@@ -383,9 +392,9 @@ describe('EditBusinessUser', () => {
         mockAssignedBusiness2,
         mockAvailableBusiness,
       ]);
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -400,7 +409,7 @@ describe('EditBusinessUser', () => {
     it('sollte Hinzufügen-Buttons anzeigen', () => {
       const addButtons = screen.getAllByText('Hinzufügen');
       expect(addButtons).toHaveLength(2); // Mobile + Desktop
-      
+
       addButtons.forEach(button => {
         expect(button.closest('button')).toBeInTheDocument();
       });
@@ -420,9 +429,9 @@ describe('EditBusinessUser', () => {
         mockAssignedBusiness2,
         mockAvailableBusiness,
       ]);
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -434,7 +443,9 @@ describe('EditBusinessUser', () => {
 
       expect(screen.getByText('Geschäft zuweisen')).toBeInTheDocument();
       expect(screen.getByText(/möchten sie das geschäft "shop gamma"/i)).toBeInTheDocument();
-      expect(screen.getByText(/dem business-user "business@example.com" zuweisen/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/dem business-user "business@example.com" zuweisen/i)
+      ).toBeInTheDocument();
     });
 
     it('sollte Dialog schließen beim Abbrechen', () => {
@@ -449,7 +460,7 @@ describe('EditBusinessUser', () => {
 
     it('sollte Business erfolgreich hinzufügen', async () => {
       mockBusinessUserServiceInstance.addBusinessToUser.mockResolvedValue(undefined);
-      
+
       // Mock updated user response
       const updatedUser = createMockBusinessUser({
         businessIds: ['business-1', 'business-2', 'business-3'],
@@ -463,15 +474,22 @@ describe('EditBusinessUser', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expect(mockBusinessUserServiceInstance.addBusinessToUser).toHaveBeenCalledWith('user-1', 'business-3');
+        expect(mockBusinessUserServiceInstance.addBusinessToUser).toHaveBeenCalledWith(
+          'user-1',
+          'business-3'
+        );
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Shop Gamma wurde erfolgreich zu business@example.com hinzugefügt.');
+      expect(toast.success).toHaveBeenCalledWith(
+        'Shop Gamma wurde erfolgreich zu business@example.com hinzugefügt.'
+      );
     });
 
     it('sollte Fehler beim Hinzufügen handhaben', async () => {
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockBusinessUserServiceInstance.addBusinessToUser.mockRejectedValue(new Error('Network error'));
+      mockBusinessUserServiceInstance.addBusinessToUser.mockRejectedValue(
+        new Error('Network error')
+      );
 
       const addButton = screen.getAllByText('Hinzufügen')[0];
       fireEvent.click(addButton);
@@ -480,16 +498,23 @@ describe('EditBusinessUser', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.');
+        expect(toast.error).toHaveBeenCalledWith(
+          'Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.'
+        );
       });
 
-      expect(consoleSpy).toHaveBeenCalledWith('Fehler beim Hinzufügen des Geschäfts:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Fehler beim Hinzufügen des Geschäfts:',
+        expect.any(Error)
+      );
       consoleSpy.mockRestore();
     });
 
     it('sollte Loading-State im Dialog anzeigen', async () => {
       // Mock lange Antwortzeit
-      mockBusinessUserServiceInstance.addBusinessToUser.mockImplementation(() => new Promise(() => {}));
+      mockBusinessUserServiceInstance.addBusinessToUser.mockImplementation(
+        () => new Promise(() => {})
+      );
 
       const addButton = screen.getAllByText('Hinzufügen')[0];
       fireEvent.click(addButton);
@@ -507,7 +532,7 @@ describe('EditBusinessUser', () => {
       const userWithoutBusinesses = createMockBusinessUser({
         businessIds: [],
       });
-      
+
       mockBusinessUserServiceInstance.getBusinessUser.mockResolvedValue(userWithoutBusinesses);
       mockBusinessServiceInstance.getBusinesses.mockResolvedValue([mockAvailableBusiness]);
 
@@ -550,7 +575,7 @@ describe('EditBusinessUser', () => {
 
       const backButton = document.querySelector('button svg.lucide-arrow-left')?.closest('button');
       expect(backButton).toBeInTheDocument();
-      
+
       fireEvent.click(backButton!);
       expect(mockNavigate).toHaveBeenCalledWith('/business-users');
     });
@@ -563,9 +588,9 @@ describe('EditBusinessUser', () => {
         mockAssignedBusiness1,
         mockAvailableBusiness,
       ]);
-      
+
       renderWithRouter(<EditBusinessUser />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -573,12 +598,27 @@ describe('EditBusinessUser', () => {
 
     it('sollte responsive Container-Klassen haben', () => {
       const container = document.querySelector('.min-h-screen.bg-muted');
-      expect(container).toHaveClass('min-h-screen', 'bg-muted', 'px-4', 'py-6', 'sm:px-8', 'overflow-x-hidden');
+      expect(container).toHaveClass(
+        'min-h-screen',
+        'bg-muted',
+        'px-4',
+        'py-6',
+        'sm:px-8',
+        'overflow-x-hidden'
+      );
     });
 
     it('sollte responsive Header haben', () => {
       const header = document.querySelector('.flex.flex-col.gap-2.sm\\:flex-row');
-      expect(header).toHaveClass('flex', 'flex-col', 'gap-2', 'sm:flex-row', 'sm:items-center', 'sm:gap-4', 'mb-8');
+      expect(header).toHaveClass(
+        'flex',
+        'flex-col',
+        'gap-2',
+        'sm:flex-row',
+        'sm:items-center',
+        'sm:gap-4',
+        'mb-8'
+      );
     });
   });
 
@@ -589,7 +629,7 @@ describe('EditBusinessUser', () => {
         name: 'Business mit Account',
         hasAccount: true,
       });
-      
+
       mockBusinessUserServiceInstance.getBusinessUser.mockResolvedValue(mockBusinessUser);
       mockBusinessServiceInstance.getBusinesses.mockResolvedValue([
         mockAssignedBusiness1,
@@ -609,4 +649,4 @@ describe('EditBusinessUser', () => {
       expect(screen.queryByText('Business mit Account')).not.toBeInTheDocument();
     });
   });
-}); 
+});

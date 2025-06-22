@@ -21,7 +21,10 @@ export const useEventCategoryService = () => {
     return unwrapData(response);
   };
 
-  const updateCategory = async (id: string, category: Partial<EventCategoryCreation>): Promise<EventCategory> => {
+  const updateCategory = async (
+    id: string,
+    category: Partial<EventCategoryCreation>
+  ): Promise<EventCategory> => {
     const response = await api.patch<ApiResponse<EventCategory>>(`${baseUrl}/${id}`, category);
     return unwrapData(response);
   };
@@ -32,7 +35,7 @@ export const useEventCategoryService = () => {
 
   const updateFallbackImages = async (id: string, files: File[]): Promise<EventCategory> => {
     const formData = new FormData();
-    files.forEach((file) => {
+    files.forEach(file => {
       formData.append('images', file);
     });
 
@@ -51,6 +54,6 @@ export const useEventCategoryService = () => {
     createCategory,
     updateCategory,
     deleteCategory,
-    updateFallbackImages
+    updateFallbackImages,
   };
-}; 
+};

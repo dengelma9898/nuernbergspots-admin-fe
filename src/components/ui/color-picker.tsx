@@ -12,15 +12,10 @@ export const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange }) => 
       <Input
         type="color"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
         className="h-10 w-10 p-1"
       />
-      <Input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-24"
-      />
+      <Input type="text" value={value} onChange={e => onChange(e.target.value)} className="w-24" />
     </div>
   );
-}; 
+};

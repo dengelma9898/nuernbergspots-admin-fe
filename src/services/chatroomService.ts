@@ -30,7 +30,7 @@ export function useChatroomService() {
     createChatroom: async (data: CreateChatroomDto): Promise<Chatroom> => {
       const response = await api.post<ApiResponse<Chatroom>>(endpoints.chatrooms, {
         ...data,
-        createdBy: getUserId()
+        createdBy: getUserId(),
       });
       return unwrapData(response);
     },
@@ -39,7 +39,10 @@ export function useChatroomService() {
      * Aktualisiert einen Chatroom
      */
     updateChatroom: async (chatroomId: string, data: UpdateChatroomDto): Promise<Chatroom> => {
-      const response = await api.patch<ApiResponse<Chatroom>>(endpoints.chatroomById(chatroomId), data);
+      const response = await api.patch<ApiResponse<Chatroom>>(
+        endpoints.chatroomById(chatroomId),
+        data
+      );
       return unwrapData(response);
     },
 
@@ -74,7 +77,10 @@ export function useChatroomService() {
     /**
      * Lädt die letzten Nachrichten eines Chatrooms
      */
-    getLastMessages: async (chatroomId: string, limit: number = 50): Promise<Chatroom['lastMessage'][]> => {
+    getLastMessages: async (
+      chatroomId: string,
+      limit: number = 50
+    ): Promise<Chatroom['lastMessage'][]> => {
       const response = await api.get<ApiResponse<Chatroom['lastMessage'][]>>(
         `${endpoints.chatroomMessages(chatroomId)}?limit=${limit}`
       );
@@ -87,13 +93,13 @@ export function useChatroomService() {
     uploadChatroomImage: async (chatroomId: string, file: File): Promise<string> => {
       const formData = new FormData();
       formData.append('file', file);
-      
+
       const response = await api.patch<ApiResponse<{ imageUrl: string }>>(
         `${endpoints.chatroomById(chatroomId)}/image`,
         formData,
         { isFormData: true }
       );
-      
+
       return unwrapData(response).imageUrl;
     },
 
@@ -102,6 +108,6 @@ export function useChatroomService() {
      */
     removeChatroomImage: async (chatroomId: string): Promise<void> => {
       await api.delete(`${endpoints.chatroomById(chatroomId)}/image`);
-    }
+    },
   };
-} 
+}

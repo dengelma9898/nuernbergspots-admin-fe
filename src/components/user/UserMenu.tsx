@@ -1,5 +1,5 @@
-import { LogOut, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { LogOut, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   DropdownMenu,
@@ -8,8 +8,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+} from '../ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export function UserMenu() {
   const navigate = useNavigate();
@@ -25,20 +25,20 @@ export function UserMenu() {
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Mein Konto</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate("/profile")}>
+        <DropdownMenuItem onClick={() => navigate('/profile')}>
           <User className="mr-2 h-4 w-4" />
           <span>Profil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate("/settings")}>
+        <DropdownMenuItem onClick={() => navigate('/settings')}>
           <User className="mr-2 h-4 w-4" />
           <span>Einstellungen</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate("/logout")}>
+        <DropdownMenuItem onClick={() => navigate('/logout')}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Abmelden</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
-} 
+}

@@ -55,4 +55,4 @@ export interface BusinessUser {
   needsReview: boolean;
   eventIds?: string[];
   businessNames?: string[];
-} 
+}

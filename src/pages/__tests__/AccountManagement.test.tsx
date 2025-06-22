@@ -14,17 +14,25 @@ jest.mock('react-router-dom', () => ({
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
-  CardHeader: ({ children }: { children: React.ReactNode }) => <div data-testid="card-header">{children}</div>,
-  CardTitle: ({ children }: { children: React.ReactNode }) => <h2 data-testid="card-title">{children}</h2>,
-  CardContent: ({ children }: { children: React.ReactNode }) => <div data-testid="card-content">{children}</div>,
-  CardDescription: ({ children }: { children: React.ReactNode }) => <div data-testid="card-description">{children}</div>,
+  CardHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-header">{children}</div>
+  ),
+  CardTitle: ({ children }: { children: React.ReactNode }) => (
+    <h2 data-testid="card-title">{children}</h2>
+  ),
+  CardContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-content">{children}</div>
+  ),
+  CardDescription: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-description">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       data-variant={variant}
       className={className}
       data-testid="button"
@@ -41,17 +49,41 @@ jest.mock('@/components/ui/skeleton', () => ({
 }));
 
 jest.mock('@/components/ui/alert-dialog', () => ({
-  AlertDialog: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog">{children}</div>,
-  AlertDialogTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-trigger">{children}</div>,
-  AlertDialogContent: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-content">{children}</div>,
-  AlertDialogDescription: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-description">{children}</div>,
-  AlertDialogFooter: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-footer">{children}</div>,
-  AlertDialogHeader: ({ children }: { children: React.ReactNode }) => <div data-testid="alert-dialog-header">{children}</div>,
-  AlertDialogTitle: ({ children }: { children: React.ReactNode }) => <h3 data-testid="alert-dialog-title">{children}</h3>,
-  AlertDialogAction: ({ children, onClick }: { children: React.ReactNode; onClick: () => void }) => (
-    <button onClick={onClick} data-testid="alert-dialog-action">{children}</button>
+  AlertDialog: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog">{children}</div>
   ),
-  AlertDialogCancel: ({ children }: { children: React.ReactNode }) => <button data-testid="alert-dialog-cancel">{children}</button>,
+  AlertDialogTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-trigger">{children}</div>
+  ),
+  AlertDialogContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-content">{children}</div>
+  ),
+  AlertDialogDescription: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-description">{children}</div>
+  ),
+  AlertDialogFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-footer">{children}</div>
+  ),
+  AlertDialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-header">{children}</div>
+  ),
+  AlertDialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <h3 data-testid="alert-dialog-title">{children}</h3>
+  ),
+  AlertDialogAction: ({
+    children,
+    onClick,
+  }: {
+    children: React.ReactNode;
+    onClick: () => void;
+  }) => (
+    <button onClick={onClick} data-testid="alert-dialog-action">
+      {children}
+    </button>
+  ),
+  AlertDialogCancel: ({ children }: { children: React.ReactNode }) => (
+    <button data-testid="alert-dialog-cancel">{children}</button>
+  ),
 }));
 
 // Mock Lucide React icons
@@ -119,7 +151,9 @@ describe('AccountManagement Component', () => {
       expect(screen.getByText('Account-Management')).toBeTruthy();
       expect(screen.getByText('Zurück zum Dashboard')).toBeTruthy();
       expect(screen.getByText('Anonyme Accounts')).toBeTruthy();
-      expect(screen.getByText('Verwaltung und Bereinigung von anonymen Benutzeraccounts')).toBeTruthy();
+      expect(
+        screen.getByText('Verwaltung und Bereinigung von anonymen Benutzeraccounts')
+      ).toBeTruthy();
     });
 
     await waitFor(() => {
@@ -172,7 +206,9 @@ describe('AccountManagement Component', () => {
   });
 
   it('handles service error gracefully', async () => {
-    mockAccountManagementService.getAnonymousAccountStats.mockRejectedValue(new Error('Service error'));
+    mockAccountManagementService.getAnonymousAccountStats.mockRejectedValue(
+      new Error('Service error')
+    );
 
     renderComponent();
 
@@ -248,7 +284,9 @@ describe('AccountManagement Component', () => {
   });
 
   it('handles cleanup error gracefully', async () => {
-    mockAccountManagementService.cleanupAnonymousAccounts.mockRejectedValue(new Error('Cleanup error'));
+    mockAccountManagementService.cleanupAnonymousAccounts.mockRejectedValue(
+      new Error('Cleanup error')
+    );
 
     renderComponent();
 
@@ -292,8 +330,8 @@ describe('AccountManagement Component', () => {
   });
 
   it('shows loading state during cleanup', async () => {
-    mockAccountManagementService.cleanupAnonymousAccounts.mockImplementation(() => 
-      new Promise(resolve => setTimeout(resolve, 100))
+    mockAccountManagementService.cleanupAnonymousAccounts.mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
     );
 
     renderComponent();
@@ -309,4 +347,4 @@ describe('AccountManagement Component', () => {
     // Should show loading state briefly
     expect(screen.getByText('Bereinigung läuft...')).toBeTruthy();
   });
-}); 
+});

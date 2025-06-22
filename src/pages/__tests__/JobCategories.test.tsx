@@ -14,19 +14,31 @@ jest.mock('react-router-dom', () => ({
 
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div data-testid="card" className={className}>{children}</div>,
-  CardContent: ({ children, className }: any) => <div data-testid="card-content" className={className}>{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div data-testid="card" className={className}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div data-testid="card-content" className={className}>
+      {children}
+    </div>
+  ),
   CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <h3 data-testid="card-title" className={className}>{children}</h3>,
+  CardTitle: ({ children, className }: any) => (
+    <h3 data-testid="card-title" className={className}>
+      {children}
+    </h3>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, size, className, asChild }: any) => {
     const Component = asChild ? 'div' : 'button';
     return (
-      <Component 
-        onClick={onClick} 
-        disabled={disabled} 
+      <Component
+        onClick={onClick}
+        disabled={disabled}
         data-variant={variant}
         data-size={size}
         className={className}
@@ -40,8 +52,8 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, type, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       type={type}
@@ -52,10 +64,22 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/table', () => ({
-  Table: ({ children, className }: any) => <table data-testid="table" className={className}>{children}</table>,
+  Table: ({ children, className }: any) => (
+    <table data-testid="table" className={className}>
+      {children}
+    </table>
+  ),
   TableBody: ({ children }: any) => <tbody data-testid="table-body">{children}</tbody>,
-  TableCell: ({ children, colSpan, className }: any) => <td data-testid="table-cell" colSpan={colSpan} className={className}>{children}</td>,
-  TableHead: ({ children, className }: any) => <th data-testid="table-head" className={className}>{children}</th>,
+  TableCell: ({ children, colSpan, className }: any) => (
+    <td data-testid="table-cell" colSpan={colSpan} className={className}>
+      {children}
+    </td>
+  ),
+  TableHead: ({ children, className }: any) => (
+    <th data-testid="table-head" className={className}>
+      {children}
+    </th>
+  ),
   TableHeader: ({ children }: any) => <thead data-testid="table-header">{children}</thead>,
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
 }));
@@ -66,7 +90,11 @@ jest.mock('@/components/ui/dialog', () => ({
       {children}
     </div>
   ),
-  DialogContent: ({ children, className }: any) => <div data-testid="dialog-content" className={className}>{children}</div>,
+  DialogContent: ({ children, className }: any) => (
+    <div data-testid="dialog-content" className={className}>
+      {children}
+    </div>
+  ),
   DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
   DialogTitle: ({ children }: any) => <h2 data-testid="dialog-title">{children}</h2>,
   DialogTrigger: ({ children, asChild }: any) => {
@@ -77,9 +105,15 @@ jest.mock('@/components/ui/dialog', () => ({
 
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuContent: ({ children, align }: any) => <div data-testid="dropdown-menu-content" data-align={align}>{children}</div>,
+  DropdownMenuContent: ({ children, align }: any) => (
+    <div data-testid="dropdown-menu-content" data-align={align}>
+      {children}
+    </div>
+  ),
   DropdownMenuItem: ({ children, onClick, className }: any) => (
-    <div data-testid="dropdown-menu-item" onClick={onClick} className={className}>{children}</div>
+    <div data-testid="dropdown-menu-item" onClick={onClick} className={className}>
+      {children}
+    </div>
   ),
   DropdownMenuTrigger: ({ children, asChild }: any) => {
     const Component = asChild ? 'div' : 'button';
@@ -145,8 +179,8 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock color utils
 jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn((color) => color || '#000000'),
-  convertHexToFF: jest.fn((color) => color || '#000000'),
+  convertFFToHex: jest.fn(color => color || '#000000'),
+  convertHexToFF: jest.fn(color => color || '#000000'),
 }));
 
 // Mock URL methods
@@ -180,7 +214,10 @@ describe('JobCategories Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockJobCategoryService.getCategories.mockResolvedValue([mockCategory, mockCategoryWithoutOptionalFields]);
+    mockJobCategoryService.getCategories.mockResolvedValue([
+      mockCategory,
+      mockCategoryWithoutOptionalFields,
+    ]);
     mockJobCategoryService.createCategory.mockResolvedValue(mockCategory);
     mockJobCategoryService.updateCategory.mockResolvedValue(mockCategory);
     mockJobCategoryService.getCategory.mockResolvedValue(mockCategory);
@@ -272,10 +309,12 @@ describe('JobCategories Component', () => {
       expect(screen.getAllByText('Icon').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Beschreibung').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Farbe').length).toBeGreaterThan(0);
-      
+
       // Check category data
       expect(screen.getAllByText('IT & Software').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Information Technology and Software Development').length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText('Information Technology and Software Development').length
+      ).toBeGreaterThan(0);
       expect(screen.getAllByText('Marketing').length).toBeGreaterThan(0);
     });
   });
@@ -380,7 +419,9 @@ describe('JobCategories Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Kategorie bearbeiten')).toBeTruthy();
       expect(screen.getByDisplayValue('IT & Software')).toBeTruthy();
-      expect(screen.getByDisplayValue('Information Technology and Software Development')).toBeTruthy();
+      expect(
+        screen.getByDisplayValue('Information Technology and Software Development')
+      ).toBeTruthy();
     });
   });
 
@@ -450,7 +491,7 @@ describe('JobCategories Component', () => {
   it('handles creation error gracefully', async () => {
     const { toast } = require('sonner');
     mockJobCategoryService.createCategory.mockRejectedValue(new Error('Creation failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -481,7 +522,7 @@ describe('JobCategories Component', () => {
   it('handles update error gracefully', async () => {
     const { toast } = require('sonner');
     mockJobCategoryService.updateCategory.mockRejectedValue(new Error('Update failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -507,7 +548,7 @@ describe('JobCategories Component', () => {
   it('handles delete error gracefully', async () => {
     const { toast } = require('sonner');
     mockJobCategoryService.deleteCategory.mockRejectedValue(new Error('Delete failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -526,7 +567,7 @@ describe('JobCategories Component', () => {
   it('handles loading error gracefully', async () => {
     const { toast } = require('sonner');
     mockJobCategoryService.getCategories.mockRejectedValue(new Error('Loading failed'));
-    
+
     renderComponent();
 
     await waitFor(() => {
@@ -626,7 +667,7 @@ describe('JobCategories Component', () => {
 
   it('shows saving state during operations', async () => {
     let resolvePromise: (value: any) => void;
-    const createPromise = new Promise((resolve) => {
+    const createPromise = new Promise(resolve => {
       resolvePromise = resolve;
     });
     mockJobCategoryService.createCategory.mockReturnValue(createPromise);
@@ -770,4 +811,4 @@ describe('JobCategories Component', () => {
       expect(categoryWithImages.length).toBeGreaterThan(0);
     });
   });
-}); 
+});

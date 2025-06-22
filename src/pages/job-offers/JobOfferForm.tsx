@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle,
-  CardContent,
-  CardFooter
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { 
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import {
   ArrowLeft,
   Plus,
   X,
@@ -19,7 +13,7 @@ import {
   Link as LinkIcon,
   Linkedin,
   Facebook,
-  Instagram
+  Instagram,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
@@ -32,8 +26,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
+} from '@/components/ui/select';
+import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { JobCategory } from '@/models/job-category';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -46,13 +40,25 @@ function JobOfferFormSkeleton() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         {/* Glass Header Skeleton */}
@@ -218,7 +224,10 @@ function JobOfferFormSkeleton() {
             <div className="p-4 sm:p-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <Skeleton key={index} className="h-32 w-full rounded-lg bg-white/10 backdrop-blur-xl" />
+                  <Skeleton
+                    key={index}
+                    className="h-32 w-full rounded-lg bg-white/10 backdrop-blur-xl"
+                  />
                 ))}
               </div>
             </div>
@@ -258,7 +267,7 @@ export function JobOfferForm() {
     location: {
       address: '',
       latitude: 0,
-      longitude: 0
+      longitude: 0,
     },
     typeOfEmployment: '',
     additionalNotesForTypeOfEmployment: null,
@@ -269,7 +278,7 @@ export function JobOfferForm() {
     contactData: {
       person: '',
       email: '',
-      phone: ''
+      phone: '',
     },
     link: '',
     socialMedia: null,
@@ -296,7 +305,7 @@ export function JobOfferForm() {
         resultType: 'place',
         position: {
           lat: formData.location.latitude,
-          lng: formData.location.longitude
+          lng: formData.location.longitude,
         },
         address: {
           label: formData.location.address,
@@ -309,8 +318,8 @@ export function JobOfferForm() {
           district: '',
           street: '',
           postalCode: '',
-          houseNumber: ''
-        }
+          houseNumber: '',
+        },
       });
     }
   }, [formData.location]);
@@ -341,7 +350,7 @@ export function JobOfferForm() {
         jobOfferCategoryId: jobOffer.jobOfferCategoryId || '',
       });
       setPreviewUrls(jobOffer.images);
-      
+
       if (jobOffer.companyLogo) {
         setCompanyLogoPreview(jobOffer.companyLogo);
       }
@@ -416,34 +425,34 @@ export function JobOfferForm() {
   const addArrayItem = (field: 'tasks' | 'benefits') => {
     setFormData(prev => ({
       ...prev,
-      [field]: [...prev[field], '']
+      [field]: [...prev[field], ''],
     }));
   };
 
   const removeArrayItem = (field: 'tasks' | 'benefits', index: number) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field].filter((_, i) => i !== index)
+      [field]: prev[field].filter((_, i) => i !== index),
     }));
   };
 
   const updateArrayItem = (field: 'tasks' | 'benefits', index: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [field]: prev[field].map((item, i) => i === index ? value : item)
+      [field]: prev[field].map((item, i) => (i === index ? value : item)),
     }));
   };
 
   const handleLocationSelect = (location: LocationResult | null) => {
     if (!location) return;
-    
+
     setFormData(prev => ({
       ...prev,
       location: {
         address: location.address.label,
         latitude: location.position.lat,
-        longitude: location.position.lng
-      }
+        longitude: location.position.lng,
+      },
     }));
     setSearchValue(location);
   };
@@ -458,22 +467,34 @@ export function JobOfferForm() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/job-offers')} 
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/job-offers')}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl px-3 py-2 border"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
@@ -497,11 +518,13 @@ export function JobOfferForm() {
               </div>
               <div className="p-4 sm:p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-white">Titel</Label>
+                  <Label htmlFor="title" className="text-white">
+                    Titel
+                  </Label>
                   <Input
                     id="title"
                     value={formData.title}
-                    onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
@@ -511,9 +534,13 @@ export function JobOfferForm() {
                   <Switch
                     id="isHighlight"
                     checked={formData.isHighlight}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isHighlight: checked }))}
+                    onCheckedChange={checked =>
+                      setFormData(prev => ({ ...prev, isHighlight: checked }))
+                    }
                   />
-                  <Label htmlFor="isHighlight" className="text-white">Als Highlight markieren</Label>
+                  <Label htmlFor="isHighlight" className="text-white">
+                    Als Highlight markieren
+                  </Label>
                 </div>
 
                 <div className="space-y-2">
@@ -549,22 +576,30 @@ export function JobOfferForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="generalDescription" className="text-white">Allgemeine Beschreibung</Label>
+                  <Label htmlFor="generalDescription" className="text-white">
+                    Allgemeine Beschreibung
+                  </Label>
                   <Textarea
                     id="generalDescription"
                     value={formData.generalDescription}
-                    onChange={(e) => setFormData(prev => ({ ...prev, generalDescription: e.target.value }))}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, generalDescription: e.target.value }))
+                    }
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="neededProfile" className="text-white">Benötigtes Profil</Label>
+                  <Label htmlFor="neededProfile" className="text-white">
+                    Benötigtes Profil
+                  </Label>
                   <Textarea
                     id="neededProfile"
                     value={formData.neededProfile}
-                    onChange={(e) => setFormData(prev => ({ ...prev, neededProfile: e.target.value }))}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, neededProfile: e.target.value }))
+                    }
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
@@ -576,7 +611,7 @@ export function JobOfferForm() {
                     <div key={index} className="flex gap-2">
                       <Input
                         value={task}
-                        onChange={(e) => updateArrayItem('tasks', index, e.target.value)}
+                        onChange={e => updateArrayItem('tasks', index, e.target.value)}
                         required
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                       />
@@ -608,7 +643,7 @@ export function JobOfferForm() {
                     <div key={index} className="flex gap-2">
                       <Input
                         value={benefit}
-                        onChange={(e) => updateArrayItem('benefits', index, e.target.value)}
+                        onChange={e => updateArrayItem('benefits', index, e.target.value)}
                         required
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                       />
@@ -635,18 +670,26 @@ export function JobOfferForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="jobOfferCategoryId" className="text-white">Kategorie</Label>
+                  <Label htmlFor="jobOfferCategoryId" className="text-white">
+                    Kategorie
+                  </Label>
                   <Select
                     value={formData.jobOfferCategoryId}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, jobOfferCategoryId: value }))}
+                    onValueChange={value =>
+                      setFormData(prev => ({ ...prev, jobOfferCategoryId: value }))
+                    }
                     required
                   >
                     <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white">
                       <SelectValue placeholder="Kategorie auswählen" />
                     </SelectTrigger>
                     <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id} className="text-white hover:bg-white/20">
+                      {categories.map(cat => (
+                        <SelectItem
+                          key={cat.id}
+                          value={cat.id}
+                          className="text-white hover:bg-white/20"
+                        >
                           <span className="flex items-center gap-2">
                             {getIconComponent?.(cat.iconName)}
                             {cat.name}
@@ -667,50 +710,66 @@ export function JobOfferForm() {
                 </h2>
               </div>
               <div className="p-4 sm:p-6 space-y-4">
-                                 <div className="space-y-2">
-                   <Label className="text-white">Adresse</Label>
-                   <div className="[&_input]:backdrop-blur-2xl [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50">
-                     <LocationSearch
-                       value={searchValue}
-                       onChange={handleLocationSelect}
-                       placeholder="Adresse suchen..."
-                       debounce={1000}
-                     />
-                   </div>
-                   {formData.location.address && (
-                     <div className="text-sm text-white/70">
-                       Ausgewählte Adresse: {formData.location.address}
-                     </div>
-                   )}
-                 </div>
+                <div className="space-y-2">
+                  <Label className="text-white">Adresse</Label>
+                  <div className="[&_input]:backdrop-blur-2xl [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50">
+                    <LocationSearch
+                      value={searchValue}
+                      onChange={handleLocationSelect}
+                      placeholder="Adresse suchen..."
+                      debounce={1000}
+                    />
+                  </div>
+                  {formData.location.address && (
+                    <div className="text-sm text-white/70">
+                      Ausgewählte Adresse: {formData.location.address}
+                    </div>
+                  )}
+                </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="typeOfEmployment" className="text-white">Beschäftigungsart</Label>
+                  <Label htmlFor="typeOfEmployment" className="text-white">
+                    Beschäftigungsart
+                  </Label>
                   <Select
                     value={formData.typeOfEmployment}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, typeOfEmployment: value }))}
+                    onValueChange={value =>
+                      setFormData(prev => ({ ...prev, typeOfEmployment: value }))
+                    }
                   >
                     <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white">
                       <SelectValue placeholder="Beschäftigungsart auswählen" />
                     </SelectTrigger>
                     <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                      <SelectItem value="Vollzeit" className="text-white hover:bg-white/20">Vollzeit</SelectItem>
-                      <SelectItem value="Teilzeit" className="text-white hover:bg-white/20">Teilzeit</SelectItem>
-                      <SelectItem value="Ausbildung" className="text-white hover:bg-white/20">Ausbildung</SelectItem>
-                      <SelectItem value="Praktikum" className="text-white hover:bg-white/20">Praktikum</SelectItem>
+                      <SelectItem value="Vollzeit" className="text-white hover:bg-white/20">
+                        Vollzeit
+                      </SelectItem>
+                      <SelectItem value="Teilzeit" className="text-white hover:bg-white/20">
+                        Teilzeit
+                      </SelectItem>
+                      <SelectItem value="Ausbildung" className="text-white hover:bg-white/20">
+                        Ausbildung
+                      </SelectItem>
+                      <SelectItem value="Praktikum" className="text-white hover:bg-white/20">
+                        Praktikum
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="additionalNotesForTypeOfEmployment" className="text-white">Zusätzliche Notizen zur Beschäftigungsart</Label>
+                  <Label htmlFor="additionalNotesForTypeOfEmployment" className="text-white">
+                    Zusätzliche Notizen zur Beschäftigungsart
+                  </Label>
                   <Textarea
                     id="additionalNotesForTypeOfEmployment"
                     value={formData.additionalNotesForTypeOfEmployment || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      additionalNotesForTypeOfEmployment: e.target.value || null 
-                    }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        additionalNotesForTypeOfEmployment: e.target.value || null,
+                      }))
+                    }
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
@@ -719,46 +778,60 @@ export function JobOfferForm() {
                   <Switch
                     id="homeOffice"
                     checked={formData.homeOffice}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, homeOffice: checked }))}
+                    onCheckedChange={checked =>
+                      setFormData(prev => ({ ...prev, homeOffice: checked }))
+                    }
                   />
-                  <Label htmlFor="homeOffice" className="text-white">Home Office möglich</Label>
+                  <Label htmlFor="homeOffice" className="text-white">
+                    Home Office möglich
+                  </Label>
                 </div>
 
                 {formData.homeOffice && (
                   <div className="space-y-2">
-                    <Label htmlFor="additionalNotesHomeOffice" className="text-white">Zusätzliche Notizen zum Home Office</Label>
+                    <Label htmlFor="additionalNotesHomeOffice" className="text-white">
+                      Zusätzliche Notizen zum Home Office
+                    </Label>
                     <Textarea
                       id="additionalNotesHomeOffice"
                       value={formData.additionalNotesHomeOffice || ''}
-                      onChange={(e) => setFormData(prev => ({ 
-                        ...prev, 
-                        additionalNotesHomeOffice: e.target.value || null 
-                      }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          additionalNotesHomeOffice: e.target.value || null,
+                        }))
+                      }
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="wage" className="text-white">Gehalt</Label>
+                  <Label htmlFor="wage" className="text-white">
+                    Gehalt
+                  </Label>
                   <Input
                     id="wage"
                     value={formData.wage || ''}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      wage: e.target.value || null 
-                    }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        wage: e.target.value || null,
+                      }))
+                    }
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-white">Startdatum</Label>
+                  <Label htmlFor="startDate" className="text-white">
+                    Startdatum
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
                     value={formData.startDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                   />
@@ -775,53 +848,67 @@ export function JobOfferForm() {
               </div>
               <div className="p-4 sm:p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="contactPerson" className="text-white">Kontaktperson</Label>
+                  <Label htmlFor="contactPerson" className="text-white">
+                    Kontaktperson
+                  </Label>
                   <Input
                     id="contactPerson"
                     value={formData.contactData.person}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      contactData: { ...prev.contactData, person: e.target.value }
-                    }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        contactData: { ...prev.contactData, person: e.target.value },
+                      }))
+                    }
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactEmail" className="text-white">E-Mail</Label>
+                  <Label htmlFor="contactEmail" className="text-white">
+                    E-Mail
+                  </Label>
                   <Input
                     id="contactEmail"
                     type="email"
                     value={formData.contactData.email}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      contactData: { ...prev.contactData, email: e.target.value }
-                    }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        contactData: { ...prev.contactData, email: e.target.value },
+                      }))
+                    }
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contactPhone" className="text-white">Telefon</Label>
+                  <Label htmlFor="contactPhone" className="text-white">
+                    Telefon
+                  </Label>
                   <Input
                     id="contactPhone"
                     value={formData.contactData.phone}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      contactData: { ...prev.contactData, phone: e.target.value }
-                    }))}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        contactData: { ...prev.contactData, phone: e.target.value },
+                      }))
+                    }
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="link" className="text-white">Bewerbungslink</Label>
+                  <Label htmlFor="link" className="text-white">
+                    Bewerbungslink
+                  </Label>
                   <Input
                     id="link"
                     type="url"
                     value={formData.link}
-                    onChange={(e) => setFormData(prev => ({ ...prev, link: e.target.value }))}
+                    onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
                     required
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                   />
@@ -838,80 +925,96 @@ export function JobOfferForm() {
               </div>
               <div className="p-4 sm:p-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="linkedin" className="text-white">LinkedIn</Label>
+                  <Label htmlFor="linkedin" className="text-white">
+                    LinkedIn
+                  </Label>
                   <div className="flex gap-2">
                     <Linkedin className="h-4 w-4 mt-2 text-white/70" />
                     <Input
                       id="linkedin"
                       type="url"
                       value={formData.socialMedia?.linkedin || ''}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        socialMedia: {
-                          ...prev.socialMedia,
-                          linkedin: e.target.value || null
-                        }
-                      }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          socialMedia: {
+                            ...prev.socialMedia,
+                            linkedin: e.target.value || null,
+                          },
+                        }))
+                      }
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="xing" className="text-white">Xing</Label>
+                  <Label htmlFor="xing" className="text-white">
+                    Xing
+                  </Label>
                   <div className="flex gap-2">
                     <LinkIcon className="h-4 w-4 mt-2 text-white/70" />
                     <Input
                       id="xing"
                       type="url"
                       value={formData.socialMedia?.xing || ''}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        socialMedia: {
-                          ...prev.socialMedia,
-                          xing: e.target.value || null
-                        }
-                      }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          socialMedia: {
+                            ...prev.socialMedia,
+                            xing: e.target.value || null,
+                          },
+                        }))
+                      }
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="instagram" className="text-white">Instagram</Label>
+                  <Label htmlFor="instagram" className="text-white">
+                    Instagram
+                  </Label>
                   <div className="flex gap-2">
                     <Instagram className="h-4 w-4 mt-2 text-white/70" />
                     <Input
                       id="instagram"
                       type="url"
                       value={formData.socialMedia?.instagram || ''}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        socialMedia: {
-                          ...prev.socialMedia,
-                          instagram: e.target.value || null
-                        }
-                      }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          socialMedia: {
+                            ...prev.socialMedia,
+                            instagram: e.target.value || null,
+                          },
+                        }))
+                      }
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="facebook" className="text-white">Facebook</Label>
+                  <Label htmlFor="facebook" className="text-white">
+                    Facebook
+                  </Label>
                   <div className="flex gap-2">
                     <Facebook className="h-4 w-4 mt-2 text-white/70" />
                     <Input
                       id="facebook"
                       type="url"
                       value={formData.socialMedia?.facebook || ''}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        socialMedia: {
-                          ...prev.socialMedia,
-                          facebook: e.target.value || null
-                        }
-                      }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          socialMedia: {
+                            ...prev.socialMedia,
+                            facebook: e.target.value || null,
+                          },
+                        }))
+                      }
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
@@ -970,9 +1073,9 @@ export function JobOfferForm() {
             >
               Abbrechen
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isSaving} 
+            <Button
+              type="submit"
+              disabled={isSaving}
               className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-600/80 border border-white/20 text-white hover:from-green-600/80 hover:to-emerald-700/80 hover:scale-105 transition-all duration-300 disabled:opacity-50"
             >
               {isSaving ? (
@@ -992,4 +1095,4 @@ export function JobOfferForm() {
       </div>
     </div>
   );
-} 
+}

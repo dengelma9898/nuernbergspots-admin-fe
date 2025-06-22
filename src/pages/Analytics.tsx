@@ -2,15 +2,9 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useBusinessService } from '../services/businessService';
 import { useAnalyticsService } from '../services/analyticsService';
 import { DashboardAnalytics, BusinessAnalytics } from '../models/business';
-import { 
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
   Store,
   TrendingUp,
   TrendingDown,
@@ -22,23 +16,29 @@ import {
   Calendar,
   BarChart2,
   RefreshCcw,
-  UserCheck
+  UserCheck,
 } from 'lucide-react';
-import { toast } from "sonner";
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { Skeleton } from "@/components/ui/skeleton";
-import { PricingCalculator } from "@/components/PricingCalculator";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from '@/components/ui/skeleton';
+import { PricingCalculator } from '@/components/PricingCalculator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
-const AnalyticsCard = ({ 
+const AnalyticsCard = ({
   icon: Icon,
   title,
   value,
   trend,
   description,
   trendDescription,
-  isLoading
+  isLoading,
 }: {
   icon: any;
   title: string;
@@ -70,17 +70,15 @@ const AnalyticsCard = ({
         {isLoading ? (
           <>
             <div className="h-8 w-24 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            {description && <div className="h-4 w-32 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>}
+            {description && (
+              <div className="h-4 w-32 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
+            )}
           </>
         ) : (
           <>
             <div className="text-2xl font-bold text-white">{value}</div>
-            {description && (
-              <p className="text-sm text-white/70">{description}</p>
-            )}
-            {trendDescription && (
-              <p className="text-xs text-white/60">{trendDescription}</p>
-            )}
+            {description && <p className="text-sm text-white/70">{description}</p>}
+            {trendDescription && <p className="text-xs text-white/60">{trendDescription}</p>}
           </>
         )}
       </div>
@@ -88,7 +86,13 @@ const AnalyticsCard = ({
   </div>
 );
 
-const BusinessAnalyticsCard = ({ business, isLoading }: { business: BusinessAnalytics, isLoading?: boolean }) => (
+const BusinessAnalyticsCard = ({
+  business,
+  isLoading,
+}: {
+  business: BusinessAnalytics;
+  isLoading?: boolean;
+}) => (
   <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
     <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
       <div className="flex items-center justify-between">
@@ -123,7 +127,7 @@ const BusinessAnalyticsCard = ({ business, isLoading }: { business: BusinessAnal
             <span className="font-medium text-white">{business.totalScans}</span>
           </div>
           <div className="backdrop-blur-2xl bg-white/10 rounded-full h-2 overflow-hidden">
-            <div 
+            <div
               className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
               style={{ width: `${(business.totalScans / business.yearlyScans) * 100}%` }}
             ></div>
@@ -189,10 +193,18 @@ const BusinessAnalyticsCard = ({ business, isLoading }: { business: BusinessAnal
   </div>
 );
 
-const TimeAnalysisCard = ({ analytics, isLoading }: { analytics: DashboardAnalytics | null, isLoading: boolean }) => (
+const TimeAnalysisCard = ({
+  analytics,
+  isLoading,
+}: {
+  analytics: DashboardAnalytics | null;
+  isLoading: boolean;
+}) => (
   <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
     <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">Zeitanalyse</h3>
+      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+        Zeitanalyse
+      </h3>
       <p className="text-white/70">Besuchermuster und Stoßzeiten</p>
     </div>
     <div className="p-4">
@@ -213,7 +225,9 @@ const TimeAnalysisCard = ({ analytics, isLoading }: { analytics: DashboardAnalyt
                 {analytics?.timeAnalysis.peakDays.slice(0, 3).map((day, index) => (
                   <div key={day} className="flex items-center justify-between text-sm">
                     <span className="text-white/70">{day}</span>
-                    <span className="font-medium">{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>
+                    <span className="font-medium">
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -224,7 +238,9 @@ const TimeAnalysisCard = ({ analytics, isLoading }: { analytics: DashboardAnalyt
                 {analytics?.timeAnalysis.peakHours.slice(0, 3).map((hour, index) => (
                   <div key={hour} className="flex items-center justify-between text-sm">
                     <span className="text-white/70">{hour} Uhr</span>
-                    <span className="font-medium">{index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}</span>
+                    <span className="font-medium">
+                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -244,10 +260,18 @@ const TimeAnalysisCard = ({ analytics, isLoading }: { analytics: DashboardAnalyt
   </div>
 );
 
-const CustomerRetentionCard = ({ analytics, isLoading }: { analytics: DashboardAnalytics | null, isLoading: boolean }) => (
+const CustomerRetentionCard = ({
+  analytics,
+  isLoading,
+}: {
+  analytics: DashboardAnalytics | null;
+  isLoading: boolean;
+}) => (
   <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
     <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">Kundenbindung</h3>
+      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+        Kundenbindung
+      </h3>
       <p className="text-white/70">Analyse der Kundenbeziehungen</p>
     </div>
     <div className="p-4">
@@ -265,7 +289,9 @@ const CustomerRetentionCard = ({ analytics, isLoading }: { analytics: DashboardA
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <p className="text-sm text-white/70">Neue Kunden (30 Tage)</p>
-              <p className="text-2xl font-bold text-white">{analytics?.customerData.newCustomersThisMonth}</p>
+              <p className="text-2xl font-bold text-white">
+                {analytics?.customerData.newCustomersThisMonth}
+              </p>
             </div>
             <div className="space-y-1">
               <p className="text-sm text-white/70">Wiederkehrende Kunden</p>
@@ -288,13 +314,21 @@ const CustomerRetentionCard = ({ analytics, isLoading }: { analytics: DashboardA
   </div>
 );
 
-const BusinessDetails = ({ business, isLoading }: { business: BusinessAnalytics | null, isLoading: boolean }) => {
+const BusinessDetails = ({
+  business,
+  isLoading,
+}: {
+  business: BusinessAnalytics | null;
+  isLoading: boolean;
+}) => {
   if (!business) return null;
 
   return (
     <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
       <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-        <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">Detaillierte Business-Analyse</h3>
+        <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+          Detaillierte Business-Analyse
+        </h3>
         <p className="text-white/70">Ausführliche Statistiken für {business.businessName}</p>
       </div>
       <div className="p-4">
@@ -321,7 +355,9 @@ const BusinessDetails = ({ business, isLoading }: { business: BusinessAnalytics 
               </div>
               <div>
                 <p className="text-sm text-white/70">Ø Scans/Kunde</p>
-                <p className="text-lg font-bold text-white">{business.totalScans / business.uniqueCustomers}</p>
+                <p className="text-lg font-bold text-white">
+                  {business.totalScans / business.uniqueCustomers}
+                </p>
               </div>
             </div>
           </div>
@@ -367,13 +403,25 @@ export function Analytics() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         <div className="space-y-8">
@@ -470,26 +518,37 @@ export function Analytics() {
                 {isLoading ? (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
+                      <div
+                        key={i}
+                        className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"
+                      ></div>
                     ))}
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <p className="text-sm text-white/70">Diese Woche</p>
-                      <p className="text-2xl font-bold text-white">{analytics?.revenueData.weekly.toFixed(2) || '0'}€</p>
+                      <p className="text-2xl font-bold text-white">
+                        {analytics?.revenueData.weekly.toFixed(2) || '0'}€
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-white/70">Dieser Monat</p>
-                      <p className="text-2xl font-bold text-white">{analytics?.revenueData.monthly.toFixed(2) || '0'}€</p>
+                      <p className="text-2xl font-bold text-white">
+                        {analytics?.revenueData.monthly.toFixed(2) || '0'}€
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-white/70">Dieses Jahr</p>
-                      <p className="text-2xl font-bold text-white">{analytics?.revenueData.yearly.toFixed(2) || '0'}€</p>
+                      <p className="text-2xl font-bold text-white">
+                        {analytics?.revenueData.yearly.toFixed(2) || '0'}€
+                      </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-white/70">Ø pro Scan</p>
-                      <p className="text-2xl font-bold text-white">{analytics?.revenueData.averagePerScan.toFixed(2) || '0'}€</p>
+                      <p className="text-2xl font-bold text-white">
+                        {analytics?.revenueData.averagePerScan.toFixed(2) || '0'}€
+                      </p>
                     </div>
                   </div>
                 )}
@@ -533,9 +592,7 @@ export function Analytics() {
             ) : (
               <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
                 <div className="py-8 px-4">
-                  <p className="text-center text-white/70">
-                    Noch keine Partner-Daten verfügbar
-                  </p>
+                  <p className="text-center text-white/70">Noch keine Partner-Daten verfügbar</p>
                 </div>
               </div>
             )}
@@ -562,16 +619,17 @@ export function Analytics() {
                 <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
                   Business-Details
                 </h2>
-                <Select
-                  value={selectedBusiness}
-                  onValueChange={setSelectedBusiness}
-                >
+                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
                   <SelectTrigger className="w-full sm:w-[200px] backdrop-blur-2xl bg-white/10 border-white/20 text-white">
                     <SelectValue placeholder="Business auswählen" />
                   </SelectTrigger>
                   <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                    {analytics?.businesses?.map((business) => (
-                      <SelectItem key={business.businessName} value={business.businessName} className="text-white hover:bg-white/20">
+                    {analytics?.businesses?.map(business => (
+                      <SelectItem
+                        key={business.businessName}
+                        value={business.businessName}
+                        className="text-white hover:bg-white/20"
+                      >
                         {business.businessName}
                       </SelectItem>
                     ))}
@@ -582,7 +640,9 @@ export function Analytics() {
 
             {selectedBusiness && analytics?.businesses && (
               <BusinessDetails
-                business={analytics.businesses.find(b => b.businessName === selectedBusiness) || null}
+                business={
+                  analytics.businesses.find(b => b.businessName === selectedBusiness) || null
+                }
                 isLoading={isLoading}
               />
             )}
@@ -596,7 +656,7 @@ export function Analytics() {
               </h2>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {analytics?.businesses.map((business) => (
+              {analytics?.businesses.map(business => (
                 <BusinessAnalyticsCard
                   key={business.businessName}
                   business={business}
@@ -609,4 +669,4 @@ export function Analytics() {
       </div>
     </div>
   );
-} 
+}

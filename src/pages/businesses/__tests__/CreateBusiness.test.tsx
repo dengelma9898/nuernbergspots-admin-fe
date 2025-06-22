@@ -49,12 +49,7 @@ jest.mock('@/components/ui/card', () => ({
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, disabled }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled}
-      data-testid="button"
-      data-variant={variant}
-    >
+    <button onClick={onClick} disabled={disabled} data-testid="button" data-variant={variant}>
       {children}
     </button>
   ),
@@ -62,8 +57,8 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, id, type, maxLength }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       id={id}
@@ -76,8 +71,8 @@ jest.mock('@/components/ui/input', () => ({
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ value, onChange, placeholder, id, className }: any) => (
-    <textarea 
-      value={value} 
+    <textarea
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       id={id}
@@ -88,17 +83,16 @@ jest.mock('@/components/ui/textarea', () => ({
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor} data-testid="label">{children}</label>,
+  Label: ({ children, htmlFor }: any) => (
+    <label htmlFor={htmlFor} data-testid="label">
+      {children}
+    </label>
+  ),
 }));
 
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, onClick }: any) => (
-    <span 
-      data-testid="badge" 
-      data-variant={variant} 
-      className={className}
-      onClick={onClick}
-    >
+    <span data-testid="badge" data-variant={variant} className={className} onClick={onClick}>
       {children}
     </span>
   ),
@@ -106,10 +100,10 @@ jest.mock('@/components/ui/badge', () => ({
 
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
-    <input 
+    <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={e => onCheckedChange?.(e.target.checked)}
       id={id}
       data-testid="switch"
     />
@@ -118,13 +112,15 @@ jest.mock('@/components/ui/switch', () => ({
 
 jest.mock('@/components/ui/LocationSearch', () => ({
   LocationSearch: ({ value, onChange, placeholder }: any) => (
-    <input 
+    <input
       data-testid="location-search"
       placeholder={placeholder}
-      onChange={(e) => onChange?.({
-        address: { label: e.target.value },
-        position: { lat: 49.4521, lng: 11.0767 }
-      })}
+      onChange={e =>
+        onChange?.({
+          address: { label: e.target.value },
+          position: { lat: 49.4521, lng: 11.0767 },
+        })
+      }
     />
   ),
 }));
@@ -150,8 +146,20 @@ const mockBusinessCategory: BusinessCategory = {
   description: 'Restaurants und Gastronomie',
   iconName: 'utensils',
   keywords: [
-    { id: 'keyword-1', name: 'Pizza', description: 'Italienisches Gericht', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
-    { id: 'keyword-2', name: 'Italienisch', description: 'Italienische Küche', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
+    {
+      id: 'keyword-1',
+      name: 'Pizza',
+      description: 'Italienisches Gericht',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'keyword-2',
+      name: 'Italienisch',
+      description: 'Italienische Küche',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
   ],
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
@@ -166,11 +174,7 @@ const mockKeyword: Keyword = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('CreateBusiness Component', () => {
@@ -346,11 +350,11 @@ describe('CreateBusiness Component', () => {
 
       await waitFor(() => {
         const categoryBadge = screen.getByText('Restaurant');
-        
+
         // Kategorie auswählen - glassmorphism styling ändert sich bei Klicks
         fireEvent.click(categoryBadge);
         expect(categoryBadge).toHaveClass('bg-white/20');
-        
+
         // Kategorie abwählen
         fireEvent.click(categoryBadge);
         expect(categoryBadge).toHaveClass('bg-white/5');
@@ -365,9 +369,9 @@ describe('CreateBusiness Component', () => {
         { ...mockBusinessCategory, id: 'cat-3', name: 'Bar' },
         { ...mockBusinessCategory, id: 'cat-4', name: 'Shop' },
       ];
-      
+
       mockBusinessCategoryService.getCategories.mockResolvedValue(threeCategories);
-      
+
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
@@ -375,10 +379,10 @@ describe('CreateBusiness Component', () => {
         fireEvent.click(screen.getByText('Restaurant'));
         fireEvent.click(screen.getByText('Café'));
         fireEvent.click(screen.getByText('Bar'));
-        
+
         // Versuche 4. Kategorie auszuwählen
         fireEvent.click(screen.getByText('Shop'));
-        
+
         expect(mockToast.error).toHaveBeenCalledWith(
           'Maximale Anzahl an Kategorien erreicht',
           expect.objectContaining({
@@ -412,11 +416,11 @@ describe('CreateBusiness Component', () => {
 
       await waitFor(() => {
         const keywordBadge = screen.getAllByText('Pizza')[0];
-        
+
         // Keyword auswählen - glassmorphism styling ändert sich bei Klicks
         fireEvent.click(keywordBadge);
         expect(keywordBadge).toHaveClass('bg-white/20');
-        
+
         // Keyword abwählen
         fireEvent.click(keywordBadge);
         expect(keywordBadge).toHaveClass('bg-white/5');
@@ -431,8 +435,10 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const locationSearch = screen.getByTestId('location-search');
         fireEvent.change(locationSearch, { target: { value: 'Hauptstraße 1, Nürnberg' } });
-        
-        expect(screen.getByText('Ausgewählte Adresse: Hauptstraße 1, Nürnberg')).toBeInTheDocument();
+
+        expect(
+          screen.getByText('Ausgewählte Adresse: Hauptstraße 1, Nürnberg')
+        ).toBeInTheDocument();
       });
     });
   });
@@ -456,11 +462,11 @@ describe('CreateBusiness Component', () => {
         // Wähle Tage für neuen Zeitraum aus
         const montag = screen.getAllByText('Montag')[1]; // Der zweite Montag-Button (im neuen Zeitraum)
         fireEvent.click(montag);
-        
+
         // Füge Zeitraum hinzu
         const addButton = screen.getAllByText('Zeitraum hinzufügen')[0];
         fireEvent.click(addButton);
-        
+
         // Überprüfe, dass ein neuer Zeitraum hinzugefügt wurde
         expect(screen.getAllByText('Zeitraum').length).toBeGreaterThan(1);
       });
@@ -473,7 +479,7 @@ describe('CreateBusiness Component', () => {
         // Button sollte disabled sein wenn keine Tage für neuen Zeitraum ausgewählt sind
         const addButton = screen.getByText('Zeitraum hinzufügen');
         expect(addButton).toBeDisabled();
-        
+
         // Teste das disabled-Verhalten anstatt Toast, da disabled Buttons keinen Toast auslösen
         expect(addButton).toHaveAttribute('disabled');
       });
@@ -494,7 +500,7 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const montag = screen.getAllByText('Montag')[0]; // Erster Zeitraum
         fireEvent.click(montag);
-        
+
         // Glassmorphism styling sollte sich ändern
         expect(montag).toHaveClass('backdrop-blur-2xl');
       });
@@ -506,13 +512,15 @@ describe('CreateBusiness Component', () => {
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
-        const promotedSwitch = screen.getByLabelText('Als "Highlight" markieren') as HTMLInputElement;
-        
+        const promotedSwitch = screen.getByLabelText(
+          'Als "Highlight" markieren'
+        ) as HTMLInputElement;
+
         expect(promotedSwitch.checked).toBe(false);
-        
+
         fireEvent.click(promotedSwitch);
         expect(promotedSwitch.checked).toBe(true);
-        
+
         fireEvent.click(promotedSwitch);
         expect(promotedSwitch.checked).toBe(false);
       });
@@ -523,12 +531,14 @@ describe('CreateBusiness Component', () => {
 
       await waitFor(() => {
         const promotedSwitch = screen.getByLabelText('Als "Highlight" markieren');
-        
+
         expect(screen.getByText('Markiere diesen Partner als Highlight')).toBeInTheDocument();
-        
+
         fireEvent.click(promotedSwitch);
-        
-        expect(screen.getByText('Dieser Partner wird als Highlight angezeigt ✨')).toBeInTheDocument();
+
+        expect(
+          screen.getByText('Dieser Partner wird als Highlight angezeigt ✨')
+        ).toBeInTheDocument();
       });
     });
   });
@@ -537,20 +547,20 @@ describe('CreateBusiness Component', () => {
     it('sollte Geschäft erfolgreich erstellen', async () => {
       const mockToast = require('sonner').toast;
       mockBusinessService.createBusiness.mockResolvedValue({ id: 'new-business-id' });
-      
+
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
         // Fülle Pflichtfelder aus
         const nameInput = screen.getByLabelText('Name des Geschäfts');
         fireEvent.change(nameInput, { target: { value: 'Test Restaurant' } });
-        
+
         const descriptionInput = screen.getByLabelText('Beschreibung');
         fireEvent.change(descriptionInput, { target: { value: 'Eine tolle Beschreibung' } });
-        
+
         const locationSearch = screen.getByTestId('location-search');
         fireEvent.change(locationSearch, { target: { value: 'Hauptstraße 1, Nürnberg' } });
-        
+
         // Wähle Kategorie aus
         const categoryBadge = screen.getByText('Restaurant');
         fireEvent.click(categoryBadge);
@@ -571,14 +581,14 @@ describe('CreateBusiness Component', () => {
             isAdmin: true,
           })
         );
-        
+
         expect(mockToast.success).toHaveBeenCalledWith(
           'Geschäft erstellt',
           expect.objectContaining({
             description: 'Das Geschäft wurde erfolgreich erstellt.',
           })
         );
-        
+
         expect(mockNavigate).toHaveBeenCalledWith('/businesses');
       });
     });
@@ -586,14 +596,14 @@ describe('CreateBusiness Component', () => {
     it('sollte Fehler beim Erstellen behandeln', async () => {
       const mockToast = require('sonner').toast;
       mockBusinessService.createBusiness.mockRejectedValue(new Error('Create Error'));
-      
+
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
         // Fülle Mindestfelder aus
         const nameInput = screen.getByLabelText('Name des Geschäfts');
         fireEvent.change(nameInput, { target: { value: 'Test Restaurant' } });
-        
+
         const submitButton = screen.getByText('Geschäft erstellen');
         fireEvent.click(submitButton);
       });
@@ -602,7 +612,8 @@ describe('CreateBusiness Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Erstellen des Geschäfts',
           expect.objectContaining({
-            description: 'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
           })
         );
       });
@@ -612,16 +623,16 @@ describe('CreateBusiness Component', () => {
       mockBusinessService.createBusiness.mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
       );
-      
+
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
         const nameInput = screen.getByLabelText('Name des Geschäfts');
         fireEvent.change(nameInput, { target: { value: 'Test Restaurant' } });
-        
+
         const submitButton = screen.getByText('Geschäft erstellen');
         fireEvent.click(submitButton);
-        
+
         expect(screen.getByText('Wird erstellt...')).toBeInTheDocument();
         expect(submitButton).toBeDisabled();
       });
@@ -635,7 +646,7 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const locationSearch = screen.getByTestId('location-search');
         fireEvent.change(locationSearch, { target: { value: 'Hauptstraße 123, 90402 Nürnberg' } });
-        
+
         const submitButton = screen.getByText('Geschäft erstellen');
         fireEvent.click(submitButton);
       });
@@ -650,7 +661,7 @@ describe('CreateBusiness Component', () => {
               city: 'Nürnberg',
               latitude: 49.4521,
               longitude: 11.0767,
-            })
+            }),
           })
         );
       });
@@ -674,7 +685,7 @@ describe('CreateBusiness Component', () => {
               Mittwoch: [{ from: '09:00', to: '18:00' }],
               Donnerstag: [{ from: '09:00', to: '18:00' }],
               Freitag: [{ from: '09:00', to: '18:00' }],
-            })
+            }),
           })
         );
       });
@@ -698,7 +709,7 @@ describe('CreateBusiness Component', () => {
               instagram: undefined,
               facebook: undefined,
               tiktok: undefined,
-            })
+            }),
           })
         );
       });
@@ -710,9 +721,17 @@ describe('CreateBusiness Component', () => {
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
-        expect(screen.getByText('Der offizielle Name des Geschäfts, wie er angezeigt werden soll.')).toBeInTheDocument();
-        expect(screen.getByText('Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie Angebot, Besonderheiten oder Geschichte.')).toBeInTheDocument();
-        expect(screen.getByText('Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.')).toBeInTheDocument();
+        expect(
+          screen.getByText('Der offizielle Name des Geschäfts, wie er angezeigt werden soll.')
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText(
+            'Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie Angebot, Besonderheiten oder Geschichte.'
+          )
+        ).toBeInTheDocument();
+        expect(
+          screen.getByText('Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.')
+        ).toBeInTheDocument();
       });
     });
 
@@ -721,12 +740,12 @@ describe('CreateBusiness Component', () => {
 
       await waitFor(() => {
         expect(screen.getByText('0/100 Zeichen')).toBeInTheDocument();
-        
+
         const benefitInput = screen.getByLabelText('Benefit für Nutzer');
         fireEvent.change(benefitInput, { target: { value: 'Test' } });
-        
+
         expect(screen.getByText('4/100 Zeichen')).toBeInTheDocument();
       });
     });
   });
-}); 
+});

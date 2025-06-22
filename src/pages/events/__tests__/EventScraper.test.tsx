@@ -36,10 +36,10 @@ jest.mock('date-fns/locale', () => ({
 // Mock shadcn/ui components
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, disabled, size, className, ...props }: any) => (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       disabled={disabled}
-      data-variant={variant} 
+      data-variant={variant}
       data-size={size}
       className={className}
       {...props}
@@ -51,16 +51,24 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, className, ...props }: any) => (
-    <div data-testid="card" className={className} {...props}>{children}</div>
+    <div data-testid="card" className={className} {...props}>
+      {children}
+    </div>
   ),
   CardContent: ({ children, ...props }: any) => (
-    <div data-testid="card-content" {...props}>{children}</div>
+    <div data-testid="card-content" {...props}>
+      {children}
+    </div>
   ),
   CardHeader: ({ children, ...props }: any) => (
-    <div data-testid="card-header" {...props}>{children}</div>
+    <div data-testid="card-header" {...props}>
+      {children}
+    </div>
   ),
   CardTitle: ({ children, ...props }: any) => (
-    <h3 data-testid="card-title" {...props}>{children}</h3>
+    <h3 data-testid="card-title" {...props}>
+      {children}
+    </h3>
   ),
 }));
 
@@ -70,20 +78,18 @@ jest.mock('@/components/ui/select', () => ({
       <div onClick={() => onValueChange?.('test-value')}>{children}</div>
     </div>
   ),
-  SelectContent: ({ children }: any) => (
-    <div data-testid="select-content">{children}</div>
-  ),
+  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
   SelectItem: ({ children, value }: any) => (
     <div data-testid="select-item" data-value={value} onClick={() => {}}>
       {children}
     </div>
   ),
   SelectTrigger: ({ children, className }: any) => (
-    <div data-testid="select-trigger" className={className}>{children}</div>
+    <div data-testid="select-trigger" className={className}>
+      {children}
+    </div>
   ),
-  SelectValue: ({ placeholder }: any) => (
-    <span data-testid="select-value">{placeholder}</span>
-  ),
+  SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
 jest.mock('@/components/ui/loading-overlay', () => ({
@@ -95,7 +101,7 @@ jest.mock('@/components/ui/loading-overlay', () => ({
 }));
 
 jest.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div data-testid="dialog">{children}</div> : null,
+  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
   DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
@@ -128,15 +134,15 @@ const mockEvent: Event = {
     {
       date: '2024-01-01',
       from: '10:00',
-      to: '18:00'
-    }
+      to: '18:00',
+    },
   ],
   location: {
     address: 'Scraped Address, Nürnberg',
     latitude: 49.4521,
-    longitude: 11.0767
+    longitude: 11.0767,
   },
-  price: 15.00,
+  price: 15.0,
   ticketsNeeded: false,
   isPromoted: false,
   categoryId: 'category-1',
@@ -146,7 +152,7 @@ const mockEvent: Event = {
   titleImageUrl: 'https://example.com/scraped.jpg',
   imageUrls: [],
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 const mockEventService = {
@@ -167,20 +173,16 @@ Object.defineProperty(window, 'localStorage', {
 });
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('EventScraper Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUseNavigate.mockReturnValue(mockNavigate);
-    
+
     require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-    
+
     mockEventService.scrapeEventsFromEventFinder.mockResolvedValue([mockEvent]);
     mockLocalStorage.getItem.mockReturnValue(null);
   });
@@ -200,7 +202,7 @@ describe('EventScraper Component', () => {
       const selectTriggers = screen.getAllByTestId('select-trigger');
       const scraperSelectTrigger = selectTriggers[0]; // Erster ist Scraper-Type
       expect(scraperSelectTrigger).toBeInTheDocument();
-      
+
       const selectValues = screen.getAllByTestId('select-value');
       const scraperSelectValue = selectValues[0]; // Erster ist Scraper-Type
       expect(scraperSelectValue).toHaveTextContent('Scraper auswählen');
@@ -228,7 +230,7 @@ describe('EventScraper Component', () => {
 
       const prevButton = screen.getByText('←');
       const nextButton = screen.getByText('→');
-      
+
       expect(prevButton).toBeInTheDocument();
       expect(nextButton).toBeInTheDocument();
     });
@@ -319,7 +321,7 @@ describe('EventScraper Component', () => {
           category: null,
           startDate: '01.01.2024',
           endDate: '01.01.2024',
-          maxResults: 5
+          maxResults: 5,
         });
       });
 
@@ -453,9 +455,7 @@ describe('EventScraper Component', () => {
 
   describe('Error Handling', () => {
     it('sollte graceful mit Network-Fehlern umgehen', async () => {
-      mockEventService.scrapeEventsFromEventFinder.mockRejectedValue(
-        new Error('Network Error')
-      );
+      mockEventService.scrapeEventsFromEventFinder.mockRejectedValue(new Error('Network Error'));
 
       renderWithRouter(<EventScraper />);
 
@@ -482,4 +482,4 @@ describe('EventScraper Component', () => {
       });
     });
   });
-}); 
+});

@@ -134,7 +134,7 @@ describe('ChatMessages', () => {
     jest.clearAllMocks();
     (toast.success as jest.Mock).mockClear();
     (toast.error as jest.Mock).mockClear();
-    
+
     mockUseParams.mockReturnValue({ chatroomId: 'chatroom-1' });
     mockGetUserId.mockReturnValue('user-1');
     mockChatMessageService.getMessages.mockResolvedValue(mockMessages);
@@ -146,9 +146,9 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       expect(screen.getByRole('button', { name: /zurück zu chatrooms/i })).toBeInTheDocument();
-      
+
       await waitFor(() => {
         expect(mockChatMessageService.getMessages).toHaveBeenCalledWith('chatroom-1');
       });
@@ -156,9 +156,9 @@ describe('ChatMessages', () => {
 
     it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
       mockChatMessageService.getMessages.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<ChatMessages />);
-      
+
       // Sollte 8 Skeleton-Message-Bubbles anzeigen
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(25); // Jede Skeleton-Message hat mehrere Skeleton-Elemente
@@ -166,11 +166,11 @@ describe('ChatMessages', () => {
 
     it('sollte Fehler anzeigen wenn chatroomId fehlt', async () => {
       mockUseParams.mockReturnValue({});
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       expect(toast.error).toHaveBeenCalledWith('Chatroom ID fehlt');
     });
 
@@ -178,7 +178,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
         expect(screen.getByText('Eine Antwort auf die erste Nachricht')).toBeInTheDocument();
@@ -190,7 +190,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Anderer User')).toBeInTheDocument();
       });
@@ -200,7 +200,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText(/10:30 \(bearbeitet\)/)).toBeInTheDocument();
       });
@@ -208,11 +208,11 @@ describe('ChatMessages', () => {
 
     it('sollte Fehler beim Laden von Nachrichten handhaben', async () => {
       mockChatMessageService.getMessages.mockRejectedValue(new Error('Load error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Nachrichten konnten nicht geladen werden.');
       });
@@ -224,10 +224,10 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const backButton = screen.getByRole('button', { name: /zurück zu chatrooms/i });
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/chatrooms');
     });
   });
@@ -237,9 +237,9 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       expect(screen.getByPlaceholderText('Nachricht eingeben...')).toBeInTheDocument();
-      
+
       // Der Send Button hat ein Send Icon, suche nach dem Button mit bg-primary
       const sendButton = document.querySelector('button[class*="bg-primary"]');
       expect(sendButton).toBeInTheDocument();
@@ -250,19 +250,19 @@ describe('ChatMessages', () => {
         id: 'new-message',
         content: 'Neue Testnachricht',
       });
-      
+
       mockChatMessageService.createMessage.mockResolvedValue(newMessage);
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
-      
+
       fireEvent.change(input, { target: { value: 'Neue Testnachricht' } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
         expect(mockChatMessageService.createMessage).toHaveBeenCalledWith('chatroom-1', {
           content: 'Neue Testnachricht',
@@ -276,15 +276,15 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
-      
+
       // Simuliere das Event Handler Verhalten ohne tatsächlichen Event Trigger
       fireEvent.change(input, { target: { value: 'Enter Nachricht' } });
-      
+
       // Prüfe dass das Input Feld den korrekten Wert hat
       expect(input).toHaveValue('Enter Nachricht');
-      
+
       // Input sollte vorhanden und funktionsfähig sein
       expect(input).toBeInTheDocument();
       expect(input).not.toBeDisabled();
@@ -294,14 +294,14 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
-      
+
       fireEvent.change(input, { target: { value: 'Shift Enter Test' } });
-      
+
       // Prüfe dass das Input Feld den korrekten Wert hat
       expect(input).toHaveValue('Shift Enter Test');
-      
+
       // Input sollte vorhanden und funktionsfähig sein
       expect(input).toBeInTheDocument();
       expect(input).not.toBeDisabled();
@@ -311,46 +311,50 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
       fireEvent.click(sendButton);
-      
+
       expect(mockChatMessageService.createMessage).not.toHaveBeenCalled();
     });
 
     it('sollte Fehler beim Senden handhaben', async () => {
       mockChatMessageService.createMessage.mockRejectedValue(new Error('Send error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
-      
+
       fireEvent.change(input, { target: { value: 'Test Nachricht' } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Nachricht konnte nicht gesendet werden: Send error');
+        expect(toast.error).toHaveBeenCalledWith(
+          'Nachricht konnte nicht gesendet werden: Send error'
+        );
       });
     });
 
     it('sollte Fehler handhaben wenn Benutzerprofil nicht geladen werden kann', async () => {
       mockUserService.getUserProfile.mockRejectedValue(new Error('Profile error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
-      
+
       fireEvent.change(input, { target: { value: 'Test Nachricht' } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Nachricht konnte nicht gesendet werden: Profile error');
+        expect(toast.error).toHaveBeenCalledWith(
+          'Nachricht konnte nicht gesendet werden: Profile error'
+        );
       });
     });
   });
@@ -360,14 +364,14 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
 
       // Suche nach Dropdown-Buttons (EllipsisVertical Icons)
       const dropdownButtons = document.querySelectorAll('svg[class*="lucide-ellipsis-vertical"]');
-      
+
       expect(dropdownButtons.length).toBeGreaterThan(0);
     });
 
@@ -376,36 +380,36 @@ describe('ChatMessages', () => {
         content: 'Bearbeitete Nachricht',
         editedAt: '2024-01-01T10:35:00.000Z',
       });
-      
+
       mockChatMessageService.updateMessage.mockResolvedValue(updatedMessage);
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
 
       // Simuliere direkt den Update Call ohne UI-Interaktion
       await act(async () => {
-        await mockChatMessageService.updateMessage('chatroom-1', 'message-1', { content: 'Das ist eine Testnachricht' });
+        await mockChatMessageService.updateMessage('chatroom-1', 'message-1', {
+          content: 'Das ist eine Testnachricht',
+        });
       });
-      
-      expect(mockChatMessageService.updateMessage).toHaveBeenCalledWith(
-        'chatroom-1',
-        'message-1',
-        { content: 'Das ist eine Testnachricht' }
-      );
+
+      expect(mockChatMessageService.updateMessage).toHaveBeenCalledWith('chatroom-1', 'message-1', {
+        content: 'Das ist eine Testnachricht',
+      });
     });
 
     it('sollte Nachricht löschen', async () => {
       mockChatMessageService.deleteMessage.mockResolvedValue(undefined);
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
@@ -414,17 +418,17 @@ describe('ChatMessages', () => {
       await act(async () => {
         await mockChatMessageService.deleteMessage('chatroom-1', 'message-1');
       });
-      
+
       expect(mockChatMessageService.deleteMessage).toHaveBeenCalledWith('chatroom-1', 'message-1');
     });
 
     it('sollte Fehler beim Bearbeiten handhaben', async () => {
       mockChatMessageService.updateMessage.mockRejectedValue(new Error('Update error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
@@ -433,7 +437,9 @@ describe('ChatMessages', () => {
       await act(async () => {
         // Direkt den Service aufrufen um den Fehler zu testen
         try {
-          await mockChatMessageService.updateMessage('chatroom-1', 'message-1', { content: 'test' });
+          await mockChatMessageService.updateMessage('chatroom-1', 'message-1', {
+            content: 'test',
+          });
         } catch (error) {
           // Der Fehler wird bereits von der Komponente behandelt
         }
@@ -442,11 +448,11 @@ describe('ChatMessages', () => {
 
     it('sollte Fehler beim Löschen handhaben', async () => {
       mockChatMessageService.deleteMessage.mockRejectedValue(new Error('Delete error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
@@ -467,7 +473,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Eine Antwort auf die erste Nachricht')).toBeInTheDocument();
       });
@@ -482,36 +488,36 @@ describe('ChatMessages', () => {
         id: 'message-1',
         reactions: [{ userId: 'user-1', type: 'like' }],
       });
-      
+
       mockChatMessageService.addReaction.mockResolvedValue(updatedMessage);
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
 
       // Simuliere direkt den Reaction Call ohne UI-Interaktion
       await act(async () => {
-        await mockChatMessageService.addReaction('chatroom-1', 'message-1', { type: ReactionType.LIKE });
+        await mockChatMessageService.addReaction('chatroom-1', 'message-1', {
+          type: ReactionType.LIKE,
+        });
       });
-      
-      expect(mockChatMessageService.addReaction).toHaveBeenCalledWith(
-        'chatroom-1',
-        'message-1',
-        { type: ReactionType.LIKE }
-      );
+
+      expect(mockChatMessageService.addReaction).toHaveBeenCalledWith('chatroom-1', 'message-1', {
+        type: ReactionType.LIKE,
+      });
     });
 
     it('sollte Fehler beim Hinzufügen von Reaktionen handhaben', async () => {
       mockChatMessageService.addReaction.mockRejectedValue(new Error('Reaction error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
@@ -519,7 +525,9 @@ describe('ChatMessages', () => {
       // Simuliere Reaktions-Aktion die fehlschlägt
       await act(async () => {
         try {
-          await mockChatMessageService.addReaction('chatroom-1', 'message-1', { type: ReactionType.LIKE });
+          await mockChatMessageService.addReaction('chatroom-1', 'message-1', {
+            type: ReactionType.LIKE,
+          });
         } catch (error) {
           // Der Fehler wird bereits von der Komponente behandelt
         }
@@ -532,7 +540,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Das ist eine Testnachricht')).toBeInTheDocument();
       });
@@ -546,7 +554,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Eine Antwort auf die erste Nachricht')).toBeInTheDocument();
       });
@@ -560,7 +568,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       await waitFor(() => {
         expect(screen.getByText('Eine Antwort auf die erste Nachricht')).toBeInTheDocument();
       });
@@ -576,7 +584,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const chatContainer = document.querySelector('.h-\\[calc\\(100vh-4rem\\)\\]');
       expect(chatContainer).toBeInTheDocument();
     });
@@ -585,7 +593,7 @@ describe('ChatMessages', () => {
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const messagesArea = document.querySelector('.flex-1.overflow-y-auto');
       expect(messagesArea).toBeInTheDocument();
     });
@@ -594,38 +602,42 @@ describe('ChatMessages', () => {
   describe('User Authentication', () => {
     it('sollte Fehler anzeigen wenn Benutzer nicht authentifiziert', async () => {
       mockGetUserId.mockReturnValue(null);
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
-      
+
       fireEvent.change(input, { target: { value: 'Test Nachricht' } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Nachricht konnte nicht gesendet werden: Benutzer nicht authentifiziert');
+        expect(toast.error).toHaveBeenCalledWith(
+          'Nachricht konnte nicht gesendet werden: Benutzer nicht authentifiziert'
+        );
       });
     });
 
     it('sollte Fehler anzeigen wenn Benutzername fehlt', async () => {
       mockUserService.getUserProfile.mockResolvedValue(createMockUser({ name: '' }));
-      
+
       await act(async () => {
         renderWithRouter(<ChatMessages />);
       });
-      
+
       const input = screen.getByPlaceholderText('Nachricht eingeben...');
       const sendButton = document.querySelector('button[class*="bg-primary"]') as HTMLButtonElement;
-      
+
       fireEvent.change(input, { target: { value: 'Test Nachricht' } });
       fireEvent.click(sendButton);
-      
+
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Nachricht konnte nicht gesendet werden: Benutzerprofil konnte nicht geladen werden');
+        expect(toast.error).toHaveBeenCalledWith(
+          'Nachricht konnte nicht gesendet werden: Benutzerprofil konnte nicht geladen werden'
+        );
       });
     });
   });
-}); 
+});

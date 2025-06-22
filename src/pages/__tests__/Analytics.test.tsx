@@ -20,11 +20,31 @@ jest.mock('react-router-dom', () => ({
 
 // Mock shadcn/ui components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
-  CardDescription: ({ children, className }: any) => <div className={className} data-testid="card-description">{children}</div>,
-  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div className={className} data-testid="card-content">
+      {children}
+    </div>
+  ),
+  CardDescription: ({ children, className }: any) => (
+    <div className={className} data-testid="card-description">
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, className }: any) => (
+    <div className={className} data-testid="card-header">
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/progress', () => ({
@@ -37,9 +57,9 @@ jest.mock('@/components/ui/progress', () => ({
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       className={className}
       data-variant={variant}
       data-testid="button"
@@ -50,18 +70,34 @@ jest.mock('@/components/ui/button', () => ({
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({
-  Skeleton: ({ className }: any) => <div className={className} data-testid="skeleton">Loading...</div>,
+  Skeleton: ({ className }: any) => (
+    <div className={className} data-testid="skeleton">
+      Loading...
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/select', () => ({
   Select: ({ children, value, onValueChange }: any) => (
-    <div data-testid="select" data-value={value} onClick={() => onValueChange?.('Restaurant Alpha')}>
+    <div
+      data-testid="select"
+      data-value={value}
+      onClick={() => onValueChange?.('Restaurant Alpha')}
+    >
       {children}
     </div>
   ),
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
-  SelectTrigger: ({ children, className }: any) => <div className={className} data-testid="select-trigger">{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children, className }: any) => (
+    <div className={className} data-testid="select-trigger">
+      {children}
+    </div>
+  ),
   SelectValue: ({ placeholder }: any) => <div data-testid="select-value">{placeholder}</div>,
 }));
 
@@ -111,7 +147,7 @@ const mockCustomerScans: CustomerScan[] = [
   {
     customerId: 'customer1',
     scannedAt: '2024-01-15T10:30:00Z',
-    price: 25.50,
+    price: 25.5,
     numberOfPeople: 2,
     benefit: '10% Rabatt',
     businessName: 'Restaurant Alpha',
@@ -120,7 +156,7 @@ const mockCustomerScans: CustomerScan[] = [
   {
     customerId: 'customer2',
     scannedAt: '2024-01-16T14:20:00Z',
-    price: 15.00,
+    price: 15.0,
     numberOfPeople: 1,
     benefit: '5€ Rabatt',
     businessName: 'Café Beta',
@@ -133,17 +169,17 @@ const mockBusinessAnalytics: BusinessAnalytics = {
   weeklyScans: 25,
   monthlyScans: 100,
   yearlyScans: 1200,
-  averagePrice: 22.50,
+  averagePrice: 22.5,
   averageNumberOfPeople: 2.3,
   uniqueCustomers: 85,
   customerScans: mockCustomerScans,
   weeklyTrend: 12.5,
   monthlyTrend: 8.2,
   revenueData: {
-    total: 3375.00,
-    weekly: 562.50,
-    monthly: 2250.00,
-    yearly: 27000.00,
+    total: 3375.0,
+    weekly: 562.5,
+    monthly: 2250.0,
+    yearly: 27000.0,
   },
   customerRetention: {
     returningCustomers: 32,
@@ -164,12 +200,12 @@ const mockDashboardAnalytics: DashboardAnalytics = {
   weeklyTrend: 15.2,
   monthlyTrend: 10.5,
   revenueData: {
-    total: 7875.00,
-    weekly: 1312.50,
-    monthly: 5250.00,
-    yearly: 63000.00,
-    averagePerScan: 22.50,
-    projectedMonthly: 5500.00,
+    total: 7875.0,
+    weekly: 1312.5,
+    monthly: 5250.0,
+    yearly: 63000.0,
+    averagePerScan: 22.5,
+    projectedMonthly: 5500.0,
   },
   customerData: {
     total: 125,
@@ -191,11 +227,7 @@ const mockDashboardAnalytics: DashboardAnalytics = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('Analytics Component', () => {
@@ -204,7 +236,7 @@ describe('Analytics Component', () => {
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useBusinessService as jest.Mock).mockReturnValue(mockBusinessService);
     (useAnalyticsService as jest.Mock).mockReturnValue(mockAnalyticsService);
-    
+
     // Standard mock setup
     mockBusinessService.getCustomerScans.mockResolvedValue(mockCustomerScans);
     mockAnalyticsService.calculateDashboardAnalytics.mockReturnValue(mockDashboardAnalytics);
@@ -215,8 +247,10 @@ describe('Analytics Component', () => {
       renderWithRouter(<Analytics />);
 
       expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
-      expect(screen.getByText('Detaillierte Einblicke in die Performance deiner Partner')).toBeInTheDocument();
-      
+      expect(
+        screen.getByText('Detaillierte Einblicke in die Performance deiner Partner')
+      ).toBeInTheDocument();
+
       // Warte auf das Laden der Daten
       await waitFor(() => {
         expect(screen.getByText('Übersicht')).toBeInTheDocument();
@@ -277,7 +311,9 @@ describe('Analytics Component', () => {
 
       await waitFor(() => {
         expect(mockBusinessService.getCustomerScans).toHaveBeenCalledTimes(1);
-        expect(mockAnalyticsService.calculateDashboardAnalytics).toHaveBeenCalledWith(mockCustomerScans);
+        expect(mockAnalyticsService.calculateDashboardAnalytics).toHaveBeenCalledWith(
+          mockCustomerScans
+        );
       });
     });
 
@@ -510,7 +546,9 @@ describe('Analytics Component', () => {
 
       await waitFor(() => {
         expect(screen.getAllByText('Detaillierte Business-Analyse')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Ausführliche Statistiken für Restaurant Alpha')[0]).toBeInTheDocument();
+        expect(
+          screen.getAllByText('Ausführliche Statistiken für Restaurant Alpha')[0]
+        ).toBeInTheDocument();
       });
     });
   });
@@ -598,7 +636,9 @@ describe('Analytics Component', () => {
 
       await waitFor(() => {
         // Test für glassmorphism progress bars statt Progress-Komponenten
-        const progressElements = document.querySelectorAll('.bg-gradient-to-r.from-green-400.to-blue-500');
+        const progressElements = document.querySelectorAll(
+          '.bg-gradient-to-r.from-green-400.to-blue-500'
+        );
         expect(progressElements.length).toBeGreaterThan(0);
         // Der erste Progress-Balken sollte einen style-width haben
         const firstProgress = progressElements[0] as HTMLElement;
@@ -674,7 +714,7 @@ describe('Analytics Component', () => {
       const analyticsWithNegativeTrend = {
         ...mockDashboardAnalytics,
         weeklyTrend: -5.2,
-        monthlyTrend: -8.1
+        monthlyTrend: -8.1,
       };
       mockAnalyticsService.calculateDashboardAnalytics.mockReturnValue(analyticsWithNegativeTrend);
 
@@ -694,7 +734,7 @@ describe('Analytics Component', () => {
         ...mockDashboardAnalytics,
         businesses: [],
         totalScans: 0,
-        topBusinesses: []
+        topBusinesses: [],
       };
       mockAnalyticsService.calculateDashboardAnalytics.mockReturnValue(emptyAnalytics);
 
@@ -706,4 +746,4 @@ describe('Analytics Component', () => {
       });
     });
   });
-}); 
+});

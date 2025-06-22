@@ -33,7 +33,11 @@ export function useNewsService() {
     /**
      * Erstellt eine Image-News
      */
-    createImageNews: async (data: Omit<ImageNewsItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'type'> & { authorId: string }): Promise<ImageNewsItem> => {
+    createImageNews: async (
+      data: Omit<ImageNewsItem, 'id' | 'createdAt' | 'updatedAt' | 'createdBy' | 'type'> & {
+        authorId: string;
+      }
+    ): Promise<ImageNewsItem> => {
       const response = await api.post<ApiResponse<ImageNewsItem>>(`${endpoints.news}/image`, data);
       return unwrapData(response);
     },
@@ -41,7 +45,15 @@ export function useNewsService() {
     /**
      * Erstellt eine Poll-News
      */
-    createPollNews: async (data: { content: string; authorId: string; pollInfo: { options: { id: string; text: string; voters: string[] }[]; allowMultipleChoices: boolean; expiresAt?: string } }): Promise<PollNewsItem> => {
+    createPollNews: async (data: {
+      content: string;
+      authorId: string;
+      pollInfo: {
+        options: { id: string; text: string; voters: string[] }[];
+        allowMultipleChoices: boolean;
+        expiresAt?: string;
+      };
+    }): Promise<PollNewsItem> => {
       const response = await api.post<ApiResponse<PollNewsItem>>(`${endpoints.news}/poll`, data);
       return unwrapData(response);
     },
@@ -50,7 +62,10 @@ export function useNewsService() {
      * Stimmt bei einer Umfrage ab
      */
     votePoll: async (id: string, voteData: { optionId: string }): Promise<PollNewsItem> => {
-      const response = await api.patch<ApiResponse<PollNewsItem>>(`${endpoints.news}/${id}/poll-vote`, voteData);
+      const response = await api.patch<ApiResponse<PollNewsItem>>(
+        `${endpoints.news}/${id}/poll-vote`,
+        voteData
+      );
       return unwrapData(response);
     },
 
@@ -58,7 +73,10 @@ export function useNewsService() {
      * Reagiert auf eine News
      */
     postReaction: async (id: string, reactionData: Reaction): Promise<NewsItem> => {
-      const response = await api.patch<ApiResponse<NewsItem>>(`${endpoints.news}/${id}/react`, reactionData);
+      const response = await api.patch<ApiResponse<NewsItem>>(
+        `${endpoints.news}/${id}/react`,
+        reactionData
+      );
       return unwrapData(response);
     },
 
@@ -93,4 +111,4 @@ export function useNewsService() {
       return unwrapData(response);
     },
   };
-} 
+}

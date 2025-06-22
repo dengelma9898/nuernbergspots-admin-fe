@@ -1,43 +1,30 @@
 import { useState, useEffect } from 'react';
 import 'material-icons/iconfont/material-icons.css';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle,
-  CardContent 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { 
+} from '@/components/ui/table';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { 
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Plus, 
-  MoreHorizontal, 
-  Pencil, 
-  Trash2,
-  Check,
-  X,
-  ArrowLeft
-} from 'lucide-react';
+} from '@/components/ui/dropdown-menu';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
@@ -62,7 +49,7 @@ export function CategoryList() {
     name: '',
     description: '',
     iconName: '',
-    keywordIds: []
+    keywordIds: [],
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -93,7 +80,7 @@ export function CategoryList() {
     try {
       const categoryToSave = {
         ...newCategory,
-        iconName: toSnakeCase(newCategory.iconName)
+        iconName: toSnakeCase(newCategory.iconName),
       };
       const category = await businessCategoryService.createCategory(categoryToSave);
       setCategories([...categories, category]);
@@ -101,7 +88,7 @@ export function CategoryList() {
         name: '',
         description: '',
         iconName: '',
-        keywordIds: []
+        keywordIds: [],
       });
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
@@ -117,7 +104,7 @@ export function CategoryList() {
       name: category.name,
       description: category.description,
       iconName: category.iconName,
-      keywordIds: category.keywords?.map(k => k.id) || []
+      keywordIds: category.keywords?.map(k => k.id) || [],
     });
     setIsDialogOpen(true);
   };
@@ -131,12 +118,13 @@ export function CategoryList() {
     try {
       const categoryToUpdate = {
         ...newCategory,
-        iconName: toSnakeCase(newCategory.iconName)
+        iconName: toSnakeCase(newCategory.iconName),
       };
-      const updatedCategory = await businessCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
-      setCategories(categories.map(cat => 
-        cat.id === editingCategory.id ? updatedCategory : cat
-      ));
+      const updatedCategory = await businessCategoryService.updateCategory(
+        editingCategory.id,
+        categoryToUpdate
+      );
+      setCategories(categories.map(cat => (cat.id === editingCategory.id ? updatedCategory : cat)));
       setEditingCategory(null);
       setNewCategory({ name: '', description: '', iconName: '', keywordIds: [] });
       setIsDialogOpen(false);
@@ -164,7 +152,7 @@ export function CategoryList() {
       name: '',
       description: '',
       iconName: '',
-      keywordIds: []
+      keywordIds: [],
     });
   };
 
@@ -206,7 +194,9 @@ export function CategoryList() {
                   <label className="text-sm font-medium">Name</label>
                   <Input
                     value={newCategory.name}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, name: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setNewCategory({ ...newCategory, name: e.target.value })
+                    }
                     placeholder="Kategoriename"
                   />
                 </div>
@@ -214,14 +204,16 @@ export function CategoryList() {
                   <label className="text-sm font-medium">Icon</label>
                   <IconPicker
                     value={newCategory.iconName}
-                    onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
+                    onChange={value => setNewCategory({ ...newCategory, iconName: value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Beschreibung</label>
                   <Input
                     value={newCategory.description}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewCategory({ ...newCategory, description: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setNewCategory({ ...newCategory, description: e.target.value })
+                    }
                     placeholder="Beschreibung"
                   />
                 </div>
@@ -229,7 +221,7 @@ export function CategoryList() {
                   <label className="text-sm font-medium">Keywords</label>
                   <KeywordSelector
                     selectedIds={newCategory.keywordIds}
-                    onChange={(ids) => setNewCategory({ ...newCategory, keywordIds: ids })}
+                    onChange={ids => setNewCategory({ ...newCategory, keywordIds: ids })}
                   />
                 </div>
                 <div className="flex justify-end space-x-2">
@@ -273,19 +265,17 @@ export function CategoryList() {
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((category) => (
+                categories.map(category => (
                   <TableRow key={category.id}>
                     <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>
-                      {getIconComponent(category.iconName)}
-                    </TableCell>
+                    <TableCell>{getIconComponent(category.iconName)}</TableCell>
                     <TableCell>{category.description || '-'}</TableCell>
                     <TableCell>
                       {category.keywords && category.keywords.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
-                          {category.keywords.map((keyword) => (
-                            <span 
-                              key={keyword.name} 
+                          {category.keywords.map(keyword => (
+                            <span
+                              key={keyword.name}
                               className="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium"
                             >
                               {keyword.name}
@@ -310,7 +300,7 @@ export function CategoryList() {
                             <Pencil className="mr-2 h-4 w-4" />
                             Bearbeiten
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteCategory(category.id)}
                             className="text-destructive"
                           >
@@ -329,4 +319,4 @@ export function CategoryList() {
       </Card>
     </div>
   );
-} 
+}

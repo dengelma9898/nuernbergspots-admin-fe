@@ -49,7 +49,9 @@ export function useEventService() {
      * Lädt Events für einen bestimmten Zeitraum
      */
     getEventsByDateRange: async (startDate: string, endDate: string): Promise<Event[]> => {
-      const response = await api.get<ApiResponse<Event[]>>(`${endpoints.events}/range?startDate=${startDate}&endDate=${endDate}`);
+      const response = await api.get<ApiResponse<Event[]>>(
+        `${endpoints.events}/range?startDate=${startDate}&endDate=${endDate}`
+      );
       return unwrapData(response);
     },
 
@@ -64,8 +66,14 @@ export function useEventService() {
     /**
      * Lädt Events in der Nähe einer bestimmten Location
      */
-    getNearbyEvents: async (latitude: number, longitude: number, radiusKm: number): Promise<Event[]> => {
-      const response = await api.get<ApiResponse<Event[]>>(`${endpoints.events}/nearby?latitude=${latitude}&longitude=${longitude}&radiusKm=${radiusKm}`);
+    getNearbyEvents: async (
+      latitude: number,
+      longitude: number,
+      radiusKm: number
+    ): Promise<Event[]> => {
+      const response = await api.get<ApiResponse<Event[]>>(
+        `${endpoints.events}/nearby?latitude=${latitude}&longitude=${longitude}&radiusKm=${radiusKm}`
+      );
       return unwrapData(response);
     },
 
@@ -73,7 +81,9 @@ export function useEventService() {
      * Lädt die beliebtesten Events (basierend auf favoriteCount)
      */
     getPopularEvents: async (limit: number = 10): Promise<Event[]> => {
-      const response = await api.get<ApiResponse<Event[]>>(`${endpoints.events}/popular?limit=${limit}`);
+      const response = await api.get<ApiResponse<Event[]>>(
+        `${endpoints.events}/popular?limit=${limit}`
+      );
       return unwrapData(response);
     },
 
@@ -82,7 +92,7 @@ export function useEventService() {
      */
     updateEventImages: async (eventId: string, imageUrls: string[]): Promise<Event> => {
       const response = await api.put<ApiResponse<Event>>(`${endpoints.events}/${eventId}/images`, {
-        imageUrls
+        imageUrls,
       });
       return unwrapData(response);
     },
@@ -91,9 +101,12 @@ export function useEventService() {
      * Setzt das Titelbild eines Events
      */
     setEventTitleImage: async (eventId: string, titleImageUrl: string): Promise<Event> => {
-      const response = await api.put<ApiResponse<Event>>(`${endpoints.events}/${eventId}/title-image`, {
-        titleImageUrl
-      });
+      const response = await api.put<ApiResponse<Event>>(
+        `${endpoints.events}/${eventId}/title-image`,
+        {
+          titleImageUrl,
+        }
+      );
       return unwrapData(response);
     },
 
@@ -136,7 +149,7 @@ export function useEventService() {
      */
     removeEventImage: async (eventId: string, imageUrl: string): Promise<void> => {
       await api.patch(`${endpoints.events}/${eventId}/images/remove`, {
-        imageUrl
+        imageUrl,
       });
     },
 
@@ -153,6 +166,6 @@ export function useEventService() {
       const query = new URLSearchParams(params as any).toString();
       const response = await api.get<ApiResponse<Event[]>>(`/events/scrape?${query}`);
       return unwrapData(response);
-    }
+    },
   };
-} 
+}

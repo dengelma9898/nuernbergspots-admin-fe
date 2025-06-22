@@ -105,11 +105,7 @@ const mockContactRequests: ContactRequest[] = [
 ];
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('ContactRequests', () => {
@@ -155,7 +151,9 @@ describe('ContactRequests', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Keine Kontaktanfragen')).toBeInTheDocument();
-        expect(screen.getByText('Es gibt aktuell keine offenen Kontaktanfragen.')).toBeInTheDocument();
+        expect(
+          screen.getByText('Es gibt aktuell keine offenen Kontaktanfragen.')
+        ).toBeInTheDocument();
       });
     });
 
@@ -197,7 +195,7 @@ describe('ContactRequests', () => {
         // Prüfe auf Status-Badges
         const openBadges = screen.getAllByText('Offen');
         const processedBadges = screen.getAllByText('Bearbeitet');
-        
+
         expect(openBadges.length).toBeGreaterThan(0);
         expect(processedBadges.length).toBeGreaterThan(0);
       });
@@ -239,7 +237,7 @@ describe('ContactRequests', () => {
       });
 
       const refreshButton = screen.getByText('Aktualisieren');
-      
+
       await act(async () => {
         fireEvent.click(refreshButton);
       });
@@ -255,8 +253,8 @@ describe('ContactRequests', () => {
       });
 
       // Mock langsame Antwort für den zweiten Aufruf
-      mockContactService.getContactRequests.mockImplementationOnce(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
+      mockContactService.getContactRequests.mockImplementationOnce(
+        () => new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
       );
 
       const refreshButton = screen.getByText('Aktualisieren');
@@ -281,7 +279,7 @@ describe('ContactRequests', () => {
         // Verwende getAllByText da mehrere Kontaktanfragen die gleiche Nachrichtenanzahl haben können
         const singleMessages = screen.getAllByText('1 Nachricht');
         expect(singleMessages.length).toBeGreaterThan(0);
-        
+
         const multiMessages = screen.getAllByText('2 Nachrichten');
         expect(multiMessages.length).toBeGreaterThan(0);
       });
@@ -371,7 +369,7 @@ describe('ContactRequests', () => {
       });
 
       const refreshButton = screen.getByText('Aktualisieren');
-      
+
       await act(async () => {
         fireEvent.click(refreshButton);
       });
@@ -396,8 +394,8 @@ describe('ContactRequests', () => {
 
   describe('Loading States', () => {
     it('sollte initialen Loading-State mit Skeleton-Elementen anzeigen', async () => {
-      mockContactService.getContactRequests.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
+      mockContactService.getContactRequests.mockImplementation(
+        () => new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
       );
 
       const { container } = renderWithRouter(<ContactRequests />);
@@ -407,7 +405,9 @@ describe('ContactRequests', () => {
       expect(skeletons.length).toBeGreaterThan(0);
 
       // Prüfe dass mehrere Skeleton-Karten mit dem richtigen Glassmorphism-Styling angezeigt werden
-      const skeletonCards = container.querySelectorAll('.backdrop-blur-3xl.bg-gradient-to-br.from-white\\/15.to-white\\/5');
+      const skeletonCards = container.querySelectorAll(
+        '.backdrop-blur-3xl.bg-gradient-to-br.from-white\\/15.to-white\\/5'
+      );
       expect(skeletonCards.length).toBeGreaterThanOrEqual(3); // Mindestens 3 Skeleton-Karten
 
       await waitFor(() => {
@@ -422,4 +422,4 @@ describe('ContactRequests', () => {
       });
     });
   });
-}); 
+});

@@ -33,7 +33,9 @@ jest.mock('@/contexts/AuthContext', () => ({
 
 // Mock der Services
 jest.mock('@/services/businessUserService');
-const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<typeof useBusinessUserService>;
+const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<
+  typeof useBusinessUserService
+>;
 
 // Mock von React Router
 const mockNavigate = jest.fn();
@@ -72,11 +74,7 @@ const mockDeletedUser = createMockBusinessUser({
 
 // Helper function to render component with router
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <MemoryRouter>
-      {component}
-    </MemoryRouter>
-  );
+  return render(<MemoryRouter>{component}</MemoryRouter>);
 };
 
 describe('BusinessUserList', () => {
@@ -95,33 +93,33 @@ describe('BusinessUserList', () => {
   describe('Loading State', () => {
     it('sollte Loading-State mit detaillierten Skeleton-Elementen anzeigen', () => {
       mockService.getBusinessUsers.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<BusinessUserList />);
-      
+
       expect(screen.getByText('Business-User verwalten')).toBeInTheDocument();
-      
+
       // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBeGreaterThan(20); // Viele detaillierte Skeleton-Elemente
-      
+
       // Prüfe dass Mobile Cards Skeleton-Struktur vorhanden ist
       const mobileSkeletons = container.querySelector('.block.md\\:hidden');
       expect(mobileSkeletons).toBeInTheDocument();
-      
-      // Prüfe dass Desktop Table Skeleton-Struktur vorhanden ist  
+
+      // Prüfe dass Desktop Table Skeleton-Struktur vorhanden ist
       const desktopSkeletons = container.querySelector('.hidden.md\\:block');
       expect(desktopSkeletons).toBeInTheDocument();
     });
 
     it('sollte Zurück-Button im Loading-State rendern', () => {
       mockService.getBusinessUsers.mockImplementation(() => new Promise(() => {}));
-      
+
       renderWithRouter(<BusinessUserList />);
-      
+
       const backButtonSpan = screen.getByText('Zurück');
       const backButton = backButtonSpan.closest('div').querySelector('button');
       expect(backButton).toBeInTheDocument();
-      
+
       fireEvent.click(backButton);
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
@@ -129,7 +127,11 @@ describe('BusinessUserList', () => {
 
   describe('Data Loading', () => {
     it('sollte Business-User erfolgreich laden und anzeigen', async () => {
-      mockService.getBusinessUsers.mockResolvedValue([mockActiveUser, mockReviewUser, mockDeletedUser]);
+      mockService.getBusinessUsers.mockResolvedValue([
+        mockActiveUser,
+        mockReviewUser,
+        mockDeletedUser,
+      ]);
 
       renderWithRouter(<BusinessUserList />);
 
@@ -152,7 +154,10 @@ describe('BusinessUserList', () => {
         expect(screen.getByText('Business-User verwalten')).toBeInTheDocument();
       });
 
-      expect(consoleSpy).toHaveBeenCalledWith('Fehler beim Laden der Business-User:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Fehler beim Laden der Business-User:',
+        expect.any(Error)
+      );
       consoleSpy.mockRestore();
     });
 
@@ -169,9 +174,13 @@ describe('BusinessUserList', () => {
 
   describe('Status Badges', () => {
     beforeEach(async () => {
-      mockService.getBusinessUsers.mockResolvedValue([mockActiveUser, mockReviewUser, mockDeletedUser]);
+      mockService.getBusinessUsers.mockResolvedValue([
+        mockActiveUser,
+        mockReviewUser,
+        mockDeletedUser,
+      ]);
       renderWithRouter(<BusinessUserList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('business@example.com')).toHaveLength(2);
       });
@@ -180,7 +189,7 @@ describe('BusinessUserList', () => {
     it('sollte Aktiv-Badge für aktive User anzeigen', () => {
       const activeBadges = screen.getAllByText('Aktiv');
       expect(activeBadges).toHaveLength(2); // Mobile + Desktop
-      
+
       activeBadges.forEach(badge => {
         expect(badge.closest('.bg-primary')).toBeInTheDocument();
       });
@@ -189,7 +198,7 @@ describe('BusinessUserList', () => {
     it('sollte Review-Badge für User mit needsReview anzeigen', () => {
       const reviewBadges = screen.getAllByText('Überprüfung erforderlich');
       expect(reviewBadges).toHaveLength(2); // Mobile + Desktop
-      
+
       reviewBadges.forEach(badge => {
         expect(badge.closest('.bg-secondary')).toBeInTheDocument();
       });
@@ -198,7 +207,7 @@ describe('BusinessUserList', () => {
     it('sollte Gelöscht-Badge für gelöschte User anzeigen', () => {
       const deletedBadges = screen.getAllByText('Gelöscht');
       expect(deletedBadges).toHaveLength(2); // Mobile + Desktop
-      
+
       deletedBadges.forEach(badge => {
         expect(badge.closest('.bg-destructive')).toBeInTheDocument();
       });
@@ -211,14 +220,14 @@ describe('BusinessUserList', () => {
       activeBadges.forEach(badge => {
         expect(badge.querySelector('svg')).toBeInTheDocument();
       });
-      
+
       // AlertCircle für Review User
       const reviewBadges = screen.getAllByText('Überprüfung erforderlich');
       expect(reviewBadges).toHaveLength(2);
       reviewBadges.forEach(badge => {
         expect(badge.querySelector('svg')).toBeInTheDocument();
       });
-      
+
       // Trash2 für gelöschte User
       const deletedBadges = screen.getAllByText('Gelöscht');
       expect(deletedBadges).toHaveLength(2);
@@ -232,7 +241,7 @@ describe('BusinessUserList', () => {
     beforeEach(async () => {
       mockService.getBusinessUsers.mockResolvedValue([mockActiveUser]);
       renderWithRouter(<BusinessUserList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('business@example.com')).toHaveLength(2);
       });
@@ -240,13 +249,17 @@ describe('BusinessUserList', () => {
 
     it('sollte mobile Card-Ansicht haben', () => {
       // Mobile View (block md:hidden)
-      const mobileCards = screen.getAllByText('business@example.com')[0].closest('.block.md\\:hidden');
+      const mobileCards = screen
+        .getAllByText('business@example.com')[0]
+        .closest('.block.md\\:hidden');
       expect(mobileCards).toHaveClass('block', 'md:hidden');
     });
 
     it('sollte desktop Table-Ansicht haben', () => {
       // Desktop View (hidden md:block)
-      const desktopTable = screen.getByText('Business-User Übersicht').closest('.hidden.md\\:block');
+      const desktopTable = screen
+        .getByText('Business-User Übersicht')
+        .closest('.hidden.md\\:block');
       expect(desktopTable).toHaveClass('hidden', 'md:block');
     });
 
@@ -265,7 +278,7 @@ describe('BusinessUserList', () => {
     beforeEach(async () => {
       mockService.getBusinessUsers.mockResolvedValue([mockActiveUser]);
       renderWithRouter(<BusinessUserList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('business@example.com')).toHaveLength(2);
       });
@@ -274,7 +287,7 @@ describe('BusinessUserList', () => {
     it('sollte Bearbeiten-Buttons anzeigen', () => {
       const editButtons = screen.getAllByText('Bearbeiten');
       expect(editButtons).toHaveLength(2); // Mobile + Desktop
-      
+
       editButtons.forEach(button => {
         expect(button.closest('button')).toBeInTheDocument();
       });
@@ -282,7 +295,7 @@ describe('BusinessUserList', () => {
 
     it('sollte zu Edit-Seite navigieren beim Klick', () => {
       const editButtons = screen.getAllByText('Bearbeiten');
-      
+
       fireEvent.click(editButtons[0]);
       expect(mockNavigate).toHaveBeenCalledWith('/business-users/user-1/edit');
     });
@@ -300,7 +313,7 @@ describe('BusinessUserList', () => {
     beforeEach(async () => {
       mockService.getBusinessUsers.mockResolvedValue([mockActiveUser]);
       renderWithRouter(<BusinessUserList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('business@example.com')).toHaveLength(2);
       });
@@ -317,7 +330,7 @@ describe('BusinessUserList', () => {
     it('sollte zur Startseite navigieren', () => {
       const backButtonSpan = screen.getByText('Zurück');
       const backButton = backButtonSpan.closest('div').querySelector('button');
-      
+
       fireEvent.click(backButton);
       expect(mockNavigate).toHaveBeenCalledWith('/');
     });
@@ -326,14 +339,16 @@ describe('BusinessUserList', () => {
   describe('Email Display', () => {
     it('sollte lange E-Mail-Adressen korrekt handhaben', async () => {
       const longEmailUser = createMockBusinessUser({
-        email: 'very-long-business-email-address@example-domain.com'
+        email: 'very-long-business-email-address@example-domain.com',
       });
-      
+
       mockService.getBusinessUsers.mockResolvedValue([longEmailUser]);
       renderWithRouter(<BusinessUserList />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('very-long-business-email-address@example-domain.com')).toHaveLength(2);
+        expect(
+          screen.getAllByText('very-long-business-email-address@example-domain.com')
+        ).toHaveLength(2);
       });
     });
 
@@ -353,7 +368,7 @@ describe('BusinessUserList', () => {
       const userWithoutBusinesses = createMockBusinessUser({
         businessIds: [],
       });
-      
+
       mockService.getBusinessUsers.mockResolvedValue([userWithoutBusinesses]);
       renderWithRouter(<BusinessUserList />);
 
@@ -366,7 +381,7 @@ describe('BusinessUserList', () => {
       const userWithManyBusinesses = createMockBusinessUser({
         businessIds: Array.from({ length: 10 }, (_, i) => `business-${i + 1}`),
       });
-      
+
       mockService.getBusinessUsers.mockResolvedValue([userWithManyBusinesses]);
       renderWithRouter(<BusinessUserList />);
 
@@ -380,7 +395,7 @@ describe('BusinessUserList', () => {
         eventIds: undefined,
         contactRequestIds: undefined,
       });
-      
+
       mockService.getBusinessUsers.mockResolvedValue([userWithUndefinedFields]);
       renderWithRouter(<BusinessUserList />);
 
@@ -394,7 +409,7 @@ describe('BusinessUserList', () => {
     beforeEach(async () => {
       mockService.getBusinessUsers.mockResolvedValue([mockActiveUser]);
       renderWithRouter(<BusinessUserList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('business@example.com')).toHaveLength(2);
       });
@@ -404,17 +419,38 @@ describe('BusinessUserList', () => {
       const containers = screen.getAllByText('business@example.com');
       expect(containers).toHaveLength(2); // Mobile + Desktop
       const container = containers[0].closest('.min-h-screen');
-      expect(container).toHaveClass('min-h-screen', 'bg-muted', 'px-4', 'py-6', 'sm:px-8', 'overflow-x-hidden');
+      expect(container).toHaveClass(
+        'min-h-screen',
+        'bg-muted',
+        'px-4',
+        'py-6',
+        'sm:px-8',
+        'overflow-x-hidden'
+      );
     });
 
     it('sollte responsive Header haben', () => {
       const header = screen.getByText('Business-User verwalten').closest('.flex');
-      expect(header).toHaveClass('flex', 'flex-col', 'gap-2', 'sm:flex-row', 'sm:items-center', 'sm:gap-4', 'mb-8');
+      expect(header).toHaveClass(
+        'flex',
+        'flex-col',
+        'gap-2',
+        'sm:flex-row',
+        'sm:items-center',
+        'sm:gap-4',
+        'mb-8'
+      );
     });
 
     it('sollte responsive Title haben', () => {
       const title = screen.getByRole('heading', { name: /business-user verwalten/i });
-      expect(title).toHaveClass('text-2xl', 'sm:text-3xl', 'font-bold', 'leading-tight', 'break-words');
+      expect(title).toHaveClass(
+        'text-2xl',
+        'sm:text-3xl',
+        'font-bold',
+        'leading-tight',
+        'break-words'
+      );
     });
   });
-}); 
+});

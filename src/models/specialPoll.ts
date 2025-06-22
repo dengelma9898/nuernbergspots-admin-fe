@@ -1,7 +1,7 @@
 export enum SpecialPollStatus {
   ACTIVE = 'ACTIVE',
   PENDING = 'PENDING',
-  CLOSED = 'CLOSED'
+  CLOSED = 'CLOSED',
 }
 
 export interface SpecialPollResponse {
@@ -30,4 +30,4 @@ export interface UpdateSpecialPollStatusDto {
 
 export interface UpdateSpecialPollResponsesDto {
   responses: SpecialPollResponse[];
-} 
+}

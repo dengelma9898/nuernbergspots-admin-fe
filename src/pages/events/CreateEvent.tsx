@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
+import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { getIconComponent } from '@/utils/iconUtils';
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -22,7 +22,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
 interface NewEvent {
   title: string;
@@ -75,9 +75,9 @@ export const CreateEvent: React.FC = () => {
     socialMedia: {
       instagram: null,
       facebook: null,
-      tiktok: null
+      tiktok: null,
     },
-    dailyTimeSlots: []
+    dailyTimeSlots: [],
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
 
@@ -92,12 +92,13 @@ export const CreateEvent: React.FC = () => {
       if (fetchedCategories.length > 0) {
         setNewEvent(prev => ({
           ...prev,
-          categoryId: fetchedCategories[0].id
+          categoryId: fetchedCategories[0].id,
         }));
       }
     } catch (error) {
-      toast.error("Fehler beim Laden der Kategorien", {
-        description: "Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Laden der Kategorien', {
+        description:
+          'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
       });
     }
   };
@@ -105,18 +106,18 @@ export const CreateEvent: React.FC = () => {
   const handleInputChange = (field: keyof typeof newEvent, value: any) => {
     setNewEvent(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleLocationSelect = (location: LocationResult | null) => {
     if (!location) return;
-    
+
     setNewEvent(prev => ({
       ...prev,
       address: location.address.label,
       latitude: location.position.lat,
-      longitude: location.position.lng
+      longitude: location.position.lng,
     }));
     setSearchValue(location);
   };
@@ -129,19 +130,19 @@ export const CreateEvent: React.FC = () => {
         location: {
           address: newEvent.address,
           latitude: newEvent.latitude,
-          longitude: newEvent.longitude
-        }
+          longitude: newEvent.longitude,
+        },
       };
       console.log('eventToCreate', eventToCreate);
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
       await eventService.createEvent(eventToCreate);
-      toast.success("Event erstellt", {
-        description: "Das Event wurde erfolgreich erstellt.",
+      toast.success('Event erstellt', {
+        description: 'Das Event wurde erfolgreich erstellt.',
       });
       navigate('/events');
     } catch (error) {
-      toast.error("Fehler beim Erstellen", {
-        description: "Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.",
+      toast.error('Fehler beim Erstellen', {
+        description: 'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
       });
     } finally {
       setLoading(false);
@@ -153,18 +154,18 @@ export const CreateEvent: React.FC = () => {
 
     const days = eachDayOfInterval({
       start: parseISO(newEvent.startDate),
-      end: parseISO(newEvent.endDate)
+      end: parseISO(newEvent.endDate),
     });
 
     const newTimeSlots = days.map(day => ({
       date: format(day, 'yyyy-MM-dd'),
       from: undefined,
-      to: undefined
+      to: undefined,
     }));
     console.log('newTimeSlots', newTimeSlots);
     setNewEvent(prev => ({
       ...prev,
-      dailyTimeSlots: newTimeSlots
+      dailyTimeSlots: newTimeSlots,
     }));
   };
 
@@ -177,7 +178,7 @@ export const CreateEvent: React.FC = () => {
       ...prev,
       dailyTimeSlots: prev.dailyTimeSlots.map(slot =>
         slot.date === date ? { ...slot, [field]: value } : slot
-      )
+      ),
     }));
   };
 
@@ -187,7 +188,7 @@ export const CreateEvent: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -200,8 +201,8 @@ export const CreateEvent: React.FC = () => {
           {/* Glass Header */}
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => navigate('/events')}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl p-2 border w-full sm:w-auto"
               >
@@ -222,15 +223,17 @@ export const CreateEvent: React.FC = () => {
                 Füllen Sie alle notwendigen Informationen aus, um ein neues Event zu erstellen.
               </p>
             </div>
-            
+
             <div className="p-4 sm:p-6 space-y-6">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-white font-medium">Titel</Label>
+                <Label htmlFor="title" className="text-white font-medium">
+                  Titel
+                </Label>
                 <Input
                   id="title"
                   value={newEvent.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onChange={e => handleInputChange('title', e.target.value)}
                   placeholder="z.B. Sommerfest 2024"
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                 />
@@ -241,38 +244,45 @@ export const CreateEvent: React.FC = () => {
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-white font-medium">Beschreibung</Label>
+                <Label htmlFor="description" className="text-white font-medium">
+                  Beschreibung
+                </Label>
                 <Textarea
                   id="description"
                   value={newEvent.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e => handleInputChange('description', e.target.value)}
                   placeholder="Beschreiben Sie das Event im Detail..."
                   className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                 />
                 <p className="text-xs text-white/60">
-                  Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie Programm, Highlights oder besondere Hinweise.
+                  Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie
+                  Programm, Highlights oder besondere Hinweise.
                 </p>
               </div>
 
               {/* Date Range */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-white font-medium">Startdatum</Label>
+                  <Label htmlFor="startDate" className="text-white font-medium">
+                    Startdatum
+                  </Label>
                   <Input
                     id="startDate"
                     type="date"
                     value={newEvent.startDate.split('T')[0]}
-                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                    onChange={e => handleInputChange('startDate', e.target.value)}
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="endDate" className="text-white font-medium">Enddatum</Label>
+                  <Label htmlFor="endDate" className="text-white font-medium">
+                    Enddatum
+                  </Label>
                   <Input
                     id="endDate"
                     type="date"
                     value={newEvent.endDate.split('T')[0]}
-                    onChange={(e) => handleInputChange('endDate', e.target.value)}
+                    onChange={e => handleInputChange('endDate', e.target.value)}
                     className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
                   />
                 </div>
@@ -282,12 +292,17 @@ export const CreateEvent: React.FC = () => {
               {newEvent.dailyTimeSlots.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-white font-medium">Tägliche Zeitangaben (optional)</Label>
+                    <Label className="text-white font-medium">
+                      Tägliche Zeitangaben (optional)
+                    </Label>
                   </div>
-                  
+
                   <div className="space-y-4">
-                    {newEvent.dailyTimeSlots.map((slot) => (
-                      <div key={slot.date} className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
+                    {newEvent.dailyTimeSlots.map(slot => (
+                      <div
+                        key={slot.date}
+                        className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4"
+                      >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                           <div className="font-medium text-white">
                             {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
@@ -295,14 +310,14 @@ export const CreateEvent: React.FC = () => {
                           <Input
                             type="time"
                             value={slot.from || ''}
-                            onChange={(e) => updateTimeSlot(slot.date, 'from', e.target.value)}
+                            onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
                             placeholder="Von"
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                           />
                           <Input
                             type="time"
                             value={slot.to || ''}
-                            onChange={(e) => updateTimeSlot(slot.date, 'to', e.target.value)}
+                            onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
                             placeholder="Bis"
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                           />
@@ -326,41 +341,51 @@ export const CreateEvent: React.FC = () => {
                   />
                 </div>
                 <p className="text-xs text-white/60">
-                  Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den passenden Eintrag aus.
+                  Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den
+                  passenden Eintrag aus.
                 </p>
               </div>
 
               {/* Price */}
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-white font-medium">Preis (in €)</Label>
+                <Label htmlFor="price" className="text-white font-medium">
+                  Preis (in €)
+                </Label>
                 <Input
                   id="price"
                   type="number"
                   step="0.01"
                   min="0"
                   value={newEvent.price || ''}
-                  onChange={(e) => handleInputChange('price', parseFloat(e.target.value))}
+                  onChange={e => handleInputChange('price', parseFloat(e.target.value))}
                   placeholder="0.00"
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                 />
                 <p className="text-xs text-white/60">
-                  Der Eintrittspreis in Euro. Lassen Sie das Feld leer oder geben Sie 0 ein für kostenlose Events.
+                  Der Eintrittspreis in Euro. Lassen Sie das Feld leer oder geben Sie 0 ein für
+                  kostenlose Events.
                 </p>
               </div>
 
               {/* Category */}
               <div className="space-y-2">
-                <Label htmlFor="category" className="text-white font-medium">Kategorie</Label>
+                <Label htmlFor="category" className="text-white font-medium">
+                  Kategorie
+                </Label>
                 <Select
                   value={newEvent.categoryId || ''}
-                  onValueChange={(value) => handleInputChange('categoryId', value)}
+                  onValueChange={value => handleInputChange('categoryId', value)}
                 >
                   <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl">
                     <SelectValue placeholder="Kategorie auswählen" className="text-white" />
                   </SelectTrigger>
                   <SelectContent className="backdrop-blur-3xl bg-white/10 border border-white/20 rounded-xl">
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id} className="text-white hover:bg-white/20 focus:bg-white/20">
+                    {categories.map(category => (
+                      <SelectItem
+                        key={category.id}
+                        value={category.id}
+                        className="text-white hover:bg-white/20 focus:bg-white/20"
+                      >
                         <div className="flex items-center gap-2">
                           <span className="flex items-center">
                             {getIconComponent(category.iconName)}
@@ -383,13 +408,16 @@ export const CreateEvent: React.FC = () => {
                     <Switch
                       id="ticketsNeeded"
                       checked={newEvent.ticketsNeeded}
-                      onCheckedChange={(checked) => handleInputChange('ticketsNeeded', checked)}
+                      onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
                       className="data-[state=checked]:bg-white/30"
                     />
                     <div className="space-y-1">
-                      <Label htmlFor="ticketsNeeded" className="text-white font-medium">Tickets erforderlich</Label>
+                      <Label htmlFor="ticketsNeeded" className="text-white font-medium">
+                        Tickets erforderlich
+                      </Label>
                       <p className="text-xs text-white/60">
-                        Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
+                        Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben
+                        müssen.
                       </p>
                     </div>
                   </div>
@@ -400,11 +428,13 @@ export const CreateEvent: React.FC = () => {
                     <Switch
                       id="isPromoted"
                       checked={newEvent.isPromoted}
-                      onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
                       className="data-[state=checked]:bg-white/30"
                     />
                     <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-white font-medium">Als "Highlight" markieren</Label>
+                      <Label htmlFor="isPromoted" className="text-white font-medium">
+                        Als "Highlight" markieren
+                      </Label>
                       <p className="text-xs text-white/60">
                         Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
                       </p>
@@ -416,38 +446,44 @@ export const CreateEvent: React.FC = () => {
               {/* Contact Information */}
               <div className="space-y-4">
                 <Label className="text-white font-medium text-lg">Kontaktinformationen</Label>
-                
+
                 <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4 space-y-4">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="contactEmail" className="text-white/90">E-Mail</Label>
+                      <Label htmlFor="contactEmail" className="text-white/90">
+                        E-Mail
+                      </Label>
                       <Input
                         id="contactEmail"
                         type="email"
                         value={newEvent.contactEmail || ''}
-                        onChange={(e) => handleInputChange('contactEmail', e.target.value)}
+                        onChange={e => handleInputChange('contactEmail', e.target.value)}
                         placeholder="kontakt@beispiel.de"
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="contactPhone" className="text-white/90">Telefon</Label>
+                      <Label htmlFor="contactPhone" className="text-white/90">
+                        Telefon
+                      </Label>
                       <Input
                         id="contactPhone"
                         type="tel"
                         value={newEvent.contactPhone || ''}
-                        onChange={(e) => handleInputChange('contactPhone', e.target.value)}
+                        onChange={e => handleInputChange('contactPhone', e.target.value)}
                         placeholder="+49 123 4567890"
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                       />
                     </div>
                     <div className="space-y-2 lg:col-span-2">
-                      <Label htmlFor="website" className="text-white/90">Website</Label>
+                      <Label htmlFor="website" className="text-white/90">
+                        Website
+                      </Label>
                       <Input
                         id="website"
                         type="url"
                         value={newEvent.website || ''}
-                        onChange={(e) => handleInputChange('website', e.target.value)}
+                        onChange={e => handleInputChange('website', e.target.value)}
                         placeholder="https://www.beispiel.de"
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                       />
@@ -458,73 +494,86 @@ export const CreateEvent: React.FC = () => {
                     <Label className="text-white/90 text-base">Social Media</Label>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                       <div className="space-y-2">
-                        <Label htmlFor="instagram" className="text-white/80 text-sm">Instagram</Label>
+                        <Label htmlFor="instagram" className="text-white/80 text-sm">
+                          Instagram
+                        </Label>
                         <Input
                           id="instagram"
                           value={newEvent.socialMedia.instagram || ''}
-                          onChange={(e) => setNewEvent(prev => ({
-                            ...prev,
-                            socialMedia: {
-                              ...prev.socialMedia,
-                              instagram: e.target.value
-                            }
-                          }))}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                instagram: e.target.value,
+                              },
+                            }))
+                          }
                           placeholder="@benutzername"
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="facebook" className="text-white/80 text-sm">Facebook</Label>
+                        <Label htmlFor="facebook" className="text-white/80 text-sm">
+                          Facebook
+                        </Label>
                         <Input
                           id="facebook"
                           value={newEvent.socialMedia.facebook || ''}
-                          onChange={(e) => setNewEvent(prev => ({
-                            ...prev,
-                            socialMedia: {
-                              ...prev.socialMedia,
-                              facebook: e.target.value
-                            }
-                          }))}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                facebook: e.target.value,
+                              },
+                            }))
+                          }
                           placeholder="@seitename"
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="tiktok" className="text-white/80 text-sm">TikTok</Label>
+                        <Label htmlFor="tiktok" className="text-white/80 text-sm">
+                          TikTok
+                        </Label>
                         <Input
                           id="tiktok"
                           value={newEvent.socialMedia.tiktok || ''}
-                          onChange={(e) => setNewEvent(prev => ({
-                            ...prev,
-                            socialMedia: {
-                              ...prev.socialMedia,
-                              tiktok: e.target.value
-                            }
-                          }))}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                tiktok: e.target.value,
+                              },
+                            }))
+                          }
                           placeholder="@benutzername"
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
                         />
                       </div>
                     </div>
                   </div>
-                  
+
                   <p className="text-xs text-white/60 mt-4">
-                    Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu, die Sie öffentlich teilen möchten.
+                    Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu,
+                    die Sie öffentlich teilen möchten.
                   </p>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-white/10">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => navigate('/events')}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl w-full sm:w-auto"
                 >
                   Abbrechen
                 </Button>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   disabled={loading}
                   className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-green-400/30 text-white hover:from-green-400/90 hover:to-emerald-400/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
                 >
@@ -537,4 +586,4 @@ export const CreateEvent: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

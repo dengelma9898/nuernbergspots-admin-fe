@@ -20,9 +20,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -31,7 +31,7 @@ const WEEKDAYS = {
   Donnerstag: 'Donnerstag',
   Freitag: 'Freitag',
   Samstag: 'Samstag',
-  Sonntag: 'Sonntag'
+  Sonntag: 'Sonntag',
 } as const;
 
 type WeekdayKey = keyof typeof WEEKDAYS;
@@ -54,7 +54,7 @@ export const EditBusiness: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [editReview, setEditReview] = useState<NuernbergspotsReview>({
     reviewText: '',
-    reviewImageUrls: []
+    reviewImageUrls: [],
   });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
@@ -67,7 +67,7 @@ export const EditBusiness: React.FC = () => {
   const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
     from: '09:00',
     to: '18:00',
-    days: []
+    days: [],
   });
   const [categories, setCategories] = useState<BusinessCategory[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -94,16 +94,16 @@ export const EditBusiness: React.FC = () => {
       const fetchedBusiness = await businessService.getBusiness(businessId);
       setBusiness(fetchedBusiness);
       setSelectedKeywords(fetchedBusiness.keywordIds);
-      
+
       // Konvertiere detailedOpeningHours in TimeSlots
       if (fetchedBusiness.detailedOpeningHours) {
         const slots: TimeSlot[] = [];
         Object.entries(fetchedBusiness.detailedOpeningHours).forEach(([day, timeRanges]) => {
           timeRanges.forEach((range, index) => {
-            const existingSlot = slots.find(slot => 
-              slot.from === range.from && slot.to === range.to
+            const existingSlot = slots.find(
+              slot => slot.from === range.from && slot.to === range.to
             );
-            
+
             if (existingSlot) {
               existingSlot.days.push(day as WeekdayKey);
             } else {
@@ -111,22 +111,24 @@ export const EditBusiness: React.FC = () => {
                 id: `${day}-${index}`,
                 from: range.from,
                 to: range.to,
-                days: [day as WeekdayKey]
+                days: [day as WeekdayKey],
               });
             }
           });
         });
         setTimeSlots(slots);
       }
-      
-      setEditReview(fetchedBusiness.nuernbergspotsReview || {
-        reviewText: '',
-        reviewImageUrls: []
-      });
+
+      setEditReview(
+        fetchedBusiness.nuernbergspotsReview || {
+          reviewText: '',
+          reviewImageUrls: [],
+        }
+      );
       setBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
-      toast.error("Fehler beim Laden des Geschäfts", {
-        description: "Das Geschäft konnte nicht geladen werden.",
+      toast.error('Fehler beim Laden des Geschäfts', {
+        description: 'Das Geschäft konnte nicht geladen werden.',
       });
       navigate('/businesses');
     } finally {
@@ -139,17 +141,15 @@ export const EditBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error("Fehler beim Laden der Kategorien", {
-        description: "Die Kategorien konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Kategorien', {
+        description: 'Die Kategorien konnten nicht geladen werden.',
       });
     }
   };
 
   const loadKeywordsForCategories = async (categoryIds: string[]) => {
     try {
-      const selectedCategories = categories.filter(category => 
-        categoryIds.includes(category.id)
-      );
+      const selectedCategories = categories.filter(category => categoryIds.includes(category.id));
 
       const keywordIds = selectedCategories
         .flatMap(category => category.keywords || [])
@@ -157,16 +157,14 @@ export const EditBusiness: React.FC = () => {
 
       const uniqueKeywordIds = [...new Set(keywordIds)];
 
-      const keywordPromises = uniqueKeywordIds.map(id => 
-        keywordService.getKeyword(id)
-      );
-      
+      const keywordPromises = uniqueKeywordIds.map(id => keywordService.getKeyword(id));
+
       const fetchedKeywords = await Promise.all(keywordPromises);
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error("Fehler beim Laden der Keywords", {
-        description: "Die Keywords konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Keywords', {
+        description: 'Die Keywords konnten nicht geladen werden.',
       });
     }
   };
@@ -178,15 +176,15 @@ export const EditBusiness: React.FC = () => {
       const updateData = {
         status: value,
       };
-      
+
       await businessService.updateBusiness(business.id, updateData);
-      setBusiness(prev => prev ? { ...prev, status: value } : null);
-      toast.success("Status aktualisiert", {
-        description: "Der Status wurde erfolgreich aktualisiert.",
+      setBusiness(prev => (prev ? { ...prev, status: value } : null));
+      toast.success('Status aktualisiert', {
+        description: 'Der Status wurde erfolgreich aktualisiert.',
       });
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren des Status", {
-        description: "Der Status konnte nicht aktualisiert werden.",
+      toast.error('Fehler beim Aktualisieren des Status', {
+        description: 'Der Status konnte nicht aktualisiert werden.',
       });
     }
   };
@@ -206,7 +204,7 @@ export const EditBusiness: React.FC = () => {
 
     const fileArray = Array.from(files);
     setNewBusinessImages(prev => [...prev, ...fileArray]);
-    
+
     const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
     setBusinessImages(prev => [...prev, ...newImageUrls]);
   };
@@ -215,7 +213,7 @@ export const EditBusiness: React.FC = () => {
     if (imageUrl.startsWith('http')) {
       setBusinessImagesToDelete(prev => [...prev, imageUrl]);
     }
-    
+
     if (imageUrl.startsWith('blob:')) {
       const index = businessImages.indexOf(imageUrl);
       if (index >= 0) {
@@ -233,7 +231,7 @@ export const EditBusiness: React.FC = () => {
 
     const fileArray = Array.from(files);
     setNewImages(prev => [...prev, ...fileArray]);
-    
+
     const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
     setEditReview(prev => ({
       ...prev,
@@ -245,7 +243,7 @@ export const EditBusiness: React.FC = () => {
     if (imageUrl.startsWith('http')) {
       setImagesToDelete(prev => [...prev, imageUrl]);
     }
-    
+
     if (imageUrl.startsWith('blob:')) {
       const index = editReview.reviewImageUrls?.indexOf(imageUrl) || -1;
       if (index >= 0) {
@@ -262,8 +260,8 @@ export const EditBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Tag aus", {
-        description: "Ein Zeitraum muss für mindestens einen Tag gelten.",
+      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
+        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
       });
       return;
     }
@@ -273,7 +271,7 @@ export const EditBusiness: React.FC = () => {
     setNewTimeSlot({
       from: '09:00',
       to: '18:00',
-      days: []
+      days: [],
     });
   };
 
@@ -282,28 +280,26 @@ export const EditBusiness: React.FC = () => {
   };
 
   const handleTimeSlotChange = (id: string, field: keyof Omit<TimeSlot, 'id'>, value: any) => {
-    setTimeSlots(prev => prev.map(slot => 
-      slot.id === id ? { ...slot, [field]: value } : slot
-    ));
+    setTimeSlots(prev => prev.map(slot => (slot.id === id ? { ...slot, [field]: value } : slot)));
   };
 
   const toggleDayForTimeSlot = (day: WeekdayKey, slotId: string) => {
-    setTimeSlots(prev => prev.map(slot => {
-      if (slot.id === slotId) {
-        const days = slot.days.includes(day)
-          ? slot.days.filter(d => d !== day)
-          : [...slot.days, day];
-        return { ...slot, days };
-      }
-      return slot;
-    }));
+    setTimeSlots(prev =>
+      prev.map(slot => {
+        if (slot.id === slotId) {
+          const days = slot.days.includes(day)
+            ? slot.days.filter(d => d !== day)
+            : [...slot.days, day];
+          return { ...slot, days };
+        }
+        return slot;
+      })
+    );
   };
 
   const toggleDayForNewTimeSlot = (day: WeekdayKey) => {
     setNewTimeSlot(prev => {
-      const days = prev.days.includes(day)
-        ? prev.days.filter(d => d !== day)
-        : [...prev.days, day];
+      const days = prev.days.includes(day) ? prev.days.filter(d => d !== day) : [...prev.days, day];
       return { ...prev, days };
     });
   };
@@ -317,34 +313,46 @@ export const EditBusiness: React.FC = () => {
       const allowedKeywordIds = categories
         .filter(cat => newCategoryIds.includes(cat.id))
         .flatMap(cat => cat.keywords?.map(k => k.id) || []);
-      setBusiness(prev => prev ? {
-        ...prev,
-        categoryIds: newCategoryIds,
-        keywordIds: prev.keywordIds.filter(id => allowedKeywordIds.includes(id)),
-      } : null);
+      setBusiness(prev =>
+        prev
+          ? {
+              ...prev,
+              categoryIds: newCategoryIds,
+              keywordIds: prev.keywordIds.filter(id => allowedKeywordIds.includes(id)),
+            }
+          : null
+      );
     } else {
       if (business.categoryIds.length >= 3) {
-        toast.error("Maximale Anzahl an Kategorien erreicht", {
-          description: "Sie können maximal 3 Kategorien auswählen.",
+        toast.error('Maximale Anzahl an Kategorien erreicht', {
+          description: 'Sie können maximal 3 Kategorien auswählen.',
         });
         return;
       }
-      setBusiness(prev => prev ? {
-        ...prev,
-        categoryIds: [...prev.categoryIds, categoryId]
-      } : null);
+      setBusiness(prev =>
+        prev
+          ? {
+              ...prev,
+              categoryIds: [...prev.categoryIds, categoryId],
+            }
+          : null
+      );
     }
   };
 
   const toggleKeyword = (keywordId: string) => {
     if (!business) return;
 
-    setBusiness(prev => prev ? {
-      ...prev,
-      keywordIds: prev.keywordIds.includes(keywordId)
-        ? prev.keywordIds.filter(id => id !== keywordId)
-        : [...prev.keywordIds, keywordId]
-    } : null);
+    setBusiness(prev =>
+      prev
+        ? {
+            ...prev,
+            keywordIds: prev.keywordIds.includes(keywordId)
+              ? prev.keywordIds.filter(id => id !== keywordId)
+              : [...prev.keywordIds, keywordId],
+          }
+        : null
+    );
   };
 
   const handleUpdateBusiness = async () => {
@@ -370,7 +378,10 @@ export const EditBusiness: React.FC = () => {
       // 3. Review aktualisieren
       const updatedReview: NuernbergspotsReview = {
         reviewText: editReview.reviewText,
-        reviewImageUrls: editReview.reviewImageUrls?.filter(url => !imagesToDelete.includes(url)).filter(url => url.startsWith('http')) || []
+        reviewImageUrls:
+          editReview.reviewImageUrls
+            ?.filter(url => !imagesToDelete.includes(url))
+            .filter(url => url.startsWith('http')) || [],
       };
 
       await businessService.updateNuernbergspotsReview(business.id, updatedReview);
@@ -381,7 +392,7 @@ export const EditBusiness: React.FC = () => {
 
       // 4. Öffnungszeiten aktualisieren
       const formattedDetailedOpeningHours: Record<string, Array<{ from: string; to: string }>> = {};
-      
+
       timeSlots.forEach(slot => {
         slot.days.forEach(day => {
           if (!formattedDetailedOpeningHours[day]) {
@@ -389,7 +400,7 @@ export const EditBusiness: React.FC = () => {
           }
           formattedDetailedOpeningHours[day].push({
             from: slot.from,
-            to: slot.to
+            to: slot.to,
           });
         });
       });
@@ -399,15 +410,15 @@ export const EditBusiness: React.FC = () => {
         categoryIds: business.categoryIds,
         keywordIds: business.keywordIds,
       });
-      
-      toast.success("Änderungen gespeichert", {
-        description: "Alle Änderungen wurden erfolgreich gespeichert.",
+
+      toast.success('Änderungen gespeichert', {
+        description: 'Alle Änderungen wurden erfolgreich gespeichert.',
       });
-      
+
       navigate('/businesses');
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren", {
-        description: "Die Änderungen konnten nicht gespeichert werden.",
+      toast.error('Fehler beim Aktualisieren', {
+        description: 'Die Änderungen konnten nicht gespeichert werden.',
       });
     } finally {
       setIsSaving(false);
@@ -421,13 +432,25 @@ export const EditBusiness: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
         <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
         <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-        
+
         {/* Animated Blur Circles */}
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+        <div
+          className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '1000ms' }}
+        ></div>
+        <div
+          className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '500ms' }}
+        ></div>
+        <div
+          className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '700ms' }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: '300ms' }}
+        ></div>
 
         <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
           {/* Glass Header Skeleton */}
@@ -454,7 +477,9 @@ export const EditBusiness: React.FC = () => {
                     <div key={index} className="space-y-2">
                       <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
                       <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
-                      {index === 3 && <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />}
+                      {index === 3 && (
+                        <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+                      )}
                     </div>
                   ))}
                 </div>
@@ -494,7 +519,10 @@ export const EditBusiness: React.FC = () => {
                     <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
                     <div className="flex flex-wrap gap-2">
                       {Array.from({ length: 6 }, (_, index) => (
-                        <Skeleton key={index} className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-full" />
+                        <Skeleton
+                          key={index}
+                          className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-full"
+                        />
                       ))}
                     </div>
                     <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
@@ -503,7 +531,10 @@ export const EditBusiness: React.FC = () => {
                     <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
                     <div className="flex flex-wrap gap-2">
                       {Array.from({ length: 8 }, (_, index) => (
-                        <Skeleton key={index} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                        <Skeleton
+                          key={index}
+                          className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                        />
                       ))}
                     </div>
                     <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
@@ -538,7 +569,10 @@ export const EditBusiness: React.FC = () => {
                       <Skeleton className="h-5 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {Array.from({ length: 5 }, (_, index) => (
-                          <Skeleton key={index} className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg" />
+                          <Skeleton
+                            key={index}
+                            className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg"
+                          />
                         ))}
                       </div>
                       <Skeleton className="h-3 w-48 bg-white/10 backdrop-blur-xl rounded mt-2" />
@@ -556,7 +590,10 @@ export const EditBusiness: React.FC = () => {
                 <div className="p-4 sm:p-6 space-y-6">
                   {/* Zeitslots Skeletons */}
                   {Array.from({ length: 2 }, (_, index) => (
-                    <div key={index} className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
+                    <div
+                      key={index}
+                      className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4"
+                    >
                       <div className="flex justify-between items-center">
                         <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
                         <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded" />
@@ -569,7 +606,10 @@ export const EditBusiness: React.FC = () => {
                         <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
                         <div className="flex flex-wrap gap-2">
                           {Array.from({ length: 7 }, (_, dayIndex) => (
-                            <Skeleton key={dayIndex} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                            <Skeleton
+                              key={dayIndex}
+                              className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                            />
                           ))}
                         </div>
                       </div>
@@ -586,7 +626,10 @@ export const EditBusiness: React.FC = () => {
                       <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
                       <div className="flex flex-wrap gap-2">
                         {Array.from({ length: 7 }, (_, dayIndex) => (
-                          <Skeleton key={dayIndex} className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full" />
+                          <Skeleton
+                            key={dayIndex}
+                            className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                          />
                         ))}
                       </div>
                     </div>
@@ -611,7 +654,10 @@ export const EditBusiness: React.FC = () => {
                       <Skeleton className="h-4 w-28 bg-white/10 backdrop-blur-xl rounded mb-2" />
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {Array.from({ length: 4 }, (_, index) => (
-                          <Skeleton key={index} className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg" />
+                          <Skeleton
+                            key={index}
+                            className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg"
+                          />
                         ))}
                       </div>
                     </div>
@@ -641,22 +687,34 @@ export const EditBusiness: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-3">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/businesses')} 
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/businesses')}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl px-3 py-2 border"
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
@@ -689,13 +747,16 @@ export const EditBusiness: React.FC = () => {
                   <div>
                     <h3 className="font-medium mb-2 text-white">Kategorie</h3>
                     <div className="flex-grow">
-                      <p className="text-sm text-white/70">Kategorie-IDs: {business.categoryIds.join(', ')}</p>
+                      <p className="text-sm text-white/70">
+                        Kategorie-IDs: {business.categoryIds.join(', ')}
+                      </p>
                     </div>
                   </div>
                   <div>
                     <h3 className="font-medium mb-2 text-white">Adresse</h3>
                     <p className="text-sm text-white/70">
-                      {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
+                      {business.address.street} {business.address.houseNumber},{' '}
+                      {business.address.postalCode} {business.address.city}
                     </p>
                   </div>
                   <div>
@@ -721,17 +782,32 @@ export const EditBusiness: React.FC = () => {
                 <div className="space-y-4">
                   <div>
                     <h3 className="font-medium mb-2 text-white">Status</h3>
-                    <Select 
-                      value={business.status} 
+                    <Select
+                      value={business.status}
                       onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
                     >
                       <SelectTrigger className="w-full backdrop-blur-2xl bg-white/10 border-white/20 text-white">
                         <SelectValue placeholder="Status auswählen" />
                       </SelectTrigger>
                       <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                        <SelectItem value={BusinessStatus.ACTIVE} className="text-white hover:bg-white/20">Aktiv</SelectItem>
-                        <SelectItem value={BusinessStatus.PENDING} className="text-white hover:bg-white/20">Ausstehend</SelectItem>
-                        <SelectItem value={BusinessStatus.INACTIVE} className="text-white hover:bg-white/20">Inaktiv</SelectItem>
+                        <SelectItem
+                          value={BusinessStatus.ACTIVE}
+                          className="text-white hover:bg-white/20"
+                        >
+                          Aktiv
+                        </SelectItem>
+                        <SelectItem
+                          value={BusinessStatus.PENDING}
+                          className="text-white hover:bg-white/20"
+                        >
+                          Ausstehend
+                        </SelectItem>
+                        <SelectItem
+                          value={BusinessStatus.INACTIVE}
+                          className="text-white hover:bg-white/20"
+                        >
+                          Inaktiv
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -739,29 +815,31 @@ export const EditBusiness: React.FC = () => {
                     <Switch
                       id="isPromoted"
                       checked={business.isPromoted}
-                      onCheckedChange={async (checked) => {
+                      onCheckedChange={async checked => {
                         try {
                           await businessService.updateBusiness(business.id, {
-                            isPromoted: checked
+                            isPromoted: checked,
                           });
-                          setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
-                          toast.success("Highlight-Status aktualisiert", {
-                            description: checked 
-                              ? "Der Partner wurde als Highlight markiert." 
-                              : "Der Highlight-Status wurde entfernt.",
+                          setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
+                          toast.success('Highlight-Status aktualisiert', {
+                            description: checked
+                              ? 'Der Partner wurde als Highlight markiert.'
+                              : 'Der Highlight-Status wurde entfernt.',
                           });
                         } catch (error) {
-                          toast.error("Fehler beim Aktualisieren", {
-                            description: "Der Highlight-Status konnte nicht aktualisiert werden.",
+                          toast.error('Fehler beim Aktualisieren', {
+                            description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
                           });
                         }
                       }}
                     />
                     <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-white">Als "Highlight" markieren</Label>
+                      <Label htmlFor="isPromoted" className="text-white">
+                        Als "Highlight" markieren
+                      </Label>
                       <p className="text-sm text-white/70">
-                        {business.isPromoted 
-                          ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                        {business.isPromoted
+                          ? 'Dieser Partner wird als Highlight angezeigt ✨'
                           : 'Markiere diesen Partner als Highlight'}
                       </p>
                     </div>
@@ -785,7 +863,9 @@ export const EditBusiness: React.FC = () => {
                     {categories.map(category => (
                       <Badge
                         key={category.id}
-                        variant={business?.categoryIds.includes(category.id) ? "default" : "outline"}
+                        variant={
+                          business?.categoryIds.includes(category.id) ? 'default' : 'outline'
+                        }
                         className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
                         onClick={() => toggleCategory(category.id)}
                       >
@@ -805,7 +885,9 @@ export const EditBusiness: React.FC = () => {
                       {keywords.map(keyword => (
                         <Badge
                           key={keyword.id}
-                          variant={business?.keywordIds.includes(keyword.id) ? "default" : "outline"}
+                          variant={
+                            business?.keywordIds.includes(keyword.id) ? 'default' : 'outline'
+                          }
                           className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
                           onClick={() => toggleKeyword(keyword.id)}
                         >
@@ -896,9 +978,7 @@ export const EditBusiness: React.FC = () => {
                         />
                       </label>
                     </div>
-                    <p className="text-sm text-white/70 mt-2">
-                      Empfohlene Größe: 1200x800 Pixel
-                    </p>
+                    <p className="text-sm text-white/70 mt-2">Empfohlene Größe: 1200x800 Pixel</p>
                   </div>
                 </div>
               </div>
@@ -910,17 +990,22 @@ export const EditBusiness: React.FC = () => {
                 <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
                   Öffnungszeiten
                 </h2>
-                <p className="text-white/70 text-sm mt-2">Definieren Sie die Öffnungszeiten des Partners</p>
+                <p className="text-white/70 text-sm mt-2">
+                  Definieren Sie die Öffnungszeiten des Partners
+                </p>
               </div>
               <div className="p-4 sm:p-6 space-y-6">
                 <div className="space-y-4">
                   {timeSlots.map(slot => (
-                    <div key={slot.id} className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg">
+                    <div
+                      key={slot.id}
+                      className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg"
+                    >
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium text-white">Zeitraum</h4>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => removeTimeSlot(slot.id)}
                           className="text-red-300 hover:text-red-200 hover:bg-red-500/20 backdrop-blur-2xl"
                         >
@@ -933,7 +1018,7 @@ export const EditBusiness: React.FC = () => {
                           <Input
                             type="time"
                             value={slot.from}
-                            onChange={(e) => handleTimeSlotChange(slot.id, 'from', e.target.value)}
+                            onChange={e => handleTimeSlotChange(slot.id, 'from', e.target.value)}
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                           />
                         </div>
@@ -942,7 +1027,7 @@ export const EditBusiness: React.FC = () => {
                           <Input
                             type="time"
                             value={slot.to}
-                            onChange={(e) => handleTimeSlotChange(slot.id, 'to', e.target.value)}
+                            onChange={e => handleTimeSlotChange(slot.id, 'to', e.target.value)}
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                           />
                         </div>
@@ -953,7 +1038,9 @@ export const EditBusiness: React.FC = () => {
                           {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                             <Badge
                               key={day}
-                              variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                              variant={
+                                slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
+                              }
                               className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
                               onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
                             >
@@ -964,7 +1051,7 @@ export const EditBusiness: React.FC = () => {
                       </div>
                     </div>
                   ))}
-                  
+
                   <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg">
                     <h4 className="font-medium text-white">Neuer Zeitraum</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -973,7 +1060,7 @@ export const EditBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={newTimeSlot.from}
-                          onChange={(e) => 
+                          onChange={e =>
                             setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
                           }
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
@@ -984,9 +1071,7 @@ export const EditBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={newTimeSlot.to}
-                          onChange={(e) => 
-                            setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))
-                          }
+                          onChange={e => setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))}
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
                         />
                       </div>
@@ -997,7 +1082,9 @@ export const EditBusiness: React.FC = () => {
                         {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                           <Badge
                             key={day}
-                            variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                            variant={
+                              newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
+                            }
                             className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
                             onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
                           >
@@ -1006,8 +1093,8 @@ export const EditBusiness: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <Button 
-                      onClick={addTimeSlot} 
+                    <Button
+                      onClick={addTimeSlot}
                       className="w-full backdrop-blur-2xl bg-white/15 border border-white/20 text-white hover:bg-white/25 hover:scale-105 transition-all duration-300"
                       disabled={newTimeSlot.days.length === 0}
                     >
@@ -1032,15 +1119,17 @@ export const EditBusiness: React.FC = () => {
                     <Label className="text-white">Review Text</Label>
                     <Textarea
                       value={editReview.reviewText || ''}
-                      onChange={(e) => setEditReview(prev => ({
-                        ...prev,
-                        reviewText: e.target.value,
-                      }))}
+                      onChange={e =>
+                        setEditReview(prev => ({
+                          ...prev,
+                          reviewText: e.target.value,
+                        }))
+                      }
                       placeholder="Geben Sie hier die Review ein..."
                       className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                   </div>
-                  
+
                   <div>
                     <h4 className="text-sm font-medium mb-2 text-white">Review Bilder</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -1082,15 +1171,15 @@ export const EditBusiness: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => navigate('/businesses')}
                 className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
                 Abbrechen
               </Button>
-              <Button 
-                onClick={handleUpdateBusiness} 
+              <Button
+                onClick={handleUpdateBusiness}
                 disabled={isSaving}
                 className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-600/80 border border-white/20 text-white hover:from-green-600/80 hover:to-emerald-700/80 hover:scale-105 transition-all duration-300 disabled:opacity-50"
               >
@@ -1102,4 +1191,4 @@ export const EditBusiness: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

@@ -81,11 +81,7 @@ const mockUserWithoutBusinesses = createMockBusinessUser({
 
 // Helper function to render component with router
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <MemoryRouter>
-      {component}
-    </MemoryRouter>
-  );
+  return render(<MemoryRouter>{component}</MemoryRouter>);
 };
 
 describe('BusinessUserReview', () => {
@@ -117,15 +113,17 @@ describe('BusinessUserReview', () => {
   describe('Loading State', () => {
     it('sollte Loading-State mit detaillierten Skeleton-Elementen anzeigen', () => {
       mockService.getBusinessUsersInReview.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<BusinessUserReview />);
-      
+
       // Prüfe dass Skeleton-Elemente während des Ladens angezeigt werden
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBeGreaterThan(15); // Viele detaillierte Skeleton-Elemente
 
       // Prüfe dass Header Skeleton-Struktur vorhanden ist
-      const headerSkeletons = container.querySelector('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      const headerSkeletons = container.querySelector(
+        '.backdrop-blur-3xl.bg-white\\/5.rounded-3xl'
+      );
       expect(headerSkeletons).toBeInTheDocument();
 
       // Prüfe dass User Card Skeletons vorhanden sind (3 Karten)
@@ -145,7 +143,7 @@ describe('BusinessUserReview', () => {
       // Prüfe dass Skeleton-Elemente nicht mehr vorhanden sind
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBe(0);
-      
+
       // Prüfe dass echte Content-Elemente angezeigt werden
       expect(screen.getByText('1 Benutzer zur Überprüfung gefunden')).toBeInTheDocument();
     });
@@ -155,7 +153,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Geschäftsinhaber prüfen')).toBeInTheDocument();
       });
@@ -175,7 +173,7 @@ describe('BusinessUserReview', () => {
     it('sollte zum Dashboard navigieren', () => {
       const backButtonSpan = screen.getByText('Zurück zum Dashboard');
       const backButton = backButtonSpan.closest('div').querySelector('button');
-      
+
       fireEvent.click(backButton);
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
@@ -187,9 +185,12 @@ describe('BusinessUserReview', () => {
 
   describe('User Cards', () => {
     beforeEach(async () => {
-      mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview, mockUserWithLongEmail]);
+      mockService.getBusinessUsersInReview.mockResolvedValue([
+        mockUserNeedsReview,
+        mockUserWithLongEmail,
+      ]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('2 Benutzer zur Überprüfung gefunden')).toBeInTheDocument();
       });
@@ -197,7 +198,9 @@ describe('BusinessUserReview', () => {
 
     it('sollte User-Informationen anzeigen', () => {
       expect(screen.getByText('business@example.com')).toBeInTheDocument();
-      expect(screen.getByText('very-long-business-email-address@example-domain.com')).toBeInTheDocument();
+      expect(
+        screen.getByText('very-long-business-email-address@example-domain.com')
+      ).toBeInTheDocument();
     });
 
     it('sollte User-IDs anzeigen', () => {
@@ -212,17 +215,15 @@ describe('BusinessUserReview', () => {
 
     it('sollte Business-Anzahl anzeigen', () => {
       // Prüfe dass Geschäfte-Informationen angezeigt werden
-      const businessCounts = screen.getAllByText((content) => 
-        content.includes('Geschäft') && content.includes('zugewiesen')
+      const businessCounts = screen.getAllByText(
+        content => content.includes('Geschäft') && content.includes('zugewiesen')
       );
       expect(businessCounts.length).toBeGreaterThan(0);
     });
 
     it('sollte Registrierungsdatum anzeigen', () => {
       expect(screen.getAllByText(/registriert am/i)).toHaveLength(2);
-      expect(screen.getAllByText((content) => 
-        content.includes('01. Januar 2024')
-      )).toHaveLength(2);
+      expect(screen.getAllByText(content => content.includes('01. Januar 2024'))).toHaveLength(2);
     });
 
     it('sollte Status-Icons anzeigen', () => {
@@ -230,11 +231,12 @@ describe('BusinessUserReview', () => {
       const emailSections = screen.getAllByText(/@example\.com/);
       expect(emailSections.length).toBeGreaterThan(0);
       emailSections.forEach(section => {
-        const mailIcon = section.closest('.flex')?.querySelector('.lucide-mail') || 
-                        section.closest('[data-slot="card"]')?.querySelector('.lucide-mail');
+        const mailIcon =
+          section.closest('.flex')?.querySelector('.lucide-mail') ||
+          section.closest('[data-slot="card"]')?.querySelector('.lucide-mail');
         expect(mailIcon).toBeInTheDocument();
       });
-      
+
       // Building-Icons bei Business-Anzahl und Tag-Icons bei Status
       const cards = document.querySelectorAll('[data-slot="card"]');
       expect(cards.length).toBeGreaterThan(0);
@@ -245,7 +247,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -261,12 +263,12 @@ describe('BusinessUserReview', () => {
       // Store-Icons sind in den Business-Namen zu finden
       const businessCards = document.querySelectorAll('[data-slot="card"]');
       let totalStoreIcons = 0;
-      
+
       businessCards.forEach(card => {
         const storeIcons = card.querySelectorAll('.lucide-store');
         totalStoreIcons += storeIcons.length;
       });
-      
+
       expect(totalStoreIcons).toBeGreaterThan(0);
     });
   });
@@ -275,7 +277,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -289,7 +291,7 @@ describe('BusinessUserReview', () => {
     it('sollte richtige Icons in Buttons haben', () => {
       const verifyButton = screen.getByText('Verifizieren');
       const rejectButton = screen.getByText('Ablehnen');
-      
+
       expect(verifyButton.querySelector('svg')).toBeInTheDocument();
       expect(rejectButton.querySelector('svg')).toBeInTheDocument();
     });
@@ -297,7 +299,7 @@ describe('BusinessUserReview', () => {
     it('sollte richtige Button-Varianten haben', () => {
       const verifyButton = screen.getByRole('button', { name: /verifizieren/i });
       const rejectButton = screen.getByRole('button', { name: /ablehnen/i });
-      
+
       expect(verifyButton).toHaveClass('bg-primary');
       expect(rejectButton).toHaveClass('text-destructive');
     });
@@ -307,7 +309,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -337,7 +339,8 @@ describe('BusinessUserReview', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Fehler bei der Verifizierung', {
-          description: 'Der Benutzer konnte nicht verifiziert werden. Bitte versuchen Sie es später erneut.',
+          description:
+            'Der Benutzer konnte nicht verifiziert werden. Bitte versuchen Sie es später erneut.',
         });
       });
     });
@@ -347,7 +350,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -377,7 +380,8 @@ describe('BusinessUserReview', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Fehler bei der Ablehnung', {
-          description: 'Der Benutzer konnte nicht abgelehnt werden. Bitte versuchen Sie es später erneut.',
+          description:
+            'Der Benutzer konnte nicht abgelehnt werden. Bitte versuchen Sie es später erneut.',
         });
       });
     });
@@ -400,7 +404,7 @@ describe('BusinessUserReview', () => {
       const userNotNeedingReview = createMockBusinessUser({
         needsReview: false,
       });
-      
+
       mockService.getBusinessUsersInReview.mockResolvedValue([userNotNeedingReview]);
 
       renderWithRouter(<BusinessUserReview />);
@@ -419,7 +423,8 @@ describe('BusinessUserReview', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden der Benutzer', {
-          description: 'Die Benutzer konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+          description:
+            'Die Benutzer konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
         });
       });
     });
@@ -446,15 +451,15 @@ describe('BusinessUserReview', () => {
       const userWithSpecificDate = createMockBusinessUser({
         createdAt: '2024-12-25T15:30:00.000Z',
       });
-      
+
       mockService.getBusinessUsersInReview.mockResolvedValue([userWithSpecificDate]);
 
       renderWithRouter(<BusinessUserReview />);
 
       await waitFor(() => {
-        expect(screen.getByText((content, element) => 
-          content.includes('25. Dezember 2024')
-        )).toBeInTheDocument();
+        expect(
+          screen.getByText((content, element) => content.includes('25. Dezember 2024'))
+        ).toBeInTheDocument();
       });
     });
   });
@@ -474,7 +479,7 @@ describe('BusinessUserReview', () => {
       const deletedUser = createMockBusinessUser({
         isDeleted: true,
       });
-      
+
       mockService.getBusinessUsersInReview.mockResolvedValue([deletedUser]);
 
       renderWithRouter(<BusinessUserReview />);
@@ -489,7 +494,7 @@ describe('BusinessUserReview', () => {
     beforeEach(async () => {
       mockService.getBusinessUsersInReview.mockResolvedValue([mockUserNeedsReview]);
       renderWithRouter(<BusinessUserReview />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('business@example.com')).toBeInTheDocument();
       });
@@ -497,13 +502,26 @@ describe('BusinessUserReview', () => {
 
     it('sollte responsive Container-Klassen haben', () => {
       const container = screen.getByText('Geschäftsinhaber prüfen').closest('.min-h-screen');
-      expect(container).toHaveClass('min-h-screen', 'bg-muted', 'px-4', 'py-6', 'sm:px-8', 'overflow-x-hidden');
+      expect(container).toHaveClass(
+        'min-h-screen',
+        'bg-muted',
+        'px-4',
+        'py-6',
+        'sm:px-8',
+        'overflow-x-hidden'
+      );
     });
 
     it('sollte responsive Button-Layout haben', () => {
       const verifyButton = screen.getByText('Verifizieren');
       const buttonContainer = verifyButton.closest('[data-slot="card-footer"]');
-      expect(buttonContainer).toHaveClass('flex', 'flex-col', 'sm:flex-row', 'justify-end', 'gap-2');
+      expect(buttonContainer).toHaveClass(
+        'flex',
+        'flex-col',
+        'sm:flex-row',
+        'justify-end',
+        'gap-2'
+      );
     });
   });
-}); 
+});

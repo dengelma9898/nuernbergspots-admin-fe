@@ -46,7 +46,11 @@ jest.mock('@/services/keywordService', () => ({
 
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
   CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
   CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
   CardContent: ({ children }: any) => <div data-testid="card-content">{children}</div>,
@@ -55,12 +59,7 @@ jest.mock('@/components/ui/card', () => ({
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, disabled }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled}
-      data-testid="button"
-      data-variant={variant}
-    >
+    <button onClick={onClick} disabled={disabled} data-testid="button" data-variant={variant}>
       {children}
     </button>
   ),
@@ -68,8 +67,8 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, id, type, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       id={id}
@@ -82,8 +81,8 @@ jest.mock('@/components/ui/input', () => ({
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ value, onChange, placeholder, className }: any) => (
-    <textarea 
-      value={value} 
+    <textarea
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -93,17 +92,16 @@ jest.mock('@/components/ui/textarea', () => ({
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor} data-testid="label">{children}</label>,
+  Label: ({ children, htmlFor }: any) => (
+    <label htmlFor={htmlFor} data-testid="label">
+      {children}
+    </label>
+  ),
 }));
 
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, variant, className, onClick }: any) => (
-    <span 
-      data-testid="badge" 
-      data-variant={variant} 
-      className={className}
-      onClick={onClick}
-    >
+    <span data-testid="badge" data-variant={variant} className={className} onClick={onClick}>
       {children}
     </span>
   ),
@@ -111,10 +109,10 @@ jest.mock('@/components/ui/badge', () => ({
 
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
-    <input 
+    <input
       type="checkbox"
       checked={checked || false}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={e => onCheckedChange?.(e.target.checked)}
       id={id}
       data-testid="switch"
     />
@@ -124,9 +122,9 @@ jest.mock('@/components/ui/switch', () => ({
 jest.mock('@/components/ui/select', () => ({
   Select: ({ value, onValueChange, children }: any) => (
     <div data-testid="select-container">
-      <select 
-        value={value || ''} 
-        onChange={(e) => onValueChange?.(e.target.value)}
+      <select
+        value={value || ''}
+        onChange={e => onValueChange?.(e.target.value)}
         data-testid="select"
       >
         {children}
@@ -134,7 +132,11 @@ jest.mock('@/components/ui/select', () => ({
     </div>
   ),
   SelectContent: ({ children }: any) => <>{children}</>,
-  SelectItem: ({ value, children }: any) => <option value={value} data-testid="select-item">{children}</option>,
+  SelectItem: ({ value, children }: any) => (
+    <option value={value} data-testid="select-item">
+      {children}
+    </option>
+  ),
   SelectTrigger: ({ children }: any) => <></>,
   SelectValue: ({ placeholder }: any) => <></>,
 }));
@@ -162,8 +164,20 @@ const mockBusinessCategory: BusinessCategory = {
   description: 'Restaurants und Gastronomie',
   iconName: 'utensils',
   keywords: [
-    { id: 'keyword-1', name: 'Pizza', description: 'Italienisches Gericht', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
-    { id: 'keyword-2', name: 'Italienisch', description: 'Italienische Küche', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
+    {
+      id: 'keyword-1',
+      name: 'Pizza',
+      description: 'Italienisches Gericht',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'keyword-2',
+      name: 'Italienisch',
+      description: 'Italienische Küche',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
   ],
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
@@ -225,15 +239,13 @@ const mockBusiness: Business = {
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(
-    <MemoryRouter initialEntries={['/businesses/business-1/edit']}>
-      {component}
-    </MemoryRouter>
+    <MemoryRouter initialEntries={['/businesses/business-1/edit']}>{component}</MemoryRouter>
   );
 };
 
 const renderAndWaitForComponent = async () => {
   renderWithRouter(<EditBusiness />);
-  
+
   await waitFor(() => {
     expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
   });
@@ -242,11 +254,11 @@ const renderAndWaitForComponent = async () => {
 describe('EditBusiness Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Stabilize mock responses to prevent infinite loops
     mockBusinessService.getBusiness.mockResolvedValue(mockBusiness);
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
-    
+
     // Configure keyword service with stable responses
     mockKeywordService.getKeyword.mockImplementation((id: string) => {
       if (id === 'keyword-1') {
@@ -283,7 +295,9 @@ describe('EditBusiness Component', () => {
       expect(skeletons.length).toBeGreaterThan(0);
 
       // Prüfe dass das komplexe Layout mit Skeleton-Sektionen angezeigt wird
-      const skeletonSections = container.querySelectorAll('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      const skeletonSections = container.querySelectorAll(
+        '.backdrop-blur-3xl.bg-white\\/5.rounded-3xl'
+      );
       expect(skeletonSections.length).toBeGreaterThanOrEqual(5); // Header, Basisinfo, Status, Kategorien, Medien, etc.
     });
 
@@ -314,12 +328,15 @@ describe('EditBusiness Component', () => {
     it('sollte Keywords laden basierend auf Business-Kategorien', async () => {
       renderWithRouter(<EditBusiness />);
 
-      await waitFor(() => {
-        // Keywords werden basierend auf den Kategorie-Keywords geladen
-        expect(mockKeywordService.getKeyword).toHaveBeenCalledWith('keyword-1');
-        expect(mockKeywordService.getKeyword).toHaveBeenCalledWith('keyword-2');
-        expect(mockKeywordService.getKeyword).toHaveBeenCalledTimes(2);
-      }, { timeout: 3000 });
+      await waitFor(
+        () => {
+          // Keywords werden basierend auf den Kategorie-Keywords geladen
+          expect(mockKeywordService.getKeyword).toHaveBeenCalledWith('keyword-1');
+          expect(mockKeywordService.getKeyword).toHaveBeenCalledWith('keyword-2');
+          expect(mockKeywordService.getKeyword).toHaveBeenCalledTimes(2);
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('sollte Fehler beim Laden der Business-Daten behandeln', async () => {
@@ -381,7 +398,7 @@ describe('EditBusiness Component', () => {
   describe('Basic Information Display', () => {
     it('sollte Business-Namen anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
@@ -389,7 +406,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Adresse anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         expect(screen.getByText('Hauptstraße 1, 90402 Nürnberg')).toBeInTheDocument();
@@ -398,7 +415,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Kontaktdaten anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         expect(screen.getByText('info@restaurant-alpha.de')).toBeInTheDocument();
@@ -408,7 +425,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Kategorie-IDs anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         expect(screen.getByText('Kategorie-IDs: cat-1')).toBeInTheDocument();
@@ -419,7 +436,7 @@ describe('EditBusiness Component', () => {
   describe('Status Management', () => {
     it('sollte aktuellen Status anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const statusSelect = screen.getByTestId('select') as HTMLSelectElement;
@@ -432,7 +449,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Status ändern können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       const mockToast = require('sonner').toast;
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
 
@@ -461,7 +478,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Fehler beim Status-Update behandeln', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       const mockToast = require('sonner').toast;
       mockBusinessService.updateBusiness.mockRejectedValue(new Error('Update Error'));
 
@@ -486,17 +503,19 @@ describe('EditBusiness Component', () => {
   describe('Promoted Status Management', () => {
     it('sollte aktuellen Promoted-Status anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        const promotedSwitch = screen.getByLabelText('Als "Highlight" markieren') as HTMLInputElement;
+        const promotedSwitch = screen.getByLabelText(
+          'Als "Highlight" markieren'
+        ) as HTMLInputElement;
         expect(promotedSwitch.checked).toBe(false); // mockBusiness.isPromoted ist false
       });
     });
 
     it('sollte Promoted-Status ändern können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       const mockToast = require('sonner').toast;
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
 
@@ -522,15 +541,15 @@ describe('EditBusiness Component', () => {
 
     it('sollte Promoted-Status entfernen können', async () => {
       // Setze mock business auf promoted für diesen Test
-      const promotedBusiness = { 
-        ...mockBusiness, 
+      const promotedBusiness = {
+        ...mockBusiness,
         isPromoted: true,
       };
-      
+
       // Override den Mock nur für diesen Test
       mockBusinessService.getBusiness.mockResolvedValueOnce(promotedBusiness);
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
-      
+
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
@@ -539,10 +558,12 @@ describe('EditBusiness Component', () => {
 
       await waitFor(() => {
         // Prüfe, dass der Switch existiert und klicke ihn
-        const promotedSwitch = screen.getByLabelText('Als "Highlight" markieren') as HTMLInputElement;
-        
+        const promotedSwitch = screen.getByLabelText(
+          'Als "Highlight" markieren'
+        ) as HTMLInputElement;
+
         fireEvent.click(promotedSwitch);
-        
+
         // Verifiziere, dass updateBusiness aufgerufen wurde
         expect(mockBusinessService.updateBusiness).toHaveBeenCalledWith('business-1', {
           isPromoted: false,
@@ -554,7 +575,7 @@ describe('EditBusiness Component', () => {
   describe('Category and Keyword Management', () => {
     it('sollte aktuelle Kategorien anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const categoryBadge = screen.getByText('Restaurant');
@@ -564,17 +585,17 @@ describe('EditBusiness Component', () => {
 
     it('sollte Kategorie hinzufügen und entfernen können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
 
       const categoryBadge = screen.getByText('Restaurant');
-      
+
       // Kategorie entfernen
       fireEvent.click(categoryBadge);
       expect(categoryBadge).toHaveAttribute('data-variant', 'outline');
-      
+
       // Kategorie wieder hinzufügen
       fireEvent.click(categoryBadge);
       expect(categoryBadge).toHaveAttribute('data-variant', 'default');
@@ -582,35 +603,41 @@ describe('EditBusiness Component', () => {
 
     it('sollte Keywords anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        expect(screen.getAllByText('Keywords')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
-      }, { timeout: 3000 });
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
+          expect(screen.getAllByText('Keywords')[0]).toBeInTheDocument();
+          expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('sollte Keywords togglen können', async () => {
       renderWithRouter(<EditBusiness />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        const keywordBadge = screen.getAllByText('Pizza')[0];
-        expect(keywordBadge).toHaveAttribute('data-variant', 'default'); // keyword-1 ist ausgewählt
-        
-        // Keyword entfernen
-        fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveAttribute('data-variant', 'outline');
-        
-        // Keyword wieder hinzufügen
-        fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveAttribute('data-variant', 'default');
-      }, { timeout: 3000 });
+
+      await waitFor(
+        () => {
+          expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
+          const keywordBadge = screen.getAllByText('Pizza')[0];
+          expect(keywordBadge).toHaveAttribute('data-variant', 'default'); // keyword-1 ist ausgewählt
+
+          // Keyword entfernen
+          fireEvent.click(keywordBadge);
+          expect(keywordBadge).toHaveAttribute('data-variant', 'outline');
+
+          // Keyword wieder hinzufügen
+          fireEvent.click(keywordBadge);
+          expect(keywordBadge).toHaveAttribute('data-variant', 'default');
+        },
+        { timeout: 3000 }
+      );
     });
 
     it('sollte maximal 3 Kategorien auswählen können', async () => {
       const mockToast = require('sonner').toast;
-      
+
       // Mock 4 Kategorien
       const fourCategories = [
         { ...mockBusinessCategory, id: 'cat-1', name: 'Restaurant' },
@@ -618,23 +645,23 @@ describe('EditBusiness Component', () => {
         { ...mockBusinessCategory, id: 'cat-3', name: 'Bar', keywords: [] },
         { ...mockBusinessCategory, id: 'cat-4', name: 'Shop', keywords: [] },
       ];
-      
+
       mockBusinessCategoryService.getCategories.mockResolvedValueOnce(fourCategories);
-      
+
       // Business mit 3 Kategorien
       const businessWith3Categories = {
         ...mockBusiness,
         categoryIds: ['cat-1', 'cat-2', 'cat-3'],
       };
       mockBusinessService.getBusiness.mockResolvedValueOnce(businessWith3Categories);
-      
+
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
         // Versuche 4. Kategorie auszuwählen
         const shopBadge = screen.getByText('Shop');
         fireEvent.click(shopBadge);
-        
+
         expect(mockToast.error).toHaveBeenCalledWith(
           'Maximale Anzahl an Kategorien erreicht',
           expect.objectContaining({
@@ -648,7 +675,7 @@ describe('EditBusiness Component', () => {
   describe('Media Management', () => {
     it('sollte aktuelles Logo anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const logoImage = screen.getByAltText('Logo');
@@ -658,7 +685,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte aktuelle Geschäftsbilder anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const businessImages = screen.getAllByAltText(/Geschäftsbild/);
@@ -670,7 +697,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Logo-Upload Button anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         expect(screen.getByText('Logo hochladen')).toBeInTheDocument();
@@ -680,7 +707,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Geschäftsbild-Upload ermöglichen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const uploadArea = screen.getAllByText('Bilder hinzufügen')[0];
@@ -691,7 +718,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Delete-Buttons für Bilder anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const deleteButtons = screen.getAllByTestId('trash-icon');
@@ -703,7 +730,7 @@ describe('EditBusiness Component', () => {
   describe('Opening Hours Management', () => {
     it('sollte bestehende Öffnungszeiten anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         expect(screen.getAllByText('Zeitraum')[0]).toBeInTheDocument();
@@ -715,12 +742,12 @@ describe('EditBusiness Component', () => {
 
     it('sollte Zeiträume bearbeiten können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const timeInputs = screen.getAllByDisplayValue('09:00');
         expect(timeInputs.length).toBeGreaterThan(0);
-        
+
         const firstTimeInput = timeInputs[0];
         fireEvent.change(firstTimeInput, { target: { value: '10:00' } });
         expect(firstTimeInput).toHaveValue('10:00');
@@ -729,34 +756,33 @@ describe('EditBusiness Component', () => {
 
     it('sollte neuen Zeitraum hinzufügen können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const addButton = screen.getAllByText('Zeitraum hinzufügen')[0];
-        
+
         // Wähle Tag für neuen Zeitraum
         const samstag = screen.getAllByText('Samstag')[1]; // Neuer Zeitraum
         fireEvent.click(samstag);
-        
+
         fireEvent.click(addButton);
-        
+
         // Überprüfe, dass ein neuer Zeitraum hinzugefügt wurde
         expect(screen.getAllByText('Zeitraum').length).toBeGreaterThan(1);
       });
     });
 
-
     it('sollte Wochentage für Zeitraum togglen können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const montagBadges = screen.getAllByText('Montag');
         const firstMontag = montagBadges[0]; // Erster Zeitraum
-        
+
         // Toggle Montag
         fireEvent.click(firstMontag);
-        
+
         // Badge sollte Status ändern
         expect(firstMontag.closest('[data-testid="badge"]')).toHaveAttribute('data-variant');
       });
@@ -766,7 +792,7 @@ describe('EditBusiness Component', () => {
   describe('Review Management', () => {
     it('sollte bestehenden Review-Text anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const reviewTextarea = screen.getByDisplayValue('Sehr empfehlenswert!');
@@ -776,20 +802,22 @@ describe('EditBusiness Component', () => {
 
     it('sollte Review-Text bearbeiten können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
 
-      const reviewTextarea = screen.getByDisplayValue('Sehr empfehlenswert!') as HTMLTextAreaElement;
-      
+      const reviewTextarea = screen.getByDisplayValue(
+        'Sehr empfehlenswert!'
+      ) as HTMLTextAreaElement;
+
       fireEvent.change(reviewTextarea, { target: { value: 'Absolut empfehlenswert!' } });
       expect(reviewTextarea.value).toBe('Absolut empfehlenswert!');
     });
 
     it('sollte Review-Bilder anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const reviewImage = screen.getByAltText('Review Bild 1');
@@ -799,7 +827,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Review-Bild-Upload ermöglichen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const uploadAreas = screen.getAllByText('Bilder hinzufügen');
@@ -810,7 +838,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Review-Bilder löschen können', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         const deleteButtons = screen.getAllByTestId('trash-icon');
@@ -820,10 +848,9 @@ describe('EditBusiness Component', () => {
   });
 
   describe('Form Submission', () => {
-
     it('sollte Änderungen erfolgreich speichern', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       const mockToast = require('sonner').toast;
       mockBusinessService.updateNuernbergspotsReview.mockResolvedValue(undefined);
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
@@ -847,7 +874,7 @@ describe('EditBusiness Component', () => {
             reviewText: 'Neue Review',
           })
         );
-        
+
         expect(mockBusinessService.updateBusiness).toHaveBeenCalledWith(
           'business-1',
           expect.objectContaining({
@@ -869,7 +896,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Fehler beim Speichern behandeln', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       const mockToast = require('sonner').toast;
       mockBusinessService.updateBusiness.mockRejectedValue(new Error('Update Error'));
 
@@ -892,7 +919,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Loading-State während Speichern anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       mockBusinessService.updateBusiness.mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
       );
@@ -912,10 +939,9 @@ describe('EditBusiness Component', () => {
   });
 
   describe('File Upload Handling', () => {
-
     it('sollte Logo-Upload verarbeiten', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       mockBusinessService.uploadLogo.mockResolvedValue(undefined);
 
       await waitFor(() => {
@@ -946,7 +972,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte Geschäftsbild-Upload verarbeiten', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       mockBusinessService.uploadBusinessImages.mockResolvedValue(undefined);
 
       await waitFor(() => {
@@ -975,14 +1001,17 @@ describe('EditBusiness Component', () => {
         fireEvent.click(saveButton);
 
         await waitFor(() => {
-          expect(mockBusinessService.uploadBusinessImages).toHaveBeenCalledWith('business-1', files);
+          expect(mockBusinessService.uploadBusinessImages).toHaveBeenCalledWith(
+            'business-1',
+            files
+          );
         });
       }
     });
 
     it('sollte Review-Bild-Upload verarbeiten', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       mockBusinessService.uploadReviewImages.mockResolvedValue(undefined);
 
       await waitFor(() => {
@@ -1017,13 +1046,13 @@ describe('EditBusiness Component', () => {
   describe('Data Processing', () => {
     it('sollte Öffnungszeiten korrekt konvertieren', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
         // Die Komponente sollte detailedOpeningHours in TimeSlots konvertieren
         expect(screen.getAllByText('Montag')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Dienstag')[0]).toBeInTheDocument();
-        
+
         const timeInputs = screen.getAllByDisplayValue('09:00');
         expect(timeInputs.length).toBeGreaterThan(0);
       });
@@ -1031,7 +1060,7 @@ describe('EditBusiness Component', () => {
 
     it('sollte TimeSlots in detailedOpeningHours formatieren', async () => {
       renderWithRouter(<EditBusiness />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
@@ -1049,9 +1078,9 @@ describe('EditBusiness Component', () => {
           expect.objectContaining({
             detailedOpeningHours: expect.objectContaining({
               Montag: expect.arrayContaining([
-                expect.objectContaining({ from: '08:00', to: '18:00' })
+                expect.objectContaining({ from: '08:00', to: '18:00' }),
               ]),
-            })
+            }),
           })
         );
       });
@@ -1072,11 +1101,11 @@ describe('EditBusiness Component', () => {
     });
 
     it('sollte Business ohne Bilder handhaben', async () => {
-      const businessWithoutImages = { 
-        ...mockBusiness, 
+      const businessWithoutImages = {
+        ...mockBusiness,
         imageUrls: [],
         logoUrl: undefined,
-        nuernbergspotsReview: { reviewText: 'Test', reviewImageUrls: [] }
+        nuernbergspotsReview: { reviewText: 'Test', reviewImageUrls: [] },
       };
       mockBusinessService.getBusiness.mockResolvedValueOnce(businessWithoutImages);
 
@@ -1089,9 +1118,9 @@ describe('EditBusiness Component', () => {
     });
 
     it('sollte Business ohne Öffnungszeiten handhaben', async () => {
-      const businessWithoutOpeningHours = { 
-        ...mockBusiness, 
-        detailedOpeningHours: {} 
+      const businessWithoutOpeningHours = {
+        ...mockBusiness,
+        detailedOpeningHours: {},
       };
       mockBusinessService.getBusiness.mockResolvedValueOnce(businessWithoutOpeningHours);
 
@@ -1104,4 +1133,4 @@ describe('EditBusiness Component', () => {
       });
     });
   });
-}); 
+});

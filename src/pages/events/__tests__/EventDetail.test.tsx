@@ -28,7 +28,7 @@ jest.mock('@/services/eventCategoryService', () => ({
 }));
 
 jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn((color) => `#${color}`),
+  convertFFToHex: jest.fn(color => `#${color}`),
 }));
 
 jest.mock('@/utils/iconUtils', () => ({
@@ -57,35 +57,41 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ onChange, value, ...props }: any) => (
-    <input
-      value={value || ''}
-      onChange={onChange}
-      {...props}
-    />
+    <input value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
 jest.mock('@/components/ui/textarea', () => ({
   Textarea: ({ onChange, value, ...props }: any) => (
-    <textarea
-      value={value || ''}
-      onChange={onChange}
-      {...props}
-    />
+    <textarea value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, ...props }: any) => (
-    <label {...props}>{children}</label>
-  ),
+  Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }));
 
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,
-  CardContent: ({ children, ...props }: any) => <div data-testid="card-content" {...props}>{children}</div>,
-  CardHeader: ({ children, ...props }: any) => <div data-testid="card-header" {...props}>{children}</div>,
-  CardTitle: ({ children, ...props }: any) => <h3 data-testid="card-title" {...props}>{children}</h3>,
+  Card: ({ children, ...props }: any) => (
+    <div data-testid="card" {...props}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, ...props }: any) => (
+    <div data-testid="card-content" {...props}>
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, ...props }: any) => (
+    <div data-testid="card-header" {...props}>
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, ...props }: any) => (
+    <h3 data-testid="card-title" {...props}>
+      {children}
+    </h3>
+  ),
 }));
 
 jest.mock('@/components/ui/switch', () => ({
@@ -93,7 +99,7 @@ jest.mock('@/components/ui/switch', () => ({
     <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={e => onCheckedChange?.(e.target.checked)}
       {...props}
     />
   ),
@@ -115,14 +121,16 @@ jest.mock('@/components/ui/select', () => ({
   ),
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
   SelectItem: ({ children, value }: any) => (
-    <div data-testid="select-item" data-value={value}>{children}</div>
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
   ),
   SelectTrigger: ({ children }: any) => <div data-testid="select-trigger">{children}</div>,
   SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
 }));
 
 jest.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div data-testid="dialog">{children}</div> : null,
+  Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
   DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
@@ -136,13 +144,15 @@ jest.mock('@/components/ui/LocationSearch', () => ({
       data-testid="location-search"
       placeholder={placeholder}
       value={value?.title || ''}
-      onChange={(e) => onChange?.({
-        id: 'test',
-        title: e.target.value,
-        resultType: 'place',
-        position: { lat: 49.4521, lng: 11.0767 },
-        address: { label: e.target.value }
-      })}
+      onChange={e =>
+        onChange?.({
+          id: 'test',
+          title: e.target.value,
+          resultType: 'place',
+          position: { lat: 49.4521, lng: 11.0767 },
+          address: { label: e.target.value },
+        })
+      }
     />
   ),
 }));
@@ -179,15 +189,15 @@ const mockEvent: Event = {
     {
       date: '2024-01-01',
       from: '10:00',
-      to: '18:00'
-    }
+      to: '18:00',
+    },
   ],
   location: {
     address: 'Test Address, Nürnberg',
     latitude: 49.4521,
-    longitude: 11.0767
+    longitude: 11.0767,
   },
-  price: 25.50,
+  price: 25.5,
   ticketsNeeded: true,
   isPromoted: true,
   categoryId: 'category-1',
@@ -197,12 +207,12 @@ const mockEvent: Event = {
   socialMedia: {
     instagram: '@testevent',
     facebook: 'testevent',
-    tiktok: '@testevent'
+    tiktok: '@testevent',
   },
   titleImageUrl: 'https://example.com/title.jpg',
   imageUrls: ['https://example.com/image1.jpg', 'https://example.com/image2.jpg'],
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 const mockCategory: EventCategory = {
@@ -213,7 +223,7 @@ const mockCategory: EventCategory = {
   iconName: 'Music',
   fallbackImages: [],
   createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-01T00:00:00Z'
+  updatedAt: '2024-01-01T00:00:00Z',
 };
 
 const mockEventService = {
@@ -234,11 +244,7 @@ const mockUseParams = useParams as jest.MockedFunction<typeof useParams>;
 const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('EventDetail Component', () => {
@@ -246,10 +252,12 @@ describe('EventDetail Component', () => {
     jest.clearAllMocks();
     mockUseParams.mockReturnValue({ id: 'event-1' });
     mockUseNavigate.mockReturnValue(mockNavigate);
-    
+
     require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(mockEventCategoryService);
-    
+    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(
+      mockEventCategoryService
+    );
+
     mockEventService.getEvent.mockResolvedValue(mockEvent);
     mockEventCategoryService.getCategories.mockResolvedValue([mockCategory]);
   });
@@ -268,13 +276,13 @@ describe('EventDetail Component', () => {
 
     it('sollte Loading-State mit Skeleton-Animationen anzeigen', () => {
       mockEventService.getEvent.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<EventDetail />);
-      
+
       // Überprüfe, dass Skeleton-Elemente gerendert werden
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(0);
-      
+
       // Sollte mindestens 40+ Skeleton-Elemente haben (Header + 2 Cards mit Details)
       expect(skeletonElements.length).toBeGreaterThan(40);
     });
@@ -312,7 +320,8 @@ describe('EventDetail Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Laden des Events',
           expect.objectContaining({
-            description: 'Das Event konnte nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Das Event konnte nicht geladen werden. Bitte versuchen Sie es später erneut.',
           })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/events');
@@ -321,9 +330,9 @@ describe('EventDetail Component', () => {
 
     it('sollte zum Events navigieren wenn keine ID vorhanden', () => {
       mockUseParams.mockReturnValue({});
-      
+
       renderWithRouter(<EventDetail />);
-      
+
       expect(mockEventService.getEvent).not.toHaveBeenCalled();
     });
   });
@@ -494,4 +503,4 @@ describe('EventDetail Component', () => {
       });
     });
   });
-}); 
+});

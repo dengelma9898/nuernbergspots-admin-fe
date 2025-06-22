@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { 
-  MapPin, 
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  MapPin,
   Image as ImageIcon,
   Briefcase,
   Building2,
@@ -27,7 +27,7 @@ import {
   Phone,
   Link as LinkIcon,
   Home,
-  Clock
+  Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { JobOffer } from '@/models/job-offer';
@@ -40,7 +40,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { JobCategory } from '@/models/job-category';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -68,7 +68,7 @@ function JobOfferSkeleton() {
           <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl" />
         </div>
       </div>
-      
+
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
@@ -87,7 +87,7 @@ function JobOfferSkeleton() {
           <Skeleton className="h-6 w-20 rounded-xl bg-white/10 backdrop-blur-xl" />
         </div>
       </CardHeader>
-      
+
       <CardContent className="flex-grow">
         {/* Description */}
         <div className="space-y-2 mb-4">
@@ -95,7 +95,7 @@ function JobOfferSkeleton() {
           <Skeleton className="h-4 w-4/5 bg-white/10 backdrop-blur-xl rounded" />
           <Skeleton className="h-4 w-3/5 bg-white/10 backdrop-blur-xl rounded" />
         </div>
-        
+
         {/* Details */}
         <div className="space-y-2">
           <div className="flex items-center">
@@ -124,7 +124,7 @@ function JobOfferSkeleton() {
           </div>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-between items-center">
         <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded" />
         <div className="flex gap-2">
@@ -142,30 +142,30 @@ function JobOfferMobileSkeleton() {
       <div className="flex flex-col gap-2">
         {/* Highlight badge */}
         <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl mb-2" />
-        
+
         {/* Company logo */}
         <Skeleton className="w-full h-40 rounded bg-white/10 backdrop-blur-xl mb-2" />
-        
+
         <div className="flex items-center justify-between mb-1">
           <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
           <Skeleton className="h-6 w-20 rounded bg-white/10 backdrop-blur-xl" />
         </div>
-        
+
         {/* Category */}
         <div className="flex items-center gap-2 mb-1">
           <Skeleton className="h-4 w-4 rounded bg-white/10 backdrop-blur-xl" />
           <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
         </div>
-        
+
         {/* Date */}
         <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded mb-1" />
-        
+
         {/* Description */}
         <div className="space-y-1 mb-2">
           <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
           <Skeleton className="h-4 w-2/3 bg-white/10 backdrop-blur-xl rounded" />
         </div>
-        
+
         {/* Details list */}
         <div className="flex flex-col gap-1 mb-2">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -175,10 +175,10 @@ function JobOfferMobileSkeleton() {
             </div>
           ))}
         </div>
-        
+
         {/* Created date */}
         <Skeleton className="h-3 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
-        
+
         {/* Action buttons */}
         <div className="flex flex-col gap-2 mt-2">
           <Skeleton className="h-9 w-full rounded-xl bg-white/10 backdrop-blur-xl" />
@@ -206,8 +206,9 @@ export function JobOffers() {
       const fetchedJobOffers = await jobOfferService.getJobOffers();
       setJobOffers(fetchedJobOffers);
     } catch (error) {
-      toast.error("Fehler beim Laden der Daten", {
-        description: "Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Laden der Daten', {
+        description:
+          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
       });
     } finally {
       setLoading(false);
@@ -222,13 +223,14 @@ export function JobOffers() {
   const handleDelete = async (jobOfferId: string) => {
     try {
       await jobOfferService.deleteJobOffer(jobOfferId);
-      toast.success("Stellenangebot gelöscht", {
-        description: "Das Stellenangebot wurde erfolgreich gelöscht.",
+      toast.success('Stellenangebot gelöscht', {
+        description: 'Das Stellenangebot wurde erfolgreich gelöscht.',
       });
       loadData();
     } catch (error) {
-      toast.error("Fehler beim Löschen", {
-        description: "Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Löschen', {
+        description:
+          'Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
       });
     }
   };
@@ -236,10 +238,11 @@ export function JobOffers() {
   const filteredJobOffers = jobOffers.filter(jobOffer => {
     const matchesSearch = jobOffer.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = typeFilter === 'all' || jobOffer.typeOfEmployment === typeFilter;
-    const matchesHomeOffice = homeOfficeFilter === 'all' || 
+    const matchesHomeOffice =
+      homeOfficeFilter === 'all' ||
       (homeOfficeFilter === 'yes' && jobOffer.homeOffice) ||
       (homeOfficeFilter === 'no' && !jobOffer.homeOffice);
-    
+
     return matchesSearch && matchesType && matchesHomeOffice;
   });
 
@@ -320,178 +323,207 @@ export function JobOffers() {
 
       {/* Main Content */}
       <div className="container mx-auto py-6 max-w-full px-2 overflow-x-hidden relative z-10">
-      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate('/dashboard')} 
-            className="w-full sm:w-auto backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Zurück zum Dashboard
-          </Button>
-          <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">
-            Stellenangebote
-          </h1>
-          <div className="w-full sm:w-auto sm:ml-auto">
-            <Button 
-              onClick={() => navigate('/job-offers/create')} 
-              className="w-full sm:w-auto backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/dashboard')}
+              className="w-full sm:w-auto backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
             >
-              <Plus className="mr-2 h-4 w-4" />
-              Stellenangebot hinzufügen
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Zurück zum Dashboard
             </Button>
+            <h1 className="text-xl sm:text-2xl font-bold break-words w-full sm:w-auto bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">
+              Stellenangebote
+            </h1>
+            <div className="w-full sm:w-auto sm:ml-auto">
+              <Button
+                onClick={() => navigate('/job-offers/create')}
+                className="w-full sm:w-auto backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Stellenangebot hinzufügen
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
-        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-          <div className="relative flex-1 mb-2 md:mb-0">
-            <Input
-              placeholder="Nach Stellenangebot suchen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-lg px-1 backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
-            />
-          </div>
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white">
-              <SelectValue placeholder="Beschäftigungsart" />
-            </SelectTrigger>
-            <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-              <SelectItem value="all" className="text-white hover:bg-white/20">Alle Arten</SelectItem>
-              <SelectItem value="Vollzeit" className="text-white hover:bg-white/20">Vollzeit</SelectItem>
-              <SelectItem value="Teilzeit" className="text-white hover:bg-white/20">Teilzeit</SelectItem>
-              <SelectItem value="Ausbildung" className="text-white hover:bg-white/20">Ausbildung</SelectItem>
-              <SelectItem value="Praktikum" className="text-white hover:bg-white/20">Praktikum</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={homeOfficeFilter} onValueChange={setHomeOfficeFilter}>
-            <SelectTrigger className="w-full sm:w-[180px] rounded-lg backdrop-blur-2xl bg-white/10 border-white/20 text-white">
-              <SelectValue placeholder="Home Office" />
-            </SelectTrigger>
-            <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-              <SelectItem value="all" className="text-white hover:bg-white/20">Alle Optionen</SelectItem>
-              <SelectItem value="yes" className="text-white hover:bg-white/20">Mit Home Office</SelectItem>
-              <SelectItem value="no" className="text-white hover:bg-white/20">Ohne Home Office</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {filteredJobOffers.length === 0 ? (
-        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
-          <div className="text-white/90 text-lg">Keine Stellenangebote gefunden.</div>
-        </div>
-      ) : (
-        <>
-          {/* Mobile Card-Ansicht */}
-          <div className="block md:hidden space-y-6">
-            {filteredJobOffers.map((jobOffer) => {
-              const category = categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null;
-              return (
-                <Card key={jobOffer.id} className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
-                  <div className="flex flex-col gap-2">
-                    {jobOffer.isHighlight && (
-                      <Badge className="w-fit bg-yellow-500 text-white border-yellow-600 mb-2">⭐ Highlight</Badge>
-                    )}
-                    {jobOffer.companyLogo && (
-                      <img
-                        src={jobOffer.companyLogo}
-                        alt={jobOffer.title}
-                        className="object-contain w-full h-40 rounded bg-white p-2 mb-2"
-                      />
-                    )}
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-lg text-white">{jobOffer.title}</span>
-                      <Badge variant={jobOffer.homeOffice ? 'default' : 'secondary'} className="ml-2 backdrop-blur-2xl bg-white/20 text-white border-white/30">
-                        <Home className="h-4 w-4 mr-1" />
-                        {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm mb-1 text-white/90">
-                      {category && getIconComponent?.(category.iconName)}
-                      {category && <span>{category.name}</span>}
-                    </div>
-                    <div className="text-xs text-white/70 mb-1">{formatDate(jobOffer.startDate)}</div>
-                    <div className="text-sm text-white/80 mb-2">{jobOffer.generalDescription}</div>
-                    <div className="flex flex-col gap-1 mb-2">
-                      <div className="flex items-center text-sm text-white/90">
-                        <MapPin className="mr-2 h-4 w-4" />
-                        <span className="truncate">{jobOffer.location.address}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-white/90">
-                        <Briefcase className="mr-2 h-4 w-4" />
-                        {jobOffer.typeOfEmployment}
-                      </div>
-                      {jobOffer.wage && (
-                        <div className="flex items-center text-sm text-white/90">
-                          <Euro className="mr-2 h-4 w-4" />
-                          {jobOffer.wage}
-                        </div>
-                      )}
-                      <div className="flex items-center text-sm text-white/90">
-                        <Mail className="mr-2 h-4 w-4" />
-                        {jobOffer.contactData.email}
-                      </div>
-                      {jobOffer.contactData.phone && (
-                        <div className="flex items-center text-sm text-white/90">
-                          <Phone className="mr-2 h-4 w-4" />
-                          {jobOffer.contactData.phone}
-                        </div>
-                      )}
-                      <div className="flex items-center text-sm text-white/90">
-                        <LinkIcon className="mr-2 h-4 w-4" />
-                        <a 
-                          href={jobOffer.link} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-blue-300 hover:text-blue-100 hover:underline transition-colors"
-                        >
-                          Zur Bewerbung
-                        </a>
-                      </div>
-                    </div>
-                    <div className="text-xs text-white/70 mb-2">
-                      Erstellt am {formatDate(jobOffer.createdAt)}
-                    </div>
-                    <div className="flex flex-col gap-2 mt-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="w-full cursor-pointer backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                        onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
-                      >
-                        Bearbeiten
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        className="w-full cursor-pointer backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                        onClick={() => handleDelete(jobOffer.id)}
-                      >
-                        Löschen
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-          {/* Desktop/Table Ansicht */}
-          <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredJobOffers.map((jobOffer) => (
-              <JobOfferCard 
-                key={jobOffer.id} 
-                jobOffer={jobOffer}
-                onDelete={handleDelete}
-                category={categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null}
+        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+            <div className="relative flex-1 mb-2 md:mb-0">
+              <Input
+                placeholder="Nach Stellenangebot suchen..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="rounded-lg px-1 backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
               />
-            ))}
+            </div>
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] rounded-lg mb-2 md:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white">
+                <SelectValue placeholder="Beschäftigungsart" />
+              </SelectTrigger>
+              <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                <SelectItem value="all" className="text-white hover:bg-white/20">
+                  Alle Arten
+                </SelectItem>
+                <SelectItem value="Vollzeit" className="text-white hover:bg-white/20">
+                  Vollzeit
+                </SelectItem>
+                <SelectItem value="Teilzeit" className="text-white hover:bg-white/20">
+                  Teilzeit
+                </SelectItem>
+                <SelectItem value="Ausbildung" className="text-white hover:bg-white/20">
+                  Ausbildung
+                </SelectItem>
+                <SelectItem value="Praktikum" className="text-white hover:bg-white/20">
+                  Praktikum
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={homeOfficeFilter} onValueChange={setHomeOfficeFilter}>
+              <SelectTrigger className="w-full sm:w-[180px] rounded-lg backdrop-blur-2xl bg-white/10 border-white/20 text-white">
+                <SelectValue placeholder="Home Office" />
+              </SelectTrigger>
+              <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                <SelectItem value="all" className="text-white hover:bg-white/20">
+                  Alle Optionen
+                </SelectItem>
+                <SelectItem value="yes" className="text-white hover:bg-white/20">
+                  Mit Home Office
+                </SelectItem>
+                <SelectItem value="no" className="text-white hover:bg-white/20">
+                  Ohne Home Office
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </>
-      )}
+        </div>
+
+        {filteredJobOffers.length === 0 ? (
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
+            <div className="text-white/90 text-lg">Keine Stellenangebote gefunden.</div>
+          </div>
+        ) : (
+          <>
+            {/* Mobile Card-Ansicht */}
+            <div className="block md:hidden space-y-6">
+              {filteredJobOffers.map(jobOffer => {
+                const category =
+                  categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null;
+                return (
+                  <Card
+                    key={jobOffer.id}
+                    className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30"
+                  >
+                    <div className="flex flex-col gap-2">
+                      {jobOffer.isHighlight && (
+                        <Badge className="w-fit bg-yellow-500 text-white border-yellow-600 mb-2">
+                          ⭐ Highlight
+                        </Badge>
+                      )}
+                      {jobOffer.companyLogo && (
+                        <img
+                          src={jobOffer.companyLogo}
+                          alt={jobOffer.title}
+                          className="object-contain w-full h-40 rounded bg-white p-2 mb-2"
+                        />
+                      )}
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-bold text-lg text-white">{jobOffer.title}</span>
+                        <Badge
+                          variant={jobOffer.homeOffice ? 'default' : 'secondary'}
+                          className="ml-2 backdrop-blur-2xl bg-white/20 text-white border-white/30"
+                        >
+                          <Home className="h-4 w-4 mr-1" />
+                          {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm mb-1 text-white/90">
+                        {category && getIconComponent?.(category.iconName)}
+                        {category && <span>{category.name}</span>}
+                      </div>
+                      <div className="text-xs text-white/70 mb-1">
+                        {formatDate(jobOffer.startDate)}
+                      </div>
+                      <div className="text-sm text-white/80 mb-2">
+                        {jobOffer.generalDescription}
+                      </div>
+                      <div className="flex flex-col gap-1 mb-2">
+                        <div className="flex items-center text-sm text-white/90">
+                          <MapPin className="mr-2 h-4 w-4" />
+                          <span className="truncate">{jobOffer.location.address}</span>
+                        </div>
+                        <div className="flex items-center text-sm text-white/90">
+                          <Briefcase className="mr-2 h-4 w-4" />
+                          {jobOffer.typeOfEmployment}
+                        </div>
+                        {jobOffer.wage && (
+                          <div className="flex items-center text-sm text-white/90">
+                            <Euro className="mr-2 h-4 w-4" />
+                            {jobOffer.wage}
+                          </div>
+                        )}
+                        <div className="flex items-center text-sm text-white/90">
+                          <Mail className="mr-2 h-4 w-4" />
+                          {jobOffer.contactData.email}
+                        </div>
+                        {jobOffer.contactData.phone && (
+                          <div className="flex items-center text-sm text-white/90">
+                            <Phone className="mr-2 h-4 w-4" />
+                            {jobOffer.contactData.phone}
+                          </div>
+                        )}
+                        <div className="flex items-center text-sm text-white/90">
+                          <LinkIcon className="mr-2 h-4 w-4" />
+                          <a
+                            href={jobOffer.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-300 hover:text-blue-100 hover:underline transition-colors"
+                          >
+                            Zur Bewerbung
+                          </a>
+                        </div>
+                      </div>
+                      <div className="text-xs text-white/70 mb-2">
+                        Erstellt am {formatDate(jobOffer.createdAt)}
+                      </div>
+                      <div className="flex flex-col gap-2 mt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full cursor-pointer backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                          onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
+                        >
+                          Bearbeiten
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="w-full cursor-pointer backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                          onClick={() => handleDelete(jobOffer.id)}
+                        >
+                          Löschen
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+            {/* Desktop/Table Ansicht */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredJobOffers.map(jobOffer => (
+                <JobOfferCard
+                  key={jobOffer.id}
+                  jobOffer={jobOffer}
+                  onDelete={handleDelete}
+                  category={categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -517,8 +549,7 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
           />
           {jobOffer.images && jobOffer.images.length > 0 && (
             <Badge variant="secondary" className="absolute top-2 right-2">
-              <ImageIcon className="mr-1 h-3 w-3" />
-              +{jobOffer.images.length}
+              <ImageIcon className="mr-1 h-3 w-3" />+{jobOffer.images.length}
             </Badge>
           )}
           {jobOffer.isHighlight && (
@@ -542,16 +573,17 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
               </div>
             )}
           </div>
-          <Badge variant={jobOffer.homeOffice ? "default" : "secondary"} className="backdrop-blur-2xl bg-white/20 text-white border-white/30">
+          <Badge
+            variant={jobOffer.homeOffice ? 'default' : 'secondary'}
+            className="backdrop-blur-2xl bg-white/20 text-white border-white/30"
+          >
             <Home className="h-4 w-4 mr-1" />
             {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-sm text-white/80 line-clamp-3 mb-4">
-          {jobOffer.generalDescription}
-        </p>
+        <p className="text-sm text-white/80 line-clamp-3 mb-4">{jobOffer.generalDescription}</p>
         <div className="space-y-2">
           <div className="flex items-center text-sm text-white/90">
             <MapPin className="mr-2 h-4 w-4" />
@@ -572,16 +604,16 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
             {jobOffer.contactData.email}
           </div>
           {jobOffer.contactData.phone && (
-          <div className="flex items-center text-sm text-white/90">
-            <Phone className="mr-2 h-4 w-4" />
-            {jobOffer.contactData.phone}
-          </div>
+            <div className="flex items-center text-sm text-white/90">
+              <Phone className="mr-2 h-4 w-4" />
+              {jobOffer.contactData.phone}
+            </div>
           )}
           <div className="flex items-center text-sm text-white/90">
             <LinkIcon className="mr-2 h-4 w-4" />
-            <a 
-              href={jobOffer.link} 
-              target="_blank" 
+            <a
+              href={jobOffer.link}
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-300 hover:text-blue-100 hover:underline transition-colors"
             >
@@ -591,20 +623,18 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-white/70">
-          Erstellt am {formatDate(jobOffer.createdAt)}
-        </div>
+        <div className="text-xs text-white/70">Erstellt am {formatDate(jobOffer.createdAt)}</div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             size="sm"
             className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
             onClick={() => navigate(`/job-offers/${jobOffer.id}`)}
           >
             Bearbeiten
           </Button>
-          <Button 
-            variant="destructive" 
+          <Button
+            variant="destructive"
             size="sm"
             className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
             onClick={() => onDelete(jobOffer.id)}
@@ -615,4 +645,4 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
       </CardFooter>
     </Card>
   );
-}; 
+};

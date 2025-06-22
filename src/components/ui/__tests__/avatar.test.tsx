@@ -15,7 +15,14 @@ describe('Avatar Komponente', () => {
     it('sollte Standard-CSS-Klassen haben', () => {
       render(<Avatar data-testid="avatar" />);
       const avatar = screen.getByTestId('avatar');
-      expect(avatar).toHaveClass('relative', 'flex', 'size-8', 'shrink-0', 'overflow-hidden', 'rounded-full');
+      expect(avatar).toHaveClass(
+        'relative',
+        'flex',
+        'size-8',
+        'shrink-0',
+        'overflow-hidden',
+        'rounded-full'
+      );
     });
 
     it('sollte benutzerdefinierte className akzeptieren', () => {
@@ -74,7 +81,14 @@ describe('Avatar Komponente', () => {
         </Avatar>
       );
       const fallback = screen.getByTestId('avatar-fallback');
-      expect(fallback).toHaveClass('bg-muted', 'flex', 'size-full', 'items-center', 'justify-center', 'rounded-full');
+      expect(fallback).toHaveClass(
+        'bg-muted',
+        'flex',
+        'size-full',
+        'items-center',
+        'justify-center',
+        'rounded-full'
+      );
     });
 
     it('sollte benutzerdefinierte className akzeptieren', () => {
@@ -110,10 +124,10 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback">JD</AvatarFallback>
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
       const fallback = screen.getByTestId('avatar-fallback');
-      
+
       expect(avatar).toBeInTheDocument();
       expect(fallback).toBeInTheDocument();
     });
@@ -124,10 +138,10 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback">JD</AvatarFallback>
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
       const fallback = screen.getByTestId('avatar-fallback');
-      
+
       expect(avatar).toBeInTheDocument();
       expect(fallback).toBeInTheDocument();
     });
@@ -138,9 +152,9 @@ describe('Avatar Komponente', () => {
           <AvatarImage src="/test-image.jpg" alt="Test User" />
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
-      
+
       expect(avatar).toBeInTheDocument();
     });
   });
@@ -153,7 +167,7 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback">JD</AvatarFallback>
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
       expect(avatar).toHaveAttribute('role', 'img');
       expect(avatar).toHaveAttribute('aria-label', 'User profile picture');
@@ -165,7 +179,7 @@ describe('Avatar Komponente', () => {
           <AvatarImage src="/test-image.jpg" alt="Profile picture of John Doe" />
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
       expect(avatar).toHaveAttribute('role', 'img');
       expect(avatar).toHaveAttribute('aria-label', 'User profile picture');
@@ -179,7 +193,7 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback"></AvatarFallback>
         </Avatar>
       );
-      
+
       const fallback = screen.getByTestId('avatar-fallback');
       expect(fallback).toBeEmptyDOMElement();
     });
@@ -191,7 +205,7 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback">{longText}</AvatarFallback>
         </Avatar>
       );
-      
+
       const fallback = screen.getByTestId('avatar-fallback');
       expect(fallback).toHaveTextContent(longText);
     });
@@ -203,12 +217,12 @@ describe('Avatar Komponente', () => {
           <AvatarFallback data-testid="avatar-fallback">FB</AvatarFallback>
         </Avatar>
       );
-      
+
       const avatar = screen.getByTestId('avatar');
       const fallback = screen.getByTestId('avatar-fallback');
-      
+
       expect(avatar).toBeInTheDocument();
       expect(fallback).toBeInTheDocument();
     });
   });
-}); 
+});

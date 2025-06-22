@@ -7,11 +7,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export function useApi() {
   const { getToken } = useAuth();
-  
-  return useMemo(() => new ApiClient({
-    baseUrl: API_BASE_URL,
-    getToken,
-  }), [getToken]);
+
+  return useMemo(
+    () =>
+      new ApiClient({
+        baseUrl: API_BASE_URL,
+        getToken,
+      }),
+    [getToken]
+  );
 }
 
 export interface Business {
@@ -34,7 +38,7 @@ export const endpoints = {
   userProfile: (id: string) => `/users/${id}/profile`,
   businessUsers: '/users/business',
   businessUserById: (id: string) => `/users/business/${id}`,
-  
+
   // Other endpoints
   businesses: '/businesses',
   businessCategories: '/business-categories',
@@ -53,4 +57,4 @@ export const endpoints = {
 } as const;
 
 // Re-export models
-export type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users'; 
+export type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users';

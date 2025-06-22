@@ -41,4 +41,4 @@ export interface PollNewsItem extends BaseNewsItem {
   votes: number;
 }
 
-export type NewsItem = TextNewsItem | ImageNewsItem | PollNewsItem; 
+export type NewsItem = TextNewsItem | ImageNewsItem | PollNewsItem;

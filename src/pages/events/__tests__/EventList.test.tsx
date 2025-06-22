@@ -21,19 +21,43 @@ jest.mock('react-router-dom', () => ({
 
 // Mock shadcn/ui components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
-  CardDescription: ({ children, className }: any) => <div className={className} data-testid="card-description">{children}</div>,
-  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
-  CardFooter: ({ children, className }: any) => <div className={className} data-testid="card-footer">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div className={className} data-testid="card-content">
+      {children}
+    </div>
+  ),
+  CardDescription: ({ children, className }: any) => (
+    <div className={className} data-testid="card-description">
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, className }: any) => (
+    <div className={className} data-testid="card-header">
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
+  CardFooter: ({ children, className }: any) => (
+    <div className={className} data-testid="card-footer">
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       className={className}
       data-variant={variant}
       data-testid="button"
@@ -53,8 +77,8 @@ jest.mock('@/components/ui/badge', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -70,8 +94,16 @@ jest.mock('@/components/ui/select', () => ({
     </div>
   ),
   SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
-  SelectTrigger: ({ children, className }: any) => <div className={className} data-testid="select-trigger">{children}</div>,
+  SelectItem: ({ children, value }: any) => (
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children, className }: any) => (
+    <div className={className} data-testid="select-trigger">
+      {children}
+    </div>
+  ),
   SelectValue: ({ placeholder }: any) => <div data-testid="select-value">{placeholder}</div>,
 }));
 
@@ -139,7 +171,7 @@ jest.mock('date-fns', () => ({
 
 // Mock color utils
 jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn((color) => color || '#000000'),
+  convertFFToHex: jest.fn(color => color || '#000000'),
 }));
 
 // Mock icon utils
@@ -183,7 +215,7 @@ const mockEvent: Event = {
   updatedAt: '2024-01-01T00:00:00.000Z',
   favoriteCount: 25,
   ticketsNeeded: true,
-  price: 15.50,
+  price: 15.5,
   categoryId: 'cat-1',
   isPromoted: true,
   dailyTimeSlots: [
@@ -252,11 +284,7 @@ const mockRunningEvent: Event = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('EventList Component', () => {
@@ -265,28 +293,33 @@ describe('EventList Component', () => {
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useEventService as jest.Mock).mockReturnValue(mockEventService);
     (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
-    
+
     // Standard mock setup
-    mockEventService.getEvents.mockResolvedValue([mockEvent, mockPastEvent, mockFutureEvent, mockRunningEvent]);
+    mockEventService.getEvents.mockResolvedValue([
+      mockEvent,
+      mockPastEvent,
+      mockFutureEvent,
+      mockRunningEvent,
+    ]);
     mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
-    
+
     // Mock date-fns return values
     const mockIsPast = require('date-fns').isPast as jest.Mock;
     const mockIsFuture = require('date-fns').isFuture as jest.Mock;
     const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
-    
+
     mockIsPast.mockImplementation((date: Date) => {
       const eventDate = new Date(date);
       const now = new Date('2024-01-15');
       return eventDate.getTime() < now.getTime();
     });
-    
+
     mockIsFuture.mockImplementation((date: Date) => {
       const eventDate = new Date(date);
       const now = new Date('2024-01-15');
       return eventDate.getTime() > now.getTime();
     });
-    
+
     mockIsWithinInterval.mockImplementation((date: Date, interval: any) => {
       const checkDate = new Date(date);
       const start = new Date(interval.start);
@@ -317,7 +350,7 @@ describe('EventList Component', () => {
       // Überprüfe, dass Skeleton-Elemente gerendert werden
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(0);
-      
+
       // Sollte mindestens 30+ Skeleton-Elemente haben (Header + Filter + Event Cards)
       expect(skeletonElements.length).toBeGreaterThan(30);
     });
@@ -354,7 +387,8 @@ describe('EventList Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Laden der Daten',
           expect.objectContaining({
-            description: 'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
           })
         );
       });
@@ -402,19 +436,22 @@ describe('EventList Component', () => {
       const generateButton = screen.getByText('Bild generieren');
       fireEvent.click(generateButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith('/events/image-editor', expect.objectContaining({
-        state: expect.objectContaining({
-          events: expect.any(Array),
-          categoryName: expect.any(String),
-        }),
-      }));
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/events/image-editor',
+        expect.objectContaining({
+          state: expect.objectContaining({
+            events: expect.any(Array),
+            categoryName: expect.any(String),
+          }),
+        })
+      );
     });
   });
 
   describe('Search and Filtering', () => {
     beforeEach(async () => {
       renderWithRouter(<EventList />);
-      
+
       // Warte auf das Laden der Daten
       await waitFor(() => {
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
@@ -428,9 +465,9 @@ describe('EventList Component', () => {
 
     it('sollte Suche durchführen beim Eingeben', async () => {
       const searchInput = screen.getByPlaceholderText('Nach Event-Namen suchen...');
-      
+
       fireEvent.change(searchInput, { target: { value: 'Konzert' } });
-      
+
       expect(searchInput).toHaveValue('Konzert');
     });
 
@@ -451,7 +488,7 @@ describe('EventList Component', () => {
   describe('Event Grouping', () => {
     beforeEach(async () => {
       renderWithRouter(<EventList />);
-      
+
       // Warte auf das Laden der Daten
       await waitFor(() => {
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
@@ -472,7 +509,7 @@ describe('EventList Component', () => {
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
         // Überprüfe dass Event-Gruppen-Header vorhanden sind
         expect(screen.getAllByText('Laufende Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Zukünftige Events')[0]).toBeInTheDocument(); 
+        expect(screen.getAllByText('Zukünftige Events')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Vergangene Events')[0]).toBeInTheDocument();
       });
     });
@@ -561,7 +598,7 @@ describe('EventCard Component', () => {
       const mockIsPast = require('date-fns').isPast as jest.Mock;
       const mockIsFuture = require('date-fns').isFuture as jest.Mock;
       const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
-      
+
       mockIsPast.mockReturnValue(true);
       mockIsFuture.mockReturnValue(false);
       mockIsWithinInterval.mockReturnValue(false);
@@ -576,7 +613,7 @@ describe('EventCard Component', () => {
       const mockIsPast = require('date-fns').isPast as jest.Mock;
       const mockIsFuture = require('date-fns').isFuture as jest.Mock;
       const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
-      
+
       mockIsPast.mockReturnValue(false);
       mockIsFuture.mockReturnValue(true);
       mockIsWithinInterval.mockReturnValue(false);
@@ -591,7 +628,7 @@ describe('EventCard Component', () => {
       const mockIsPast = require('date-fns').isPast as jest.Mock;
       const mockIsFuture = require('date-fns').isFuture as jest.Mock;
       const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
-      
+
       mockIsPast.mockReturnValue(false);
       mockIsFuture.mockReturnValue(false);
       mockIsWithinInterval.mockReturnValue(true);
@@ -631,4 +668,4 @@ describe('EventCard Component', () => {
       // Im Preview-Modus sollten keine Action-Buttons angezeigt werden
     });
   });
-}); 
+});

@@ -15,4 +15,4 @@ export interface EventCategoryCreation {
   colorCode: string;
   iconName: string;
   fallbackImages?: string[];
-} 
+}

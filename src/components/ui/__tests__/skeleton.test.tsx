@@ -35,9 +35,9 @@ describe('Skeleton Komponente', () => {
   describe('Props Weiterleitung', () => {
     it('sollte zusätzliche Props weiterleiten', () => {
       render(
-        <Skeleton 
-          data-testid="skeleton" 
-          id="my-skeleton" 
+        <Skeleton
+          data-testid="skeleton"
+          id="my-skeleton"
           role="presentation"
           aria-label="Loading content"
         />
@@ -60,7 +60,7 @@ describe('Skeleton Komponente', () => {
       const handleClick = jest.fn();
       render(<Skeleton onClick={handleClick} data-testid="skeleton" />);
       const skeleton = screen.getByTestId('skeleton');
-      
+
       skeleton.click();
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
@@ -149,7 +149,7 @@ describe('Skeleton Komponente', () => {
           <Skeleton className="h-4 w-[200px]" data-testid="text-skeleton-2" />
         </div>
       );
-      
+
       expect(screen.getByTestId('text-skeleton-1')).toHaveClass('h-4', 'w-[250px]', 'mb-2');
       expect(screen.getByTestId('text-skeleton-2')).toHaveClass('h-4', 'w-[200px]');
     });
@@ -170,8 +170,12 @@ describe('Skeleton Komponente', () => {
           </div>
         </div>
       );
-      
-      expect(screen.getByTestId('card-skeleton')).toHaveClass('h-[125px]', 'w-[250px]', 'rounded-xl');
+
+      expect(screen.getByTestId('card-skeleton')).toHaveClass(
+        'h-[125px]',
+        'w-[250px]',
+        'rounded-xl'
+      );
       expect(screen.getByTestId('title-skeleton')).toHaveClass('h-4', 'w-[250px]');
       expect(screen.getByTestId('description-skeleton')).toHaveClass('h-4', 'w-[200px]');
     });
@@ -211,10 +215,17 @@ describe('Skeleton Komponente', () => {
     });
 
     it('sollte mit komplexen className-Kombinationen umgehen', () => {
-      const complexClasses = "h-4 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse";
+      const complexClasses = 'h-4 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse';
       render(<Skeleton className={complexClasses} data-testid="skeleton" />);
       const skeleton = screen.getByTestId('skeleton');
-      expect(skeleton).toHaveClass('h-4', 'w-full', 'bg-gray-200', 'dark:bg-gray-700', 'rounded', 'animate-pulse');
+      expect(skeleton).toHaveClass(
+        'h-4',
+        'w-full',
+        'bg-gray-200',
+        'dark:bg-gray-700',
+        'rounded',
+        'animate-pulse'
+      );
     });
 
     it('sollte mit leerer className umgehen', () => {
@@ -241,10 +252,10 @@ describe('Skeleton Komponente', () => {
           </div>
         </div>
       );
-      
+
       expect(screen.getByTestId('avatar-skeleton')).toBeInTheDocument();
       expect(screen.getByTestId('name-skeleton')).toBeInTheDocument();
       expect(screen.getByTestId('email-skeleton')).toBeInTheDocument();
     });
   });
-}); 
+});

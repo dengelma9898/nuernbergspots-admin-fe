@@ -49,16 +49,20 @@ describe('Tabs Komponente', () => {
         <Tabs defaultValue="tab2" data-testid="tabs">
           <TabsList>
             <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="tab1">Content 1</TabsContent>
-          <TabsContent value="tab2" data-testid="tab2-content">Content 2</TabsContent>
+          <TabsContent value="tab2" data-testid="tab2-content">
+            Content 2
+          </TabsContent>
         </Tabs>
       );
-      
+
       const tab2Trigger = screen.getByTestId('tab2-trigger');
       const tab2Content = screen.getByTestId('tab2-content');
-      
+
       expect(tab2Trigger).toHaveAttribute('data-state', 'active');
       expect(tab2Content).toBeVisible();
     });
@@ -70,26 +74,34 @@ describe('Tabs Komponente', () => {
         return (
           <Tabs value={value} onValueChange={setValue} data-testid="tabs">
             <TabsList>
-              <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
-              <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+              <TabsTrigger value="tab1" data-testid="tab1-trigger">
+                Tab 1
+              </TabsTrigger>
+              <TabsTrigger value="tab2" data-testid="tab2-trigger">
+                Tab 2
+              </TabsTrigger>
             </TabsList>
-            <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
-            <TabsContent value="tab2" data-testid="tab2-content">Content 2</TabsContent>
+            <TabsContent value="tab1" data-testid="tab1-content">
+              Content 1
+            </TabsContent>
+            <TabsContent value="tab2" data-testid="tab2-content">
+              Content 2
+            </TabsContent>
           </Tabs>
         );
       };
 
       render(<TestComponent />);
-      
+
       const tab1Trigger = screen.getByTestId('tab1-trigger');
       const tab2Trigger = screen.getByTestId('tab2-trigger');
       const tab1Content = screen.getByTestId('tab1-content');
-      
+
       expect(tab1Trigger).toHaveAttribute('data-state', 'active');
       expect(tab1Content).toBeVisible();
-      
+
       await user.click(tab2Trigger);
-      
+
       await waitFor(() => {
         expect(tab2Trigger).toHaveAttribute('data-state', 'active');
       });
@@ -149,13 +161,19 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList data-testid="tabs-list">
-            <TabsTrigger value="tab1" data-testid="tab1">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2">Tab 2</TabsTrigger>
-            <TabsTrigger value="tab3" data-testid="tab3">Tab 3</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1">
+              Tab 1
+            </TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2">
+              Tab 2
+            </TabsTrigger>
+            <TabsTrigger value="tab3" data-testid="tab3">
+              Tab 3
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
-      
+
       expect(screen.getByTestId('tab1')).toBeInTheDocument();
       expect(screen.getByTestId('tab2')).toBeInTheDocument();
       expect(screen.getByTestId('tab3')).toBeInTheDocument();
@@ -167,7 +185,9 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tabs-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tabs-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
@@ -181,7 +201,9 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tabs-trigger">My Tab</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tabs-trigger">
+              My Tab
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
@@ -192,7 +214,9 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tabs-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tabs-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
@@ -217,7 +241,9 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tabs-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tabs-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
@@ -230,7 +256,9 @@ describe('Tabs Komponente', () => {
         <Tabs defaultValue="tab1">
           <TabsList>
             <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tabs-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tabs-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
@@ -268,21 +296,29 @@ describe('Tabs Komponente', () => {
 
     it('sollte auf Klick reagieren', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
-          <TabsContent value="tab2" data-testid="tab2-content">Content 2</TabsContent>
+          <TabsContent value="tab1" data-testid="tab1-content">
+            Content 1
+          </TabsContent>
+          <TabsContent value="tab2" data-testid="tab2-content">
+            Content 2
+          </TabsContent>
         </Tabs>
       );
-      
+
       const tab2Trigger = screen.getByTestId('tab2-trigger');
       await user.click(tab2Trigger);
-      
+
       expect(tab2Trigger).toHaveAttribute('data-state', 'active');
       expect(screen.getByTestId('tab2-content')).toBeVisible();
     });
@@ -298,7 +334,7 @@ describe('Tabs Komponente', () => {
           </TabsList>
         </Tabs>
       );
-      
+
       expect(screen.getByTestId('tab-icon')).toBeInTheDocument();
       expect(screen.getByText('Tab with Icon')).toBeInTheDocument();
     });
@@ -332,7 +368,7 @@ describe('Tabs Komponente', () => {
           </TabsContent>
         </Tabs>
       );
-      
+
       expect(screen.getByText('This is tab 1 content')).toBeInTheDocument();
       expect(screen.getByTestId('tabs-content')).toBeVisible();
     });
@@ -350,7 +386,7 @@ describe('Tabs Komponente', () => {
           </TabsContent>
         </Tabs>
       );
-      
+
       const content = screen.getByTestId('tabs-content');
       expect(content).not.toBeVisible();
     });
@@ -400,7 +436,7 @@ describe('Tabs Komponente', () => {
           </TabsContent>
         </Tabs>
       );
-      
+
       expect(screen.getByText('Title')).toBeInTheDocument();
       expect(screen.getByText('Paragraph')).toBeInTheDocument();
       expect(screen.getByText('Button')).toBeInTheDocument();
@@ -410,30 +446,42 @@ describe('Tabs Komponente', () => {
   describe('Tabs Interaktionen', () => {
     it('sollte zwischen Tabs wechseln', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
-            <TabsTrigger value="tab3" data-testid="tab3-trigger">Tab 3</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
+            <TabsTrigger value="tab3" data-testid="tab3-trigger">
+              Tab 3
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
-          <TabsContent value="tab2" data-testid="tab2-content">Content 2</TabsContent>
-          <TabsContent value="tab3" data-testid="tab3-content">Content 3</TabsContent>
+          <TabsContent value="tab1" data-testid="tab1-content">
+            Content 1
+          </TabsContent>
+          <TabsContent value="tab2" data-testid="tab2-content">
+            Content 2
+          </TabsContent>
+          <TabsContent value="tab3" data-testid="tab3-content">
+            Content 3
+          </TabsContent>
         </Tabs>
       );
-      
+
       // Initial state
       expect(screen.getByTestId('tab1-trigger')).toHaveAttribute('data-state', 'active');
       expect(screen.getByTestId('tab1-content')).toBeVisible();
-      
+
       // Switch to tab 2
       await user.click(screen.getByTestId('tab2-trigger'));
       expect(screen.getByTestId('tab2-trigger')).toHaveAttribute('data-state', 'active');
       expect(screen.getByTestId('tab2-content')).toBeVisible();
       expect(screen.getByTestId('tab1-content')).not.toBeVisible();
-      
+
       // Switch to tab 3
       await user.click(screen.getByTestId('tab3-trigger'));
       expect(screen.getByTestId('tab3-trigger')).toHaveAttribute('data-state', 'active');
@@ -444,18 +492,20 @@ describe('Tabs Komponente', () => {
     it('sollte onValueChange callback aufrufen', async () => {
       const user = userEvent.setup();
       const onValueChange = jest.fn();
-      
+
       render(
         <Tabs defaultValue="tab1" onValueChange={onValueChange}>
           <TabsList>
             <TabsTrigger value="tab1">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="tab1">Content 1</TabsContent>
           <TabsContent value="tab2">Content 2</TabsContent>
         </Tabs>
       );
-      
+
       await user.click(screen.getByTestId('tab2-trigger'));
       expect(onValueChange).toHaveBeenCalledWith('tab2');
     });
@@ -464,22 +514,26 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="tab1">Content 1</TabsContent>
           <TabsContent value="tab2">Content 2</TabsContent>
         </Tabs>
       );
-      
+
       const tab1Trigger = screen.getByTestId('tab1-trigger');
       const tab2Trigger = screen.getByTestId('tab2-trigger');
-      
+
       act(() => {
         tab1Trigger.focus();
       });
       expect(tab1Trigger).toHaveFocus();
-      
+
       // Test that arrow keys work for navigation (focus movement)
       fireEvent.keyDown(tab1Trigger, { key: 'ArrowRight' });
       // Note: In test environment, Radix UI may not automatically activate tabs on arrow navigation
@@ -493,15 +547,19 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
+          <TabsContent value="tab1" data-testid="tab1-content">
+            Content 1
+          </TabsContent>
         </Tabs>
       );
-      
+
       const trigger = screen.getByTestId('tab1-trigger');
       const content = screen.getByTestId('tab1-content');
-      
+
       expect(trigger).toHaveAttribute('role', 'tab');
       expect(trigger).toHaveAttribute('aria-selected', 'true');
       expect(content).toHaveAttribute('role', 'tabpanel');
@@ -511,18 +569,22 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
+          <TabsContent value="tab1" data-testid="tab1-content">
+            Content 1
+          </TabsContent>
         </Tabs>
       );
-      
+
       const trigger = screen.getByTestId('tab1-trigger');
       const content = screen.getByTestId('tab1-content');
-      
+
       const triggerId = trigger.getAttribute('id');
       const contentId = content.getAttribute('id');
-      
+
       expect(trigger).toHaveAttribute('aria-controls', contentId);
       expect(content).toHaveAttribute('aria-labelledby', triggerId);
     });
@@ -531,15 +593,19 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
-            <TabsTrigger value="tab2" data-testid="tab2-trigger">Tab 2</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
+            <TabsTrigger value="tab2" data-testid="tab2-trigger">
+              Tab 2
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       );
-      
+
       const tab1Trigger = screen.getByTestId('tab1-trigger');
       const tab2Trigger = screen.getByTestId('tab2-trigger');
-      
+
       // Radix UI manages tabindex differently in test environment
       expect(tab1Trigger).toHaveAttribute('tabindex', '-1');
       expect(tab2Trigger).toHaveAttribute('tabindex', '-1');
@@ -551,15 +617,19 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs>
           <TabsList>
-            <TabsTrigger value="tab1" data-testid="tab1-trigger">Tab 1</TabsTrigger>
+            <TabsTrigger value="tab1" data-testid="tab1-trigger">
+              Tab 1
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="tab1" data-testid="tab1-content">Content 1</TabsContent>
+          <TabsContent value="tab1" data-testid="tab1-content">
+            Content 1
+          </TabsContent>
         </Tabs>
       );
-      
+
       const trigger = screen.getByTestId('tab1-trigger');
       const content = screen.getByTestId('tab1-content');
-      
+
       expect(trigger).toHaveAttribute('data-state', 'inactive');
       expect(content).not.toBeVisible();
     });
@@ -568,19 +638,23 @@ describe('Tabs Komponente', () => {
       render(
         <Tabs defaultValue="single">
           <TabsList>
-            <TabsTrigger value="single" data-testid="single-trigger">Single Tab</TabsTrigger>
+            <TabsTrigger value="single" data-testid="single-trigger">
+              Single Tab
+            </TabsTrigger>
           </TabsList>
-          <TabsContent value="single" data-testid="single-content">Single Content</TabsContent>
+          <TabsContent value="single" data-testid="single-content">
+            Single Content
+          </TabsContent>
         </Tabs>
       );
-      
+
       expect(screen.getByTestId('single-trigger')).toHaveAttribute('data-state', 'active');
       expect(screen.getByTestId('single-content')).toBeVisible();
     });
 
     it('sollte mit vielen Tabs funktionieren', () => {
       const tabs = Array.from({ length: 10 }, (_, i) => `tab${i + 1}`);
-      
+
       render(
         <Tabs defaultValue="tab1">
           <TabsList>
@@ -597,7 +671,7 @@ describe('Tabs Komponente', () => {
           ))}
         </Tabs>
       );
-      
+
       tabs.forEach(tab => {
         expect(screen.getByText(tab)).toBeInTheDocument();
       });
@@ -612,10 +686,10 @@ describe('Tabs Komponente', () => {
           <TabsContent value="tab1" data-testid="tabs-content" />
         </Tabs>
       );
-      
+
       const content = screen.getByTestId('tabs-content');
       expect(content).toBeInTheDocument();
       expect(content).toBeEmptyDOMElement();
     });
   });
-}); 
+});

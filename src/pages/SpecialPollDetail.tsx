@@ -18,7 +18,13 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Trash2 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function SpecialPollDetail() {
   const { pollId } = useParams<{ pollId: string }>();
@@ -150,16 +156,24 @@ export default function SpecialPollDetail() {
               ) : (
                 <ul className="mt-2 space-y-2">
                   {poll.responses.map((resp, idx) => (
-                    <li key={idx} className="border rounded p-2 bg-muted flex items-start justify-between gap-2">
+                    <li
+                      key={idx}
+                      className="border rounded p-2 bg-muted flex items-start justify-between gap-2"
+                    >
                       <div>
                         <div className="font-medium">{resp.userName}</div>
-                        <div className="text-sm text-muted-foreground">{format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                        </div>
                         <div className="mt-1">{resp.response}</div>
                       </div>
-                      <Dialog open={deleteDialogOpen && responseToDelete === resp} onOpenChange={open => {
-                        setDeleteDialogOpen(open);
-                        if (!open) setResponseToDelete(null);
-                      }}>
+                      <Dialog
+                        open={deleteDialogOpen && responseToDelete === resp}
+                        onOpenChange={open => {
+                          setDeleteDialogOpen(open);
+                          if (!open) setResponseToDelete(null);
+                        }}
+                      >
                         <DialogTrigger asChild>
                           <Button
                             variant="ghost"
@@ -179,7 +193,9 @@ export default function SpecialPollDetail() {
                           </DialogHeader>
                           <div className="mb-4 p-3 bg-muted rounded">
                             <div className="font-medium mb-1">{resp.userName}</div>
-                            <div className="text-sm text-muted-foreground mb-2">{format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}</div>
+                            <div className="text-sm text-muted-foreground mb-2">
+                              {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                            </div>
                             <div className="italic">{resp.response}</div>
                           </div>
                           <DialogFooter>
@@ -227,4 +243,4 @@ export default function SpecialPollDetail() {
       )}
     </div>
   );
-} 
+}

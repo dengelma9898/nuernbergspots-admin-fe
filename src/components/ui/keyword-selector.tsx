@@ -43,13 +43,16 @@ export function KeywordSelector({ selectedIds = [], onChange, className }: Keywo
   }, []); // Nur beim ersten Rendern laden
 
   // Memoize toggleKeyword function
-  const toggleKeyword = useCallback((keywordId: string) => {
-    onChange(
-      selectedIds.includes(keywordId)
-        ? selectedIds.filter(id => id !== keywordId)
-        : [...selectedIds, keywordId]
-    );
-  }, [selectedIds, onChange]);
+  const toggleKeyword = useCallback(
+    (keywordId: string) => {
+      onChange(
+        selectedIds.includes(keywordId)
+          ? selectedIds.filter(id => id !== keywordId)
+          : [...selectedIds, keywordId]
+      );
+    },
+    [selectedIds, onChange]
+  );
 
   // Memoize sorted keywords
   const sortedKeywords = useMemo(() => {
@@ -61,12 +64,12 @@ export function KeywordSelector({ selectedIds = [], onChange, className }: Keywo
   }
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       <div className="flex flex-wrap gap-2">
-        {sortedKeywords.map((keyword) => (
+        {sortedKeywords.map(keyword => (
           <Badge
             key={keyword.id}
-            variant={selectedIds.includes(keyword.id) ? "default" : "outline"}
+            variant={selectedIds.includes(keyword.id) ? 'default' : 'outline'}
             className="cursor-pointer hover:bg-accent transition-colors"
             onClick={() => toggleKeyword(keyword.id)}
           >
@@ -76,4 +79,4 @@ export function KeywordSelector({ selectedIds = [], onChange, className }: Keywo
       </div>
     </div>
   );
-} 
+}

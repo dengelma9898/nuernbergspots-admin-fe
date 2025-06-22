@@ -77,25 +77,25 @@ describe('Switch Komponente', () => {
     it('sollte auf Klick reagieren', async () => {
       const user = userEvent.setup();
       const handleChange = jest.fn();
-      
+
       render(<Switch onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       await user.click(switchElement);
       expect(handleChange).toHaveBeenCalledWith(true);
     });
 
     it('sollte zwischen checked und unchecked wechseln', async () => {
       const user = userEvent.setup();
-      
+
       render(<Switch data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       expect(switchElement).toHaveAttribute('data-state', 'unchecked');
-      
+
       await user.click(switchElement);
       expect(switchElement).toHaveAttribute('data-state', 'checked');
-      
+
       await user.click(switchElement);
       expect(switchElement).toHaveAttribute('data-state', 'unchecked');
     });
@@ -103,10 +103,10 @@ describe('Switch Komponente', () => {
     it('sollte nicht reagieren wenn disabled', async () => {
       const user = userEvent.setup();
       const handleChange = jest.fn();
-      
+
       render(<Switch disabled onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       await user.click(switchElement);
       expect(handleChange).not.toHaveBeenCalled();
     });
@@ -114,7 +114,7 @@ describe('Switch Komponente', () => {
     it('sollte fokussierbar sein', () => {
       render(<Switch data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       switchElement.focus();
       expect(switchElement).toHaveFocus();
     });
@@ -123,12 +123,12 @@ describe('Switch Komponente', () => {
   describe('Controlled vs Uncontrolled', () => {
     it('sollte als uncontrolled component funktionieren', async () => {
       const user = userEvent.setup();
-      
+
       render(<Switch defaultChecked={false} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       expect(switchElement).toHaveAttribute('data-state', 'unchecked');
-      
+
       await user.click(switchElement);
       expect(switchElement).toHaveAttribute('data-state', 'checked');
     });
@@ -136,17 +136,17 @@ describe('Switch Komponente', () => {
     it('sollte als controlled component funktionieren', async () => {
       const user = userEvent.setup();
       const handleChange = jest.fn();
-      
+
       const { rerender } = render(
         <Switch checked={false} onCheckedChange={handleChange} data-testid="switch" />
       );
       const switchElement = screen.getByTestId('switch');
-      
+
       expect(switchElement).toHaveAttribute('data-state', 'unchecked');
-      
+
       await user.click(switchElement);
       expect(handleChange).toHaveBeenCalledWith(true);
-      
+
       // Simulate parent component updating the checked prop
       rerender(<Switch checked={true} onCheckedChange={handleChange} data-testid="switch" />);
       expect(switchElement).toHaveAttribute('data-state', 'checked');
@@ -163,12 +163,12 @@ describe('Switch Komponente', () => {
 
     it('sollte aria-checked korrekt aktualisieren', async () => {
       const user = userEvent.setup();
-      
+
       render(<Switch data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       expect(switchElement).toHaveAttribute('aria-checked', 'false');
-      
+
       await user.click(switchElement);
       expect(switchElement).toHaveAttribute('aria-checked', 'true');
     });
@@ -204,7 +204,11 @@ describe('Switch Komponente', () => {
     it('sollte focus-visible Klassen haben', () => {
       render(<Switch data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      expect(switchElement).toHaveClass('focus-visible:border-ring', 'focus-visible:ring-ring/50', 'focus-visible:ring-[3px]');
+      expect(switchElement).toHaveClass(
+        'focus-visible:border-ring',
+        'focus-visible:ring-ring/50',
+        'focus-visible:ring-[3px]'
+      );
     });
   });
 
@@ -226,26 +230,26 @@ describe('Switch Komponente', () => {
     it('sollte mit schnellen aufeinanderfolgenden Klicks umgehen', async () => {
       const user = userEvent.setup();
       const handleChange = jest.fn();
-      
+
       render(<Switch onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       await user.click(switchElement);
       await user.click(switchElement);
       await user.click(switchElement);
-      
+
       expect(handleChange).toHaveBeenCalledTimes(3);
     });
 
     it('sollte mit undefined onCheckedChange umgehen', async () => {
       const user = userEvent.setup();
-      
+
       render(<Switch data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
-      
+
       // Should not throw error
       await user.click(switchElement);
       expect(switchElement).toHaveAttribute('data-state', 'checked');
     });
   });
-}); 
+});

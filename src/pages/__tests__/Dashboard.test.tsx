@@ -100,22 +100,22 @@ jest.mock('lucide-react', () => ({
 describe('Dashboard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Set up controlled promises for testing loading states
     mockGetPendingApprovalsCount.mockImplementation(() => {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         pendingApprovalsPromiseResolve = resolve;
       });
     });
-    
+
     mockGetBusinessUsersInReviewCount.mockImplementation(() => {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         usersInReviewPromiseResolve = resolve;
       });
     });
-    
+
     mockGetOpenContactRequestsCount.mockImplementation(() => {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         contactRequestsPromiseResolve = resolve;
       });
     });
@@ -123,14 +123,14 @@ describe('Dashboard Component', () => {
 
   it('renders dashboard header correctly', () => {
     render(<Dashboard />);
-    
+
     expect(screen.getByText('Admin Dashboard')).toBeTruthy();
     expect(screen.getByText(/Hi Sarah 👋, schön dass du wieder da bist ✨/)).toBeTruthy();
   });
 
   it('renders navigation sections', () => {
     render(<Dashboard />);
-    
+
     expect(screen.getByText('Management')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Partner' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Events' })).toBeTruthy();
@@ -141,7 +141,7 @@ describe('Dashboard Component', () => {
 
   it('renders navigation cards', () => {
     render(<Dashboard />);
-    
+
     expect(screen.getByText('Partner verwalten')).toBeTruthy();
     expect(screen.getByText('Business User verwalten')).toBeTruthy();
     expect(screen.getByText('Events verwalten')).toBeTruthy();
@@ -151,10 +151,10 @@ describe('Dashboard Component', () => {
   it('handles logout correctly', async () => {
     const user = userEvent.setup();
     render(<Dashboard />);
-    
+
     const logoutButton = screen.getByRole('button', { name: /Abmelden/i });
     await user.click(logoutButton);
-    
+
     expect(mockLogout).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
@@ -162,20 +162,20 @@ describe('Dashboard Component', () => {
   it('navigates to profile when profile button is clicked', async () => {
     const user = userEvent.setup();
     render(<Dashboard />);
-    
+
     const profileButton = screen.getAllByTestId('user-icon')[0].closest('button');
     await user.click(profileButton!);
-    
+
     expect(mockNavigate).toHaveBeenCalledWith('/profile');
   });
 
   describe('Skeleton Loading States', () => {
     it('shows skeleton for pending approvals while loading', () => {
       render(<Dashboard />);
-      
+
       // Should show skeleton with title but no actual count
       expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
-      
+
       // Should have skeleton elements (animate-pulse classes)
       const skeletonElements = document.querySelectorAll('.animate-pulse');
       expect(skeletonElements.length).toBeGreaterThan(0);
@@ -183,10 +183,10 @@ describe('Dashboard Component', () => {
 
     it('shows skeleton for users in review while loading', () => {
       render(<Dashboard />);
-      
+
       // Should show skeleton with title
       expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
-      
+
       // Should have skeleton elements
       const skeletonElements = document.querySelectorAll('.animate-pulse');
       expect(skeletonElements.length).toBeGreaterThan(0);
@@ -194,10 +194,10 @@ describe('Dashboard Component', () => {
 
     it('shows skeleton for contact requests while loading', () => {
       render(<Dashboard />);
-      
+
       // Should show skeleton with title
       expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
-      
+
       // Should have skeleton elements
       const skeletonElements = document.querySelectorAll('.animate-pulse');
       expect(skeletonElements.length).toBeGreaterThan(0);
@@ -205,15 +205,15 @@ describe('Dashboard Component', () => {
 
     it('replaces skeleton with real data when pending approvals loads', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
       const initialSkeletons = document.querySelectorAll('.animate-pulse');
       expect(initialSkeletons.length).toBeGreaterThan(0);
-      
+
       // Resolve pending approvals with count > 0
       pendingApprovalsPromiseResolve(5);
-      
+
       await waitFor(() => {
         expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
       });
@@ -221,13 +221,13 @@ describe('Dashboard Component', () => {
 
     it('replaces skeleton with real data when users in review loads', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
-      
+
       // Resolve users in review with count > 0
       usersInReviewPromiseResolve(3);
-      
+
       await waitFor(() => {
         expect(screen.getByText('3 Geschäftsinhaber warten auf Verifizierung')).toBeTruthy();
       });
@@ -235,13 +235,13 @@ describe('Dashboard Component', () => {
 
     it('replaces skeleton with real data when contact requests loads', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
-      
+
       // Resolve contact requests
       contactRequestsPromiseResolve(7);
-      
+
       await waitFor(() => {
         expect(screen.getByText('7 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
       });
@@ -249,13 +249,13 @@ describe('Dashboard Component', () => {
 
     it('hides pending approvals card when count is 0 after loading', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
-      
+
       // Resolve with 0 count
       pendingApprovalsPromiseResolve(0);
-      
+
       await waitFor(() => {
         // Card should be hidden when count is 0
         expect(screen.queryByText('0 neue Geschäfte warten auf Genehmigung')).toBeFalsy();
@@ -265,13 +265,13 @@ describe('Dashboard Component', () => {
 
     it('hides users in review card when count is 0 after loading', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
-      
+
       // Resolve with 0 count
       usersInReviewPromiseResolve(0);
-      
+
       await waitFor(() => {
         // Card should be hidden when count is 0
         expect(screen.queryByText('0 Geschäftsinhaber warten auf Verifizierung')).toBeFalsy();
@@ -281,13 +281,13 @@ describe('Dashboard Component', () => {
 
     it('always shows contact requests card even when count is 0', async () => {
       render(<Dashboard />);
-      
+
       // Initially should show skeleton
       expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
-      
+
       // Resolve with 0 count
       contactRequestsPromiseResolve(0);
-      
+
       await waitFor(() => {
         // Card should still be visible with 0 count
         expect(screen.getByText('0 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
@@ -301,9 +301,9 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(5);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(0);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Ausstehende Partner ✍️')).toBeTruthy();
       expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
@@ -315,9 +315,9 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(0);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(3);
     mockGetOpenContactRequestsCount.mockResolvedValue(0);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Geschäftsinhaber prüfen 🔍')).toBeTruthy();
       expect(screen.getByText('3 Geschäftsinhaber warten auf Verifizierung')).toBeTruthy();
@@ -329,9 +329,9 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(0);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(7);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
       expect(screen.getByText('7 neue Kontaktanfragen warten auf Bearbeitung')).toBeTruthy();
@@ -344,19 +344,21 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(5);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(0);
-    
+
     render(<Dashboard />);
-    
+
     // Wait for the data to load and the real card content to appear (not skeleton)
     await waitFor(() => {
       expect(screen.getByText('5 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
     });
-    
+
     // Find the button specifically in the pending approvals card by looking for the button near the "Ausstehende Partner" text
-    const pendingApprovalsSection = screen.getByText('Ausstehende Partner ✍️').closest('[data-testid="card"]');
+    const pendingApprovalsSection = screen
+      .getByText('Ausstehende Partner ✍️')
+      .closest('[data-testid="card"]');
     const checkButton = within(pendingApprovalsSection!).getByText('Jetzt prüfen');
     await user.click(checkButton);
-    
+
     expect(mockNavigate).toHaveBeenCalledWith('/businesses?filter=pending');
   });
 
@@ -364,12 +366,12 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockRejectedValue(new Error('Service error'));
     mockGetBusinessUsersInReviewCount.mockRejectedValue(new Error('Service error'));
     mockGetOpenContactRequestsCount.mockRejectedValue(new Error('Service error'));
-    
+
     render(<Dashboard />);
-    
+
     // Component should still render without crashing
     expect(screen.getByText('Admin Dashboard')).toBeTruthy();
-    
+
     // After errors, skeletons should disappear
     await waitFor(() => {
       const skeletonElements = document.querySelectorAll('.animate-pulse');
@@ -382,15 +384,15 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(0);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(0);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       // Should not show pending approval cards when count is 0
       expect(screen.queryByText('Ausstehende Partner ✍️')).toBeFalsy();
       expect(screen.queryByText('Geschäftsinhaber prüfen 🔍')).toBeFalsy();
     });
-    
+
     // But should still show contact requests card (always visible)
     expect(screen.getByText('Offene Kontaktanfragen 📧')).toBeTruthy();
   });
@@ -399,9 +401,9 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(15); // > 10 should show 🔥
     mockGetBusinessUsersInReviewCount.mockResolvedValue(0);
     mockGetOpenContactRequestsCount.mockResolvedValue(0);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('🔥')).toBeTruthy();
       expect(screen.getByText('15 neue Geschäfte warten auf Genehmigung')).toBeTruthy();
@@ -412,11 +414,11 @@ describe('Dashboard Component', () => {
     mockGetPendingApprovalsCount.mockResolvedValue(15);
     mockGetBusinessUsersInReviewCount.mockResolvedValue(5);
     mockGetOpenContactRequestsCount.mockResolvedValue(3);
-    
+
     render(<Dashboard />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Da wartet eine Menge Arbeit auf dich! 💪')).toBeTruthy();
     });
   });
-}); 
+});

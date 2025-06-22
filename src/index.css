@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import 'material-icons/iconfont/material-icons.css';
 
 @custom-variant dark (&:is(.dark *));
@@ -120,7 +120,7 @@
   .font-league-spartan {
     font-family: 'League Spartan', sans-serif;
   }
-  
+
   .font-montserrat {
     font-family: 'Montserrat', sans-serif;
   }

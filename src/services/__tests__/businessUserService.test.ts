@@ -11,11 +11,11 @@ const mockApi = {
 // Mock Auth Context
 const mockUser = {
   uid: 'admin-user-123',
-  email: 'admin@example.com'
+  email: 'admin@example.com',
 };
 
 const mockAuth = {
-  user: mockUser as any
+  user: mockUser as any,
 };
 
 jest.mock('../../lib/api', () => ({
@@ -23,7 +23,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('../../contexts/AuthContext', () => ({
@@ -33,7 +33,7 @@ jest.mock('../../contexts/AuthContext', () => ({
 // Mock React
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
-  useMemo: jest.fn((fn) => fn()),
+  useMemo: jest.fn(fn => fn()),
 }));
 
 import { useBusinessUserService } from '../businessUserService';
@@ -50,8 +50,8 @@ describe('Business User Service', () => {
   describe('getBusinessUsers', () => {
     it('should fetch all business users successfully', async () => {
       const mockBusinessUsers = [
-        { 
-          id: 'user1', 
+        {
+          id: 'user1',
           email: 'business1@example.com',
           businessIds: ['business1', 'business2'],
           createdAt: '2024-01-01',
@@ -59,10 +59,10 @@ describe('Business User Service', () => {
           isDeleted: false,
           needsReview: false,
           eventIds: ['event1'],
-          contactRequestIds: ['contact1']
+          contactRequestIds: ['contact1'],
         },
-        { 
-          id: 'user2', 
+        {
+          id: 'user2',
           email: 'business2@example.com',
           businessIds: ['business3'],
           createdAt: '2024-01-01',
@@ -70,7 +70,7 @@ describe('Business User Service', () => {
           isDeleted: false,
           needsReview: true,
           eventIds: [],
-          contactRequestIds: []
+          contactRequestIds: [],
         },
       ];
       mockApi.get.mockResolvedValue({ data: mockBusinessUsers });
@@ -92,8 +92,9 @@ describe('Business User Service', () => {
       // Create new service instance with null user
       const noUserService = useBusinessUserService();
 
-      await expect(noUserService.getBusinessUsers())
-        .rejects.toThrow('Kein eingeloggter Benutzer gefunden');
+      await expect(noUserService.getBusinessUsers()).rejects.toThrow(
+        'Kein eingeloggter Benutzer gefunden'
+      );
     });
 
     it('should throw error when user has no uid', async () => {
@@ -101,15 +102,16 @@ describe('Business User Service', () => {
       // Create new service instance with user without uid
       const noUidService = useBusinessUserService();
 
-      await expect(noUidService.getBusinessUsers())
-        .rejects.toThrow('Kein eingeloggter Benutzer gefunden');
+      await expect(noUidService.getBusinessUsers()).rejects.toThrow(
+        'Kein eingeloggter Benutzer gefunden'
+      );
     });
   });
 
   describe('getBusinessUser', () => {
     it('should fetch a specific business user', async () => {
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'business1@example.com',
         businessIds: ['business1', 'business2'],
         createdAt: '2024-01-01',
@@ -117,7 +119,7 @@ describe('Business User Service', () => {
         isDeleted: false,
         needsReview: false,
         eventIds: ['event1', 'event2'],
-        contactRequestIds: ['contact1']
+        contactRequestIds: ['contact1'],
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -130,15 +132,15 @@ describe('Business User Service', () => {
     it('should handle user not found', async () => {
       mockApi.get.mockRejectedValue(new Error('User not found'));
 
-      await expect(businessUserService.getBusinessUser('nonexistent'))
-        .rejects.toThrow('User not found');
+      await expect(businessUserService.getBusinessUser('nonexistent')).rejects.toThrow(
+        'User not found'
+      );
     });
 
     it('should handle unauthorized access', async () => {
       mockApi.get.mockRejectedValue(new Error('Unauthorized'));
 
-      await expect(businessUserService.getBusinessUser('user1'))
-        .rejects.toThrow('Unauthorized');
+      await expect(businessUserService.getBusinessUser('user1')).rejects.toThrow('Unauthorized');
     });
   });
 
@@ -157,8 +159,9 @@ describe('Business User Service', () => {
     it('should handle add business errors', async () => {
       mockApi.post.mockRejectedValue(new Error('Business assignment failed'));
 
-      await expect(businessUserService.addBusinessToUser('user1', 'business123'))
-        .rejects.toThrow('Business assignment failed');
+      await expect(businessUserService.addBusinessToUser('user1', 'business123')).rejects.toThrow(
+        'Business assignment failed'
+      );
     });
 
     it('should throw error when no user is logged in', async () => {
@@ -166,8 +169,9 @@ describe('Business User Service', () => {
       // Create new service instance with null user
       const noUserService = useBusinessUserService();
 
-      await expect(noUserService.addBusinessToUser('user1', 'business123'))
-        .rejects.toThrow('Kein eingeloggter Benutzer gefunden');
+      await expect(noUserService.addBusinessToUser('user1', 'business123')).rejects.toThrow(
+        'Kein eingeloggter Benutzer gefunden'
+      );
     });
 
     it('should throw error when user has no uid', async () => {
@@ -175,29 +179,32 @@ describe('Business User Service', () => {
       // Create new service instance with user without uid
       const noUidService = useBusinessUserService();
 
-      await expect(noUidService.addBusinessToUser('user1', 'business123'))
-        .rejects.toThrow('Kein eingeloggter Benutzer gefunden');
+      await expect(noUidService.addBusinessToUser('user1', 'business123')).rejects.toThrow(
+        'Kein eingeloggter Benutzer gefunden'
+      );
     });
 
     it('should handle invalid business ID', async () => {
       mockApi.post.mockRejectedValue(new Error('Business not found'));
 
-      await expect(businessUserService.addBusinessToUser('user1', 'invalid-business'))
-        .rejects.toThrow('Business not found');
+      await expect(
+        businessUserService.addBusinessToUser('user1', 'invalid-business')
+      ).rejects.toThrow('Business not found');
     });
 
     it('should handle invalid user ID', async () => {
       mockApi.post.mockRejectedValue(new Error('User not found'));
 
-      await expect(businessUserService.addBusinessToUser('invalid-user', 'business123'))
-        .rejects.toThrow('User not found');
+      await expect(
+        businessUserService.addBusinessToUser('invalid-user', 'business123')
+      ).rejects.toThrow('User not found');
     });
   });
 
   describe('edge cases', () => {
     it('should handle business users with empty arrays', async () => {
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'minimal@example.com',
         businessIds: [],
         createdAt: '2024-01-01',
@@ -205,7 +212,7 @@ describe('Business User Service', () => {
         isDeleted: false,
         needsReview: false,
         eventIds: [],
-        contactRequestIds: []
+        contactRequestIds: [],
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -218,14 +225,14 @@ describe('Business User Service', () => {
 
     it('should handle business users with many businesses', async () => {
       const manyBusinessIds = Array.from({ length: 50 }, (_, i) => `business${i}`);
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'power-user@example.com',
         businessIds: manyBusinessIds,
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
         isDeleted: false,
-        needsReview: false
+        needsReview: false,
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -235,14 +242,14 @@ describe('Business User Service', () => {
     });
 
     it('should handle deleted business users', async () => {
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'deleted@example.com',
         businessIds: ['business1'],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
         isDeleted: true,
-        needsReview: false
+        needsReview: false,
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -252,14 +259,14 @@ describe('Business User Service', () => {
     });
 
     it('should handle business users needing review', async () => {
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'review@example.com',
         businessIds: ['business1'],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
         isDeleted: false,
-        needsReview: true
+        needsReview: true,
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -269,14 +276,14 @@ describe('Business User Service', () => {
     });
 
     it('should handle unicode characters in email addresses', async () => {
-      const mockBusinessUser = { 
-        id: 'user1', 
+      const mockBusinessUser = {
+        id: 'user1',
         email: 'üser@exämple.com',
         businessIds: ['business1'],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
         isDeleted: false,
-        needsReview: false
+        needsReview: false,
       };
       mockApi.get.mockResolvedValue({ data: mockBusinessUser });
 
@@ -296,15 +303,15 @@ describe('Business User Service', () => {
     it('should handle server errors', async () => {
       mockApi.post.mockRejectedValue(new Error('Internal server error'));
 
-      await expect(businessUserService.addBusinessToUser('user1', 'business1'))
-        .rejects.toThrow('Internal server error');
+      await expect(businessUserService.addBusinessToUser('user1', 'business1')).rejects.toThrow(
+        'Internal server error'
+      );
     });
 
     it('should handle forbidden access', async () => {
       mockApi.get.mockRejectedValue(new Error('Forbidden'));
 
-      await expect(businessUserService.getBusinessUser('user1'))
-        .rejects.toThrow('Forbidden');
+      await expect(businessUserService.getBusinessUser('user1')).rejects.toThrow('Forbidden');
     });
 
     it('should handle malformed responses', async () => {
@@ -328,10 +335,10 @@ describe('Business User Service', () => {
     it('should work with different user IDs', async () => {
       const differentUser = { uid: 'different-admin-456', email: 'different@example.com' };
       mockAuth.user = differentUser;
-      
+
       // Re-create service with new user
       businessUserService = useBusinessUserService();
-      
+
       mockApi.get.mockResolvedValue({ data: [] });
 
       await businessUserService.getBusinessUsers();
@@ -346,7 +353,7 @@ describe('Business User Service', () => {
 
       // Change user
       mockAuth.user = { uid: 'new-user-789', email: 'new@example.com' };
-      
+
       // Service should still use original user due to useMemo
       await businessUserService.getBusinessUsers();
 
@@ -375,16 +382,29 @@ describe('Business User Service', () => {
       await businessUserService.addBusinessToUser('user1', 'business3');
 
       expect(mockApi.post).toHaveBeenCalledTimes(3);
-      expect(mockApi.post).toHaveBeenNthCalledWith(1, '/users/user1/business-user/businesses/business1', {});
-      expect(mockApi.post).toHaveBeenNthCalledWith(2, '/users/user1/business-user/businesses/business2', {});
-      expect(mockApi.post).toHaveBeenNthCalledWith(3, '/users/user1/business-user/businesses/business3', {});
+      expect(mockApi.post).toHaveBeenNthCalledWith(
+        1,
+        '/users/user1/business-user/businesses/business1',
+        {}
+      );
+      expect(mockApi.post).toHaveBeenNthCalledWith(
+        2,
+        '/users/user1/business-user/businesses/business2',
+        {}
+      );
+      expect(mockApi.post).toHaveBeenNthCalledWith(
+        3,
+        '/users/user1/business-user/businesses/business3',
+        {}
+      );
     });
 
     it('should handle duplicate business assignment', async () => {
       mockApi.post.mockRejectedValue(new Error('Business already assigned'));
 
-      await expect(businessUserService.addBusinessToUser('user1', 'business1'))
-        .rejects.toThrow('Business already assigned');
+      await expect(businessUserService.addBusinessToUser('user1', 'business1')).rejects.toThrow(
+        'Business already assigned'
+      );
     });
 
     it('should handle business assignment with special characters in IDs', async () => {
@@ -398,4 +418,4 @@ describe('Business User Service', () => {
       );
     });
   });
-}); 
+});

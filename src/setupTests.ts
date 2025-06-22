@@ -100,4 +100,4 @@ jest.mock('./contexts/AuthContext', () => ({
     isAuthenticated: false,
   }),
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
-})); 
+}));

@@ -4,4 +4,4 @@ module.exports = {
     '@tailwindcss/postcss7-compat': {},
     autoprefixer: {},
   },
-} 
+};

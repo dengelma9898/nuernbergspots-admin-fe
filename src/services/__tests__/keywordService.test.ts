@@ -16,7 +16,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useKeywordService } from '../keywordService';
@@ -32,8 +32,20 @@ describe('Keyword Service', () => {
   describe('getKeywords', () => {
     it('should fetch all keywords successfully', async () => {
       const mockKeywords = [
-        { id: '1', name: 'Restaurant', description: 'Food related keyword', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
-        { id: '2', name: 'Hotel', description: 'Accommodation keyword', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
+        {
+          id: '1',
+          name: 'Restaurant',
+          description: 'Food related keyword',
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        },
+        {
+          id: '2',
+          name: 'Hotel',
+          description: 'Accommodation keyword',
+          createdAt: '2024-01-01',
+          updatedAt: '2024-01-01',
+        },
       ];
       mockApi.get.mockResolvedValue({ data: mockKeywords });
 
@@ -52,12 +64,12 @@ describe('Keyword Service', () => {
 
   describe('getKeyword', () => {
     it('should fetch a specific keyword', async () => {
-      const mockKeyword = { 
-        id: '1', 
-        name: 'Restaurant', 
+      const mockKeyword = {
+        id: '1',
+        name: 'Restaurant',
         description: 'Food related keyword',
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
+        updatedAt: '2024-01-01',
       };
       mockApi.get.mockResolvedValue({ data: mockKeyword });
 
@@ -78,13 +90,13 @@ describe('Keyword Service', () => {
     it('should create a new keyword', async () => {
       const keywordData = {
         name: 'Fitness',
-        description: 'Health and fitness related keyword'
+        description: 'Health and fitness related keyword',
       };
-      const createdKeyword = { 
-        id: '1', 
-        ...keywordData, 
+      const createdKeyword = {
+        id: '1',
+        ...keywordData,
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
+        updatedAt: '2024-01-01',
       };
       mockApi.post.mockResolvedValue({ data: createdKeyword });
 
@@ -97,7 +109,7 @@ describe('Keyword Service', () => {
     it('should handle creation errors', async () => {
       const keywordData = {
         name: 'Test',
-        description: 'Test keyword'
+        description: 'Test keyword',
       };
       mockApi.post.mockRejectedValue(new Error('Creation failed'));
 
@@ -108,12 +120,12 @@ describe('Keyword Service', () => {
   describe('updateKeyword', () => {
     it('should update an existing keyword', async () => {
       const updateData = { name: 'Updated Restaurant', description: 'Updated description' };
-      const updatedKeyword = { 
-        id: '1', 
+      const updatedKeyword = {
+        id: '1',
         name: 'Updated Restaurant',
         description: 'Updated description',
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-02'
+        updatedAt: '2024-01-02',
       };
       mockApi.patch.mockResolvedValue({ data: updatedKeyword });
 
@@ -125,12 +137,12 @@ describe('Keyword Service', () => {
 
     it('should handle partial updates', async () => {
       const updateData = { name: 'New Name Only' };
-      const updatedKeyword = { 
-        id: '1', 
+      const updatedKeyword = {
+        id: '1',
         name: 'New Name Only',
         description: 'Original description',
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-02'
+        updatedAt: '2024-01-02',
       };
       mockApi.patch.mockResolvedValue({ data: updatedKeyword });
 
@@ -208,24 +220,26 @@ describe('Keyword Service', () => {
     it('should handle empty keyword name', async () => {
       const keywordData = {
         name: '',
-        description: 'Empty name test'
+        description: 'Empty name test',
       };
       mockApi.post.mockRejectedValue(new Error('Name cannot be empty'));
 
-      await expect(keywordService.createKeyword(keywordData)).rejects.toThrow('Name cannot be empty');
+      await expect(keywordService.createKeyword(keywordData)).rejects.toThrow(
+        'Name cannot be empty'
+      );
     });
 
     it('should handle very long keyword names', async () => {
       const longName = 'a'.repeat(1000);
       const keywordData = {
         name: longName,
-        description: 'Long name test'
+        description: 'Long name test',
       };
-      const createdKeyword = { 
-        id: '1', 
-        ...keywordData, 
+      const createdKeyword = {
+        id: '1',
+        ...keywordData,
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
+        updatedAt: '2024-01-01',
       };
       mockApi.post.mockResolvedValue({ data: createdKeyword });
 
@@ -237,13 +251,13 @@ describe('Keyword Service', () => {
     it('should handle unicode characters in keyword names', async () => {
       const keywordData = {
         name: 'Café & Résturant 🍽️',
-        description: 'Unicode test'
+        description: 'Unicode test',
       };
-      const createdKeyword = { 
-        id: '1', 
-        ...keywordData, 
+      const createdKeyword = {
+        id: '1',
+        ...keywordData,
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
+        updatedAt: '2024-01-01',
       };
       mockApi.post.mockResolvedValue({ data: createdKeyword });
 
@@ -263,15 +277,17 @@ describe('Keyword Service', () => {
     it('should handle server errors', async () => {
       mockApi.post.mockRejectedValue(new Error('Internal server error'));
 
-      await expect(keywordService.createKeyword({ name: 'Test', description: 'Test' }))
-        .rejects.toThrow('Internal server error');
+      await expect(
+        keywordService.createKeyword({ name: 'Test', description: 'Test' })
+      ).rejects.toThrow('Internal server error');
     });
 
     it('should handle unauthorized access', async () => {
       mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
 
-      await expect(keywordService.updateKeyword('1', { name: 'New Name' }))
-        .rejects.toThrow('Unauthorized');
+      await expect(keywordService.updateKeyword('1', { name: 'New Name' })).rejects.toThrow(
+        'Unauthorized'
+      );
     });
   });
-}); 
+});

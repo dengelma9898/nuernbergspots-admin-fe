@@ -17,7 +17,7 @@ jest.mock('../../lib/api', () => ({
 }));
 
 jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response) => response.data),
+  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useBusinessCategoryService } from '../businessCategoryService';
@@ -33,17 +33,17 @@ describe('Business Category Service', () => {
   describe('getCategories', () => {
     it('should fetch all business categories with keywords', async () => {
       const mockCategories = [
-        { 
-          id: '1', 
-          name: 'Restaurant', 
+        {
+          id: '1',
+          name: 'Restaurant',
           icon: 'restaurant',
-          keywords: ['food', 'dining', 'cuisine']
+          keywords: ['food', 'dining', 'cuisine'],
         },
-        { 
-          id: '2', 
-          name: 'Hotel', 
+        {
+          id: '2',
+          name: 'Hotel',
           icon: 'hotel',
-          keywords: ['accommodation', 'stay', 'lodging']
+          keywords: ['accommodation', 'stay', 'lodging'],
         },
       ];
       mockApi.get.mockResolvedValue({ data: mockCategories });
@@ -63,12 +63,12 @@ describe('Business Category Service', () => {
 
   describe('getCategory', () => {
     it('should fetch a specific business category', async () => {
-      const mockCategory = { 
-        id: '1', 
-        name: 'Restaurant', 
+      const mockCategory = {
+        id: '1',
+        name: 'Restaurant',
         icon: 'restaurant',
         description: 'Food and dining establishments',
-        keywords: ['food', 'dining']
+        keywords: ['food', 'dining'],
       };
       mockApi.get.mockResolvedValue({ data: mockCategory });
 
@@ -84,14 +84,14 @@ describe('Business Category Service', () => {
       const categoryData = {
         name: 'Fitness Center',
         iconName: 'fitness',
-        description: 'Gyms and fitness facilities'
+        description: 'Gyms and fitness facilities',
       };
-      const createdCategory = { 
-        id: '1', 
-        ...categoryData, 
+      const createdCategory = {
+        id: '1',
+        ...categoryData,
         keywords: [],
         createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
+        updatedAt: '2024-01-01',
       };
       mockApi.post.mockResolvedValue({ data: createdCategory });
 
@@ -105,12 +105,12 @@ describe('Business Category Service', () => {
   describe('updateCategory', () => {
     it('should update an existing business category', async () => {
       const updateData = { name: 'Updated Restaurant', color: '#E91E63' };
-      const updatedCategory = { 
-        id: '1', 
+      const updatedCategory = {
+        id: '1',
         name: 'Updated Restaurant',
         icon: 'restaurant',
         color: '#E91E63',
-        updatedAt: '2024-01-02'
+        updatedAt: '2024-01-02',
       };
       mockApi.patch.mockResolvedValue({ data: updatedCategory });
 
@@ -134,37 +134,37 @@ describe('Business Category Service', () => {
   describe('updateCategoryKeywords', () => {
     it('should update category keywords', async () => {
       const keywordIds = ['keyword1', 'keyword2', 'keyword3'];
-      const updatedCategory = { 
-        id: '1', 
+      const updatedCategory = {
+        id: '1',
         name: 'Restaurant',
         keywords: [
           { id: 'keyword1', name: 'food' },
           { id: 'keyword2', name: 'dining' },
-          { id: 'keyword3', name: 'cuisine' }
-        ]
+          { id: 'keyword3', name: 'cuisine' },
+        ],
       };
       mockApi.put.mockResolvedValue({ data: updatedCategory });
 
       const result = await businessCategoryService.updateCategoryKeywords('1', keywordIds);
 
       expect(mockApi.put).toHaveBeenCalledWith('/business-categories/1/keywords', {
-        keywordIds
+        keywordIds,
       });
       expect(result).toEqual(updatedCategory);
     });
 
     it('should handle empty keyword array', async () => {
-      const updatedCategory = { 
-        id: '1', 
+      const updatedCategory = {
+        id: '1',
         name: 'Restaurant',
-        keywords: []
+        keywords: [],
       };
       mockApi.put.mockResolvedValue({ data: updatedCategory });
 
       const result = await businessCategoryService.updateCategoryKeywords('1', []);
 
       expect(mockApi.put).toHaveBeenCalledWith('/business-categories/1/keywords', {
-        keywordIds: []
+        keywordIds: [],
       });
       expect(result).toEqual(updatedCategory);
     });
@@ -190,7 +190,9 @@ describe('Business Category Service', () => {
 
       await businessCategoryService.searchCategories('café & restaurant');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/business-categories/search?q=caf%C3%A9%20%26%20restaurant');
+      expect(mockApi.get).toHaveBeenCalledWith(
+        '/business-categories/search?q=caf%C3%A9%20%26%20restaurant'
+      );
     });
 
     it('should handle empty search results', async () => {
@@ -230,39 +232,43 @@ describe('Business Category Service', () => {
     it('should handle create category errors', async () => {
       mockApi.post.mockRejectedValue(new Error('Creation failed'));
 
-      await expect(businessCategoryService.createCategory({
-        name: 'Test Category',
-        iconName: 'test',
-        description: 'Test description'
-      })).rejects.toThrow('Creation failed');
+      await expect(
+        businessCategoryService.createCategory({
+          name: 'Test Category',
+          iconName: 'test',
+          description: 'Test description',
+        })
+      ).rejects.toThrow('Creation failed');
     });
 
     it('should handle update category errors', async () => {
       mockApi.patch.mockRejectedValue(new Error('Update failed'));
 
-      await expect(businessCategoryService.updateCategory('1', { name: 'New Name' }))
-        .rejects.toThrow('Update failed');
+      await expect(
+        businessCategoryService.updateCategory('1', { name: 'New Name' })
+      ).rejects.toThrow('Update failed');
     });
 
     it('should handle delete category errors', async () => {
       mockApi.delete.mockRejectedValue(new Error('Delete failed'));
 
-      await expect(businessCategoryService.deleteCategory('1'))
-        .rejects.toThrow('Delete failed');
+      await expect(businessCategoryService.deleteCategory('1')).rejects.toThrow('Delete failed');
     });
 
     it('should handle keyword update errors', async () => {
       mockApi.put.mockRejectedValue(new Error('Keyword update failed'));
 
-      await expect(businessCategoryService.updateCategoryKeywords('1', ['keyword1']))
-        .rejects.toThrow('Keyword update failed');
+      await expect(
+        businessCategoryService.updateCategoryKeywords('1', ['keyword1'])
+      ).rejects.toThrow('Keyword update failed');
     });
 
     it('should handle search errors', async () => {
       mockApi.get.mockRejectedValue(new Error('Search failed'));
 
-      await expect(businessCategoryService.searchCategories('test'))
-        .rejects.toThrow('Search failed');
+      await expect(businessCategoryService.searchCategories('test')).rejects.toThrow(
+        'Search failed'
+      );
     });
   });
 
@@ -273,7 +279,9 @@ describe('Business Category Service', () => {
 
       await businessCategoryService.searchCategories('test@#$%^&*()');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/business-categories/search?q=test%40%23%24%25%5E%26*()');
+      expect(mockApi.get).toHaveBeenCalledWith(
+        '/business-categories/search?q=test%40%23%24%25%5E%26*()'
+      );
     });
 
     it('should handle empty search query', async () => {
@@ -294,4 +302,4 @@ describe('Business Category Service', () => {
       expect(mockApi.get).toHaveBeenCalledWith('/business-categories/icon/caf%C3%A9');
     });
   });
-}); 
+});

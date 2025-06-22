@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -16,17 +16,17 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  MapPin, 
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  MapPin,
   Phone,
   Mail,
   Globe,
@@ -40,16 +40,16 @@ import {
   Pencil,
   Image as ImageIcon,
   Trash2,
-  ArrowLeft
+  ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
 import { useBusinessService } from '@/services/businessService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BusinessCategory } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
@@ -73,8 +73,9 @@ export const BusinessList: React.FC = () => {
       const fetchedBusinesses = await businessService.getBusinesses();
       setBusinesses(fetchedBusinesses);
     } catch (error) {
-      toast.error("Fehler beim Laden der Geschäfte", {
-        description: "Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Laden der Geschäfte', {
+        description:
+          'Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
       });
     } finally {
       setLoading(false);
@@ -117,13 +118,14 @@ export const BusinessList: React.FC = () => {
   const handleDelete = async (businessId: string) => {
     try {
       await businessService.deleteBusiness(businessId);
-      toast.success("Geschäft gelöscht", {
-        description: "Das Geschäft wurde erfolgreich gelöscht.",
+      toast.success('Geschäft gelöscht', {
+        description: 'Das Geschäft wurde erfolgreich gelöscht.',
       });
       loadBusinesses();
     } catch (error) {
-      toast.error("Fehler beim Löschen", {
-        description: "Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Löschen', {
+        description:
+          'Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
       });
     }
   };
@@ -142,25 +144,25 @@ export const BusinessList: React.FC = () => {
         return {
           label: 'Aktiv',
           icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'default' as const
+          variant: 'default' as const,
         };
       case BusinessStatus.PENDING:
         return {
           label: 'Ausstehend',
           icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const
+          variant: 'outline' as const,
         };
       case BusinessStatus.INACTIVE:
         return {
           label: 'Inaktiv',
           icon: <XCircle className="h-4 w-4" />,
-          variant: 'secondary' as const
+          variant: 'secondary' as const,
         };
       default:
         return {
           label: 'Unbekannt',
           icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'secondary' as const
+          variant: 'secondary' as const,
         };
     }
   };
@@ -199,14 +201,11 @@ export const BusinessList: React.FC = () => {
             />
             {business.imageUrls.length > 1 && (
               <Badge variant="secondary" className="absolute top-2 right-2">
-                <ImageIcon className="mr-1 h-3 w-3" />
-                +{business.imageUrls.length - 1}
+                <ImageIcon className="mr-1 h-3 w-3" />+{business.imageUrls.length - 1}
               </Badge>
             )}
             {business.isPromoted && (
-              <Badge 
-                className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600"
-              >
+              <Badge className="absolute top-2 left-2 bg-yellow-500/90 text-white border-yellow-600">
                 <Star className="mr-1 h-3 w-3 fill-current" />
                 Highlight
               </Badge>
@@ -239,15 +238,11 @@ export const BusinessList: React.FC = () => {
           </div>
         </CardHeader>
         <CardContent className="flex-grow">
-          <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-            {business.description}
-          </p>
+          <p className="text-sm text-muted-foreground line-clamp-3 mb-4">{business.description}</p>
           <div className="space-y-2">
             <div className="flex items-center text-sm">
               <MapPin className="mr-2 h-4 w-4" />
-              <span className="truncate">
-                {formatAddress(business.address)}
-              </span>
+              <span className="truncate">{formatAddress(business.address)}</span>
             </div>
             {business.contact.phoneNumber && (
               <div className="flex items-center text-sm">
@@ -264,7 +259,12 @@ export const BusinessList: React.FC = () => {
             {business.contact.website && (
               <div className="flex items-center text-sm">
                 <Globe className="mr-2 h-4 w-4" />
-                <a href={business.contact.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                <a
+                  href={business.contact.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline"
+                >
                   Website besuchen
                 </a>
               </div>
@@ -302,11 +302,7 @@ export const BusinessList: React.FC = () => {
               <Pencil className="mr-1 h-3 w-3" />
               Bearbeiten
             </Button>
-            <Button 
-              variant="destructive" 
-              size="sm"
-              onClick={() => handleDelete(business.id)}
-            >
+            <Button variant="destructive" size="sm" onClick={() => handleDelete(business.id)}>
               Löschen
             </Button>
           </div>
@@ -322,11 +318,15 @@ export const BusinessList: React.FC = () => {
   const filteredBusinesses = businesses.filter(business => {
     const matchesSearch = business.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPendingFilter = !showOnlyPending || business.status === BusinessStatus.PENDING;
-    const matchesReviewFilter = !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
-    const matchesPendingPartnersFilter = !showOnlyPendingPartners || 
+    const matchesReviewFilter =
+      !showOnlyWithoutReview || !business.nuernbergspotsReview?.reviewText;
+    const matchesPendingPartnersFilter =
+      !showOnlyPendingPartners ||
       (business.status === BusinessStatus.PENDING && business.hasAccount === true);
-    
-    return matchesSearch && matchesPendingFilter && matchesReviewFilter && matchesPendingPartnersFilter;
+
+    return (
+      matchesSearch && matchesPendingFilter && matchesReviewFilter && matchesPendingPartnersFilter
+    );
   });
 
   const activeBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.ACTIVE);
@@ -356,7 +356,7 @@ export const BusinessList: React.FC = () => {
               <Input
                 placeholder="Nach Geschäftsnamen suchen..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="max-w-sm"
               />
             </div>
@@ -442,4 +442,4 @@ export const BusinessList: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

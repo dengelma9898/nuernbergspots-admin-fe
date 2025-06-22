@@ -27,7 +27,7 @@ describe('Login Component', () => {
 
   it('renders login form elements', () => {
     render(<Login />);
-    
+
     // Teste ob die grundlegenden Elemente vorhanden sind
     expect(screen.getByText('Admin Login')).toBeTruthy();
     expect(screen.getByLabelText('E-Mail')).toBeTruthy();
@@ -38,16 +38,16 @@ describe('Login Component', () => {
   it('calls login function when form is submitted', async () => {
     const user = userEvent.setup();
     render(<Login />);
-    
+
     // Formular vollständig ausfüllen bevor submit
     const emailInput = screen.getByLabelText('E-Mail');
     const passwordInput = screen.getByLabelText('Passwort');
     const submitButton = screen.getByRole('button', { name: 'Anmelden' });
-    
+
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
     await user.click(submitButton);
-    
+
     // Verifiziere dass die Login-Funktion aufgerufen wurde
     expect(mockLogin).toHaveBeenCalled();
   });
@@ -55,22 +55,22 @@ describe('Login Component', () => {
   it('handles user input correctly', async () => {
     const user = userEvent.setup();
     render(<Login />);
-    
+
     // Teste dass wir mit dem Formular interagieren können
     const emailInput = screen.getByLabelText('E-Mail');
     const passwordInput = screen.getByLabelText('Passwort');
     const button = screen.getByRole('button', { name: 'Anmelden' });
-    
+
     // Teste Eingabe
     await user.type(emailInput, 'test@example.com');
     await user.type(passwordInput, 'password123');
-    
+
     expect((emailInput as HTMLInputElement).value).toBe('test@example.com');
     expect((passwordInput as HTMLInputElement).value).toBe('password123');
-    
+
     // Teste Button-Klick
     await user.click(button);
-    
+
     expect(mockLogin).toHaveBeenCalled();
   });
-}); 
+});

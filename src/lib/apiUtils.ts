@@ -9,4 +9,4 @@ export interface ApiResponse<T> {
  */
 export function unwrapData<T>(response: ApiResponse<T>): T {
   return response.data;
-} 
+}

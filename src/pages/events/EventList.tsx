@@ -1,22 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Card, 
-  CardHeader, 
+import {
+  Card,
+  CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
-  CardDescription
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  MapPin, 
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  MapPin,
   Image as ImageIcon,
-  Heart, 
-  Ticket, 
+  Heart,
+  Ticket,
   Euro,
   Clock,
   CheckCircle2,
@@ -26,7 +26,7 @@ import {
   Tag,
   Star,
   StarOff,
-  Plus
+  Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Event } from '@/models/events';
@@ -42,7 +42,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import { getIconComponent } from '@/utils/iconUtils';
 import { CalendarWeekSelect } from '@/components/ui/calendar-week-select';
 
@@ -64,13 +64,14 @@ export const EventList: React.FC = () => {
       setLoading(true);
       const [fetchedEvents, fetchedCategories] = await Promise.all([
         eventService.getEvents(),
-        eventCategoryService.getCategories()
+        eventCategoryService.getCategories(),
       ]);
       setEvents(fetchedEvents);
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error("Fehler beim Laden der Daten", {
-        description: "Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Laden der Daten', {
+        description:
+          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
       });
     } finally {
       setLoading(false);
@@ -84,13 +85,14 @@ export const EventList: React.FC = () => {
   const handleDelete = async (eventId: string) => {
     try {
       await eventService.deleteEvent(eventId);
-      toast.success("Event gelöscht", {
-        description: "Das Event wurde erfolgreich gelöscht.",
+      toast.success('Event gelöscht', {
+        description: 'Das Event wurde erfolgreich gelöscht.',
       });
       loadData();
     } catch (error) {
-      toast.error("Fehler beim Löschen", {
-        description: "Das Event konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Löschen', {
+        description:
+          'Das Event konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
       });
     }
   };
@@ -110,7 +112,7 @@ export const EventList: React.FC = () => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('de-DE', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(price);
   };
 
@@ -119,14 +121,14 @@ export const EventList: React.FC = () => {
       return {
         label: 'Unbekannt',
         icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'secondary' as const
+        variant: 'secondary' as const,
       };
     }
 
     const now = new Date();
     const firstSlot = event.dailyTimeSlots[0];
     const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-    
+
     const firstDate = new Date(firstSlot.date);
     const lastDate = new Date(lastSlot.date);
 
@@ -134,7 +136,7 @@ export const EventList: React.FC = () => {
       return {
         label: 'Beendet',
         icon: <CheckCircle2 className="h-4 w-4" />,
-        variant: 'secondary' as const
+        variant: 'secondary' as const,
       };
     }
 
@@ -142,7 +144,7 @@ export const EventList: React.FC = () => {
       return {
         label: 'Läuft jetzt',
         icon: <Clock className="h-4 w-4" />,
-        variant: 'default' as const
+        variant: 'default' as const,
       };
     }
 
@@ -150,14 +152,14 @@ export const EventList: React.FC = () => {
       return {
         label: 'Kommend',
         icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'outline' as const
+        variant: 'outline' as const,
       };
     }
 
     return {
       label: 'Unbekannt',
       icon: <AlertCircle className="h-4 w-4" />,
-      variant: 'secondary' as const
+      variant: 'secondary' as const,
     };
   };
 
@@ -166,7 +168,7 @@ export const EventList: React.FC = () => {
 
     const firstSlot = event.dailyTimeSlots[0];
     const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-    
+
     if (firstSlot.date === lastSlot.date) {
       return formatDate(firstSlot.date);
     }
@@ -175,7 +177,7 @@ export const EventList: React.FC = () => {
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (!event.dailyTimeSlots?.length) return false;
 
     // Status-Filterung
@@ -184,21 +186,23 @@ export const EventList: React.FC = () => {
     const firstDate = new Date(firstSlot.date);
     const lastDate = new Date(lastSlot.date);
 
-    const matchesStatus = statusFilter === 'all' || 
+    const matchesStatus =
+      statusFilter === 'all' ||
       (statusFilter === 'past' && isPast(lastDate)) ||
-      (statusFilter === 'running' && isWithinInterval(new Date(), { 
-        start: firstDate, 
-        end: lastDate 
-      })) ||
+      (statusFilter === 'running' &&
+        isWithinInterval(new Date(), {
+          start: firstDate,
+          end: lastDate,
+        })) ||
       (statusFilter === 'future' && isFuture(firstDate));
-    
+
     const matchesCategory = categoryFilter === 'all' || event.categoryId === categoryFilter;
 
     // Zeitfilter
     const eventWeek = format(firstDate, 'w', { locale: de });
-    const matchesTime = timeFilter === 'all' || 
-      (timeFilter === 'week' && selectedWeek === eventWeek);
-    
+    const matchesTime =
+      timeFilter === 'all' || (timeFilter === 'week' && selectedWeek === eventWeek);
+
     return matchesSearch && matchesStatus && matchesCategory && matchesTime;
   });
 
@@ -212,28 +216,29 @@ export const EventList: React.FC = () => {
       if (!event.dailyTimeSlots?.length) return false;
       const firstDate = new Date(event.dailyTimeSlots[0].date);
       const lastDate = new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date);
-      return isWithinInterval(new Date(), { 
-        start: firstDate, 
-        end: lastDate 
+      return isWithinInterval(new Date(), {
+        start: firstDate,
+        end: lastDate,
       });
     }),
     future: filteredEvents.filter(event => {
       if (!event.dailyTimeSlots?.length) return false;
       const firstDate = new Date(event.dailyTimeSlots[0].date);
       return isFuture(firstDate);
-    })
+    }),
   };
 
   const handleGenerateImage = () => {
-    navigate('/events/image-editor', { 
-      state: { 
+    navigate('/events/image-editor', {
+      state: {
         events: filteredEvents,
-        categoryName: categoryFilter !== 'all' 
-          ? categories.find(cat => cat.id === categoryFilter)?.name || ''
-          : categories.length > 0 
-            ? categories[0].name 
-            : ''
-      } 
+        categoryName:
+          categoryFilter !== 'all'
+            ? categories.find(cat => cat.id === categoryFilter)?.name || ''
+            : categories.length > 0
+              ? categories[0].name
+              : '',
+      },
     });
   };
 
@@ -282,10 +287,13 @@ export const EventList: React.FC = () => {
                 <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-48 mb-6 rounded" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, cardIndex) => (
-                    <div key={cardIndex} className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 flex flex-col">
+                    <div
+                      key={cardIndex}
+                      className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 flex flex-col"
+                    >
                       {/* Image Skeleton */}
                       <Skeleton className="bg-white/10 backdrop-blur-xl h-48 w-full rounded-t-2xl" />
-                      
+
                       {/* Card Header */}
                       <div className="p-6">
                         <div className="flex flex-col gap-1">
@@ -297,7 +305,7 @@ export const EventList: React.FC = () => {
                           <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
                         </div>
                       </div>
-                      
+
                       {/* Card Content */}
                       <div className="px-6 pb-6 flex-grow">
                         <div className="space-y-3 mb-4">
@@ -312,7 +320,7 @@ export const EventList: React.FC = () => {
                           <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
                         </div>
                       </div>
-                      
+
                       {/* Card Footer */}
                       <div className="px-6 pb-6">
                         <div className="flex justify-between items-center">
@@ -352,9 +360,9 @@ export const EventList: React.FC = () => {
         {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-white/10 rounded-3xl border border-white/20 p-6 mb-8 shadow-2xl">
           <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/dashboard')} 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/dashboard')}
               className="w-full sm:w-auto text-white hover:bg-white/20 backdrop-blur-2xl border-white/20"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -364,24 +372,24 @@ export const EventList: React.FC = () => {
               Events
             </h1>
             <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
-              <Button 
-                variant="outline" 
-                onClick={handleGenerateImage} 
+              <Button
+                variant="outline"
+                onClick={handleGenerateImage}
                 className="w-full sm:w-auto gap-2 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
                 <ImageIcon className="h-4 w-4" />
                 Bild generieren
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/events/scraper')} 
+              <Button
+                variant="outline"
+                onClick={() => navigate('/events/scraper')}
                 className="w-full sm:w-auto gap-2 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
                 <Search className="h-4 w-4" />
                 Events suchen
               </Button>
-              <Button 
-                onClick={() => navigate('/create-event')} 
+              <Button
+                onClick={() => navigate('/create-event')}
                 className="w-full sm:w-auto backdrop-blur-2xl bg-gradient-to-r from-white/20 to-white/10 border-white/30 text-white hover:from-white/30 hover:to-white/20 hover:scale-105 transition-all duration-300"
               >
                 <Plus className="mr-2 h-4 w-4" />
@@ -397,7 +405,7 @@ export const EventList: React.FC = () => {
               <Input
                 placeholder="Nach Event-Namen suchen..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={e => setSearchQuery(e.target.value)}
                 className="pl-10 rounded-xl backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
               />
             </div>
@@ -418,7 +426,7 @@ export const EventList: React.FC = () => {
               </SelectTrigger>
               <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
                 <SelectItem value="all">Alle Kategorien</SelectItem>
-                {categories.map((category) => (
+                {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
                     {category.name}
                   </SelectItem>
@@ -435,10 +443,7 @@ export const EventList: React.FC = () => {
               </SelectContent>
             </Select>
             {timeFilter === 'week' && (
-              <CalendarWeekSelect 
-                value={selectedWeek} 
-                onChange={setSelectedWeek}
-              />
+              <CalendarWeekSelect value={selectedWeek} onChange={setSelectedWeek} />
             )}
           </div>
         </div>
@@ -456,12 +461,12 @@ export const EventList: React.FC = () => {
                   Laufende Events
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.running.map((event) => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
+                  {groupedEvents.running.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
                       category={categories.find(cat => cat.id === event.categoryId)}
-                      onDelete={handleDelete} 
+                      onDelete={handleDelete}
                     />
                   ))}
                 </div>
@@ -474,12 +479,12 @@ export const EventList: React.FC = () => {
                   Zukünftige Events
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.future.map((event) => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
+                  {groupedEvents.future.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
                       category={categories.find(cat => cat.id === event.categoryId)}
-                      onDelete={handleDelete} 
+                      onDelete={handleDelete}
                     />
                   ))}
                 </div>
@@ -492,12 +497,12 @@ export const EventList: React.FC = () => {
                   Vergangene Events
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.past.map((event) => (
-                    <EventCard 
-                      key={event.id} 
-                      event={event} 
+                  {groupedEvents.past.map(event => (
+                    <EventCard
+                      key={event.id}
+                      event={event}
                       category={categories.find(cat => cat.id === event.categoryId)}
-                      onDelete={handleDelete} 
+                      onDelete={handleDelete}
                     />
                   ))}
                 </div>
@@ -524,16 +529,16 @@ interface EventCardProps {
   showDeleteButton?: boolean;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({ 
-  event, 
-  category, 
-  onDelete, 
+export const EventCard: React.FC<EventCardProps> = ({
+  event,
+  category,
+  onDelete,
   isPreview = false,
   onEdit,
-  showDeleteButton = false
+  showDeleteButton = false,
 }) => {
   const navigate = useNavigate();
-  
+
   const formatDateTime = (date: string) => {
     try {
       return format(new Date(date), 'dd. MMMM yyyy HH:mm', { locale: de });
@@ -553,7 +558,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('de-DE', {
       style: 'currency',
-      currency: 'EUR'
+      currency: 'EUR',
     }).format(price);
   };
 
@@ -562,7 +567,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
     const firstSlot = event.dailyTimeSlots[0];
     const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-    
+
     if (firstSlot.date === lastSlot.date) {
       return formatDate(firstSlot.date);
     }
@@ -574,14 +579,14 @@ export const EventCard: React.FC<EventCardProps> = ({
       return {
         label: 'Unbekannt',
         icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'secondary' as const
+        variant: 'secondary' as const,
       };
     }
 
     const now = new Date();
     const firstSlot = event.dailyTimeSlots[0];
     const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-    
+
     const firstDate = new Date(firstSlot.date);
     const lastDate = new Date(lastSlot.date);
 
@@ -589,7 +594,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       return {
         label: 'Beendet',
         icon: <CheckCircle2 className="h-4 w-4" />,
-        variant: 'secondary' as const
+        variant: 'secondary' as const,
       };
     }
 
@@ -597,7 +602,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       return {
         label: 'Läuft jetzt',
         icon: <Clock className="h-4 w-4" />,
-        variant: 'default' as const
+        variant: 'default' as const,
       };
     }
 
@@ -605,14 +610,14 @@ export const EventCard: React.FC<EventCardProps> = ({
       return {
         label: 'Kommend',
         icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'outline' as const
+        variant: 'outline' as const,
       };
     }
 
     return {
       label: 'Unbekannt',
       icon: <AlertCircle className="h-4 w-4" />,
-      variant: 'secondary' as const
+      variant: 'secondary' as const,
     };
   };
 
@@ -624,7 +629,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   const status = getEventStatus(event);
   const fallbackImage = getRandomFallbackImage(category);
-  
+
   return (
     <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl ring-1 ring-white/30 flex flex-col">
       {event.titleImageUrl ? (
@@ -648,15 +653,15 @@ export const EventCard: React.FC<EventCardProps> = ({
             className="object-cover w-full h-full rounded-t-2xl"
           />
           {event.imageUrls.length > 1 && (
-            <Badge variant="secondary" className="absolute top-2 right-2 backdrop-blur-2xl bg-white/20 border-white/30 text-white">
-              <ImageIcon className="mr-1 h-3 w-3" />
-              +{event.imageUrls.length - 1}
+            <Badge
+              variant="secondary"
+              className="absolute top-2 right-2 backdrop-blur-2xl bg-white/20 border-white/30 text-white"
+            >
+              <ImageIcon className="mr-1 h-3 w-3" />+{event.imageUrls.length - 1}
             </Badge>
           )}
           {event.isPromoted && (
-            <Badge 
-              className="absolute top-2 left-2 backdrop-blur-2xl bg-gradient-to-r from-yellow-400/90 to-orange-500/90 text-white border-yellow-400/50"
-            >
+            <Badge className="absolute top-2 left-2 backdrop-blur-2xl bg-gradient-to-r from-yellow-400/90 to-orange-500/90 text-white border-yellow-400/50">
               <Star className="mr-1 h-3 w-3 fill-current" />
               Promoted
             </Badge>
@@ -669,14 +674,15 @@ export const EventCard: React.FC<EventCardProps> = ({
             alt={`${event.title} - Kategoriebild`}
             className="object-cover w-full h-full rounded-t-2xl opacity-80"
           />
-          <Badge variant="secondary" className="absolute top-2 right-2 backdrop-blur-2xl bg-white/20 border-white/30 text-white">
+          <Badge
+            variant="secondary"
+            className="absolute top-2 right-2 backdrop-blur-2xl bg-white/20 border-white/30 text-white"
+          >
             <ImageIcon className="mr-1 h-3 w-3" />
             Kategoriebild
           </Badge>
           {event.isPromoted && (
-            <Badge 
-              className="absolute top-2 left-2 backdrop-blur-2xl bg-gradient-to-r from-yellow-400/90 to-orange-500/90 text-white border-yellow-400/50"
-            >
+            <Badge className="absolute top-2 left-2 backdrop-blur-2xl bg-gradient-to-r from-yellow-400/90 to-orange-500/90 text-white border-yellow-400/50">
               <Star className="mr-1 h-3 w-3 fill-current" />
               Promoted
             </Badge>
@@ -688,16 +694,14 @@ export const EventCard: React.FC<EventCardProps> = ({
           <div className="flex flex-wrap items-center gap-2 w-full">
             <div className="flex items-center gap-1 min-w-0">
               <CardTitle className="text-xl text-white whitespace-nowrap">{event.title}</CardTitle>
-              {event.isPromoted && (
-                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-              )}
+              {event.isPromoted && <Star className="h-4 w-4 text-yellow-400 fill-current" />}
             </div>
             {category ? (
-              <Badge 
+              <Badge
                 className="text-xs flex items-center max-w-[60%] truncate backdrop-blur-2xl border-white/30"
                 style={{
                   backgroundColor: convertFFToHex(category.colorCode),
-                  color: '#fff'
+                  color: '#fff',
                 }}
                 title={category.name}
               >
@@ -707,12 +711,18 @@ export const EventCard: React.FC<EventCardProps> = ({
                 <span className="truncate">{category.name}</span>
               </Badge>
             ) : (
-              <Badge variant="outline" className="text-xs flex items-center max-w-[60%] truncate backdrop-blur-2xl bg-white/10 border-white/30 text-white">
+              <Badge
+                variant="outline"
+                className="text-xs flex items-center max-w-[60%] truncate backdrop-blur-2xl bg-white/10 border-white/30 text-white"
+              >
                 <Tag className="w-3 h-3 mr-1" />
                 Keine Kategorie
               </Badge>
             )}
-            <Badge variant={status.variant} className="ml-auto mt-1 sm:mt-0 backdrop-blur-2xl bg-white/20 border-white/30 text-white">
+            <Badge
+              variant={status.variant}
+              className="ml-auto mt-1 sm:mt-0 backdrop-blur-2xl bg-white/20 border-white/30 text-white"
+            >
               {status.icon}
               <span className="ml-1">{status.label}</span>
             </Badge>
@@ -723,9 +733,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       </CardHeader>
       <CardContent className="flex-grow">
-        <p className="text-sm text-white/70 line-clamp-3 mb-4">
-          {event.description}
-        </p>
+        <p className="text-sm text-white/70 line-clamp-3 mb-4">{event.description}</p>
         <div className="space-y-2">
           <div className="flex items-center text-sm text-white/80">
             <MapPin className="mr-2 h-4 w-4" />
@@ -761,14 +769,12 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-white/60">
-          Erstellt am {formatDate(event.createdAt)}
-        </div>
+        <div className="text-xs text-white/60">Erstellt am {formatDate(event.createdAt)}</div>
         <div className="flex gap-2">
           {isPreview ? (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={onEdit}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20"
@@ -776,8 +782,8 @@ export const EventCard: React.FC<EventCardProps> = ({
                 Bearbeiten
               </Button>
               {showDeleteButton && (
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   size="sm"
                   onClick={() => onDelete(event.id)}
                   className="backdrop-blur-2xl bg-red-500/20 border-red-400/30 text-white hover:bg-red-500/30"
@@ -788,16 +794,16 @@ export const EventCard: React.FC<EventCardProps> = ({
             </>
           ) : (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => navigate(`/events/${event.id}`)}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20"
               >
                 Bearbeiten
               </Button>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 size="sm"
                 onClick={() => onDelete(event.id)}
                 className="backdrop-blur-2xl bg-red-500/20 border-red-400/30 text-white hover:bg-red-500/30"
@@ -810,4 +816,4 @@ export const EventCard: React.FC<EventCardProps> = ({
       </CardFooter>
     </Card>
   );
-}; 
+};

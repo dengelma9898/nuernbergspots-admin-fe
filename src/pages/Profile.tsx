@@ -3,28 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { UserProfile } from '../models/users';
 import { useUserService } from '../services/userService';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { 
-  User,
-  Calendar,
-  MapPin,
-  Store,
-  Heart,
-  History,
-  Settings,
-  ArrowLeft
-} from 'lucide-react';
-import { toast } from "sonner";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { User, Calendar, MapPin, Store, Heart, History, Settings, ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
-const StatCard = ({ icon: Icon, label, value, helpText }: { icon: any, label: string, value: string | number, helpText?: string }) => (
+const StatCard = ({
+  icon: Icon,
+  label,
+  value,
+  helpText,
+}: {
+  icon: any;
+  label: string;
+  value: string | number;
+  helpText?: string;
+}) => (
   <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
     <div className="p-6">
       <div className="flex items-center space-x-4">
@@ -74,21 +70,33 @@ export function Profile() {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         <div className="space-y-8 max-w-7xl mx-auto">
           {/* Glass Header */}
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => navigate(-1)}
                 className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
@@ -144,7 +152,9 @@ export function Profile() {
                     </div>
                     <div>
                       <p className="text-sm text-white/70">Management ID</p>
-                      <p className="text-lg font-bold text-white">{currentUser?.managementId || '-'}</p>
+                      <p className="text-lg font-bold text-white">
+                        {currentUser?.managementId || '-'}
+                      </p>
                       <p className="text-xs text-white/60">Business Identifikation</p>
                     </div>
                   </div>
@@ -156,7 +166,9 @@ export function Profile() {
                     </div>
                     <div>
                       <p className="text-sm text-white/70">Stadt</p>
-                      <p className="text-lg font-bold text-white">{currentUser?.currentCityId || '-'}</p>
+                      <p className="text-lg font-bold text-white">
+                        {currentUser?.currentCityId || '-'}
+                      </p>
                       <p className="text-xs text-white/60">Aktueller Standort</p>
                     </div>
                   </div>
@@ -194,7 +206,11 @@ export function Profile() {
               <StatCard
                 icon={Calendar}
                 label="Mitglied seit"
-                value={currentUser?.memberSince ? new Date(currentUser.memberSince).toLocaleDateString() : '-'}
+                value={
+                  currentUser?.memberSince
+                    ? new Date(currentUser.memberSince).toLocaleDateString()
+                    : '-'
+                }
                 helpText="Registrierungsdatum"
               />
             </div>
@@ -215,7 +231,7 @@ export function Profile() {
             <div className="p-4 sm:p-6">
               <div className="space-y-4">
                 {currentUser?.businessHistory?.slice(0, 5).map((visit, index) => (
-                  <div 
+                  <div
                     key={index}
                     className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4 hover:scale-105 hover:bg-white/15 transition-all duration-300"
                   >
@@ -267,7 +283,10 @@ export function Profile() {
                       <p className="font-medium mb-2 text-white">Interessen</p>
                       <div className="flex flex-wrap gap-2">
                         {currentUser.preferences.map((pref, index) => (
-                          <div key={index} className="backdrop-blur-2xl bg-white/15 text-white border-white/30 px-3 py-1 rounded-xl text-sm">
+                          <div
+                            key={index}
+                            className="backdrop-blur-2xl bg-white/15 text-white border-white/30 px-3 py-1 rounded-xl text-sm"
+                          >
                             {pref}
                           </div>
                         ))}
@@ -282,4 +301,4 @@ export function Profile() {
       </div>
     </div>
   );
-} 
+}

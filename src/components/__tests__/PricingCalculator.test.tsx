@@ -6,10 +6,26 @@ import '@testing-library/jest-dom';
 
 // Mock shadcn/ui components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
-  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div className={className} data-testid="card-content">
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, className }: any) => (
+    <div className={className} data-testid="card-header">
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/slider', () => ({
@@ -20,7 +36,7 @@ jest.mock('@/components/ui/slider', () => ({
       max={max}
       step={step}
       value={value[0]}
-      onChange={(e) => onValueChange([parseFloat(e.target.value)])}
+      onChange={e => onValueChange([parseFloat(e.target.value)])}
       data-testid="slider"
       data-value={value[0]}
     />
@@ -29,8 +45,8 @@ jest.mock('@/components/ui/slider', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -40,7 +56,11 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, className }: any) => <label className={className} data-testid="label">{children}</label>,
+  Label: ({ children, className }: any) => (
+    <label className={className} data-testid="label">
+      {children}
+    </label>
+  ),
 }));
 
 jest.mock('@/components/ui/switch', () => ({
@@ -48,7 +68,7 @@ jest.mock('@/components/ui/switch', () => ({
     <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange(e.target.checked)}
+      onChange={e => onCheckedChange(e.target.checked)}
       data-testid="switch"
     />
   ),
@@ -62,7 +82,7 @@ const mockBusinessAnalytics: BusinessAnalytics[] = [
     weeklyScans: 35,
     monthlyScans: 150,
     yearlyScans: 1800,
-    averagePrice: 22.50,
+    averagePrice: 22.5,
     averageNumberOfPeople: 2.5,
     uniqueCustomers: 85,
     customerScans: [],
@@ -116,7 +136,7 @@ const mockBusinessAnalytics: BusinessAnalytics[] = [
     weeklyScans: 58,
     monthlyScans: 250,
     yearlyScans: 3000,
-    averagePrice: 18.30,
+    averagePrice: 18.3,
     averageNumberOfPeople: 3.2,
     uniqueCustomers: 120,
     customerScans: [],
@@ -148,7 +168,7 @@ const mockSingleBusiness: BusinessAnalytics[] = [
     weeklyScans: 12,
     monthlyScans: 50,
     yearlyScans: 600,
-    averagePrice: 35.00,
+    averagePrice: 35.0,
     averageNumberOfPeople: 2.0,
     uniqueCustomers: 25,
     customerScans: [],
@@ -217,7 +237,7 @@ describe('PricingCalculator Component', () => {
   describe('Pricing Calculations', () => {
     it('sollte korrekte Gebühren für Businesses unter der Schwelle berechnen', () => {
       render(<PricingCalculator analytics={mockSingleBusiness} />);
-      
+
       // Solo Restaurant hat 50 Scans (unter 100 Schwelle)
       // Sollte nur Grundgebühr von 29.99€ zahlen
       expect(screen.getAllByText('29.99€')[0]).toBeInTheDocument();
@@ -228,7 +248,7 @@ describe('PricingCalculator Component', () => {
 
       // Restaurant Alpha: 150 Scans
       // Grundgebühr: 29.99€ + (150-100) * 0.10€ = 29.99€ + 5.00€ = 34.99€
-      // Bar Gamma: 250 Scans 
+      // Bar Gamma: 250 Scans
       // Grundgebühr: 29.99€ + (250-100) * 0.10€ = 29.99€ + 15.00€ = 44.99€
       // Café Beta: 80 Scans (unter Schwelle) = 29.99€
       // Gesamt: 34.99€ + 44.99€ + 29.99€ = 109.97€
@@ -253,7 +273,7 @@ describe('PricingCalculator Component', () => {
         {
           ...mockBusinessAnalytics[0],
           monthlyScans: 2000, // Sehr hohe Scans
-        }
+        },
       ];
 
       render(<PricingCalculator analytics={highScanBusiness} />);
@@ -330,7 +350,7 @@ describe('PricingCalculator Component', () => {
       fireEvent.click(maxFeeSwitch);
 
       expect(maxFeeSwitch).not.toBeChecked();
-      
+
       // Max-Fee Slider sollte verschwinden
       await waitFor(() => {
         const sliders = screen.getAllByTestId('slider');
@@ -342,7 +362,7 @@ describe('PricingCalculator Component', () => {
       render(<PricingCalculator analytics={mockBusinessAnalytics} />);
 
       const maxFeeSwitch = screen.getByTestId('switch');
-      
+
       // Deaktivieren
       fireEvent.click(maxFeeSwitch);
       expect(maxFeeSwitch).not.toBeChecked();
@@ -363,7 +383,7 @@ describe('PricingCalculator Component', () => {
         {
           ...mockBusinessAnalytics[0],
           monthlyScans: 2000, // Sehr hohe Scans
-        }
+        },
       ];
 
       render(<PricingCalculator analytics={highScanBusiness} />);
@@ -399,7 +419,7 @@ describe('PricingCalculator Component', () => {
         {
           ...mockBusinessAnalytics[0],
           monthlyScans: 10000,
-        }
+        },
       ];
 
       render(<PricingCalculator analytics={extremeBusiness} />);
@@ -415,7 +435,7 @@ describe('PricingCalculator Component', () => {
         {
           ...mockBusinessAnalytics[0],
           monthlyScans: 0,
-        }
+        },
       ];
 
       render(<PricingCalculator analytics={noScanBusiness} />);
@@ -442,7 +462,7 @@ describe('PricingCalculator Component', () => {
 
       // Neue Berechnung:
       // Restaurant Alpha: 50.00€ + (150-100) * 0.10€ = 55.00€
-      // Bar Gamma: 50.00€ + (250-100) * 0.10€ = 65.00€  
+      // Bar Gamma: 50.00€ + (250-100) * 0.10€ = 65.00€
       // Café Beta: 50.00€ (unter Schwelle)
       // Gesamt: 55.00€ + 65.00€ + 50.00€ = 170.00€
 
@@ -474,12 +494,12 @@ describe('PricingCalculator Component', () => {
       expect(screen.getByTestId('card-header')).toBeInTheDocument();
       expect(screen.getByTestId('card-title')).toBeInTheDocument();
       expect(screen.getByTestId('card-content')).toBeInTheDocument();
-      
+
       const sliders = screen.getAllByTestId('slider');
       expect(sliders).toHaveLength(4); // 4 Slider für die verschiedenen Parameter
-      
+
       expect(screen.getByTestId('switch')).toBeInTheDocument();
-      
+
       const labels = screen.getAllByTestId('label');
       expect(labels.length).toBeGreaterThan(0);
     });
@@ -488,22 +508,22 @@ describe('PricingCalculator Component', () => {
       render(<PricingCalculator analytics={mockBusinessAnalytics} />);
 
       const sliders = screen.getAllByTestId('slider');
-      
+
       // Grundgebühr Slider (0-100)
       expect(sliders[0]).toHaveAttribute('min', '0');
       expect(sliders[0]).toHaveAttribute('max', '100');
-      
+
       // Scan-Schwelle Slider (0-1000)
       expect(sliders[1]).toHaveAttribute('min', '0');
       expect(sliders[1]).toHaveAttribute('max', '1000');
-      
+
       // Scan-Gebühr Slider (0-1)
       expect(sliders[2]).toHaveAttribute('min', '0');
       expect(sliders[2]).toHaveAttribute('max', '1');
-      
+
       // Max-Gebühr Slider (0-200)
       expect(sliders[3]).toHaveAttribute('min', '0');
       expect(sliders[3]).toHaveAttribute('max', '200');
     });
   });
-}); 
+});

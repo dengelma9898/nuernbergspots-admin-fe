@@ -1,18 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Table,
   TableBody,
@@ -20,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 import { format, subMonths, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { BusinessCustomerScans } from '@/models/business';
@@ -32,23 +26,23 @@ interface CustomerScansAnalysisProps {
 
 /**
  * CustomerScansAnalysis - Detaillierte Analyse-Komponente für Kundenscans
- * 
+ *
  * Diese Komponente ermöglicht es Administratoren, die Scan-Aktivitäten
  * von Geschäftspartnern im Detail zu analysieren. Sie bietet:
- * 
+ *
  * Features:
  * - Geschäfts-spezifische Filterung
  * - Monats-basierte Zeitfilterung
  * - Statistische Auswertung (Scans, Kunden, Preise, Personen)
  * - Detaillierte Scan-Tabelle mit allen Informationen
  * - Responsive Design für verschiedene Bildschirmgrößen
- * 
+ *
  * Berechnungen:
  * - Gesamtanzahl Scans im gewählten Zeitraum
  * - Anzahl einzigartige Kunden (basierend auf customerId)
  * - Durchschnittlicher Preis pro Scan
  * - Durchschnittliche Anzahl Personen pro Scan
- * 
+ *
  * @param businesses - Array mit Geschäfts-Scan-Daten
  * @returns JSX.Element Analyse-Dashboard
  */
@@ -62,7 +56,7 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
       const date = subMonths(new Date(), i);
       return {
         value: format(date, 'yyyy-MM'),
-        label: format(date, 'MMMM yyyy', { locale: de })
+        label: format(date, 'MMMM yyyy', { locale: de }),
       };
     });
   }, []);
@@ -70,7 +64,7 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
   // Filtere Scans für den ausgewählten Monat
   const filteredScans = useMemo(() => {
     if (!selectedBusiness) return [];
-    
+
     const business = businesses.find(b => b.businessName === selectedBusiness);
     if (!business) return [];
 
@@ -85,12 +79,13 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
 
   // Berechne Statistiken für die gefilterten Scans
   const statistics = useMemo(() => {
-    if (filteredScans.length === 0) return {
-      totalScans: 0,
-      averagePrice: 0,
-      averageNumberOfPeople: 0,
-      uniqueCustomers: new Set().size
-    };
+    if (filteredScans.length === 0)
+      return {
+        totalScans: 0,
+        averagePrice: 0,
+        averageNumberOfPeople: 0,
+        uniqueCustomers: new Set().size,
+      };
 
     const uniqueCustomers = new Set(filteredScans.map(scan => scan.customerId));
     const totalPrice = filteredScans.reduce((sum, scan) => sum + (scan.price || 0), 0);
@@ -100,26 +95,23 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
       totalScans: filteredScans.length,
       averagePrice: totalPrice / filteredScans.length,
       averageNumberOfPeople: totalPeople / filteredScans.length,
-      uniqueCustomers: uniqueCustomers.size
+      uniqueCustomers: uniqueCustomers.size,
     };
   }, [filteredScans]);
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold">Detaillierte Scan-Analyse</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="text-sm font-medium mb-2 block">Partner auswählen</label>
-          <Select
-            value={selectedBusiness}
-            onValueChange={setSelectedBusiness}
-          >
+          <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
             <SelectTrigger>
               <SelectValue placeholder="Partner auswählen" />
             </SelectTrigger>
             <SelectContent>
-              {businesses.map((business) => (
+              {businesses.map(business => (
                 <SelectItem key={business.businessName} value={business.businessName}>
                   {business.businessName}
                 </SelectItem>
@@ -130,15 +122,12 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
 
         <div>
           <label className="text-sm font-medium mb-2 block">Monat auswählen</label>
-          <Select
-            value={selectedMonth}
-            onValueChange={setSelectedMonth}
-          >
+          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
             <SelectTrigger>
               <SelectValue placeholder="Monat auswählen" />
             </SelectTrigger>
             <SelectContent>
-              {monthOptions.map((month) => (
+              {monthOptions.map(month => (
                 <SelectItem key={month.value} value={month.value}>
                   {month.label}
                 </SelectItem>
@@ -182,7 +171,9 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
               <CardTitle className="text-sm">Ø Personen</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{statistics.averageNumberOfPeople.toFixed(1)}</div>
+              <div className="text-2xl font-bold">
+                {statistics.averageNumberOfPeople.toFixed(1)}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -211,12 +202,8 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
               <TableBody>
                 {filteredScans.map((scan, index) => (
                   <TableRow key={index}>
-                    <TableCell>
-                      {format(new Date(scan.scannedAt), 'dd.MM.yyyy')}
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(scan.scannedAt), 'HH:mm')}
-                    </TableCell>
+                    <TableCell>{format(new Date(scan.scannedAt), 'dd.MM.yyyy')}</TableCell>
+                    <TableCell>{format(new Date(scan.scannedAt), 'HH:mm')}</TableCell>
                     <TableCell>{scan.customerId}</TableCell>
                     <TableCell>{scan.price ? `${scan.price.toFixed(2)}€` : '-'}</TableCell>
                     <TableCell>{scan.numberOfPeople || 1}</TableCell>
@@ -230,4 +217,4 @@ export function CustomerScansAnalysis({ businesses }: CustomerScansAnalysisProps
       )}
     </div>
   );
-} 
+}

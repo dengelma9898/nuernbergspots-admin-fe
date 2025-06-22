@@ -16,7 +16,7 @@ const ICON_VARIANTS = ['Outlined', 'Rounded', 'Sharp', 'TwoTone'];
 
 export function IconPicker({ value, onChange, className }: IconPickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Memoize all available icons and filter variants
   const allIcons = useMemo(() => {
     const icons = Object.keys(Icons);
@@ -28,13 +28,11 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
       return !hasVariantSuffix;
     });
   }, []);
-  
+
   // Memoize filtered icons
   const filteredIcons = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
-    return allIcons.filter(iconName => 
-      iconName.toLowerCase().includes(searchLower)
-    );
+    return allIcons.filter(iconName => iconName.toLowerCase().includes(searchLower));
   }, [searchTerm, allIcons]);
 
   // Memoize icon rendering function
@@ -45,7 +43,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
 
   // Virtual list setup
   const parentRef = React.useRef<HTMLDivElement>(null);
-  
+
   const rowVirtualizer = useVirtualizer({
     count: filteredIcons.length,
     getScrollElement: () => parentRef.current,
@@ -54,11 +52,11 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
   });
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn('space-y-2', className)}>
       <div className="flex items-center space-x-2">
         <Input
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           placeholder="Icon suchen..."
           className="flex-1"
         />
@@ -82,15 +80,15 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
             }}
           >
             <div className="grid grid-cols-6 gap-2 p-2">
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              {rowVirtualizer.getVirtualItems().map(virtualRow => {
                 const iconName = filteredIcons[virtualRow.index];
                 return (
                   <button
                     key={iconName}
                     onClick={() => onChange(iconName)}
                     className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-md hover:bg-accent",
-                      value === iconName && "bg-accent"
+                      'flex items-center justify-center w-10 h-10 rounded-md hover:bg-accent',
+                      value === iconName && 'bg-accent'
                     )}
                     title={iconName}
                   >
@@ -104,4 +102,4 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
       </ScrollArea>
     </div>
   );
-} 
+}

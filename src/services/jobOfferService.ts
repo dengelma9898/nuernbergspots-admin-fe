@@ -21,7 +21,10 @@ export const useJobOfferService = () => {
     return unwrapData(response);
   };
 
-  const updateJobOffer = async (id: string, jobOffer: Partial<JobOfferCreation>): Promise<JobOffer> => {
+  const updateJobOffer = async (
+    id: string,
+    jobOffer: Partial<JobOfferCreation>
+  ): Promise<JobOffer> => {
     const response = await api.patch<ApiResponse<JobOffer>>(`${baseUrl}/${id}`, jobOffer);
     return unwrapData(response);
   };
@@ -32,15 +35,13 @@ export const useJobOfferService = () => {
 
   const updateImages = async (id: string, files: File[]): Promise<JobOffer> => {
     const formData = new FormData();
-    files.forEach((file) => {
+    files.forEach(file => {
       formData.append('images', file);
     });
 
-    const response = await api.patch<ApiResponse<JobOffer>>(
-      `${baseUrl}/${id}/images`,
-      formData,
-      { isFormData: true }
-    );
+    const response = await api.patch<ApiResponse<JobOffer>>(`${baseUrl}/${id}/images`, formData, {
+      isFormData: true,
+    });
 
     return unwrapData(response);
   };
@@ -65,6 +66,6 @@ export const useJobOfferService = () => {
     updateJobOffer,
     deleteJobOffer,
     updateImages,
-    updateCompanyLogo
+    updateCompanyLogo,
   };
-}; 
+};

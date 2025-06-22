@@ -105,7 +105,7 @@ describe('Profile Component', () => {
           businessName: 'Test Business',
           benefit: 'Test Benefit',
           visitedAt: '2023-01-01',
-        }
+        },
       ],
       favoriteEventIds: ['event1', 'event2'],
       favoriteBusinessIds: ['business1'],
@@ -117,10 +117,10 @@ describe('Profile Component', () => {
 
   it('renders profile page correctly', async () => {
     render(<Profile />);
-    
+
     expect(screen.getByText('Mein Profil')).toBeTruthy();
     expect(screen.getByText('Zurück')).toBeTruthy();
-    
+
     await waitFor(() => {
       expect(screen.getByText('John Doe')).toBeTruthy();
       expect(screen.getByText('test@example.com')).toBeTruthy();
@@ -130,7 +130,7 @@ describe('Profile Component', () => {
 
   it('displays user statistics', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('E-Mail')).toBeTruthy();
       expect(screen.getByText('Management ID')).toBeTruthy();
@@ -141,7 +141,7 @@ describe('Profile Component', () => {
 
   it('loads user data on mount', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(mockGetCurrentUser).toHaveBeenCalledWith('test-user-id');
     });
@@ -150,18 +150,18 @@ describe('Profile Component', () => {
   it('navigates back when back button is clicked', async () => {
     const user = userEvent.setup();
     render(<Profile />);
-    
+
     const backButton = screen.getByTestId('arrow-left-icon').closest('button');
     await user.click(backButton!);
-    
+
     expect(mockNavigate).toHaveBeenCalledWith(-1);
   });
 
   it('handles loading user data error', async () => {
     mockGetCurrentUser.mockRejectedValue(new Error('Failed to load user'));
-    
+
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith('Die Benutzerdaten konnten nicht geladen werden.');
     });
@@ -169,7 +169,7 @@ describe('Profile Component', () => {
 
   it('displays user statistics with correct values', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('MGT123')).toBeTruthy();
       expect(screen.getByText('Nürnberg')).toBeTruthy();
@@ -180,7 +180,7 @@ describe('Profile Component', () => {
 
   it('displays recent activity', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Letzte Aktivitäten')).toBeTruthy();
       expect(screen.getByText('Test Business')).toBeTruthy();
@@ -190,7 +190,7 @@ describe('Profile Component', () => {
 
   it('displays preferences section', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Präferenzen')).toBeTruthy();
       expect(screen.getByText('Sprache')).toBeTruthy();
@@ -204,9 +204,9 @@ describe('Profile Component', () => {
       email: 'test@example.com',
       // Missing other fields
     });
-    
+
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('test@example.com')).toBeTruthy();
       expect(screen.getByText('Benutzer')).toBeTruthy(); // fallback name
@@ -220,9 +220,9 @@ describe('Profile Component', () => {
       name: 'John Doe',
       businessHistory: [],
     });
-    
+
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Keine Aktivitäten vorhanden')).toBeTruthy();
     });
@@ -230,10 +230,10 @@ describe('Profile Component', () => {
 
   it('displays avatar with fallback', async () => {
     render(<Profile />);
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('avatar-fallback')).toBeTruthy();
       expect(screen.getByText('J')).toBeTruthy(); // First letter of name
-         });
-   });
- }); 
+    });
+  });
+});

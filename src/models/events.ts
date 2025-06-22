@@ -1,7 +1,7 @@
 export interface DailyTimeSlot {
-  date: string;  // ISO date string (YYYY-MM-DD)
+  date: string; // ISO date string (YYYY-MM-DD)
   from?: string; // Optional time (HH:mm)
-  to?: string;   // Optional time (HH:mm)
+  to?: string; // Optional time (HH:mm)
 }
 
 export interface Event {
@@ -35,4 +35,4 @@ export interface Event {
    * @deprecated Verwende dailyTimeSlots!
    */
   startDate?: string;
-} 
+}

@@ -1,45 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle,
-  CardContent 
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { 
+} from '@/components/ui/table';
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { 
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  Plus, 
-  MoreHorizontal, 
-  Pencil, 
-  Trash2,
-  Check,
-  X,
-  ArrowLeft,
-  ImagePlus
-} from 'lucide-react';
+} from '@/components/ui/dropdown-menu';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
 import { useEventCategoryService } from '@/services/eventCategoryService';
@@ -63,7 +49,7 @@ export function EventCategoryList() {
     name: '',
     description: '',
     colorCode: '#000000',
-    iconName: ''
+    iconName: '',
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
@@ -101,7 +87,7 @@ export function EventCategoryList() {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
         colorCode: convertHexToFF(newCategory.colorCode),
-        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http'))
+        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http')),
       };
       const category = await eventCategoryService.createCategory(categoryToSave);
       setCategories([...categories, category]);
@@ -109,7 +95,7 @@ export function EventCategoryList() {
         name: '',
         description: '',
         colorCode: '#000000',
-        iconName: ''
+        iconName: '',
       });
       setSelectedImages([]);
       setPreviewUrls([]);
@@ -129,9 +115,9 @@ export function EventCategoryList() {
       name: category.name,
       description: category.description,
       colorCode: convertFFToHex(category.colorCode),
-      iconName: category.iconName
+      iconName: category.iconName,
     });
-    
+
     // Setze die vorhandenen Fallback-Bilder
     if (category.fallbackImages && category.fallbackImages.length > 0) {
       setPreviewUrls(category.fallbackImages);
@@ -142,7 +128,7 @@ export function EventCategoryList() {
       setPreviewUrls([]);
       setSelectedImages([]);
     }
-    
+
     setIsDialogOpen(true);
   };
 
@@ -158,28 +144,34 @@ export function EventCategoryList() {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
         colorCode: convertHexToFF(newCategory.colorCode),
-        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http'))
+        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http')),
       };
-      const updatedCategory = await eventCategoryService.updateCategory(editingCategory.id, categoryToUpdate);
-      
+      const updatedCategory = await eventCategoryService.updateCategory(
+        editingCategory.id,
+        categoryToUpdate
+      );
+
       // Wenn neue Bilder ausgewählt wurden, lade diese hoch
       if (selectedImages.length > 0) {
-        const categoryWithImages = await eventCategoryService.updateFallbackImages(editingCategory.id, selectedImages);
-        setCategories(categories.map(cat => 
-          cat.id === editingCategory.id ? categoryWithImages : cat
-        ));
+        const categoryWithImages = await eventCategoryService.updateFallbackImages(
+          editingCategory.id,
+          selectedImages
+        );
+        setCategories(
+          categories.map(cat => (cat.id === editingCategory.id ? categoryWithImages : cat))
+        );
       } else {
-        setCategories(categories.map(cat => 
-          cat.id === editingCategory.id ? updatedCategory : cat
-        ));
+        setCategories(
+          categories.map(cat => (cat.id === editingCategory.id ? updatedCategory : cat))
+        );
       }
-      
+
       setEditingCategory(null);
       setNewCategory({
         name: '',
         description: '',
         colorCode: '#000000',
-        iconName: ''
+        iconName: '',
       });
       setSelectedImages([]);
       setPreviewUrls([]);
@@ -210,7 +202,7 @@ export function EventCategoryList() {
       name: '',
       description: '',
       colorCode: '#000000',
-      iconName: ''
+      iconName: '',
     });
   };
 
@@ -226,10 +218,11 @@ export function EventCategoryList() {
     if (selectedImages.length === 0) return;
 
     try {
-      const updatedCategory = await eventCategoryService.updateFallbackImages(categoryId, selectedImages);
-      setCategories(categories.map(cat => 
-        cat.id === categoryId ? updatedCategory : cat
-      ));
+      const updatedCategory = await eventCategoryService.updateFallbackImages(
+        categoryId,
+        selectedImages
+      );
+      setCategories(categories.map(cat => (cat.id === categoryId ? updatedCategory : cat)));
       setSelectedImages([]);
       setPreviewUrls([]);
       toast.success('Bilder erfolgreich hochgeladen');
@@ -286,12 +279,12 @@ export function EventCategoryList() {
       <div className="container mx-auto p-4 md:p-8 max-w-7xl relative z-10">
         {/* Hidden compatibility element for tests */}
         <div className="container mx-auto p-4 md:p-8 max-w-7xl absolute -z-10 opacity-0 pointer-events-none"></div>
-              {/* Glass Header */}
+        {/* Glass Header */}
         <div className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 rounded-3xl border border-white/20 shadow-2xl ring-1 ring-white/30 p-6 md:p-8 mb-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => navigate('/dashboard')}
                 className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 shadow-lg ring-1 ring-white/30 w-full sm:w-auto"
               >
@@ -311,7 +304,7 @@ export function EventCategoryList() {
             </div>
             <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   onClick={resetModalState}
                   className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl w-full lg:w-auto"
                 >
@@ -330,7 +323,7 @@ export function EventCategoryList() {
                     <label className="text-sm font-medium text-white/90">Name</label>
                     <Input
                       value={newCategory.name}
-                      onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                      onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
                       placeholder="Kategoriename"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                     />
@@ -340,7 +333,7 @@ export function EventCategoryList() {
                     <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-xl p-3">
                       <IconPicker
                         value={newCategory.iconName}
-                        onChange={(value) => setNewCategory({ ...newCategory, iconName: value })}
+                        onChange={value => setNewCategory({ ...newCategory, iconName: value })}
                       />
                     </div>
                   </div>
@@ -348,7 +341,9 @@ export function EventCategoryList() {
                     <label className="text-sm font-medium text-white/90">Beschreibung</label>
                     <Input
                       value={newCategory.description}
-                      onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })}
+                      onChange={e =>
+                        setNewCategory({ ...newCategory, description: e.target.value })
+                      }
                       placeholder="Beschreibung der Kategorie"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
                     />
@@ -358,12 +353,14 @@ export function EventCategoryList() {
                     <Input
                       type="color"
                       value={newCategory.colorCode}
-                      onChange={(e) => setNewCategory({ ...newCategory, colorCode: e.target.value })}
+                      onChange={e => setNewCategory({ ...newCategory, colorCode: e.target.value })}
                       className="backdrop-blur-2xl bg-white/10 border-white/20 h-12"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/90">Fallback-Bilder (max. 5)</label>
+                    <label className="text-sm font-medium text-white/90">
+                      Fallback-Bilder (max. 5)
+                    </label>
                     <div className="grid grid-cols-5 gap-2">
                       {previewUrls.map((url, index) => (
                         <div key={index} className="relative group">
@@ -395,16 +392,16 @@ export function EventCategoryList() {
                     </div>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setIsDialogOpen(false)} 
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsDialogOpen(false)}
                       disabled={isSaving}
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/30 w-full sm:w-auto"
                     >
                       <X className="mr-2 h-4 w-4" />
                       Abbrechen
                     </Button>
-                    <Button 
+                    <Button
                       onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
                       disabled={isSaving}
                       className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
@@ -432,35 +429,41 @@ export function EventCategoryList() {
         {isLoading ? (
           <div className="block md:hidden space-y-4">
             {[...Array(4)].map((_, index) => (
-              <div key={index} className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4">
+              <div
+                key={index}
+                className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4"
+              >
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-3">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-2/3 rounded" />
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-6 rounded" />
                 </div>
-                
+
                 {/* Description */}
                 <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full mb-3 rounded" />
-                
+
                 {/* Color */}
                 <div className="flex items-center gap-2 mb-3">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-5 w-5 rounded-full" />
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded-full" />
                 </div>
-                
+
                 {/* Fallback Images */}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {[...Array(3)].map((_, imgIndex) => (
-                    <Skeleton key={imgIndex} className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg" />
+                    <Skeleton
+                      key={imgIndex}
+                      className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg"
+                    />
                   ))}
                 </div>
-                
+
                 {/* Dates */}
                 <div className="space-y-1 mb-3">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-2/3 rounded" />
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-2/3 rounded" />
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <Skeleton className="bg-white/10 backdrop-blur-xl h-8 flex-1 rounded-xl" />
@@ -472,7 +475,9 @@ export function EventCategoryList() {
         ) : categories.length === 0 ? (
           <div className="block md:hidden">
             <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-8 md:p-12 text-center">
-              <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">Keine Kategorien</h3>
+              <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">
+                Keine Kategorien
+              </h3>
               <p className="text-white/70 text-sm md:text-base">
                 Es sind noch keine Event-Kategorien vorhanden.
               </p>
@@ -482,7 +487,7 @@ export function EventCategoryList() {
           </div>
         ) : (
           <div className="block md:hidden space-y-4">
-            {categories.map((category) => (
+            {categories.map(category => (
               <div
                 key={category.id}
                 className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 rounded-2xl border border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 ring-1 ring-white/30 p-4"
@@ -493,7 +498,7 @@ export function EventCategoryList() {
                 </div>
                 <div className="text-sm text-white/70 mb-3">{category.description || '-'}</div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div 
+                  <div
                     className="w-5 h-5 rounded-full border-2 border-white/30 shadow-lg"
                     style={{ backgroundColor: convertFFToHex(category.colorCode) }}
                     title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
@@ -518,18 +523,18 @@ export function EventCategoryList() {
                   <div>Aktualisiert: {new Date(category.updatedAt).toLocaleDateString()}</div>
                 </div>
                 <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    onClick={() => handleEditCategory(category)} 
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleEditCategory(category)}
                     className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 flex-1"
                   >
                     <Pencil className="mr-1 h-4 w-4" /> Bearbeiten
                   </Button>
-                  <Button 
-                    size="sm" 
-                    variant="destructive" 
-                    onClick={() => handleDeleteCategory(category.id)} 
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteCategory(category.id)}
                     className="cursor-pointer backdrop-blur-2xl bg-red-500/20 border-red-400/30 text-red-100 hover:bg-red-500/30 hover:scale-105 transition-all duration-300 flex-1"
                   >
                     <Trash2 className="mr-1 h-4 w-4" /> Löschen
@@ -539,7 +544,7 @@ export function EventCategoryList() {
             ))}
           </div>
         )}
-        
+
         {/* Desktop/Table Ansicht */}
         <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
           <Table>
@@ -564,17 +569,17 @@ export function EventCategoryList() {
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-32 rounded" />
                       </TableCell>
-                      
+
                       {/* Icon */}
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-6 rounded" />
                       </TableCell>
-                      
+
                       {/* Description */}
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-48 rounded" />
                       </TableCell>
-                      
+
                       {/* Color */}
                       <TableCell className="py-4">
                         <div className="flex items-center gap-2">
@@ -582,26 +587,29 @@ export function EventCategoryList() {
                           <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-16 rounded" />
                         </div>
                       </TableCell>
-                      
+
                       {/* Created At */}
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
                       </TableCell>
-                      
+
                       {/* Updated At */}
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
                       </TableCell>
-                      
+
                       {/* Fallback Images */}
                       <TableCell className="py-4">
                         <div className="flex items-center gap-2">
                           {[...Array(3)].map((_, imgIndex) => (
-                            <Skeleton key={imgIndex} className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg" />
+                            <Skeleton
+                              key={imgIndex}
+                              className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg"
+                            />
                           ))}
                         </div>
                       </TableCell>
-                      
+
                       {/* Actions */}
                       <TableCell className="py-4">
                         <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg" />
@@ -612,7 +620,9 @@ export function EventCategoryList() {
               ) : categories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center text-white/70 py-8">
-                    <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">Keine Kategorien</h3>
+                    <h3 className="text-xl md:text-2xl font-semibold text-white mb-2">
+                      Keine Kategorien
+                    </h3>
                     <p className="text-white/70 text-sm md:text-base">
                       Es sind noch keine Event-Kategorien vorhanden.
                     </p>
@@ -621,8 +631,11 @@ export function EventCategoryList() {
                   </TableCell>
                 </TableRow>
               ) : (
-                categories.map((category) => (
-                  <TableRow key={category.id} className="border-white/10 hover:bg-white/5 transition-colors">
+                categories.map(category => (
+                  <TableRow
+                    key={category.id}
+                    className="border-white/10 hover:bg-white/5 transition-colors"
+                  >
                     <TableCell className="font-medium text-white">{category.name}</TableCell>
                     <TableCell className="text-white/80">
                       {getIconComponent(category.iconName)}
@@ -630,7 +643,7 @@ export function EventCategoryList() {
                     <TableCell className="text-white/80">{category.description || '-'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div 
+                        <div
                           className="w-6 h-6 rounded-full border-2 border-white/30 hover:scale-150 transition-transform cursor-help shadow-lg"
                           style={{ backgroundColor: convertFFToHex(category.colorCode) }}
                           title={`Farbcode: ${convertFFToHex(category.colorCode)}`}
@@ -640,12 +653,16 @@ export function EventCategoryList() {
                         </code>
                       </div>
                     </TableCell>
-                    <TableCell className="text-white/70 text-sm">{new Date(category.createdAt).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-white/70 text-sm">{new Date(category.updatedAt).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-white/70 text-sm">
+                      {new Date(category.createdAt).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-white/70 text-sm">
+                      {new Date(category.updatedAt).toLocaleDateString()}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {category.fallbackImages?.map((image, index) => (
-                          <div 
+                          <div
                             key={index}
                             className="relative cursor-pointer hover:scale-110 transition-transform"
                             onClick={() => setSelectedImagePreview(image)}
@@ -662,25 +679,25 @@ export function EventCategoryList() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             className="h-8 w-8 p-0 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300"
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent 
+                        <DropdownMenuContent
                           align="end"
                           className="backdrop-blur-3xl bg-white/10 border-white/20 text-white"
                         >
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleEditCategory(category)}
                             className="text-white hover:bg-white/20 cursor-pointer"
                           >
                             <Pencil className="mr-2 h-4 w-4" />
                             Bearbeiten
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDeleteCategory(category.id)}
                             className="text-red-300 hover:bg-red-500/20 cursor-pointer"
                           >
@@ -698,7 +715,10 @@ export function EventCategoryList() {
         </div>
 
         {/* Bildvorschau Dialog */}
-        <Dialog open={!!selectedImagePreview} onOpenChange={(open) => !open && setSelectedImagePreview(null)}>
+        <Dialog
+          open={!!selectedImagePreview}
+          onOpenChange={open => !open && setSelectedImagePreview(null)}
+        >
           <DialogContent className="max-w-4xl backdrop-blur-3xl bg-white/10 border-white/20 text-white">
             <DialogHeader>
               <DialogTitle className="text-white text-xl">Bildvorschau</DialogTitle>
@@ -717,4 +737,4 @@ export function EventCategoryList() {
       </div>
     </div>
   );
-} 
+}

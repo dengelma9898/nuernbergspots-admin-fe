@@ -77,4 +77,4 @@ jobs:
           export GOOGLE_APPLICATION_CREDENTIALS=$RUNNER_TEMP/account.json
           npm run deploy:ci:prd
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }} 
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}

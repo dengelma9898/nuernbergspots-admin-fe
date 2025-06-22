@@ -40,20 +40,36 @@ jest.mock('@/utils/iconUtils', () => ({
 
 // UI Component Mocks
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, ...props }: any) => <div data-testid="card" {...props}>{children}</div>,
-  CardHeader: ({ children, ...props }: any) => <div data-testid="card-header" {...props}>{children}</div>,
-  CardTitle: ({ children, ...props }: any) => <div data-testid="card-title" {...props}>{children}</div>,
-  CardContent: ({ children, ...props }: any) => <div data-testid="card-content" {...props}>{children}</div>,
+  Card: ({ children, ...props }: any) => (
+    <div data-testid="card" {...props}>
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, ...props }: any) => (
+    <div data-testid="card-header" {...props}>
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, ...props }: any) => (
+    <div data-testid="card-title" {...props}>
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, ...props }: any) => (
+    <div data-testid="card-content" {...props}>
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
-    <button 
-      data-testid="button" 
+    <button
+      data-testid="button"
       data-variant={variant}
       data-size={size}
       className={className}
-      onClick={onClick} 
+      onClick={onClick}
       role="button"
       {...props}
     >
@@ -64,7 +80,7 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, ...props }: any) => (
-    <input 
+    <input
       data-testid="input"
       value={value}
       onChange={onChange}
@@ -75,12 +91,20 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/table', () => ({
-  Table: ({ children, className }: any) => <table data-testid="table" className={className}>{children}</table>,
+  Table: ({ children, className }: any) => (
+    <table data-testid="table" className={className}>
+      {children}
+    </table>
+  ),
   TableHeader: ({ children }: any) => <thead data-testid="table-header">{children}</thead>,
   TableBody: ({ children }: any) => <tbody data-testid="table-body">{children}</tbody>,
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
   TableHead: ({ children }: any) => <th data-testid="table-head">{children}</th>,
-  TableCell: ({ children, className }: any) => <td data-testid="table-cell" className={className}>{children}</td>,
+  TableCell: ({ children, className }: any) => (
+    <td data-testid="table-cell" className={className}>
+      {children}
+    </td>
+  ),
 }));
 
 jest.mock('@/components/ui/dialog', () => ({
@@ -97,17 +121,23 @@ jest.mock('@/components/ui/dialog', () => ({
 
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-menu-content">{children}</div>,
-  DropdownMenuItem: ({ children, onClick, className }: any) => (
-    <div data-testid="dropdown-menu-item" className={className} onClick={onClick}>{children}</div>
+  DropdownMenuContent: ({ children }: any) => (
+    <div data-testid="dropdown-menu-content">{children}</div>
   ),
-  DropdownMenuTrigger: ({ children, asChild }: any) => <div data-testid="dropdown-menu-trigger">{children}</div>,
+  DropdownMenuItem: ({ children, onClick, className }: any) => (
+    <div data-testid="dropdown-menu-item" className={className} onClick={onClick}>
+      {children}
+    </div>
+  ),
+  DropdownMenuTrigger: ({ children, asChild }: any) => (
+    <div data-testid="dropdown-menu-trigger">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/icon-picker', () => ({
   IconPicker: ({ value, onChange }: any) => (
     <div data-testid="icon-picker">
-      <input 
+      <input
         data-testid="icon-picker-input"
         value={value}
         onChange={(e: any) => onChange(e.target.value)}
@@ -120,7 +150,7 @@ jest.mock('@/components/ui/icon-picker', () => ({
 jest.mock('@/components/ui/keyword-selector', () => ({
   KeywordSelector: ({ selectedIds, onChange }: any) => (
     <div data-testid="keyword-selector">
-      <button 
+      <button
         data-testid="keyword-selector-button"
         onClick={() => onChange([...selectedIds, 'keyword-1'])}
       >
@@ -128,7 +158,9 @@ jest.mock('@/components/ui/keyword-selector', () => ({
       </button>
       <div data-testid="selected-keywords">
         {selectedIds.map((id: string) => (
-          <span key={id} data-testid={`selected-keyword-${id}`}>{id}</span>
+          <span key={id} data-testid={`selected-keyword-${id}`}>
+            {id}
+          </span>
         ))}
       </div>
     </div>
@@ -189,11 +221,7 @@ const mockCategories: BusinessCategory[] = [
 
 // Helper function
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('CategoryList Component', () => {
@@ -209,7 +237,7 @@ describe('CategoryList Component', () => {
       expect(screen.getByText('Kategorien verwalten')).toBeInTheDocument();
       expect(screen.getByTestId('plus-icon')).toBeInTheDocument();
       expect(screen.getByText('Zurück zum Dashboard')).toBeInTheDocument();
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Restaurant')[0]).toBeInTheDocument();
       });
@@ -287,7 +315,7 @@ describe('CategoryList Component', () => {
 
       const backButton = screen.getByText('Zurück zum Dashboard');
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
   });
@@ -295,7 +323,7 @@ describe('CategoryList Component', () => {
   describe('Category Display', () => {
     beforeEach(async () => {
       renderWithRouter(<CategoryList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Restaurant')[0]).toBeInTheDocument();
       });
@@ -344,7 +372,7 @@ describe('CategoryList Component', () => {
         createdAt: '2024-01-04T00:00:00.000Z',
         updatedAt: '2024-01-04T00:00:00.000Z',
       };
-      
+
       mockBusinessCategoryService.createCategory.mockResolvedValue(newCategory);
 
       renderWithRouter(<CategoryList />);
@@ -374,7 +402,7 @@ describe('CategoryList Component', () => {
           name: 'Neue Kategorie',
           description: 'Test Beschreibung',
           iconName: 'test_icon', // toSnakeCase applied
-          keywordIds: []
+          keywordIds: [],
         });
         expect(mockToast.success).toHaveBeenCalledWith('Kategorie hinzugefügt');
       });
@@ -424,7 +452,7 @@ describe('CategoryList Component', () => {
   describe('Category Editing', () => {
     beforeEach(async () => {
       renderWithRouter(<CategoryList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Restaurant')[0]).toBeInTheDocument();
       });
@@ -460,7 +488,7 @@ describe('CategoryList Component', () => {
           name: 'Updated Restaurant',
           description: 'Restaurants und Gastronomiebetriebe',
           iconName: 'restaurant',
-          keywordIds: ['keyword-1']
+          keywordIds: ['keyword-1'],
         });
         expect(mockToast.success).toHaveBeenCalledWith('Kategorie aktualisiert');
       });
@@ -470,7 +498,7 @@ describe('CategoryList Component', () => {
   describe('Category Deletion', () => {
     beforeEach(async () => {
       renderWithRouter(<CategoryList />);
-      
+
       await waitFor(() => {
         expect(screen.getAllByText('Restaurant')[0]).toBeInTheDocument();
       });
@@ -559,7 +587,7 @@ describe('CategoryList Component', () => {
       await waitFor(() => {
         expect(mockBusinessCategoryService.createCategory).toHaveBeenCalledWith(
           expect.objectContaining({
-            iconName: 'test_icon_name' // toSnakeCase applied
+            iconName: 'test_icon_name', // toSnakeCase applied
           })
         );
       });
@@ -567,13 +595,13 @@ describe('CategoryList Component', () => {
   });
 
   describe('Responsive Design', () => {
-         it('sollte responsive Klassen haben', async () => {
-       renderWithRouter(<CategoryList />);
+    it('sollte responsive Klassen haben', async () => {
+      renderWithRouter(<CategoryList />);
 
-       // Find the outermost container div
-       const container = document.querySelector('.container.mx-auto');
-       expect(container).toHaveClass('container', 'mx-auto', 'p-4', 'md:p-8', 'max-w-7xl');
-     });
+      // Find the outermost container div
+      const container = document.querySelector('.container.mx-auto');
+      expect(container).toHaveClass('container', 'mx-auto', 'p-4', 'md:p-8', 'max-w-7xl');
+    });
 
     it('sollte Desktop-Tabelle verstecken auf Mobile', async () => {
       renderWithRouter(<CategoryList />);
@@ -589,9 +617,9 @@ describe('CategoryList Component', () => {
     it('sollte Kategorien ohne Keywords korrekt handhaben', async () => {
       const categoryWithoutKeywords = {
         ...mockCategory,
-        keywords: undefined
+        keywords: undefined,
       };
-      
+
       mockBusinessCategoryService.getCategories.mockResolvedValue([categoryWithoutKeywords]);
 
       renderWithRouter(<CategoryList />);
@@ -604,9 +632,9 @@ describe('CategoryList Component', () => {
     it('sollte leere Beschreibung mit Bindestrich anzeigen', async () => {
       const categoryWithoutDescription = {
         ...mockCategory,
-        description: ''
+        description: '',
       };
-      
+
       mockBusinessCategoryService.getCategories.mockResolvedValue([categoryWithoutDescription]);
 
       renderWithRouter(<CategoryList />);
@@ -616,4 +644,4 @@ describe('CategoryList Component', () => {
       });
     });
   });
-}); 
+});

@@ -21,7 +21,10 @@ export const useJobCategoryService = () => {
     return unwrapData(response);
   };
 
-  const updateCategory = async (id: string, category: Partial<JobCategoryCreation>): Promise<JobCategory> => {
+  const updateCategory = async (
+    id: string,
+    category: Partial<JobCategoryCreation>
+  ): Promise<JobCategory> => {
     const response = await api.patch<ApiResponse<JobCategory>>(`${baseUrl}/${id}`, category);
     return unwrapData(response);
   };
@@ -32,7 +35,7 @@ export const useJobCategoryService = () => {
 
   const updateFallbackImages = async (id: string, files: File[]): Promise<JobCategory> => {
     const formData = new FormData();
-    files.forEach((file) => {
+    files.forEach(file => {
       formData.append('images', file);
     });
 
@@ -60,6 +63,6 @@ export const useJobCategoryService = () => {
     updateCategory,
     deleteCategory,
     updateFallbackImages,
-    deleteFallbackImage
+    deleteFallbackImage,
   };
-}; 
+};

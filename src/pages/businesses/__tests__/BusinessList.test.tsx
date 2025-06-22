@@ -33,9 +33,17 @@ jest.mock('@/services/businessCategoryService', () => ({
 
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
   CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
   CardContent: ({ children }: any) => <div data-testid="card-content">{children}</div>,
   CardFooter: ({ children }: any) => <div data-testid="card-footer">{children}</div>,
   CardDescription: ({ children }: any) => <div data-testid="card-description">{children}</div>,
@@ -43,8 +51,8 @@ jest.mock('@/components/ui/card', () => ({
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, variant, size, className }: any) => (
-    <button 
-      onClick={onClick} 
+    <button
+      onClick={onClick}
       className={className}
       data-testid="button"
       data-variant={variant}
@@ -65,8 +73,8 @@ jest.mock('@/components/ui/badge', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -76,15 +84,19 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/label', () => ({
-  Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor} data-testid="label">{children}</label>,
+  Label: ({ children, htmlFor }: any) => (
+    <label htmlFor={htmlFor} data-testid="label">
+      {children}
+    </label>
+  ),
 }));
 
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
-    <input 
+    <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onCheckedChange?.(e.target.checked)}
+      onChange={e => onCheckedChange?.(e.target.checked)}
       id={id}
       data-testid="switch"
     />
@@ -130,8 +142,20 @@ const mockBusinessCategory: BusinessCategory = {
   description: 'Restaurants und Gastronomie',
   iconName: 'utensils',
   keywords: [
-    { id: 'keyword-1', name: 'Pizza', description: 'Italienisches Gericht', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
-    { id: 'keyword-2', name: 'Italienisch', description: 'Italienische Küche', createdAt: '2024-01-01T00:00:00.000Z', updatedAt: '2024-01-01T00:00:00.000Z' },
+    {
+      id: 'keyword-1',
+      name: 'Pizza',
+      description: 'Italienisches Gericht',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
+    {
+      id: 'keyword-2',
+      name: 'Italienisch',
+      description: 'Italienische Küche',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
   ],
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
@@ -207,11 +231,7 @@ const mockBusinessWithReview: Business = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('BusinessList Component', () => {
@@ -251,7 +271,9 @@ describe('BusinessList Component', () => {
       expect(skeletons.length).toBeGreaterThan(0);
 
       // Prüfe dass mehrere Skeleton-Karten mit dem richtigen Glassmorphism-Styling angezeigt werden
-      const skeletonSections = container.querySelectorAll('.backdrop-blur-3xl.bg-white\\/5.rounded-3xl');
+      const skeletonSections = container.querySelectorAll(
+        '.backdrop-blur-3xl.bg-white\\/5.rounded-3xl'
+      );
       expect(skeletonSections.length).toBeGreaterThanOrEqual(3); // Header, Filter, Cards sections
     });
 
@@ -286,7 +308,8 @@ describe('BusinessList Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Laden der Geschäfte',
           expect.objectContaining({
-            description: 'Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
           })
         );
       });
@@ -328,7 +351,7 @@ describe('BusinessList Component', () => {
   describe('Search and Filtering', () => {
     beforeEach(async () => {
       renderWithRouter(<BusinessList />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
@@ -341,9 +364,9 @@ describe('BusinessList Component', () => {
 
     it('sollte Suche durchführen beim Eingeben', () => {
       const searchInput = screen.getByPlaceholderText('Nach Geschäftsnamen suchen...');
-      
+
       fireEvent.change(searchInput, { target: { value: 'Restaurant' } });
-      
+
       expect(searchInput).toHaveValue('Restaurant');
     });
 
@@ -361,7 +384,7 @@ describe('BusinessList Component', () => {
   describe('Business Grouping', () => {
     beforeEach(async () => {
       renderWithRouter(<BusinessList />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
@@ -378,10 +401,10 @@ describe('BusinessList Component', () => {
       expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       expect(screen.getByText('Highlight Shop')).toBeInTheDocument();
       expect(screen.getByText('Reviewed Business')).toBeInTheDocument();
-      
+
       // Ausstehende Geschäfte
       expect(screen.getByText('Café Beta')).toBeInTheDocument();
-      
+
       // Inaktive Geschäfte
       expect(screen.getByText('Shop Gamma')).toBeInTheDocument();
     });
@@ -390,7 +413,7 @@ describe('BusinessList Component', () => {
   describe('Business Cards', () => {
     beforeEach(async () => {
       renderWithRouter(<BusinessList />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
       });
@@ -398,7 +421,9 @@ describe('BusinessList Component', () => {
 
     it('sollte Business-Karte korrekt rendern', () => {
       expect(screen.getAllByText('Restaurant Alpha')[0]).toBeInTheDocument();
-      expect(screen.getAllByText('Ein gemütliches Restaurant im Herzen der Stadt')[0]).toBeInTheDocument();
+      expect(
+        screen.getAllByText('Ein gemütliches Restaurant im Herzen der Stadt')[0]
+      ).toBeInTheDocument();
       expect(screen.getAllByText('Hauptstraße 1, 90402 Nürnberg')[0]).toBeInTheDocument();
     });
 
@@ -406,11 +431,11 @@ describe('BusinessList Component', () => {
       // Aktiv status
       expect(screen.getAllByText('Aktiv')[0]).toBeInTheDocument();
       expect(screen.getAllByTestId('check-circle-icon')[0]).toBeInTheDocument();
-      
+
       // Ausstehend status
       expect(screen.getAllByText('Ausstehend')[0]).toBeInTheDocument();
       expect(screen.getAllByTestId('alert-circle-icon')[0]).toBeInTheDocument();
-      
+
       // Inaktiv status
       expect(screen.getAllByText('Inaktiv')[0]).toBeInTheDocument();
       expect(screen.getAllByTestId('x-circle-icon')[0]).toBeInTheDocument();
@@ -438,7 +463,7 @@ describe('BusinessList Component', () => {
     it('sollte Bilder anzeigen', () => {
       const images = screen.getAllByRole('img');
       expect(images.length).toBeGreaterThan(0);
-      
+
       // Mehrere Bilder Badge
       expect(screen.getAllByText('+1')[0]).toBeInTheDocument();
     });
@@ -452,7 +477,7 @@ describe('BusinessList Component', () => {
     it('sollte Geschäft löschen beim Klick auf Löschen', async () => {
       const mockToast = require('sonner').toast;
       mockBusinessService.deleteBusiness.mockResolvedValue(undefined);
-      
+
       renderWithRouter(<BusinessList />);
 
       await waitFor(() => {
@@ -474,7 +499,7 @@ describe('BusinessList Component', () => {
     it('sollte Fehler beim Löschen behandeln', async () => {
       const mockToast = require('sonner').toast;
       mockBusinessService.deleteBusiness.mockRejectedValue(new Error('Delete Error'));
-      
+
       renderWithRouter(<BusinessList />);
 
       await waitFor(() => {
@@ -486,7 +511,8 @@ describe('BusinessList Component', () => {
         expect(mockToast.error).toHaveBeenCalledWith(
           'Fehler beim Löschen',
           expect.objectContaining({
-            description: 'Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
+            description:
+              'Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
           })
         );
       });
@@ -510,7 +536,7 @@ describe('BusinessList Component', () => {
       // Dies würde einen komplexeren Mock für useSearchParams erfordern
       // Der Test zeigt die Intention, auch wenn die Implementierung vereinfacht ist
       renderWithRouter(<BusinessList />);
-      
+
       await waitFor(() => {
         // Der Test würde prüfen, ob der Filter korrekt gesetzt wird
         expect(screen.getAllByTestId('switch')[0]).toBeInTheDocument();
@@ -553,15 +579,15 @@ describe('BusinessCard Component', () => {
       ...mockActiveBusiness,
       categoryIds: [],
     };
-    
+
     mockBusinessService.getBusinesses.mockResolvedValue([businessWithoutCategory]);
-    
+
     renderWithRouter(<BusinessList />);
 
     await waitFor(() => {
       // Prüfe stattdessen, dass das Business korrekt angezeigt wird ohne Kategorien
       expect(screen.getAllByText('Restaurant Alpha')[0]).toBeInTheDocument();
-      
+
       // Prüfe, dass "Kategorien:" Text existiert (sollte leer sein für Business ohne Kategorien)
       const kategoriensTexts = screen.getAllByText(/Kategorien:/);
       expect(kategoriensTexts.length).toBeGreaterThan(0);
@@ -574,9 +600,9 @@ describe('BusinessCard Component', () => {
       imageUrls: [],
       logoUrl: undefined,
     };
-    
+
     mockBusinessService.getBusinesses.mockResolvedValue([businessWithoutImages]);
-    
+
     renderWithRouter(<BusinessList />);
 
     await waitFor(() => {
@@ -595,9 +621,9 @@ describe('BusinessCard Component', () => {
         website: undefined,
       },
     };
-    
+
     mockBusinessService.getBusinesses.mockResolvedValue([businessWithoutContact]);
-    
+
     renderWithRouter(<BusinessList />);
 
     await waitFor(() => {
@@ -608,4 +634,4 @@ describe('BusinessCard Component', () => {
       expect(screen.queryByTestId('globe-icon')).not.toBeInTheDocument();
     });
   });
-}); 
+});

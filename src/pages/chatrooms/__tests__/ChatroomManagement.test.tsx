@@ -111,18 +111,20 @@ describe('ChatroomManagement', () => {
   describe('Initial Rendering', () => {
     it('sollte die Hauptkomponente korrekt rendern', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       expect(screen.getByText('Chatroom Management')).toBeInTheDocument();
-      expect(screen.getByText('Verwalten Sie hier alle Chatrooms und deren Einstellungen')).toBeInTheDocument();
+      expect(
+        screen.getByText('Verwalten Sie hier alle Chatrooms und deren Einstellungen')
+      ).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /zurück zum dashboard/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /neuer chatroom/i })).toBeInTheDocument();
     });
 
     it('sollte Skeleton-Loading während des Ladens anzeigen', () => {
       mockChatroomService.getChatrooms.mockImplementation(() => new Promise(() => {}));
-      
+
       const { container } = renderWithRouter(<ChatroomManagement />);
-      
+
       // Sollte 6 Skeleton-Chatroom-Cards anzeigen
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(30); // Jede Skeleton-Card hat mehrere Skeleton-Elemente
@@ -132,7 +134,7 @@ describe('ChatroomManagement', () => {
       await act(async () => {
         renderWithRouter(<ChatroomManagement />);
       });
-      
+
       await waitFor(() => {
         expect(mockChatroomService.getChatrooms).toHaveBeenCalled();
       });
@@ -146,23 +148,25 @@ describe('ChatroomManagement', () => {
 
     it('sollte leeren Zustand anzeigen wenn keine Chatrooms vorhanden', async () => {
       mockChatroomService.getChatrooms.mockResolvedValue([]);
-      
+
       await act(async () => {
         renderWithRouter(<ChatroomManagement />);
       });
-      
+
       await waitFor(() => {
-        expect(screen.getByText('Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!')).toBeInTheDocument();
+        expect(
+          screen.getByText('Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!')
+        ).toBeInTheDocument();
       });
     });
 
     it('sollte Fehler beim Laden handhaben', async () => {
       mockChatroomService.getChatrooms.mockRejectedValue(new Error('Network error'));
-      
+
       await act(async () => {
         renderWithRouter(<ChatroomManagement />);
       });
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Chatrooms konnten nicht geladen werden.');
       });
@@ -172,16 +176,16 @@ describe('ChatroomManagement', () => {
   describe('Navigation', () => {
     it('sollte zurück zum Dashboard navigieren', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const backButton = screen.getByRole('button', { name: /zurück zum dashboard/i });
       fireEvent.click(backButton);
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
     });
 
     it('sollte zu Chatroom-Messages navigieren bei Chatroom-Klick', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
@@ -190,7 +194,7 @@ describe('ChatroomManagement', () => {
       if (chatroomCard) {
         fireEvent.click(chatroomCard);
       }
-      
+
       expect(mockNavigate).toHaveBeenCalledWith('/chatrooms/chatroom-1/messages');
     });
   });
@@ -198,18 +202,18 @@ describe('ChatroomManagement', () => {
   describe('Chatroom Display', () => {
     it('sollte Chatroom-Informationen korrekt anzeigen', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       expect(screen.getByText('Ein Test Chatroom für die Entwicklung')).toBeInTheDocument();
       expect(screen.getByText('3 Teilnehmer')).toBeInTheDocument();
-      
+
       // Verwende getAllByText da mehrere Chatrooms die gleiche letzte Nachricht haben können
       const lastMessageElements = screen.getAllByText(/Letzte Nachricht: Letzte Nachricht im Chat/);
       expect(lastMessageElements.length).toBeGreaterThan(0);
-      
+
       // Verwende getAllByText da mehrere Chatrooms das gleiche Erstellungsdatum haben können
       const createdAtElements = screen.getAllByText('Erstellt am 01.01.2024');
       expect(createdAtElements.length).toBeGreaterThan(0);
@@ -217,7 +221,7 @@ describe('ChatroomManagement', () => {
 
     it('sollte Chatroom ohne Bild korrekt anzeigen', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Marketing Chat')).toBeInTheDocument();
       });
@@ -228,7 +232,7 @@ describe('ChatroomManagement', () => {
 
     it('sollte Chatroom-Bilder anzeigen wenn vorhanden', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
@@ -239,14 +243,14 @@ describe('ChatroomManagement', () => {
 
     it('sollte Edit und Delete Buttons für jeden Chatroom anzeigen', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const editButtons = screen.getAllByText(/bearbeiten/i);
       const deleteButtons = screen.getAllByText(/löschen/i);
-      
+
       expect(editButtons).toHaveLength(3);
       expect(deleteButtons).toHaveLength(3);
     });
@@ -255,25 +259,27 @@ describe('ChatroomManagement', () => {
   describe('Create Chatroom Dialog', () => {
     it('sollte Create Dialog öffnen und schließen', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       expect(screen.getByText('Neuen Chatroom erstellen')).toBeInTheDocument();
-      expect(screen.getByText('Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.')).toBeInTheDocument();
-      
+      expect(
+        screen.getByText('Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.')
+      ).toBeInTheDocument();
+
       const cancelButton = screen.getByRole('button', { name: /abbrechen/i });
       fireEvent.click(cancelButton);
-      
+
       expect(screen.queryByText('Neuen Chatroom erstellen')).not.toBeInTheDocument();
     });
 
     it('sollte Formularfelder im Create Dialog anzeigen', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       expect(screen.getByLabelText('Titel')).toBeInTheDocument();
       expect(screen.getByLabelText('Beschreibung')).toBeInTheDocument();
       expect(screen.getByText('Chatroom Bild')).toBeInTheDocument();
@@ -286,51 +292,51 @@ describe('ChatroomManagement', () => {
         title: 'Neuer Test Chatroom',
         description: 'Beschreibung für neuen Chatroom',
       });
-      
+
       mockChatroomService.createChatroom.mockResolvedValue(newChatroom);
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       fireEvent.change(screen.getByLabelText('Titel'), {
-        target: { value: 'Neuer Test Chatroom' }
+        target: { value: 'Neuer Test Chatroom' },
       });
       fireEvent.change(screen.getByLabelText('Beschreibung'), {
-        target: { value: 'Beschreibung für neuen Chatroom' }
+        target: { value: 'Beschreibung für neuen Chatroom' },
       });
-      
+
       const submitButton = screen.getByRole('button', { name: /erstellen/i });
       fireEvent.click(submitButton);
-      
+
       await waitFor(() => {
         expect(mockChatroomService.createChatroom).toHaveBeenCalledWith({
           title: 'Neuer Test Chatroom',
           description: 'Beschreibung für neuen Chatroom',
           imageUrl: '',
-          participants: []
+          participants: [],
         });
       });
-      
+
       expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich erstellt.');
     });
 
     it('sollte Fehler bei Chatroom-Erstellung handhaben', async () => {
       mockChatroomService.createChatroom.mockRejectedValue(new Error('Creation error'));
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       fireEvent.change(screen.getByLabelText('Titel'), {
-        target: { value: 'Test Titel' }
+        target: { value: 'Test Titel' },
       });
-      
+
       const submitButton = screen.getByRole('button', { name: /erstellen/i });
       fireEvent.click(submitButton);
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht erstellt werden.');
       });
@@ -338,13 +344,16 @@ describe('ChatroomManagement', () => {
 
     it('sollte Datei-Upload für Chatroom-Bild handhaben', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       const file = new File(['image'], 'test.jpg', { type: 'image/jpeg' });
-      const fileInput = screen.getByLabelText('Bild auswählen').closest('label')?.querySelector('input[type="file"]');
-      
+      const fileInput = screen
+        .getByLabelText('Bild auswählen')
+        .closest('label')
+        ?.querySelector('input[type="file"]');
+
       if (fileInput) {
         Object.defineProperty(fileInput, 'files', {
           value: [file],
@@ -358,14 +367,14 @@ describe('ChatroomManagement', () => {
   describe('Edit Chatroom Dialog', () => {
     it('sollte Edit Dialog öffnen mit vorausgefüllten Daten', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const editButtons = screen.getAllByText(/bearbeiten/i);
       fireEvent.click(editButtons[0]);
-      
+
       expect(screen.getByText('Chatroom bearbeiten')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Test Chatroom')).toBeInTheDocument();
       expect(screen.getByDisplayValue('Ein Test Chatroom für die Entwicklung')).toBeInTheDocument();
@@ -376,50 +385,50 @@ describe('ChatroomManagement', () => {
         title: 'Aktualisierter Titel',
         description: 'Aktualisierte Beschreibung',
       });
-      
+
       mockChatroomService.updateChatroom.mockResolvedValue(updatedChatroom);
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const editButtons = screen.getAllByText(/bearbeiten/i);
       fireEvent.click(editButtons[0]);
-      
+
       fireEvent.change(screen.getByDisplayValue('Test Chatroom'), {
-        target: { value: 'Aktualisierter Titel' }
+        target: { value: 'Aktualisierter Titel' },
       });
-      
+
       const saveButton = screen.getByRole('button', { name: /speichern/i });
       fireEvent.click(saveButton);
-      
+
       await waitFor(() => {
         expect(mockChatroomService.updateChatroom).toHaveBeenCalledWith('chatroom-1', {
           title: 'Aktualisierter Titel',
           description: 'Ein Test Chatroom für die Entwicklung',
         });
       });
-      
+
       expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich aktualisiert.');
     });
 
     it('sollte Fehler bei Chatroom-Aktualisierung handhaben', async () => {
       mockChatroomService.updateChatroom.mockRejectedValue(new Error('Update error'));
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const editButtons = screen.getAllByText(/bearbeiten/i);
       fireEvent.click(editButtons[0]);
-      
+
       const saveButton = screen.getByRole('button', { name: /speichern/i });
       fireEvent.click(saveButton);
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht aktualisiert werden.');
       });
@@ -429,63 +438,67 @@ describe('ChatroomManagement', () => {
   describe('Delete Chatroom Dialog', () => {
     it('sollte Delete Dialog öffnen mit Bestätigung', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const deleteButtons = screen.getAllByText(/löschen/i);
       fireEvent.click(deleteButtons[0]);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Chatroom löschen')).toBeInTheDocument();
       });
-      
-      expect(screen.getByText(/möchten sie den chatroom "test chatroom" wirklich löschen/i)).toBeInTheDocument();
-      
+
+      expect(
+        screen.getByText(/möchten sie den chatroom "test chatroom" wirklich löschen/i)
+      ).toBeInTheDocument();
+
       // Verwende eine flexiblere Suche für den Text
-      expect(screen.getByText((content, element) => {
-        return content.includes('Diese Aktion kann nicht rückgängig gemacht werden');
-      })).toBeInTheDocument();
+      expect(
+        screen.getByText((content, element) => {
+          return content.includes('Diese Aktion kann nicht rückgängig gemacht werden');
+        })
+      ).toBeInTheDocument();
     });
 
     it('sollte Chatroom erfolgreich löschen', async () => {
       mockChatroomService.deleteChatroom.mockResolvedValue(undefined);
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const deleteButtons = screen.getAllByText(/löschen/i);
       fireEvent.click(deleteButtons[0]);
-      
+
       const confirmButton = screen.getByRole('button', { name: /löschen/i });
       fireEvent.click(confirmButton);
-      
+
       await waitFor(() => {
         expect(mockChatroomService.deleteChatroom).toHaveBeenCalledWith('chatroom-1');
       });
-      
+
       expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich gelöscht.');
     });
 
     it('sollte Fehler bei Chatroom-Löschung handhaben', async () => {
       mockChatroomService.deleteChatroom.mockRejectedValue(new Error('Delete error'));
-      
+
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const deleteButtons = screen.getAllByText(/löschen/i);
       fireEvent.click(deleteButtons[0]);
-      
+
       const confirmButton = screen.getByRole('button', { name: /löschen/i });
       fireEvent.click(confirmButton);
-      
+
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht gelöscht werden.');
       });
@@ -493,17 +506,17 @@ describe('ChatroomManagement', () => {
 
     it('sollte Delete Dialog abbrechen können', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
       const deleteButtons = screen.getAllByText(/löschen/i);
       fireEvent.click(deleteButtons[0]);
-      
+
       const cancelButton = screen.getByRole('button', { name: /abbrechen/i });
       fireEvent.click(cancelButton);
-      
+
       expect(screen.queryByText('Chatroom löschen')).not.toBeInTheDocument();
     });
   });
@@ -511,25 +524,27 @@ describe('ChatroomManagement', () => {
   describe('Responsive Design', () => {
     it('sollte responsive Container-Klassen haben', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const container = document.querySelector('.container');
       expect(container).toHaveClass('mx-auto', 'p-4', 'sm:p-8', 'max-w-7xl');
     });
 
     it('sollte responsive Grid-Layout für Chatrooms haben', async () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       await waitFor(() => {
         expect(screen.getByText('Test Chatroom')).toBeInTheDocument();
       });
 
-      const gridContainer = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3');
+      const gridContainer = document.querySelector(
+        '.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-3'
+      );
       expect(gridContainer).toBeInTheDocument();
     });
 
     it('sollte responsive Header-Layout haben', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const headerContainer = document.querySelector('.flex.flex-col.sm\\:flex-row');
       expect(headerContainer).toBeInTheDocument();
     });
@@ -538,28 +553,31 @@ describe('ChatroomManagement', () => {
   describe('Image Handling', () => {
     it('sollte Image Preview anzeigen nach Dateiauswahl', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       // Image Preview Container sollte initial das Image Icon zeigen
       const imageContainer = document.querySelector('.relative.w-32.h-32');
       expect(imageContainer).toBeInTheDocument();
-      
+
       const imageIcon = document.querySelector('.lucide-image');
       expect(imageIcon).toBeInTheDocument();
     });
 
     it('sollte Image Preview entfernen können', () => {
       renderWithRouter(<ChatroomManagement />);
-      
+
       const createButton = screen.getByRole('button', { name: /neuer chatroom/i });
       fireEvent.click(createButton);
-      
+
       // Simuliere dass ein Bild ausgewählt wurde
       const file = new File(['image'], 'test.jpg', { type: 'image/jpeg' });
-      const fileInput = screen.getByLabelText('Bild auswählen').closest('label')?.querySelector('input[type="file"]');
-      
+      const fileInput = screen
+        .getByLabelText('Bild auswählen')
+        .closest('label')
+        ?.querySelector('input[type="file"]');
+
       if (fileInput) {
         Object.defineProperty(fileInput, 'files', {
           value: [file],
@@ -569,4 +587,4 @@ describe('ChatroomManagement', () => {
       }
     });
   });
-}); 
+});

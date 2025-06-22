@@ -2,7 +2,7 @@ export enum ContactRequestType {
   GENERAL = 'GENERAL',
   FEEDBACK = 'FEEDBACK',
   BUSINESS_CLAIM = 'BUSINESS_CLAIM',
-  BUSINESS_REQUEST = 'BUSINESS_REQUEST'
+  BUSINESS_REQUEST = 'BUSINESS_REQUEST',
 }
 
 export interface ContactMessage {

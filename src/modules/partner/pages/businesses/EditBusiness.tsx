@@ -19,9 +19,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -30,7 +30,7 @@ const WEEKDAYS = {
   Donnerstag: 'Donnerstag',
   Freitag: 'Freitag',
   Samstag: 'Samstag',
-  Sonntag: 'Sonntag'
+  Sonntag: 'Sonntag',
 } as const;
 
 type WeekdayKey = keyof typeof WEEKDAYS;
@@ -53,7 +53,7 @@ export const EditBusiness: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [editReview, setEditReview] = useState<NuernbergspotsReview>({
     reviewText: '',
-    reviewImageUrls: []
+    reviewImageUrls: [],
   });
   const [newImages, setNewImages] = useState<File[]>([]);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
@@ -66,7 +66,7 @@ export const EditBusiness: React.FC = () => {
   const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
     from: '09:00',
     to: '18:00',
-    days: []
+    days: [],
   });
   const [categories, setCategories] = useState<BusinessCategory[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
@@ -93,16 +93,16 @@ export const EditBusiness: React.FC = () => {
       const fetchedBusiness = await businessService.getBusiness(businessId);
       setBusiness(fetchedBusiness);
       setSelectedKeywords(fetchedBusiness.keywordIds);
-      
+
       // Konvertiere detailedOpeningHours in TimeSlots
       if (fetchedBusiness.detailedOpeningHours) {
         const slots: TimeSlot[] = [];
         Object.entries(fetchedBusiness.detailedOpeningHours).forEach(([day, timeRanges]) => {
           timeRanges.forEach((range, index) => {
-            const existingSlot = slots.find(slot => 
-              slot.from === range.from && slot.to === range.to
+            const existingSlot = slots.find(
+              slot => slot.from === range.from && slot.to === range.to
             );
-            
+
             if (existingSlot) {
               existingSlot.days.push(day as WeekdayKey);
             } else {
@@ -110,22 +110,24 @@ export const EditBusiness: React.FC = () => {
                 id: `${day}-${index}`,
                 from: range.from,
                 to: range.to,
-                days: [day as WeekdayKey]
+                days: [day as WeekdayKey],
               });
             }
           });
         });
         setTimeSlots(slots);
       }
-      
-      setEditReview(fetchedBusiness.nuernbergspotsReview || {
-        reviewText: '',
-        reviewImageUrls: []
-      });
+
+      setEditReview(
+        fetchedBusiness.nuernbergspotsReview || {
+          reviewText: '',
+          reviewImageUrls: [],
+        }
+      );
       setBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
-      toast.error("Fehler beim Laden des Geschäfts", {
-        description: "Das Geschäft konnte nicht geladen werden.",
+      toast.error('Fehler beim Laden des Geschäfts', {
+        description: 'Das Geschäft konnte nicht geladen werden.',
       });
       navigate('/businesses');
     } finally {
@@ -138,17 +140,15 @@ export const EditBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error("Fehler beim Laden der Kategorien", {
-        description: "Die Kategorien konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Kategorien', {
+        description: 'Die Kategorien konnten nicht geladen werden.',
       });
     }
   };
 
   const loadKeywordsForCategories = async (categoryIds: string[]) => {
     try {
-      const selectedCategories = categories.filter(category => 
-        categoryIds.includes(category.id)
-      );
+      const selectedCategories = categories.filter(category => categoryIds.includes(category.id));
 
       const keywordIds = selectedCategories
         .flatMap(category => category.keywords || [])
@@ -156,16 +156,14 @@ export const EditBusiness: React.FC = () => {
 
       const uniqueKeywordIds = [...new Set(keywordIds)];
 
-      const keywordPromises = uniqueKeywordIds.map(id => 
-        keywordService.getKeyword(id)
-      );
-      
+      const keywordPromises = uniqueKeywordIds.map(id => keywordService.getKeyword(id));
+
       const fetchedKeywords = await Promise.all(keywordPromises);
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error("Fehler beim Laden der Keywords", {
-        description: "Die Keywords konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Keywords', {
+        description: 'Die Keywords konnten nicht geladen werden.',
       });
     }
   };
@@ -177,15 +175,15 @@ export const EditBusiness: React.FC = () => {
       const updateData = {
         status: value,
       };
-      
+
       await businessService.updateBusiness(business.id, updateData);
-      setBusiness(prev => prev ? { ...prev, status: value } : null);
-      toast.success("Status aktualisiert", {
-        description: "Der Status wurde erfolgreich aktualisiert.",
+      setBusiness(prev => (prev ? { ...prev, status: value } : null));
+      toast.success('Status aktualisiert', {
+        description: 'Der Status wurde erfolgreich aktualisiert.',
       });
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren des Status", {
-        description: "Der Status konnte nicht aktualisiert werden.",
+      toast.error('Fehler beim Aktualisieren des Status', {
+        description: 'Der Status konnte nicht aktualisiert werden.',
       });
     }
   };
@@ -205,7 +203,7 @@ export const EditBusiness: React.FC = () => {
 
     const fileArray = Array.from(files);
     setNewBusinessImages(prev => [...prev, ...fileArray]);
-    
+
     const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
     setBusinessImages(prev => [...prev, ...newImageUrls]);
   };
@@ -214,7 +212,7 @@ export const EditBusiness: React.FC = () => {
     if (imageUrl.startsWith('http')) {
       setBusinessImagesToDelete(prev => [...prev, imageUrl]);
     }
-    
+
     if (imageUrl.startsWith('blob:')) {
       const index = businessImages.indexOf(imageUrl);
       if (index >= 0) {
@@ -232,7 +230,7 @@ export const EditBusiness: React.FC = () => {
 
     const fileArray = Array.from(files);
     setNewImages(prev => [...prev, ...fileArray]);
-    
+
     const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
     setEditReview(prev => ({
       ...prev,
@@ -244,7 +242,7 @@ export const EditBusiness: React.FC = () => {
     if (imageUrl.startsWith('http')) {
       setImagesToDelete(prev => [...prev, imageUrl]);
     }
-    
+
     if (imageUrl.startsWith('blob:')) {
       const index = editReview.reviewImageUrls?.indexOf(imageUrl) || -1;
       if (index >= 0) {
@@ -261,8 +259,8 @@ export const EditBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Tag aus", {
-        description: "Ein Zeitraum muss für mindestens einen Tag gelten.",
+      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
+        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
       });
       return;
     }
@@ -272,7 +270,7 @@ export const EditBusiness: React.FC = () => {
     setNewTimeSlot({
       from: '09:00',
       to: '18:00',
-      days: []
+      days: [],
     });
   };
 
@@ -281,28 +279,26 @@ export const EditBusiness: React.FC = () => {
   };
 
   const handleTimeSlotChange = (id: string, field: keyof Omit<TimeSlot, 'id'>, value: any) => {
-    setTimeSlots(prev => prev.map(slot => 
-      slot.id === id ? { ...slot, [field]: value } : slot
-    ));
+    setTimeSlots(prev => prev.map(slot => (slot.id === id ? { ...slot, [field]: value } : slot)));
   };
 
   const toggleDayForTimeSlot = (day: WeekdayKey, slotId: string) => {
-    setTimeSlots(prev => prev.map(slot => {
-      if (slot.id === slotId) {
-        const days = slot.days.includes(day)
-          ? slot.days.filter(d => d !== day)
-          : [...slot.days, day];
-        return { ...slot, days };
-      }
-      return slot;
-    }));
+    setTimeSlots(prev =>
+      prev.map(slot => {
+        if (slot.id === slotId) {
+          const days = slot.days.includes(day)
+            ? slot.days.filter(d => d !== day)
+            : [...slot.days, day];
+          return { ...slot, days };
+        }
+        return slot;
+      })
+    );
   };
 
   const toggleDayForNewTimeSlot = (day: WeekdayKey) => {
     setNewTimeSlot(prev => {
-      const days = prev.days.includes(day)
-        ? prev.days.filter(d => d !== day)
-        : [...prev.days, day];
+      const days = prev.days.includes(day) ? prev.days.filter(d => d !== day) : [...prev.days, day];
       return { ...prev, days };
     });
   };
@@ -316,34 +312,46 @@ export const EditBusiness: React.FC = () => {
       const allowedKeywordIds = categories
         .filter(cat => newCategoryIds.includes(cat.id))
         .flatMap(cat => cat.keywords?.map(k => k.id) || []);
-      setBusiness(prev => prev ? {
-        ...prev,
-        categoryIds: newCategoryIds,
-        keywordIds: prev.keywordIds.filter(id => allowedKeywordIds.includes(id)),
-      } : null);
+      setBusiness(prev =>
+        prev
+          ? {
+              ...prev,
+              categoryIds: newCategoryIds,
+              keywordIds: prev.keywordIds.filter(id => allowedKeywordIds.includes(id)),
+            }
+          : null
+      );
     } else {
       if (business.categoryIds.length >= 3) {
-        toast.error("Maximale Anzahl an Kategorien erreicht", {
-          description: "Sie können maximal 3 Kategorien auswählen.",
+        toast.error('Maximale Anzahl an Kategorien erreicht', {
+          description: 'Sie können maximal 3 Kategorien auswählen.',
         });
         return;
       }
-      setBusiness(prev => prev ? {
-        ...prev,
-        categoryIds: [...prev.categoryIds, categoryId]
-      } : null);
+      setBusiness(prev =>
+        prev
+          ? {
+              ...prev,
+              categoryIds: [...prev.categoryIds, categoryId],
+            }
+          : null
+      );
     }
   };
 
   const toggleKeyword = (keywordId: string) => {
     if (!business) return;
 
-    setBusiness(prev => prev ? {
-      ...prev,
-      keywordIds: prev.keywordIds.includes(keywordId)
-        ? prev.keywordIds.filter(id => id !== keywordId)
-        : [...prev.keywordIds, keywordId]
-    } : null);
+    setBusiness(prev =>
+      prev
+        ? {
+            ...prev,
+            keywordIds: prev.keywordIds.includes(keywordId)
+              ? prev.keywordIds.filter(id => id !== keywordId)
+              : [...prev.keywordIds, keywordId],
+          }
+        : null
+    );
   };
 
   const handleUpdateBusiness = async () => {
@@ -369,7 +377,10 @@ export const EditBusiness: React.FC = () => {
       // 3. Review aktualisieren
       const updatedReview: NuernbergspotsReview = {
         reviewText: editReview.reviewText,
-        reviewImageUrls: editReview.reviewImageUrls?.filter(url => !imagesToDelete.includes(url)).filter(url => url.startsWith('http')) || []
+        reviewImageUrls:
+          editReview.reviewImageUrls
+            ?.filter(url => !imagesToDelete.includes(url))
+            .filter(url => url.startsWith('http')) || [],
       };
 
       await businessService.updateNuernbergspotsReview(business.id, updatedReview);
@@ -380,7 +391,7 @@ export const EditBusiness: React.FC = () => {
 
       // 4. Öffnungszeiten aktualisieren
       const formattedDetailedOpeningHours: Record<string, Array<{ from: string; to: string }>> = {};
-      
+
       timeSlots.forEach(slot => {
         slot.days.forEach(day => {
           if (!formattedDetailedOpeningHours[day]) {
@@ -388,7 +399,7 @@ export const EditBusiness: React.FC = () => {
           }
           formattedDetailedOpeningHours[day].push({
             from: slot.from,
-            to: slot.to
+            to: slot.to,
           });
         });
       });
@@ -398,15 +409,15 @@ export const EditBusiness: React.FC = () => {
         categoryIds: business.categoryIds,
         keywordIds: business.keywordIds,
       });
-      
-      toast.success("Änderungen gespeichert", {
-        description: "Alle Änderungen wurden erfolgreich gespeichert.",
+
+      toast.success('Änderungen gespeichert', {
+        description: 'Alle Änderungen wurden erfolgreich gespeichert.',
       });
-      
+
       navigate('/businesses');
     } catch (error) {
-      toast.error("Fehler beim Aktualisieren", {
-        description: "Die Änderungen konnten nicht gespeichert werden.",
+      toast.error('Fehler beim Aktualisieren', {
+        description: 'Die Änderungen konnten nicht gespeichert werden.',
       });
     } finally {
       setIsSaving(false);
@@ -448,13 +459,16 @@ export const EditBusiness: React.FC = () => {
                 <div>
                   <h3 className="font-medium mb-2">Kategorie</h3>
                   <div className="flex-grow">
-                    <p className="text-sm text-muted-foreground">Kategorie-IDs: {business.categoryIds.join(', ')}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Kategorie-IDs: {business.categoryIds.join(', ')}
+                    </p>
                   </div>
                 </div>
                 <div>
                   <h3 className="font-medium mb-2">Adresse</h3>
                   <p className="text-sm text-muted-foreground">
-                    {business.address.street} {business.address.houseNumber}, {business.address.postalCode} {business.address.city}
+                    {business.address.street} {business.address.houseNumber},{' '}
+                    {business.address.postalCode} {business.address.city}
                   </p>
                 </div>
                 <div>
@@ -477,8 +491,8 @@ export const EditBusiness: React.FC = () => {
               <div className="space-y-4">
                 <div>
                   <h3 className="font-medium mb-2">Status</h3>
-                  <Select 
-                    value={business.status} 
+                  <Select
+                    value={business.status}
                     onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
                   >
                     <SelectTrigger className="w-full">
@@ -495,20 +509,20 @@ export const EditBusiness: React.FC = () => {
                   <Switch
                     id="isPromoted"
                     checked={business.isPromoted}
-                    onCheckedChange={async (checked) => {
+                    onCheckedChange={async checked => {
                       try {
                         await businessService.updateBusiness(business.id, {
-                          isPromoted: checked
+                          isPromoted: checked,
                         });
-                        setBusiness(prev => prev ? { ...prev, isPromoted: checked } : null);
-                        toast.success("Highlight-Status aktualisiert", {
-                          description: checked 
-                            ? "Der Partner wurde als Highlight markiert." 
-                            : "Der Highlight-Status wurde entfernt.",
+                        setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
+                        toast.success('Highlight-Status aktualisiert', {
+                          description: checked
+                            ? 'Der Partner wurde als Highlight markiert.'
+                            : 'Der Highlight-Status wurde entfernt.',
                         });
                       } catch (error) {
-                        toast.error("Fehler beim Aktualisieren", {
-                          description: "Der Highlight-Status konnte nicht aktualisiert werden.",
+                        toast.error('Fehler beim Aktualisieren', {
+                          description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
                         });
                       }
                     }}
@@ -516,8 +530,8 @@ export const EditBusiness: React.FC = () => {
                   <div className="space-y-1">
                     <Label htmlFor="isPromoted">Als "Highlight" markieren</Label>
                     <p className="text-sm text-muted-foreground">
-                      {business.isPromoted 
-                        ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                      {business.isPromoted
+                        ? 'Dieser Partner wird als Highlight angezeigt ✨'
                         : 'Markiere diesen Partner als Highlight'}
                     </p>
                   </div>
@@ -538,7 +552,7 @@ export const EditBusiness: React.FC = () => {
                   {categories.map(category => (
                     <Badge
                       key={category.id}
-                      variant={business?.categoryIds.includes(category.id) ? "default" : "outline"}
+                      variant={business?.categoryIds.includes(category.id) ? 'default' : 'outline'}
                       className="cursor-pointer"
                       onClick={() => toggleCategory(category.id)}
                     >
@@ -558,7 +572,7 @@ export const EditBusiness: React.FC = () => {
                     {keywords.map(keyword => (
                       <Badge
                         key={keyword.id}
-                        variant={business?.keywordIds.includes(keyword.id) ? "default" : "outline"}
+                        variant={business?.keywordIds.includes(keyword.id) ? 'default' : 'outline'}
                         className="cursor-pointer"
                         onClick={() => toggleKeyword(keyword.id)}
                       >
@@ -665,9 +679,9 @@ export const EditBusiness: React.FC = () => {
                   <div key={slot.id} className="border rounded-lg p-4 space-y-4 bg-card">
                     <div className="flex justify-between items-center">
                       <h4 className="font-medium">Zeitraum</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => removeTimeSlot(slot.id)}
                         className="text-destructive hover:text-destructive/90"
                       >
@@ -680,7 +694,7 @@ export const EditBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={slot.from}
-                          onChange={(e) => handleTimeSlotChange(slot.id, 'from', e.target.value)}
+                          onChange={e => handleTimeSlotChange(slot.id, 'from', e.target.value)}
                           className="bg-background"
                         />
                       </div>
@@ -689,7 +703,7 @@ export const EditBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={slot.to}
-                          onChange={(e) => handleTimeSlotChange(slot.id, 'to', e.target.value)}
+                          onChange={e => handleTimeSlotChange(slot.id, 'to', e.target.value)}
                           className="bg-background"
                         />
                       </div>
@@ -700,7 +714,7 @@ export const EditBusiness: React.FC = () => {
                         {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                           <Badge
                             key={day}
-                            variant={slot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                            variant={slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'}
                             className="cursor-pointer hover:bg-primary/10"
                             onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
                           >
@@ -711,7 +725,7 @@ export const EditBusiness: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                
+
                 <div className="border rounded-lg p-4 space-y-4 bg-card">
                   <h4 className="font-medium">Neuer Zeitraum</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -720,9 +734,7 @@ export const EditBusiness: React.FC = () => {
                       <Input
                         type="time"
                         value={newTimeSlot.from}
-                        onChange={(e) => 
-                          setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
-                        }
+                        onChange={e => setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))}
                         className="bg-background"
                       />
                     </div>
@@ -731,9 +743,7 @@ export const EditBusiness: React.FC = () => {
                       <Input
                         type="time"
                         value={newTimeSlot.to}
-                        onChange={(e) => 
-                          setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))
-                        }
+                        onChange={e => setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))}
                         className="bg-background"
                       />
                     </div>
@@ -744,7 +754,9 @@ export const EditBusiness: React.FC = () => {
                       {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                         <Badge
                           key={day}
-                          variant={newTimeSlot.days.includes(day as WeekdayKey) ? "default" : "outline"}
+                          variant={
+                            newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
+                          }
                           className="cursor-pointer hover:bg-primary/10"
                           onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
                         >
@@ -753,8 +765,8 @@ export const EditBusiness: React.FC = () => {
                       ))}
                     </div>
                   </div>
-                  <Button 
-                    onClick={addTimeSlot} 
+                  <Button
+                    onClick={addTimeSlot}
                     className="w-full"
                     disabled={newTimeSlot.days.length === 0}
                   >
@@ -776,15 +788,17 @@ export const EditBusiness: React.FC = () => {
                   <Label>Review Text</Label>
                   <Textarea
                     value={editReview.reviewText || ''}
-                    onChange={(e) => setEditReview(prev => ({
-                      ...prev,
-                      reviewText: e.target.value,
-                    }))}
+                    onChange={e =>
+                      setEditReview(prev => ({
+                        ...prev,
+                        reviewText: e.target.value,
+                      }))
+                    }
                     placeholder="Geben Sie hier die Review ein..."
                     className="min-h-[100px] bg-background"
                   />
                 </div>
-                
+
                 <div>
                   <h4 className="text-sm font-medium mb-2">Review Bilder</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -836,4 +850,4 @@ export const EditBusiness: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

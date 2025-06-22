@@ -13,17 +13,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ArrowLeft, Trash2 } from 'lucide-react';
-import { LocationSearch, LocationResult } from "@/components/ui/LocationSearch";
+import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -32,7 +31,7 @@ const WEEKDAYS = {
   Donnerstag: 'Donnerstag',
   Freitag: 'Freitag',
   Samstag: 'Samstag',
-  Sonntag: 'Sonntag'
+  Sonntag: 'Sonntag',
 } as const;
 
 type WeekdayKey = keyof typeof WEEKDAYS;
@@ -72,30 +71,35 @@ export const CreateBusiness: React.FC = () => {
       phoneNumber: '',
       email: '',
       website: '',
-      instagram: '',  
+      instagram: '',
       facebook: '',
-      tiktok: ''
+      tiktok: '',
     },
-    openingHours: {} as Record<string, string>, 
+    openingHours: {} as Record<string, string>,
     status: BusinessStatus.PENDING,
     imageUrls: [] as string[],
     keywordIds: [] as string[],
-    isPromoted: false
+    isPromoted: false,
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([
-    { id: '1', openTime: '09:00', closeTime: '18:00', days: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'] }
+    {
+      id: '1',
+      openTime: '09:00',
+      closeTime: '18:00',
+      days: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'],
+    },
   ]);
   const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
     openTime: '09:00',
     closeTime: '18:00',
-    days: []
+    days: [],
   });
   const [detailedTimeSlots, setDetailedTimeSlots] = useState<DetailedTimeSlot[]>([]);
   const [newDetailedTimeSlot, setNewDetailedTimeSlot] = useState<Omit<DetailedTimeSlot, 'id'>>({
     from: '09:00',
     to: '18:00',
-    day: 'Montag'
+    day: 'Montag',
   });
 
   useEffect(() => {
@@ -115,8 +119,8 @@ export const CreateBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error("Fehler beim Laden der Kategorien", {
-        description: "Die Kategorien konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Kategorien', {
+        description: 'Die Kategorien konnten nicht geladen werden.',
       });
     }
   };
@@ -124,9 +128,7 @@ export const CreateBusiness: React.FC = () => {
   const loadKeywordsForCategories = async (categoryIds: string[]) => {
     try {
       // Lade die ausgewählten Kategorien
-      const selectedCategories = categories.filter(category => 
-        categoryIds.includes(category.id)
-      );
+      const selectedCategories = categories.filter(category => categoryIds.includes(category.id));
 
       // Sammle alle Keyword-IDs aus den ausgewählten Kategorien
       const keywordIds = selectedCategories
@@ -137,16 +139,14 @@ export const CreateBusiness: React.FC = () => {
       const uniqueKeywordIds = [...new Set(keywordIds)];
 
       // Lade die Keywords
-      const keywordPromises = uniqueKeywordIds.map(id => 
-        keywordService.getKeyword(id)
-      );
-      
+      const keywordPromises = uniqueKeywordIds.map(id => keywordService.getKeyword(id));
+
       const fetchedKeywords = await Promise.all(keywordPromises);
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error("Fehler beim Laden der Keywords", {
-        description: "Die Keywords konnten nicht geladen werden.",
+      toast.error('Fehler beim Laden der Keywords', {
+        description: 'Die Keywords konnten nicht geladen werden.',
       });
     }
   };
@@ -154,18 +154,18 @@ export const CreateBusiness: React.FC = () => {
   const handleInputChange = (field: keyof typeof newBusiness, value: any) => {
     setNewBusiness(prev => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleLocationSelect = (location: LocationResult | null) => {
     if (!location) return;
-    
+
     setNewBusiness(prev => ({
       ...prev,
       address: location.address.label,
       latitude: location.position.lat,
-      longitude: location.position.lng
+      longitude: location.position.lng,
     }));
     setSearchValue(location);
   };
@@ -187,33 +187,31 @@ export const CreateBusiness: React.FC = () => {
       if (isSelected) {
         return {
           ...prev,
-          categoryIds: prev.categoryIds.filter(id => id !== categoryId)
+          categoryIds: prev.categoryIds.filter(id => id !== categoryId),
         };
       } else {
         if (prev.categoryIds.length >= 3) {
-          toast.error("Maximale Anzahl an Kategorien erreicht", {
-            description: "Sie können maximal 3 Kategorien auswählen.",
+          toast.error('Maximale Anzahl an Kategorien erreicht', {
+            description: 'Sie können maximal 3 Kategorien auswählen.',
           });
           return prev;
         }
         return {
           ...prev,
-          categoryIds: [...prev.categoryIds, categoryId]
+          categoryIds: [...prev.categoryIds, categoryId],
         };
       }
     });
   };
 
   const handleTimeSlotChange = (id: string, field: keyof Omit<TimeSlot, 'id'>, value: any) => {
-    setTimeSlots(prev => prev.map(slot => 
-      slot.id === id ? { ...slot, [field]: value } : slot
-    ));
+    setTimeSlots(prev => prev.map(slot => (slot.id === id ? { ...slot, [field]: value } : slot)));
   };
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error("Bitte wählen Sie mindestens einen Tag aus", {
-        description: "Ein Zeitraum muss für mindestens einen Tag gelten.",
+      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
+        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
       });
       return;
     }
@@ -228,30 +226,30 @@ export const CreateBusiness: React.FC = () => {
   };
 
   const toggleDayForTimeSlot = (day: WeekdayKey, slotId: string) => {
-    setTimeSlots(prev => prev.map(slot => {
-      if (slot.id === slotId) {
-        const days = slot.days.includes(day)
-          ? slot.days.filter(d => d !== day)
-          : [...slot.days, day];
-        return { ...slot, days };
-      }
-      return slot;
-    }));
+    setTimeSlots(prev =>
+      prev.map(slot => {
+        if (slot.id === slotId) {
+          const days = slot.days.includes(day)
+            ? slot.days.filter(d => d !== day)
+            : [...slot.days, day];
+          return { ...slot, days };
+        }
+        return slot;
+      })
+    );
   };
 
   const toggleDayForNewTimeSlot = (day: WeekdayKey) => {
     setNewTimeSlot(prev => {
-      const days = prev.days.includes(day)
-        ? prev.days.filter(d => d !== day)
-        : [...prev.days, day];
+      const days = prev.days.includes(day) ? prev.days.filter(d => d !== day) : [...prev.days, day];
       return { ...prev, days };
     });
   };
 
   const addDetailedTimeSlot = () => {
     if (!newDetailedTimeSlot.day) {
-      toast.error("Bitte wählen Sie einen Tag aus", {
-        description: "Ein Zeitraum muss für einen Tag gelten.",
+      toast.error('Bitte wählen Sie einen Tag aus', {
+        description: 'Ein Zeitraum muss für einen Tag gelten.',
       });
       return;
     }
@@ -261,7 +259,7 @@ export const CreateBusiness: React.FC = () => {
     setNewDetailedTimeSlot({
       from: '09:00',
       to: '18:00',
-      day: 'Montag'
+      day: 'Montag',
     });
   };
 
@@ -289,7 +287,7 @@ export const CreateBusiness: React.FC = () => {
 
       // Formatiere detaillierte Öffnungszeiten
       const formattedDetailedOpeningHours: Record<string, Array<{ from: string; to: string }>> = {};
-      
+
       // Setze die Öffnungszeiten basierend auf den Zeiträumen
       timeSlots.forEach(slot => {
         slot.days.forEach(day => {
@@ -298,7 +296,7 @@ export const CreateBusiness: React.FC = () => {
           }
           formattedDetailedOpeningHours[day].push({
             from: slot.openTime,
-            to: slot.closeTime
+            to: slot.closeTime,
           });
         });
       });
@@ -310,7 +308,7 @@ export const CreateBusiness: React.FC = () => {
         website: newBusiness.contact.website || undefined,
         instagram: newBusiness.contact.instagram || undefined,
         facebook: newBusiness.contact.facebook || undefined,
-        tiktok: newBusiness.contact.tiktok || undefined
+        tiktok: newBusiness.contact.tiktok || undefined,
       };
 
       const businessToCreate = {
@@ -323,23 +321,24 @@ export const CreateBusiness: React.FC = () => {
           postalCode,
           city: 'Nürnberg',
           latitude: newBusiness.latitude,
-          longitude: newBusiness.longitude
+          longitude: newBusiness.longitude,
         },
         contact: cleanedContact,
         detailedOpeningHours: formattedDetailedOpeningHours,
-        keywordIds: selectedKeywords
+        keywordIds: selectedKeywords,
       };
-      
+
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
       await businessService.createBusiness(businessToCreate);
-      toast.success("Geschäft erstellt", {
-        description: "Das Geschäft wurde erfolgreich erstellt.",
+      toast.success('Geschäft erstellt', {
+        description: 'Das Geschäft wurde erfolgreich erstellt.',
       });
       navigate('/businesses');
     } catch (error) {
       console.error('Error creating business:', error);
-      toast.error("Fehler beim Erstellen des Geschäfts", {
-        description: "Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.",
+      toast.error('Fehler beim Erstellen des Geschäfts', {
+        description:
+          'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
       });
     } finally {
       setLoading(false);
@@ -352,21 +351,33 @@ export const CreateBusiness: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1000ms'}}></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse" style={{animationDelay: '500ms'}}></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse" style={{animationDelay: '700ms'}}></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse" style={{animationDelay: '300ms'}}></div>
+      <div
+        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '1000ms' }}
+      ></div>
+      <div
+        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '500ms' }}
+      ></div>
+      <div
+        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '700ms' }}
+      ></div>
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
+        style={{ animationDelay: '300ms' }}
+      ></div>
 
       <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Glass Header */}
           <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => navigate('/businesses')}
                 className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
@@ -392,11 +403,13 @@ export const CreateBusiness: React.FC = () => {
             <div className="p-4 sm:p-6 space-y-8">
               {/* Business Name */}
               <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 space-y-3">
-                <Label htmlFor="name" className="text-white font-medium">Name des Geschäfts</Label>
+                <Label htmlFor="name" className="text-white font-medium">
+                  Name des Geschäfts
+                </Label>
                 <Input
                   id="name"
                   value={newBusiness.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  onChange={e => handleInputChange('name', e.target.value)}
                   placeholder="z.B. Café Sonnenschein"
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                 />
@@ -407,16 +420,19 @@ export const CreateBusiness: React.FC = () => {
 
               {/* Description */}
               <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 space-y-3">
-                <Label htmlFor="description" className="text-white font-medium">Beschreibung</Label>
+                <Label htmlFor="description" className="text-white font-medium">
+                  Beschreibung
+                </Label>
                 <Textarea
                   id="description"
                   value={newBusiness.description}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  onChange={e => handleInputChange('description', e.target.value)}
                   placeholder="Beschreiben Sie das Geschäft im Detail..."
                   className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                 />
                 <p className="text-sm text-white/60">
-                  Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie Angebot, Besonderheiten oder Geschichte.
+                  Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie
+                  Angebot, Besonderheiten oder Geschichte.
                 </p>
               </div>
 
@@ -470,11 +486,13 @@ export const CreateBusiness: React.FC = () => {
 
               {/* Benefit */}
               <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 space-y-3">
-                <Label htmlFor="benefit" className="text-white font-medium">Benefit für Nutzer</Label>
+                <Label htmlFor="benefit" className="text-white font-medium">
+                  Benefit für Nutzer
+                </Label>
                 <Input
                   id="benefit"
                   value={newBusiness.benefit}
-                  onChange={(e) => {
+                  onChange={e => {
                     const value = e.target.value.slice(0, 100);
                     handleInputChange('benefit', value);
                   }}
@@ -483,10 +501,9 @@ export const CreateBusiness: React.FC = () => {
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                 />
                 <p className="text-sm text-white/60">
-                  Beschreiben Sie kurz (max. 100 Zeichen), welchen Vorteil Nutzer in diesem Geschäft erhalten.
-                  <span className="ml-2 text-xs">
-                    {newBusiness.benefit.length}/100 Zeichen
-                  </span>
+                  Beschreiben Sie kurz (max. 100 Zeichen), welchen Vorteil Nutzer in diesem Geschäft
+                  erhalten.
+                  <span className="ml-2 text-xs">{newBusiness.benefit.length}/100 Zeichen</span>
                 </p>
               </div>
 
@@ -517,7 +534,8 @@ export const CreateBusiness: React.FC = () => {
                   Kontaktinformationen
                 </h3>
                 <p className="text-sm text-white/60">
-                  Diese Informationen sind optional und können später vom Geschäftsinhaber ergänzt werden.
+                  Diese Informationen sind optional und können später vom Geschäftsinhaber ergänzt
+                  werden.
                 </p>
 
                 <div className="backdrop-blur-2xl bg-white/5 rounded-xl border border-white/10 p-3">
@@ -525,14 +543,16 @@ export const CreateBusiness: React.FC = () => {
                     <Switch
                       id="isPromoted"
                       checked={newBusiness.isPromoted}
-                      onCheckedChange={(checked) => handleInputChange('isPromoted', checked)}
+                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
                       className="data-[state=checked]:bg-white/30 data-[state=unchecked]:bg-white/10"
                     />
                     <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-white font-medium">Als "Highlight" markieren</Label>
+                      <Label htmlFor="isPromoted" className="text-white font-medium">
+                        Als "Highlight" markieren
+                      </Label>
                       <p className="text-sm text-white/70">
-                        {newBusiness.isPromoted 
-                          ? 'Dieser Partner wird als Highlight angezeigt ✨' 
+                        {newBusiness.isPromoted
+                          ? 'Dieser Partner wird als Highlight angezeigt ✨'
                           : 'Markiere diesen Partner als Highlight'}
                       </p>
                     </div>
@@ -541,82 +561,106 @@ export const CreateBusiness: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white">E-Mail (optional)</Label>
+                    <Label htmlFor="email" className="text-white">
+                      E-Mail (optional)
+                    </Label>
                     <Input
                       id="email"
                       type="email"
                       value={newBusiness.contact.email}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, email: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, email: e.target.value },
+                        })
+                      }
                       placeholder="kontakt@beispiel.de"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-white">Telefon (optional)</Label>
+                    <Label htmlFor="phone" className="text-white">
+                      Telefon (optional)
+                    </Label>
                     <Input
                       id="phone"
                       type="tel"
                       value={newBusiness.contact.phoneNumber}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, phoneNumber: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, phoneNumber: e.target.value },
+                        })
+                      }
                       placeholder="+49 123 456789"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="website" className="text-white">Website (optional)</Label>
+                    <Label htmlFor="website" className="text-white">
+                      Website (optional)
+                    </Label>
                     <Input
                       id="website"
                       type="url"
                       value={newBusiness.contact.website}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, website: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, website: e.target.value },
+                        })
+                      }
                       placeholder="https://www.beispiel.de"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-white">Instagram (optional)</Label>
+                    <Label htmlFor="instagram" className="text-white">
+                      Instagram (optional)
+                    </Label>
                     <Input
                       id="instagram"
                       value={newBusiness.contact.instagram}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, instagram: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, instagram: e.target.value },
+                        })
+                      }
                       placeholder="@beispiel"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="facebook" className="text-white">Facebook (optional)</Label>
+                    <Label htmlFor="facebook" className="text-white">
+                      Facebook (optional)
+                    </Label>
                     <Input
                       id="facebook"
                       value={newBusiness.contact.facebook}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, facebook: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, facebook: e.target.value },
+                        })
+                      }
                       placeholder="beispiel"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tiktok" className="text-white">TikTok (optional)</Label>
+                    <Label htmlFor="tiktok" className="text-white">
+                      TikTok (optional)
+                    </Label>
                     <Input
                       id="tiktok"
                       value={newBusiness.contact.tiktok}
-                      onChange={(e) => setNewBusiness({
-                        ...newBusiness,
-                        contact: { ...newBusiness.contact, tiktok: e.target.value }
-                      })}
+                      onChange={e =>
+                        setNewBusiness({
+                          ...newBusiness,
+                          contact: { ...newBusiness.contact, tiktok: e.target.value },
+                        })
+                      }
                       placeholder="@beispiel"
                       className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20"
                     />
@@ -631,17 +675,21 @@ export const CreateBusiness: React.FC = () => {
                     Öffnungszeiten
                   </h3>
                   <p className="text-sm text-white/60">
-                    Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten sollen. Sie können mehrere Zeiträume für den gleichen Tag hinzufügen.
+                    Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten
+                    sollen. Sie können mehrere Zeiträume für den gleichen Tag hinzufügen.
                   </p>
                 </div>
                 <div className="space-y-4">
                   {timeSlots.map(slot => (
-                    <div key={slot.id} className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-4 space-y-4">
+                    <div
+                      key={slot.id}
+                      className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-4 space-y-4"
+                    >
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium text-white">Zeitraum</h4>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => removeTimeSlot(slot.id)}
                           className="backdrop-blur-2xl bg-red-500/20 text-red-200 hover:bg-red-500/30 hover:scale-105 transition-all duration-300 border border-red-400/30"
                         >
@@ -654,7 +702,9 @@ export const CreateBusiness: React.FC = () => {
                           <Input
                             type="time"
                             value={slot.openTime}
-                            onChange={(e) => handleTimeSlotChange(slot.id, 'openTime', e.target.value)}
+                            onChange={e =>
+                              handleTimeSlotChange(slot.id, 'openTime', e.target.value)
+                            }
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20"
                           />
                         </div>
@@ -663,7 +713,9 @@ export const CreateBusiness: React.FC = () => {
                           <Input
                             type="time"
                             value={slot.closeTime}
-                            onChange={(e) => handleTimeSlotChange(slot.id, 'closeTime', e.target.value)}
+                            onChange={e =>
+                              handleTimeSlotChange(slot.id, 'closeTime', e.target.value)
+                            }
                             className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20"
                           />
                         </div>
@@ -696,7 +748,9 @@ export const CreateBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={newTimeSlot.openTime}
-                          onChange={(e) => setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })}
+                          onChange={e =>
+                            setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })
+                          }
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20"
                         />
                       </div>
@@ -705,7 +759,9 @@ export const CreateBusiness: React.FC = () => {
                         <Input
                           type="time"
                           value={newTimeSlot.closeTime}
-                          onChange={(e) => setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })}
+                          onChange={e =>
+                            setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })
+                          }
                           className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20"
                         />
                       </div>
@@ -728,8 +784,8 @@ export const CreateBusiness: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <Button 
-                      onClick={addTimeSlot} 
+                    <Button
+                      onClick={addTimeSlot}
                       className="w-full backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105"
                       disabled={newTimeSlot.days.length === 0}
                     >
@@ -741,15 +797,15 @@ export const CreateBusiness: React.FC = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => navigate('/businesses')}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 w-full sm:w-auto"
                 >
                   Abbrechen
                 </Button>
-                <Button 
-                  onClick={handleSubmit} 
+                <Button
+                  onClick={handleSubmit}
                   disabled={loading}
                   className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                 >
@@ -762,4 +818,4 @@ export const CreateBusiness: React.FC = () => {
       </div>
     </div>
   );
-}; 
+};

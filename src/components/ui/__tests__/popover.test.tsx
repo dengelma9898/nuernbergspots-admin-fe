@@ -3,12 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverAnchor,
-} from '../popover';
+import { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from '../popover';
 
 // Test Popover Komponente für bessere Testbarkeit
 const TestPopover = ({
@@ -50,7 +45,7 @@ describe('Popover Components', () => {
           </PopoverTrigger>
         </Popover>
       );
-      
+
       // Der Popover Root ist ein unsichtbarer Wrapper
       const trigger = screen.getByRole('button', { name: 'Trigger' });
       expect(trigger).toBeInTheDocument();
@@ -58,32 +53,30 @@ describe('Popover Components', () => {
 
     it('sollte controlled open state unterstützen', () => {
       const onOpenChange = jest.fn();
-      
-      const { rerender } = render(
-        <TestPopover open={false} onOpenChange={onOpenChange} />
-      );
-      
+
+      const { rerender } = render(<TestPopover open={false} onOpenChange={onOpenChange} />);
+
       // Popover sollte geschlossen sein
       expect(screen.queryByTestId('popover-content')).not.toBeInTheDocument();
-      
+
       // Popover öffnen
       rerender(<TestPopover open={true} onOpenChange={onOpenChange} />);
-      
+
       // Popover sollte geöffnet sein
       expect(screen.getByTestId('popover-content')).toBeInTheDocument();
     });
 
     it('sollte uncontrolled state unterstützen', async () => {
       const user = userEvent.setup();
-      
+
       render(<TestPopover />);
-      
+
       // Initial geschlossen
       expect(screen.queryByTestId('popover-content')).not.toBeInTheDocument();
-      
+
       // Trigger klicken um zu öffnen
       await user.click(screen.getByTestId('popover-trigger'));
-      
+
       // Popover sollte geöffnet sein
       await waitFor(() => {
         expect(screen.getByTestId('popover-content')).toBeInTheDocument();
@@ -100,7 +93,7 @@ describe('Popover Components', () => {
           </PopoverTrigger>
         </Popover>
       );
-      
+
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveAttribute('data-slot', 'popover-trigger');
       expect(trigger).toHaveTextContent('Open');
@@ -109,12 +102,10 @@ describe('Popover Components', () => {
     it('sollte als Button funktionieren', () => {
       render(
         <Popover>
-          <PopoverTrigger data-testid="trigger">
-            Trigger Button
-          </PopoverTrigger>
+          <PopoverTrigger data-testid="trigger">Trigger Button</PopoverTrigger>
         </Popover>
       );
-      
+
       const trigger = screen.getByTestId('trigger');
       expect(trigger).toHaveAttribute('type', 'button');
       expect(trigger).toHaveTextContent('Trigger Button');
@@ -128,7 +119,7 @@ describe('Popover Components', () => {
           </PopoverTrigger>
         </Popover>
       );
-      
+
       const trigger = screen.getByTestId('custom-trigger');
       expect(trigger.tagName).toBe('DIV');
       expect(trigger).toHaveTextContent('Custom Trigger');
@@ -137,7 +128,7 @@ describe('Popover Components', () => {
     it('sollte onClick Handler unterstützen', async () => {
       const user = userEvent.setup();
       const onClick = jest.fn();
-      
+
       render(
         <Popover>
           <PopoverTrigger data-testid="trigger" onClick={onClick}>
@@ -145,7 +136,7 @@ describe('Popover Components', () => {
           </PopoverTrigger>
         </Popover>
       );
-      
+
       await user.click(screen.getByTestId('trigger'));
       expect(onClick).toHaveBeenCalledTimes(1);
     });
@@ -154,7 +145,7 @@ describe('Popover Components', () => {
   describe('PopoverContent', () => {
     it('sollte korrekt mit data-slot="popover-content" gerendert werden', () => {
       render(<TestPopover open />);
-      
+
       const content = screen.getByTestId('popover-content');
       expect(content).toHaveAttribute('data-slot', 'popover-content');
       expect(content).toBeInTheDocument();
@@ -162,7 +153,7 @@ describe('Popover Components', () => {
 
     it('sollte Standard-Styles haben', () => {
       render(<TestPopover open />);
-      
+
       const content = screen.getByTestId('popover-content');
       expect(content).toHaveClass(
         'bg-popover',
@@ -179,7 +170,7 @@ describe('Popover Components', () => {
 
     it('sollte Animation-Klassen haben', () => {
       render(<TestPopover open />);
-      
+
       const content = screen.getByTestId('popover-content');
       expect(content).toHaveClass(
         'data-[state=open]:animate-in',
@@ -191,7 +182,7 @@ describe('Popover Components', () => {
 
     it('sollte default align und sideOffset verwenden', () => {
       render(<TestPopover open />);
-      
+
       const content = screen.getByTestId('popover-content');
       expect(content).toHaveAttribute('data-align', 'center');
       expect(content).toHaveAttribute('data-side');
@@ -208,7 +199,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toHaveAttribute('data-align', 'start');
     });
@@ -224,7 +215,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toBeInTheDocument();
     });
@@ -240,7 +231,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toHaveClass('custom-popover');
     });
@@ -258,7 +249,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toContainHTML('<h3>Title</h3>');
       expect(content).toContainHTML('<p>Description</p>');
@@ -278,7 +269,7 @@ describe('Popover Components', () => {
           </PopoverTrigger>
         </Popover>
       );
-      
+
       const anchor = screen.getByTestId('anchor');
       expect(anchor).toHaveAttribute('data-slot', 'popover-anchor');
       expect(anchor).toHaveTextContent('Anchor Element');
@@ -293,15 +284,13 @@ describe('Popover Components', () => {
           <PopoverTrigger asChild>
             <button>Trigger</button>
           </PopoverTrigger>
-          <PopoverContent data-testid="content">
-            Anchored content
-          </PopoverContent>
+          <PopoverContent data-testid="content">Anchored content</PopoverContent>
         </Popover>
       );
-      
+
       const anchor = screen.getByTestId('anchor');
       const content = screen.getByTestId('content');
-      
+
       expect(anchor).toBeInTheDocument();
       expect(content).toBeInTheDocument();
     });
@@ -310,17 +299,17 @@ describe('Popover Components', () => {
   describe('Interaktionen', () => {
     it('sollte Popover durch Trigger-Klick öffnen und schließen', async () => {
       const user = userEvent.setup();
-      
+
       render(<TestPopover />);
-      
+
       const trigger = screen.getByTestId('popover-trigger');
-      
+
       // Popover öffnen
       await user.click(trigger);
       await waitFor(() => {
         expect(screen.getByTestId('popover-content')).toBeInTheDocument();
       });
-      
+
       // Popover schließen
       await user.click(trigger);
       await waitFor(() => {
@@ -330,21 +319,21 @@ describe('Popover Components', () => {
 
     it('sollte Popover durch Escape-Taste schließen', async () => {
       const user = userEvent.setup();
-      
+
       render(<TestPopover />);
-      
+
       const trigger = screen.getByTestId('popover-trigger');
-      
+
       // Popover öffnen
       await user.click(trigger);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('popover-content')).toBeInTheDocument();
       });
-      
+
       // ESC-Taste drücken
       await user.keyboard('{Escape}');
-      
+
       await waitFor(() => {
         expect(screen.queryByTestId('popover-content')).not.toBeInTheDocument();
       });
@@ -352,26 +341,26 @@ describe('Popover Components', () => {
 
     it('sollte Popover durch Außenklick schließen', async () => {
       const user = userEvent.setup();
-      
+
       render(
         <div>
           <TestPopover />
           <div data-testid="outside">Outside content</div>
         </div>
       );
-      
+
       const trigger = screen.getByTestId('popover-trigger');
-      
+
       // Popover öffnen
       await user.click(trigger);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('popover-content')).toBeInTheDocument();
       });
-      
+
       // Außerhalb klicken
       await user.click(screen.getByTestId('outside'));
-      
+
       await waitFor(() => {
         expect(screen.queryByTestId('popover-content')).not.toBeInTheDocument();
       });
@@ -380,12 +369,12 @@ describe('Popover Components', () => {
     it('sollte onOpenChange callback aufrufen', async () => {
       const user = userEvent.setup();
       const onOpenChange = jest.fn();
-      
+
       render(<TestPopover onOpenChange={onOpenChange} />);
-      
+
       // Popover öffnen
       await user.click(screen.getByTestId('popover-trigger'));
-      
+
       await waitFor(() => {
         expect(onOpenChange).toHaveBeenCalledWith(true);
       });
@@ -395,10 +384,10 @@ describe('Popover Components', () => {
   describe('Accessibility', () => {
     it('sollte korrekte ARIA-Attribute setzen', () => {
       render(<TestPopover open />);
-      
+
       const trigger = screen.getByTestId('popover-trigger');
       const content = screen.getByTestId('popover-content');
-      
+
       expect(trigger).toHaveAttribute('aria-expanded', 'true');
       expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
       expect(content).toHaveAttribute('role');
@@ -406,22 +395,22 @@ describe('Popover Components', () => {
 
     it('sollte ARIA-Attribute beim Schließen aktualisieren', () => {
       render(<TestPopover open={false} />);
-      
+
       const trigger = screen.getByTestId('popover-trigger');
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sollte Fokus-Management unterstützen', async () => {
       const user = userEvent.setup();
-      
+
       render(<TestPopover />);
-      
+
       const trigger = screen.getByTestId('popover-trigger');
-      
+
       // Trigger fokussieren und öffnen
       trigger.focus();
       await user.keyboard(' '); // Space-Taste
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('popover-content')).toBeInTheDocument();
       });
@@ -440,7 +429,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toHaveAttribute('data-side', 'top');
     });
@@ -456,7 +445,7 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toHaveAttribute('data-align', 'end');
     });
@@ -485,12 +474,12 @@ describe('Popover Components', () => {
           </PopoverContent>
         </Popover>
       );
-      
+
       // Alle Komponenten sollten vorhanden sein
       expect(screen.getByTestId('anchor')).toHaveAttribute('data-slot', 'popover-anchor');
       expect(screen.getByTestId('trigger')).toHaveAttribute('data-slot', 'popover-trigger');
       expect(screen.getByTestId('content')).toHaveAttribute('data-slot', 'popover-content');
-      
+
       // Inhalt sollte korrekt gerendert werden
       expect(screen.getByText('Menu Title')).toBeInTheDocument();
       expect(screen.getByText('Option 1')).toBeInTheDocument();
@@ -508,12 +497,10 @@ describe('Popover Components', () => {
           <PopoverTrigger data-testid="trigger" asChild>
             <button>Trigger</button>
           </PopoverTrigger>
-          <PopoverContent data-testid="content">
-            Content
-          </PopoverContent>
+          <PopoverContent data-testid="content">Content</PopoverContent>
         </Popover>
       );
-      
+
       expect(screen.getByTestId('anchor')).toHaveAttribute('data-slot', 'popover-anchor');
       expect(screen.getByTestId('trigger')).toHaveAttribute('data-slot', 'popover-trigger');
       expect(screen.getByTestId('content')).toHaveAttribute('data-slot', 'popover-content');
@@ -527,11 +514,10 @@ describe('Popover Components', () => {
           <PopoverTrigger asChild>
             <button>Trigger</button>
           </PopoverTrigger>
-          <PopoverContent data-testid="content">
-          </PopoverContent>
+          <PopoverContent data-testid="content"></PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toBeInTheDocument();
       expect(content).toBeEmptyDOMElement();
@@ -539,18 +525,16 @@ describe('Popover Components', () => {
 
     it('sollte mit sehr großem Content umgehen', () => {
       const largeContent = 'Lorem ipsum '.repeat(200);
-      
+
       render(
         <Popover open>
           <PopoverTrigger asChild>
             <button>Trigger</button>
           </PopoverTrigger>
-          <PopoverContent data-testid="content">
-            {largeContent}
-          </PopoverContent>
+          <PopoverContent data-testid="content">{largeContent}</PopoverContent>
         </Popover>
       );
-      
+
       const content = screen.getByTestId('content');
       expect(content).toBeInTheDocument();
       expect(content.textContent).toContain('Lorem ipsum');
@@ -561,22 +545,18 @@ describe('Popover Components', () => {
       render(
         <div>
           <Popover>
-            <PopoverTrigger data-testid="trigger1">
-              Trigger 1
-            </PopoverTrigger>
+            <PopoverTrigger data-testid="trigger1">Trigger 1</PopoverTrigger>
             <PopoverContent>Content 1</PopoverContent>
           </Popover>
           <Popover>
-            <PopoverTrigger data-testid="trigger2">
-              Trigger 2
-            </PopoverTrigger>
+            <PopoverTrigger data-testid="trigger2">Trigger 2</PopoverTrigger>
             <PopoverContent>Content 2</PopoverContent>
           </Popover>
         </div>
       );
-      
+
       expect(screen.getByTestId('trigger1')).toBeInTheDocument();
       expect(screen.getByTestId('trigger2')).toBeInTheDocument();
     });
   });
-}); 
+});

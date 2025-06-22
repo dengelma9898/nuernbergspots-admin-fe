@@ -18,21 +18,41 @@ jest.mock('react-router-dom', () => ({
 
 // Mock shadcn/ui components
 jest.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
-  CardContent: ({ children, className }: any) => <div className={className} data-testid="card-content">{children}</div>,
-  CardHeader: ({ children, className }: any) => <div className={className} data-testid="card-header">{children}</div>,
-  CardTitle: ({ children, className }: any) => <div className={className} data-testid="card-title">{children}</div>,
+  Card: ({ children, className }: any) => (
+    <div className={className} data-testid="card">
+      {children}
+    </div>
+  ),
+  CardContent: ({ children, className }: any) => (
+    <div className={className} data-testid="card-content">
+      {children}
+    </div>
+  ),
+  CardHeader: ({ children, className }: any) => (
+    <div className={className} data-testid="card-header">
+      {children}
+    </div>
+  ),
+  CardTitle: ({ children, className }: any) => (
+    <div className={className} data-testid="card-title">
+      {children}
+    </div>
+  ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, className, asChild }: any) => {
     if (asChild) {
-      return <label className={className} data-testid="button" data-variant={variant}>{children}</label>;
+      return (
+        <label className={className} data-testid="button" data-variant={variant}>
+          {children}
+        </label>
+      );
     }
     return (
-      <button 
-        onClick={onClick} 
-        disabled={disabled} 
+      <button
+        onClick={onClick}
+        disabled={disabled}
         className={className}
         data-variant={variant}
         data-testid="button"
@@ -46,9 +66,9 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, type, className }: any) => (
-    <input 
+    <input
       type={type}
-      value={value} 
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       className={className}
@@ -58,9 +78,17 @@ jest.mock('@/components/ui/input', () => ({
 }));
 
 jest.mock('@/components/ui/table', () => ({
-  Table: ({ children, className }: any) => <table className={className} data-testid="table">{children}</table>,
+  Table: ({ children, className }: any) => (
+    <table className={className} data-testid="table">
+      {children}
+    </table>
+  ),
   TableBody: ({ children }: any) => <tbody data-testid="table-body">{children}</tbody>,
-  TableCell: ({ children, className }: any) => <td className={className} data-testid="table-cell">{children}</td>,
+  TableCell: ({ children, className }: any) => (
+    <td className={className} data-testid="table-cell">
+      {children}
+    </td>
+  ),
   TableHead: ({ children }: any) => <th data-testid="table-head">{children}</th>,
   TableHeader: ({ children }: any) => <thead data-testid="table-header">{children}</thead>,
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
@@ -72,19 +100,21 @@ jest.mock('@/components/ui/dialog', () => ({
       {children}
     </div>
   ),
-  DialogContent: ({ children, className }: any) => <div className={className} data-testid="dialog-content">{children}</div>,
-  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
-  DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
-  DialogTrigger: ({ children, asChild }: any) => (
-    <div data-testid="dialog-trigger">
+  DialogContent: ({ children, className }: any) => (
+    <div className={className} data-testid="dialog-content">
       {children}
     </div>
   ),
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
+  DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
 jest.mock('@/components/ui/dropdown-menu', () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
-  DropdownMenuContent: ({ children }: any) => <div data-testid="dropdown-menu-content">{children}</div>,
+  DropdownMenuContent: ({ children }: any) => (
+    <div data-testid="dropdown-menu-content">{children}</div>
+  ),
   DropdownMenuItem: ({ children, onClick, className }: any) => (
     <div data-testid="dropdown-menu-item" className={className} onClick={onClick}>
       {children}
@@ -97,11 +127,7 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 
 jest.mock('@/components/ui/icon-picker', () => ({
   IconPicker: ({ value, onChange }: any) => (
-    <div 
-      data-testid="icon-picker" 
-      data-value={value}
-      onClick={() => onChange?.('test-icon')}
-    >
+    <div data-testid="icon-picker" data-value={value} onClick={() => onChange?.('test-icon')}>
       Icon Picker
     </div>
   ),
@@ -135,8 +161,8 @@ jest.mock('sonner', () => ({
 
 // Mock color utils
 jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn((color) => color || '#000000'),
-  convertHexToFF: jest.fn((color) => color || '#000000'),
+  convertFFToHex: jest.fn(color => color || '#000000'),
+  convertHexToFF: jest.fn(color => color || '#000000'),
 }));
 
 // Mock icon utils
@@ -177,11 +203,7 @@ const mockEventCategory2: EventCategory = {
 };
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(
-    <BrowserRouter>
-      {component}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
 describe('EventCategoryList Component', () => {
@@ -189,8 +211,11 @@ describe('EventCategoryList Component', () => {
     jest.clearAllMocks();
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
-    
-    mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory, mockEventCategory2]);
+
+    mockEventCategoryService.getCategories.mockResolvedValue([
+      mockEventCategory,
+      mockEventCategory2,
+    ]);
     mockEventCategoryService.createCategory.mockResolvedValue(mockEventCategory);
     mockEventCategoryService.updateCategory.mockResolvedValue(mockEventCategory);
     mockEventCategoryService.deleteCategory.mockResolvedValue(undefined);
@@ -227,7 +252,7 @@ describe('EventCategoryList Component', () => {
       // Überprüfe, dass Skeleton-Elemente gerendert werden
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonElements.length).toBeGreaterThan(0);
-      
+
       // Sollte mindestens 25+ Skeleton-Elemente haben (Mobile Cards + Desktop Table)
       expect(skeletonElements.length).toBeGreaterThan(25);
     });
@@ -535,7 +560,7 @@ describe('EventCategoryList Component', () => {
 
       await waitFor(() => {
         expect(screen.getAllByText('Kultur')).toHaveLength(2);
-        
+
         // Bild klicken sollte Vorschau öffnen
         const images = screen.getAllByRole('img');
         if (images.length > 0) {
@@ -577,10 +602,10 @@ describe('EventCategoryList Component', () => {
       // testen wir die grundlegende Funktionalität
       const cancelButton = screen.getByText('Abbrechen');
       expect(cancelButton).toBeInTheDocument();
-      
+
       // In einem echten Szenario würde das onOpenChange Event das Reset auslösen
       // Für den Test überprüfen wir, dass die Reset-Funktionalität vorhanden ist
       expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
     });
   });
-}); 
+});
