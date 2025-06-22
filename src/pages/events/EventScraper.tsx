@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { Event } from '@/models/events';
 import { useEventService } from '@/services/eventService';
@@ -19,7 +25,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 
 // Kategorien-Enum und Mapping
 const CATEGORY_OPTIONS = [
@@ -65,7 +71,9 @@ export const EventScraper: React.FC = () => {
     if (cached) {
       try {
         setFoundEvents(JSON.parse(cached));
-      } catch {}
+      } catch {
+        // Ignore invalid JSON in localStorage
+      }
     }
   }, []);
 
@@ -93,9 +101,9 @@ export const EventScraper: React.FC = () => {
         category: selectedCategory,
         startDate: format(weekStart, 'yyyy-MM-dd'),
         endDate: format(weekEnd, 'yyyy-MM-dd'),
-        maxResults
+        maxResults,
       };
-      
+
       const events = await eventService.scrapeEventsFromEventFinder(params);
       setFoundEvents(events);
       toast.success(`${events.length} Events gefunden`);
@@ -113,7 +121,7 @@ export const EventScraper: React.FC = () => {
   };
 
   const handleWeekChange = (direction: 'prev' | 'next') => {
-    setSelectedWeek(prev => direction === 'prev' ? subWeeks(prev, 1) : addWeeks(prev, 1));
+    setSelectedWeek(prev => (direction === 'prev' ? subWeeks(prev, 1) : addWeeks(prev, 1)));
   };
 
   // Dashboard-Navigation: Cache löschen
@@ -128,7 +136,7 @@ export const EventScraper: React.FC = () => {
       <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
       <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
       <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      
+
       {/* Animated Blur Circles */}
       <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -141,9 +149,9 @@ export const EventScraper: React.FC = () => {
           {/* Glass Header */}
           <div className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-              <Button 
-                variant="ghost" 
-                onClick={handleNavigateDashboard} 
+              <Button
+                variant="ghost"
+                onClick={handleNavigateDashboard}
                 className="mb-2 sm:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border"
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -168,7 +176,13 @@ export const EventScraper: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
                     {SCRAPER_TYPES.map(type => (
-                      <SelectItem key={type.value} value={type.value} className="text-white hover:bg-white/20">{type.label}</SelectItem>
+                      <SelectItem
+                        key={type.value}
+                        value={type.value}
+                        className="text-white hover:bg-white/20"
+                      >
+                        {type.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -183,7 +197,8 @@ export const EventScraper: React.FC = () => {
                     ←
                   </Button>
                   <div className="text-xs sm:text-sm text-white/90 min-w-[120px] sm:min-w-[200px] text-center backdrop-blur-2xl bg-white/5 px-3 py-2 rounded-xl border border-white/10">
-                    {format(weekStart, 'dd.MM.yyyy', { locale: de })} - {format(weekEnd, 'dd.MM.yyyy', { locale: de })}
+                    {format(weekStart, 'dd.MM.yyyy', { locale: de })} -{' '}
+                    {format(weekEnd, 'dd.MM.yyyy', { locale: de })}
                   </div>
                   <Button
                     variant="outline"
@@ -195,19 +210,30 @@ export const EventScraper: React.FC = () => {
                   </Button>
                 </div>
 
-                <Select value={selectedCategory ?? 'null'} onValueChange={val => setSelectedCategory(val === 'null' ? null : val)}>
+                <Select
+                  value={selectedCategory ?? 'null'}
+                  onValueChange={val => setSelectedCategory(val === 'null' ? null : val)}
+                >
                   <SelectTrigger className="w-full md:w-[200px] backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
                     <SelectValue placeholder="Kategorie auswählen (optional)" />
                   </SelectTrigger>
                   <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
                     {CATEGORY_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value ?? 'null'} value={opt.value ?? 'null'} className="text-white hover:bg-white/20">{opt.label}</SelectItem>
+                      <SelectItem
+                        key={opt.value ?? 'null'}
+                        value={opt.value ?? 'null'}
+                        className="text-white hover:bg-white/20"
+                      >
+                        {opt.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
                 <div className="flex flex-row gap-2 items-center">
-                  <label htmlFor="maxResults" className="text-xs sm:text-sm text-white/90">Max. Ergebnisse</label>
+                  <label htmlFor="maxResults" className="text-xs sm:text-sm text-white/90">
+                    Max. Ergebnisse
+                  </label>
                   <input
                     id="maxResults"
                     type="number"
@@ -219,9 +245,9 @@ export const EventScraper: React.FC = () => {
                   />
                 </div>
 
-                <Button 
-                  onClick={handleScrape} 
-                  disabled={loading} 
+                <Button
+                  onClick={handleScrape}
+                  disabled={loading}
                   className="w-full md:w-auto backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -229,9 +255,9 @@ export const EventScraper: React.FC = () => {
                 </Button>
 
                 {foundEvents.length > 0 && (
-                  <Button 
-                    variant="destructive" 
-                    onClick={handleClearEvents} 
+                  <Button
+                    variant="destructive"
+                    onClick={handleClearEvents}
                     className="w-full md:w-auto backdrop-blur-2xl bg-gradient-to-r from-red-500/80 to-pink-500/80 border border-white/20 text-white hover:from-red-600/90 hover:to-pink-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -251,7 +277,7 @@ export const EventScraper: React.FC = () => {
                 </h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {foundEvents.map((event) => {
+                {foundEvents.map(event => {
                   const handleDelete = () => {
                     const updated = foundEvents.filter(e => e.id !== event.id);
                     setFoundEvents(updated);
@@ -260,8 +286,10 @@ export const EventScraper: React.FC = () => {
                   const handleEdit = () => {
                     navigate(`/events/scraper/${event.id}`, {
                       state: {
-                        event: selectedCategory ? { ...event, categoryId: selectedCategory } : event
-                      }
+                        event: selectedCategory
+                          ? { ...event, categoryId: selectedCategory }
+                          : event,
+                      },
                     });
                   };
                   return (
@@ -283,19 +311,20 @@ export const EventScraper: React.FC = () => {
               <DialogHeader>
                 <DialogTitle className="text-white">Vorhandene Events ersetzen?</DialogTitle>
                 <DialogDescription className="text-white/80">
-                  Es sind bereits {foundEvents.length} Events vorhanden. Möchten Sie diese durch neue Events ersetzen?
+                  Es sind bereits {foundEvents.length} Events vorhanden. Möchten Sie diese durch
+                  neue Events ersetzen?
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => setShowConfirmDialog(false)}
                   className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl"
                 >
                   Abbrechen
                 </Button>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={performScrape}
                   className="backdrop-blur-2xl bg-gradient-to-r from-red-500/80 to-pink-500/80 border border-white/20 text-white hover:from-red-600/90 hover:to-pink-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg"
                 >
@@ -308,4 +337,4 @@ export const EventScraper: React.FC = () => {
       </LoadingOverlay>
     </div>
   );
-}; 
+};

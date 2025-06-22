@@ -16,23 +16,33 @@ jest.mock('react-router-dom', () => ({
 // Mock UI Components
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
-  CardHeader: ({ children }: { children: React.ReactNode }) => <div data-testid="card-header">{children}</div>,
-  CardTitle: ({ children }: { children: React.ReactNode }) => <h2 data-testid="card-title">{children}</h2>,
-  CardContent: ({ children }: { children: React.ReactNode }) => <div data-testid="card-content">{children}</div>,
-  CardDescription: ({ children }: { children: React.ReactNode }) => <div data-testid="card-description">{children}</div>,
+  CardHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-header">{children}</div>
+  ),
+  CardTitle: ({ children }: { children: React.ReactNode }) => (
+    <h2 data-testid="card-title">{children}</h2>
+  ),
+  CardContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-content">{children}</div>
+  ),
+  CardDescription: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="card-description">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/badge', () => ({
   Badge: ({ children, className }: any) => (
-    <span data-testid="badge" className={className}>{children}</span>
+    <span data-testid="badge" className={className}>
+      {children}
+    </span>
   ),
 }));
 
 jest.mock('@/components/ui/button', () => ({
   Button: ({ children, onClick, disabled, variant, size, type, className }: any) => (
-    <button 
-      onClick={onClick} 
-      disabled={disabled} 
+    <button
+      onClick={onClick}
+      disabled={disabled}
       data-variant={variant}
       data-size={size}
       type={type}
@@ -46,8 +56,8 @@ jest.mock('@/components/ui/button', () => ({
 
 jest.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, onKeyDown, disabled }: any) => (
-    <input 
-      value={value} 
+    <input
+      value={value}
       onChange={onChange}
       placeholder={placeholder}
       onKeyDown={onKeyDown}
@@ -63,27 +73,52 @@ jest.mock('@/components/ui/dialog', () => ({
       {children}
     </div>
   ),
-  DialogContent: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-content">{children}</div>,
-  DialogHeader: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-header">{children}</div>,
-  DialogTitle: ({ children }: { children: React.ReactNode }) => <h3 data-testid="dialog-title">{children}</h3>,
-  DialogFooter: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-footer">{children}</div>,
-  DialogTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="dialog-trigger">{children}</div>,
+  DialogContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-content">{children}</div>
+  ),
+  DialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-header">{children}</div>
+  ),
+  DialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <h3 data-testid="dialog-title">{children}</h3>
+  ),
+  DialogFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-footer">{children}</div>
+  ),
+  DialogTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="dialog-trigger">{children}</div>
+  ),
 }));
 
 jest.mock('@/components/ui/select', () => ({
   Select: ({ children, value, onValueChange, disabled }: any) => (
-    <div data-testid="select" data-value={value} data-disabled={disabled} onClick={() => {
-      // Only trigger if the new value is different from current
-      if (value !== 'PENDING') {
-        onValueChange && onValueChange('PENDING');
-      }
-    }}>
+    <div
+      data-testid="select"
+      data-value={value}
+      data-disabled={disabled}
+      onClick={() => {
+        // Only trigger if the new value is different from current
+        if (value !== 'PENDING') {
+          if (onValueChange) {
+            onValueChange('PENDING');
+          }
+        }
+      }}
+    >
       {children}
     </div>
   ),
-  SelectContent: ({ children }: { children: React.ReactNode }) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => <div data-testid="select-item" data-value={value}>{children}</div>,
-  SelectTrigger: ({ children }: { children: React.ReactNode }) => <div data-testid="select-trigger">{children}</div>,
+  SelectContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="select-content">{children}</div>
+  ),
+  SelectItem: ({ children, value }: any) => (
+    <div data-testid="select-item" data-value={value}>
+      {children}
+    </div>
+  ),
+  SelectTrigger: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="select-trigger">{children}</div>
+  ),
   SelectValue: ({ children }: any) => <span data-testid="select-value">{children}</span>,
 }));
 
@@ -140,15 +175,15 @@ describe('SpecialPollDetail Component', () => {
         id: '1',
         userName: 'John Doe',
         response: 'I will participate!',
-        createdAt: '2024-01-15T12:00:00.000Z'
+        createdAt: '2024-01-15T12:00:00.000Z',
       },
       {
         id: '2',
         userName: 'Jane Smith',
         response: 'Great initiative!',
-        createdAt: '2024-01-15T13:00:00.000Z'
-      }
-    ]
+        createdAt: '2024-01-15T13:00:00.000Z',
+      },
+    ],
   };
 
   beforeEach(() => {
@@ -226,7 +261,7 @@ describe('SpecialPollDetail Component', () => {
   it('shows no responses message when empty', async () => {
     mockSpecialPollService.getSpecialPoll.mockResolvedValue({
       ...mockPoll,
-      responses: []
+      responses: [],
     });
 
     renderComponent();
@@ -265,7 +300,10 @@ describe('SpecialPollDetail Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith('test-poll-id', 'My new response');
+      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith(
+        'test-poll-id',
+        'My new response'
+      );
       expect(toast.success).toHaveBeenCalledWith('Antwort wurde hinzugefügt.');
     });
   });
@@ -311,7 +349,10 @@ describe('SpecialPollDetail Component', () => {
     await user.keyboard('{Enter}');
 
     await waitFor(() => {
-      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith('test-poll-id', 'Enter key response');
+      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith(
+        'test-poll-id',
+        'Enter key response'
+      );
     });
   });
 
@@ -373,14 +414,16 @@ describe('SpecialPollDetail Component', () => {
 
     await waitFor(() => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
-        status: 'PENDING'
+        status: 'PENDING',
       });
       expect(toast.success).toHaveBeenCalledWith('Status wurde aktualisiert.');
     });
   });
 
   it('handles status update error', async () => {
-    mockSpecialPollService.updateSpecialPollStatus.mockRejectedValue(new Error('Status update failed'));
+    mockSpecialPollService.updateSpecialPollStatus.mockRejectedValue(
+      new Error('Status update failed')
+    );
     renderComponent();
 
     await waitFor(() => {
@@ -393,7 +436,7 @@ describe('SpecialPollDetail Component', () => {
 
     await waitFor(() => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
-        status: 'PENDING'
+        status: 'PENDING',
       });
       expect(toast.error).toHaveBeenCalledWith('Status konnte nicht geändert werden.');
     });
@@ -403,7 +446,7 @@ describe('SpecialPollDetail Component', () => {
     // Test PENDING status
     mockSpecialPollService.getSpecialPoll.mockResolvedValue({
       ...mockPoll,
-      status: SpecialPollStatus.PENDING
+      status: SpecialPollStatus.PENDING,
     });
 
     renderComponent();
@@ -434,8 +477,8 @@ describe('SpecialPollDetail Component', () => {
   });
 
   it('disables response input during submission', async () => {
-    mockSpecialPollService.addResponse.mockImplementation(() => 
-      new Promise(resolve => setTimeout(resolve, 100))
+    mockSpecialPollService.addResponse.mockImplementation(
+      () => new Promise(resolve => setTimeout(resolve, 100))
     );
 
     renderComponent();
@@ -484,4 +527,4 @@ describe('SpecialPollDetail Component', () => {
       expect(trashIcons.length).toBe(2);
     });
   });
-}); 
+});
