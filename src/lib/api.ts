@@ -54,6 +54,7 @@ export const endpoints = {
   chatroomMessages: (id: string) => `/chatrooms/${id}/messages`,
   specialPolls: '/special-polls',
   specialPollById: (id: string) => `/special-polls/${id}`,
+  downtime: '/downtime',
 } as const;
 
 // Re-export models

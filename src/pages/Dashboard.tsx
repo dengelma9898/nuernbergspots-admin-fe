@@ -27,6 +27,7 @@ import {
   Briefcase,
   MessageCircle,
   Handshake,
+  Power,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -571,6 +572,12 @@ export function Dashboard() {
                     title="Account-Management"
                     description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
                     href="/account-management"
+                  />
+                  <NavigationCard
+                    icon={Power}
+                    title="Downtime-Verwaltung"
+                    description="Wartungsmodus aktivieren oder deaktivieren"
+                    href="/downtime-management"
                   />
                 </div>
               </div>

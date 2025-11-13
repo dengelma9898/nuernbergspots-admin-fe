@@ -59,7 +59,7 @@ class ApiClient {
   }
 
   async put<T>(endpoint: string, data: any): Promise<T> {
-    const headers = await this.getHeaders();
+    const headers = await this.getHeaders('application/json');
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
       headers,
