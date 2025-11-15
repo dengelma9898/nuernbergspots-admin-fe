@@ -535,6 +535,12 @@ export function Dashboard() {
                     href="/mittmach-mittwoch"
                   />
                   <NavigationCard
+                    icon={Calendar}
+                    title="Adventskalender"
+                    description="Adventskalender-Einträge erstellen und verwalten"
+                    href="/advent-calendar"
+                  />
+                  <NavigationCard
                     icon={MessageCircle}
                     title="Chatrooms"
                     description="Chatrooms erstellen, bearbeiten und moderieren"
