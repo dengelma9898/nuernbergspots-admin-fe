@@ -30,6 +30,8 @@ import { ChatMessages } from '@/pages/chatrooms/ChatMessages';
 import MittmachMittwoch from '@/pages/MittmachMittwoch';
 import SpecialPollDetail from '@/pages/SpecialPollDetail';
 import { AccountManagement } from './pages/AccountManagement';
+import { AdventCalendarManagement } from './pages/advent-calendar/AdventCalendarManagement';
+import { AdventCalendarForm } from './pages/advent-calendar/AdventCalendarForm';
 
 export function AppRoutes() {
   return (
@@ -70,6 +72,9 @@ export function AppRoutes() {
         <Route path="/mittmach-mittwoch" element={<MittmachMittwoch />} />
         <Route path="/mittmach-mittwoch/:pollId" element={<SpecialPollDetail />} />
         <Route path="/account-management" element={<AccountManagement />} />
+        <Route path="/advent-calendar" element={<AdventCalendarManagement />} />
+        <Route path="/advent-calendar/new" element={<AdventCalendarForm />} />
+        <Route path="/advent-calendar/:id/edit" element={<AdventCalendarForm />} />
       </Route>
 
       {/* Fallback */}
