@@ -33,6 +33,7 @@ import { AccountManagement } from './pages/AccountManagement';
 import { DowntimeManagement } from './pages/DowntimeManagement';
 import { AdventCalendarManagement } from './pages/advent-calendar/AdventCalendarManagement';
 import { AdventCalendarForm } from './pages/advent-calendar/AdventCalendarForm';
+import { AdventCalendarParticipants } from './pages/advent-calendar/AdventCalendarParticipants';
 
 export function AppRoutes() {
   return (
@@ -77,6 +78,7 @@ export function AppRoutes() {
         <Route path="/advent-calendar" element={<AdventCalendarManagement />} />
         <Route path="/advent-calendar/new" element={<AdventCalendarForm />} />
         <Route path="/advent-calendar/:id/edit" element={<AdventCalendarForm />} />
+        <Route path="/advent-calendar/:id/participants" element={<AdventCalendarParticipants />} />
       </Route>
 
       {/* Fallback */}

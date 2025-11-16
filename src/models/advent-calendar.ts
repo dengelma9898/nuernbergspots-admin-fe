@@ -9,6 +9,7 @@ export interface AdventCalendarEntry {
   linkUrl?: string;
   imageUrl?: string;
   winners?: string[]; // Array von User IDs
+  participants?: string[]; // Array von User IDs (Teilnehmer)
   createdAt: string;
   updatedAt: string;
 }
@@ -40,5 +41,13 @@ export interface AddWinnerDto {
 
 export interface AdventCalendarFeatureStatus {
   isFeatureActive: boolean;
+}
+
+export interface AdventCalendarParticipant {
+  userId: string;
+  name?: string;
+  email?: string;
+  profilePictureUrl?: string;
+  participatedAt: string;
 }
 

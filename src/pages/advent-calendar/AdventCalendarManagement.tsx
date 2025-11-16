@@ -21,6 +21,7 @@ import {
   Trophy,
   Search,
   Settings,
+  Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
@@ -460,6 +461,17 @@ export function AdventCalendarManagement() {
                       Erstellt am {formatDate(entry.createdAt)}
                     </div>
                     <div className="flex flex-col gap-2 mt-2">
+                      {entry.canParticipate && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full cursor-pointer backdrop-blur-2xl bg-blue-500/20 text-blue-100 hover:bg-blue-500/30 border-blue-300/30 hover:border-blue-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                          onClick={() => navigate(`/advent-calendar/${entry.id}/participants`)}
+                        >
+                          <Users className="mr-2 h-4 w-4" />
+                          Teilnehmer
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
@@ -499,6 +511,7 @@ export function AdventCalendarManagement() {
     </div>
   );
 }
+
 
 interface AdventCalendarEntryCardProps {
   entry: AdventCalendarEntry;
@@ -547,27 +560,42 @@ const AdventCalendarEntryCard: React.FC<AdventCalendarEntryCardProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-white/70">
-          {formatDate(entry.createdAt)}
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-            onClick={() => navigate(`/advent-calendar/${entry.id}/edit`)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-            onClick={() => onDelete(entry.id)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+      <CardFooter className="flex flex-col gap-2">
+        {entry.canParticipate && (
+          <div className="w-full mb-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full backdrop-blur-2xl bg-blue-500/20 text-blue-100 hover:bg-blue-500/30 border-blue-300/30 hover:border-blue-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              onClick={() => navigate(`/advent-calendar/${entry.id}/participants`)}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Teilnehmer
+            </Button>
+          </div>
+        )}
+        <div className="flex justify-between items-center w-full">
+          <div className="text-xs text-white/70">
+            {formatDate(entry.createdAt)}
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              onClick={() => navigate(`/advent-calendar/${entry.id}/edit`)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+              onClick={() => onDelete(entry.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardFooter>
     </Card>
