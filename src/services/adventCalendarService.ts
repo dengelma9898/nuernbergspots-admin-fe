@@ -1,4 +1,4 @@
-import { AdventCalendarEntry, CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto, AddWinnerDto } from '../models/advent-calendar';
+import { AdventCalendarEntry, CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto, AddWinnerDto, AdventCalendarFeatureStatus } from '../models/advent-calendar';
 import { useApi } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
@@ -69,6 +69,27 @@ export function useAdventCalendarService() {
       const response = await api.patch<ApiResponse<AdventCalendarEntry>>(
         `${baseUrl}/${id}/winners`,
         winnerDto
+      );
+      return unwrapData(response);
+    },
+
+    /**
+     * Lädt den Feature-Status des Adventskalenders
+     */
+    getFeatureStatus: async (): Promise<AdventCalendarFeatureStatus> => {
+      const response = await api.get<ApiResponse<AdventCalendarFeatureStatus>>(
+        `${baseUrl}/feature-status`
+      );
+      return unwrapData(response);
+    },
+
+    /**
+     * Setzt den Feature-Status des Adventskalenders (nur Admin/Super Admin)
+     */
+    setFeatureStatus: async (isFeatureActive: boolean): Promise<AdventCalendarFeatureStatus> => {
+      const response = await api.put<ApiResponse<AdventCalendarFeatureStatus>>(
+        `${baseUrl}/feature-status`,
+        { isFeatureActive }
       );
       return unwrapData(response);
     },

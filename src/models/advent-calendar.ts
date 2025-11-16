@@ -38,3 +38,7 @@ export interface AddWinnerDto {
   userId: string;
 }
 
+export interface AdventCalendarFeatureStatus {
+  isFeatureActive: boolean;
+}
+

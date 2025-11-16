@@ -20,13 +20,19 @@ import {
   Image as ImageIcon,
   Trophy,
   Search,
+  Settings,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
+import { useUserService } from '@/services/userService';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserType } from '@/models/users';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const formatDate = (date: string) => {
   try {
@@ -127,8 +133,16 @@ export function AdventCalendarManagement() {
   const [entries, setEntries] = useState<AdventCalendarEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [featureStatus, setFeatureStatus] = useState<boolean>(false);
+  const [isLoadingFeatureStatus, setIsLoadingFeatureStatus] = useState(true);
+  const [isUpdatingFeatureStatus, setIsUpdatingFeatureStatus] = useState(false);
+  const [userRole, setUserRole] = useState<UserType | null>(null);
   const adventCalendarService = useAdventCalendarService();
+  const userService = useUserService();
+  const { getUserId } = useAuth();
   const navigate = useNavigate();
+
+  const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const loadData = async () => {
     try {
@@ -147,8 +161,56 @@ export function AdventCalendarManagement() {
     }
   };
 
+  const loadFeatureStatus = async () => {
+    try {
+      setIsLoadingFeatureStatus(true);
+      const status = await adventCalendarService.getFeatureStatus();
+      setFeatureStatus(status.isFeatureActive);
+    } catch (error) {
+      console.error('Fehler beim Laden des Feature-Status:', error);
+      // Nicht als Fehler anzeigen, da alle Rollen den Status lesen können sollten
+    } finally {
+      setIsLoadingFeatureStatus(false);
+    }
+  };
+
+  const loadUserRole = async () => {
+    const userId = getUserId();
+    if (!userId) return;
+
+    try {
+      const userProfile = await userService.getUserProfile(userId);
+      setUserRole(userProfile.userType);
+    } catch (error) {
+      console.error('Fehler beim Laden der Benutzerrolle:', error);
+    }
+  };
+
+  const handleFeatureStatusToggle = async (newValue: boolean) => {
+    try {
+      setIsUpdatingFeatureStatus(true);
+      const status = await adventCalendarService.setFeatureStatus(newValue);
+      setFeatureStatus(status.isFeatureActive);
+      toast.success(
+        status.isFeatureActive
+          ? 'Adventskalender-Feature wurde aktiviert'
+          : 'Adventskalender-Feature wurde deaktiviert'
+      );
+    } catch (error) {
+      toast.error('Fehler beim Aktualisieren des Feature-Status', {
+        description: 'Der Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.',
+      });
+      console.error('Fehler beim Aktualisieren des Feature-Status:', error);
+    } finally {
+      setIsUpdatingFeatureStatus(false);
+    }
+  };
+
   useEffect(() => {
     loadData();
+    loadFeatureStatus();
+    loadUserRole();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDelete = async (entryId: string) => {
@@ -274,6 +336,79 @@ export function AdventCalendarManagement() {
             </div>
           </div>
         </div>
+
+        {/* Feature Status Card (nur für Admin/Super Admin) */}
+        {isAdminOrSuperAdmin && (
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-2 flex-1">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-white/90" />
+                  <Label htmlFor="feature-status" className="text-white/90 text-lg font-semibold">
+                    Feature-Status
+                  </Label>
+                  {featureStatus && (
+                    <Badge className="bg-green-500/20 text-green-100 border-green-400/30">
+                      Aktiviert
+                    </Badge>
+                  )}
+                  {!featureStatus && (
+                    <Badge className="bg-red-500/20 text-red-100 border-red-400/30">
+                      Deaktiviert
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-sm text-white/70">
+                  {featureStatus
+                    ? 'Das Adventskalender-Feature ist aktiviert und für Benutzer verfügbar.'
+                    : 'Das Adventskalender-Feature ist deaktiviert und für Benutzer nicht verfügbar.'}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                {isLoadingFeatureStatus ? (
+                  <Skeleton className="h-6 w-12 rounded-full bg-white/10 backdrop-blur-xl" />
+                ) : (
+                  <Switch
+                    id="feature-status"
+                    checked={featureStatus}
+                    onCheckedChange={handleFeatureStatusToggle}
+                    disabled={isUpdatingFeatureStatus}
+                    className="data-[state=checked]:bg-green-500/30 data-[state=unchecked]:bg-white/20"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Feature Status Info (für alle anderen Rollen) */}
+        {!isAdminOrSuperAdmin && !isLoadingFeatureStatus && (
+          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
+            <div className="flex items-center gap-3">
+              <Settings className="h-5 w-5 text-white/90" />
+              <div className="flex-1">
+                <Label className="text-white/90 text-lg font-semibold">Feature-Status</Label>
+                <p className="text-sm text-white/70 mt-1">
+                  {featureStatus ? (
+                    <>
+                      <Badge className="bg-green-500/20 text-green-100 border-green-400/30 mr-2">
+                        Aktiviert
+                      </Badge>
+                      Das Adventskalender-Feature ist aktiviert.
+                    </>
+                  ) : (
+                    <>
+                      <Badge className="bg-red-500/20 text-red-100 border-red-400/30 mr-2">
+                        Deaktiviert
+                      </Badge>
+                      Das Adventskalender-Feature ist deaktiviert.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20 mb-6">
           <div className="relative">
