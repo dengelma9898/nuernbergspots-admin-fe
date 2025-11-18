@@ -35,7 +35,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorMessage = await this.extractErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -52,7 +53,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorMessage = await this.extractErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -67,7 +69,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorMessage = await this.extractErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -84,7 +87,8 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorMessage = await this.extractErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     return response.json();
@@ -104,7 +108,8 @@ class ApiClient {
     const response = await fetch(`${this.baseUrl}${endpoint}`, options);
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorMessage = await this.extractErrorMessage(response);
+      throw new Error(errorMessage);
     }
 
     if (response.status === 204) {
@@ -112,6 +117,28 @@ class ApiClient {
     }
 
     return response.json();
+  }
+
+  private async extractErrorMessage(response: Response): Promise<string> {
+    try {
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json();
+        // Unterstütze verschiedene Error-Response-Formate
+        if (errorData.message) {
+          return errorData.message;
+        }
+        if (errorData.error) {
+          return errorData.error;
+        }
+        if (typeof errorData === 'string') {
+          return errorData;
+        }
+      }
+    } catch {
+      // Wenn das Parsen fehlschlägt, verwende den Standard-Fehlercode
+    }
+    return `HTTP error! status: ${response.status}`;
   }
 }
 

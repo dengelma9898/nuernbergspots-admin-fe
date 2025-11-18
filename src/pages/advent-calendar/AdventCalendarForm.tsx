@@ -241,8 +241,9 @@ export function AdventCalendarForm() {
       navigate('/advent-calendar');
     } catch (error) {
       console.error('Error saving entry:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
       toast.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'}`, {
-        description: 'Der Eintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
+        description: errorMessage || 'Der Eintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
       });
     } finally {
       setIsSaving(false);
@@ -483,13 +484,22 @@ export function AdventCalendarForm() {
                   <Button
                     type="submit"
                     disabled={isSaving || isUploadingImage}
-                    className="flex-1 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
+                    className="flex-1 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl disabled:opacity-50 disabled:hover:scale-100"
                   >
-                    {isSaving || isUploadingImage
-                      ? 'Wird gespeichert...'
-                      : id
-                        ? 'Eintrag aktualisieren'
-                        : 'Eintrag erstellen'}
+                    {isSaving || isUploadingImage ? (
+                      <>
+                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                        {isUploadingImage
+                          ? 'Bild wird hochgeladen...'
+                          : id
+                            ? 'Wird aktualisiert...'
+                            : 'Wird erstellt...'}
+                      </>
+                    ) : (
+                      <>
+                        {id ? 'Eintrag aktualisieren' : 'Eintrag erstellen'}
+                      </>
+                    )}
                   </Button>
                   <Button
                     type="button"
