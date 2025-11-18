@@ -230,6 +230,14 @@ const mockBusinessWithReview: Business = {
   },
 };
 
+const mockBusinesses = [
+  mockActiveBusiness,
+  mockPendingBusiness,
+  mockInactiveBusiness,
+  mockPromotedBusiness,
+  mockBusinessWithReview,
+];
+
 const renderWithRouter = (component: React.ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
 };
@@ -237,13 +245,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 describe('BusinessList Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockBusinessService.getBusinesses.mockResolvedValue([
-      mockActiveBusiness,
-      mockPendingBusiness,
-      mockInactiveBusiness,
-      mockPromotedBusiness,
-      mockBusinessWithReview,
-    ]);
+    mockBusinessService.getBusinesses.mockResolvedValue(mockBusinesses);
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
   });
 
