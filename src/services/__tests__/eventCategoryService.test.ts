@@ -383,7 +383,10 @@ describe('Event Category Service', () => {
     });
 
     it('should handle file size limits', async () => {
-      const oversizedFile = new File(['x'.repeat(100 * 1024 * 1024)], 'huge.jpg', {
+      // Erstelle eine große Datei mit einem kleineren Wert, um Speicherprobleme zu vermeiden
+      // 10MB sollte ausreichen, um die Größenbeschränkung zu testen
+      const largeContent = new Array(10 * 1024 * 1024).fill('x').join('');
+      const oversizedFile = new File([largeContent], 'huge.jpg', {
         type: 'image/jpeg',
       });
       mockApi.patch.mockRejectedValue(new Error('File too large'));

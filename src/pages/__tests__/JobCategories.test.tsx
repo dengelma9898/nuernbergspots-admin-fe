@@ -714,7 +714,12 @@ describe('JobCategories Component', () => {
 
     await waitFor(() => {
       // Check if creation dates are displayed (formatted dates)
-      const dateElements = screen.getAllByText(/^\d{1,2}\.\d{1,2}\.\d{4}$/);
+      // Datum kann je nach Locale unterschiedlich formatiert sein (z.B. "1.1.2024", "01.01.2024" oder "1/1/2024")
+      const dateElements = screen.queryAllByText((content, element) => {
+        const text = content || '';
+        return /^\d{1,2}[./]\d{1,2}[./]\d{4}$/.test(text) || 
+               /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(text);
+      });
       expect(dateElements.length).toBeGreaterThan(0);
     });
   });
