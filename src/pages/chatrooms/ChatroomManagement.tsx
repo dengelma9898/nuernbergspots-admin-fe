@@ -187,10 +187,15 @@ export function ChatroomManagement() {
     setEditError(null);
 
     try {
-      await chatroomService.updateChatroom(selectedChatroom.id, {
+      // Bereite Update-Daten vor
+      const updateData: {
+        title: string;
+        description: string;
+        imageUrl?: string | null;
+      } = {
         title: selectedChatroom.title,
         description: selectedChatroom.description,
-      });
+      };
 
       // Prüfe ob ein neues Bild hochgeladen werden soll
       if (selectedImage) {
@@ -199,7 +204,7 @@ export function ChatroomManagement() {
             selectedChatroom.id,
             selectedImage
           );
-          await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl });
+          updateData.imageUrl = imageUrl;
         } catch (imageError: any) {
           const friendlyError = getUserFriendlyError(imageError);
           setEditError(friendlyError);
@@ -210,16 +215,11 @@ export function ChatroomManagement() {
       // Prüfe ob das bestehende Bild gelöscht werden soll
       // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
       else if (originalImageUrl && !imagePreview) {
-        try {
-          await chatroomService.removeChatroomImage(selectedChatroom.id);
-          await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl: '' });
-        } catch (imageError: any) {
-          const friendlyError = getUserFriendlyError(imageError);
-          setEditError(friendlyError);
-          showUserFriendlyError(imageError, toast);
-          return;
-        }
+        updateData.imageUrl = null;
       }
+
+      // Führe das Update in einem Request aus
+      await chatroomService.updateChatroom(selectedChatroom.id, updateData);
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
       setIsEditDialogOpen(false);
