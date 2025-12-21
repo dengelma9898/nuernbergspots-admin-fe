@@ -35,7 +35,6 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -104,6 +103,7 @@ export function ChatroomManagement() {
   const [selectedChatroom, setSelectedChatroom] = useState<Chatroom | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [newChatroom, setNewChatroom] = useState({
     title: '',
     description: '',
@@ -171,24 +171,39 @@ export function ChatroomManagement() {
     if (!selectedChatroom) return;
 
     try {
-      const updatedChatroom = await chatroomService.updateChatroom(selectedChatroom.id, {
+      // Bereite Update-Daten vor
+      const updateData: {
+        title: string;
+        description: string;
+        imageUrl?: string;
+      } = {
         title: selectedChatroom.title,
         description: selectedChatroom.description,
-      });
+      };
 
+      // Prüfe ob ein neues Bild hochgeladen werden soll
       if (selectedImage) {
         const imageUrl = await chatroomService.uploadChatroomImage(
           selectedChatroom.id,
           selectedImage
         );
-        await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl });
+        updateData.imageUrl = imageUrl;
       }
+      // Prüfe ob das bestehende Bild gelöscht werden soll
+      // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
+      else if (originalImageUrl && !imagePreview) {
+        updateData.imageUrl = '';
+      }
+
+      // Führe das Update in einem Request aus
+      await chatroomService.updateChatroom(selectedChatroom.id, updateData);
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
       setIsEditDialogOpen(false);
       setSelectedChatroom(null);
       setSelectedImage(null);
       setImagePreview(null);
+      setOriginalImageUrl(null);
       loadChatrooms();
     } catch (error) {
       toast.error('Chatroom konnte nicht aktualisiert werden.');
@@ -217,6 +232,8 @@ export function ChatroomManagement() {
     e.stopPropagation();
     setSelectedChatroom(chatroom);
     setImagePreview(chatroom.imageUrl || null);
+    setOriginalImageUrl(chatroom.imageUrl || null);
+    setSelectedImage(null);
     setIsEditDialogOpen(true);
   };
 
