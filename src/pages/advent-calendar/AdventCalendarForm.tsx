@@ -5,12 +5,12 @@ import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Image as ImageIcon, Upload, X, Link as LinkIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MarkdownEditor } from '@/components/ui/markdown-editor';
 
 function AdventCalendarFormSkeleton() {
   return (
@@ -341,14 +341,16 @@ export function AdventCalendarForm() {
                   <Label htmlFor="description" className="text-white/90">
                     Beschreibung *
                   </Label>
-                  <Textarea
-                    id="description"
+                  <MarkdownEditor
                     value={formData.description}
-                    onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Beschreibung des Adventskalender-Eintrags"
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white rounded-lg min-h-[120px]"
+                    onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+                    placeholder="Beschreibung des Adventskalender-Eintrags (Markdown wird unterstützt)"
+                    minHeight="min-h-[200px]"
                     required
                   />
+                  <p className="text-xs text-white/60">
+                    Du kannst Markdown verwenden, um Links, Formatierungen und Listen einzufügen. Nutze die Toolbar-Buttons oder die Markdown-Syntax direkt.
+                  </p>
                 </div>
 
                 {/* Link URL */}
