@@ -538,7 +538,7 @@ export function ChatroomManagement() {
                       )}
                       <div className="flex items-center gap-2 text-sm text-white/70">
                         <Users className="h-4 w-4" />
-                        {chatroom.participants.length} Teilnehmer
+                        {chatroom.participants?.length ?? 0} Teilnehmer
                       </div>
                       {chatroom.lastMessage && (
                         <div className="text-xs text-white/60">

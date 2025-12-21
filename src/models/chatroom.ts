@@ -4,7 +4,7 @@ export interface Chatroom {
   description: string;
   imageUrl?: string;
   createdBy: string;
-  participants: string[];
+  participants?: string[];
   lastMessage?: {
     content: string;
     authorId: string;
