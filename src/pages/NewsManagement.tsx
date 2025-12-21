@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNewsService } from '@/services/newsService';
-import { NewsItem, TextNewsItem, ImageNewsItem, PollNewsItem, PollOption } from '@/models/news';
+import { NewsItem, TextNewsItem, ImageNewsItem, PollNewsItem } from '@/models/news';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,9 @@ import {
   ArrowLeft,
   Plus,
   X,
+  Edit,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format, startOfMonth } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -102,7 +103,20 @@ const NewsSkeletonBubble: React.FC<{ type?: 'text' | 'image' | 'poll' }> = ({ ty
   );
 };
 
-const NewsBubble: React.FC<{ item: NewsItem }> = ({ item }) => {
+const MonthHeader: React.FC<{ label: string }> = ({ label }) => {
+  return (
+    <div className="sticky top-0 z-20 py-3 mb-2">
+      <h2 className="text-base md:text-lg font-semibold text-white/70 capitalize">
+        {label}
+      </h2>
+    </div>
+  );
+};
+
+const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }> = ({
+  item,
+  onEdit,
+}) => {
   return (
     <Card className="w-full backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-[1.02] transition-all duration-500 rounded-3xl ring-1 ring-white/30 hover:ring-white/40">
       <CardContent className="p-4 md:p-6">
@@ -121,9 +135,22 @@ const NewsBubble: React.FC<{ item: NewsItem }> = ({ item }) => {
               {item.authorName || 'Unbekannt'}
             </span>
           </div>
-          <span className="text-xs text-white/60">
-            {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: de })}
-          </span>
+          <div className="flex items-center gap-3 flex-wrap">
+            {(item.type === 'text' || item.type === 'image') && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onEdit(item)}
+                className="backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 text-white/90 hover:text-white rounded-lg flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                <span>Bearbeiten</span>
+              </Button>
+            )}
+            <span className="text-xs text-white/60">
+              {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: de })}
+            </span>
+          </div>
         </div>
 
         {/* Content */}
@@ -222,6 +249,11 @@ const NewsManagement: React.FC = () => {
   const [allowMultipleAnswers, setAllowMultipleAnswers] = useState(false);
   const [pollExpiresAt, setPollExpiresAt] = useState<string>('');
   const [pollSending, setPollSending] = useState(false);
+  const [editingItem, setEditingItem] = useState<NewsItem | null>(null);
+  const [editTextContent, setEditTextContent] = useState('');
+  const [editImageContent, setEditImageContent] = useState('');
+  const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
+  const [editSaving, setEditSaving] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
 
   const fetchNews = async () => {
@@ -240,6 +272,29 @@ const NewsManagement: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Gruppiere News nach Monat/Jahr
+  const groupedNewsByMonth = news.reduce((acc, item) => {
+    const createdAt = new Date(item.createdAt);
+    const monthKey = format(startOfMonth(createdAt), 'yyyy-MM', { locale: de });
+    const monthLabel = format(startOfMonth(createdAt), 'MMMM yyyy', { locale: de });
+
+    if (!acc[monthKey]) {
+      acc[monthKey] = {
+        label: monthLabel,
+        date: createdAt,
+        items: [],
+      };
+    }
+
+    acc[monthKey].items.push(item);
+    return acc;
+  }, {} as Record<string, { label: string; date: Date; items: NewsItem[] }>);
+
+  // Sortiere die Monate absteigend (neueste zuerst)
+  const sortedMonthGroups = Object.values(groupedNewsByMonth).sort(
+    (a, b) => b.date.getTime() - a.date.getTime()
+  );
 
   useEffect(() => {
     fetchNews();
@@ -367,6 +422,46 @@ const NewsManagement: React.FC = () => {
     }
   };
 
+  const handleEdit = (item: NewsItem) => {
+    setEditingItem(item);
+    if (item.type === 'text') {
+      setEditTextContent((item as TextNewsItem).content);
+    } else if (item.type === 'image') {
+      setEditImageContent((item as ImageNewsItem).content);
+      setEditImageUrls([...(item as ImageNewsItem).imageUrls]);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingItem) return;
+    setEditSaving(true);
+    try {
+      if (editingItem.type === 'text') {
+        await newsService.update(editingItem.id, {
+          content: editTextContent,
+        } as Partial<TextNewsItem>);
+      } else if (editingItem.type === 'image') {
+        await newsService.update(editingItem.id, {
+          content: editImageContent,
+          imageUrls: editImageUrls,
+        } as Partial<ImageNewsItem>);
+      }
+      setEditingItem(null);
+      setEditTextContent('');
+      setEditImageContent('');
+      setEditImageUrls([]);
+      await fetchNews();
+    } catch (e) {
+      // Fehlerbehandlung
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
+  const handleRemoveImageFromEdit = (imageUrl: string) => {
+    setEditImageUrls(prev => prev.filter(url => url !== imageUrl));
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Rainbow Background Layers */}
@@ -436,7 +531,14 @@ const NewsManagement: React.FC = () => {
               </div>
             </div>
           ) : (
-            news.map(item => <NewsBubble key={item.id} item={item} />)
+            sortedMonthGroups.map(group => (
+              <div key={group.label} className="space-y-4">
+                <MonthHeader label={group.label} />
+                {group.items.map(item => (
+                  <NewsBubble key={item.id} item={item} onEdit={handleEdit} />
+                ))}
+              </div>
+            ))
           )}
         </div>
         {/* Fixed Bottom Input Bar */}
@@ -674,6 +776,119 @@ const NewsManagement: React.FC = () => {
               >
                 {pollSending ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
                 Umfrage erstellen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Edit Text News Dialog */}
+        <Dialog open={editingItem?.type === 'text'} onOpenChange={open => !open && setEditingItem(null)}>
+          <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
+            <DialogHeader>
+              <DialogTitle className="text-white">Text-News bearbeiten</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Textarea
+                value={editTextContent}
+                onChange={e => setEditTextContent(e.target.value)}
+                placeholder="Text bearbeiten..."
+                disabled={editSaving}
+                className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white min-h-[150px]"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={editSaving}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 text-white/90 hover:text-white rounded-xl"
+                >
+                  Abbrechen
+                </Button>
+              </DialogClose>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={editSaving || !editTextContent.trim()}
+                className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl disabled:opacity-50 disabled:hover:scale-100"
+              >
+                {editSaving ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+                Speichern
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Edit Image News Dialog */}
+        <Dialog
+          open={editingItem?.type === 'image'}
+          onOpenChange={open => !open && setEditingItem(null)}
+        >
+          <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="text-white">Bild-News bearbeiten</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-image-content" className="text-white/90">
+                  Text
+                </Label>
+                <Textarea
+                  id="edit-image-content"
+                  value={editImageContent}
+                  onChange={e => setEditImageContent(e.target.value)}
+                  placeholder="Text bearbeiten..."
+                  disabled={editSaving}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-white/90">Bilder</Label>
+                {editImageUrls.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {editImageUrls.map((url, idx) => (
+                      <div key={idx} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Bild ${idx + 1}`}
+                          className="w-full h-32 object-cover rounded-xl border border-white/30 ring-2 ring-white/20"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-2xl bg-red-500/80 hover:bg-red-600 border-red-400/30 text-white rounded-full h-7 w-7"
+                          onClick={() => handleRemoveImageFromEdit(url)}
+                          disabled={editSaving}
+                          title="Bild entfernen"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center text-white/60 py-8 border border-white/10 rounded-xl backdrop-blur-2xl bg-white/5">
+                    Keine Bilder vorhanden
+                  </div>
+                )}
+              </div>
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={editSaving}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 text-white/90 hover:text-white rounded-xl"
+                >
+                  Abbrechen
+                </Button>
+              </DialogClose>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={editSaving || !editImageContent.trim()}
+                className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl disabled:opacity-50 disabled:hover:scale-100"
+              >
+                {editSaving ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : null}
+                Speichern
               </Button>
             </DialogFooter>
           </DialogContent>
