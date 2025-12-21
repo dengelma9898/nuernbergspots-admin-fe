@@ -105,6 +105,7 @@ export function ChatroomManagement() {
   const [selectedChatroom, setSelectedChatroom] = useState<Chatroom | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [createError, setCreateError] = useState<UserFriendlyError | null>(null);
   const [editError, setEditError] = useState<UserFriendlyError | null>(null);
   const [newChatroom, setNewChatroom] = useState({
@@ -191,6 +192,7 @@ export function ChatroomManagement() {
         description: selectedChatroom.description,
       });
 
+      // Prüfe ob ein neues Bild hochgeladen werden soll
       if (selectedImage) {
         try {
           const imageUrl = await chatroomService.uploadChatroomImage(
@@ -205,6 +207,19 @@ export function ChatroomManagement() {
           return;
         }
       }
+      // Prüfe ob das bestehende Bild gelöscht werden soll
+      // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
+      else if (originalImageUrl && !imagePreview) {
+        try {
+          await chatroomService.removeChatroomImage(selectedChatroom.id);
+          await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl: '' });
+        } catch (imageError: any) {
+          const friendlyError = getUserFriendlyError(imageError);
+          setEditError(friendlyError);
+          showUserFriendlyError(imageError, toast);
+          return;
+        }
+      }
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
       setIsEditDialogOpen(false);
@@ -212,6 +227,7 @@ export function ChatroomManagement() {
       setSelectedChatroom(null);
       setSelectedImage(null);
       setImagePreview(null);
+      setOriginalImageUrl(null);
       loadChatrooms();
     } catch (error: any) {
       const friendlyError = getUserFriendlyError(error);
@@ -242,6 +258,8 @@ export function ChatroomManagement() {
     e.stopPropagation();
     setSelectedChatroom(chatroom);
     setImagePreview(chatroom.imageUrl || null);
+    setOriginalImageUrl(chatroom.imageUrl || null);
+    setSelectedImage(null);
     setEditError(null);
     setIsEditDialogOpen(true);
   };
@@ -431,6 +449,9 @@ export function ChatroomManagement() {
               setIsEditDialogOpen(open);
               if (!open) {
                 setEditError(null);
+                setSelectedImage(null);
+                setImagePreview(null);
+                setOriginalImageUrl(null);
               }
             }}
           >
@@ -510,8 +531,13 @@ export function ChatroomManagement() {
                             onClick={() => {
                               setSelectedImage(null);
                               setImagePreview(null);
+                              // Wenn im Edit-Dialog, markiere dass das Bild gelöscht werden soll
+                              if (isEditDialogOpen && originalImageUrl) {
+                                // Das Bild wird beim Speichern gelöscht
+                              }
                             }}
                             className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
+                            aria-label="Bild entfernen"
                           >
                             <X className="h-4 w-4" />
                           </button>
