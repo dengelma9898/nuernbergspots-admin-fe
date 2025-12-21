@@ -154,7 +154,7 @@ export function ChatroomManagement() {
             createdChatroom.id,
             selectedImage
           );
-          await chatroomService.updateChatroom(createdChatroom.id, { imageUrl });
+          await chatroomService.updateChatroom(createdChatroom.id, { image: imageUrl });
         } catch (imageError: any) {
           const friendlyError = getUserFriendlyError(imageError);
           setCreateError(friendlyError);
@@ -191,7 +191,7 @@ export function ChatroomManagement() {
       const updateData: {
         title: string;
         description: string;
-        imageUrl?: string | null;
+        image?: string | null;
       } = {
         title: selectedChatroom.title,
         description: selectedChatroom.description,
@@ -204,7 +204,7 @@ export function ChatroomManagement() {
             selectedChatroom.id,
             selectedImage
           );
-          updateData.imageUrl = imageUrl;
+          updateData.image = imageUrl;
         } catch (imageError: any) {
           const friendlyError = getUserFriendlyError(imageError);
           setEditError(friendlyError);
@@ -215,7 +215,7 @@ export function ChatroomManagement() {
       // Prüfe ob das bestehende Bild gelöscht werden soll
       // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
       else if (originalImageUrl && !imagePreview) {
-        updateData.imageUrl = null;
+        updateData.image = null;
       }
 
       // Führe das Update in einem Request aus

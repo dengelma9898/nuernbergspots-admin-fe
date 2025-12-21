@@ -24,6 +24,6 @@ export interface CreateChatroomDto {
 export interface UpdateChatroomDto {
   title?: string;
   description?: string;
-  imageUrl?: string;
+  image?: string | null;
   participants?: string[];
 }
