@@ -80,18 +80,30 @@ class ApiClient {
     const headers = await this.getHeaders(options.isFormData ? undefined : 'application/json');
     const body = options.isFormData ? data : JSON.stringify(data);
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      method: 'PATCH',
-      headers,
-      body,
-    });
+    try {
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        method: 'PATCH',
+        headers,
+        body,
+      });
 
-    if (!response.ok) {
-      const errorMessage = await this.extractErrorMessage(response);
-      throw new Error(errorMessage);
+      if (!response.ok) {
+        const errorMessage = await this.extractErrorMessage(response, response.status);
+        const error = new Error(errorMessage);
+        (error as any).status = response.status;
+        throw error;
+      }
+
+      return response.json();
+    } catch (error) {
+      // Wenn es ein Netzwerkfehler ist (z.B. CORS, Failed to fetch)
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        const networkError = new Error(error.message);
+        (networkError as any).isNetworkError = true;
+        throw networkError;
+      }
+      throw error;
     }
-
-    return response.json();
   }
 
   async delete<T = void>(endpoint: string, data?: any): Promise<T> {
@@ -119,7 +131,9 @@ class ApiClient {
     return response.json();
   }
 
-  private async extractErrorMessage(response: Response): Promise<string> {
+  private async extractErrorMessage(response: Response, statusCode?: number): Promise<string> {
+    const status = statusCode || response.status;
+    
     try {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -138,7 +152,9 @@ class ApiClient {
     } catch {
       // Wenn das Parsen fehlschlägt, verwende den Standard-Fehlercode
     }
-    return `HTTP error! status: ${response.status}`;
+    
+    // Füge Status-Code zur Fehlermeldung hinzu für bessere Fehlererkennung
+    return `HTTP error! status: ${status}`;
   }
 }
 

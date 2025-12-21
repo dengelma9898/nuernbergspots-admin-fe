@@ -4,7 +4,7 @@ export interface Chatroom {
   description: string;
   imageUrl?: string;
   createdBy: string;
-  participants: string[];
+  participants?: string[];
   lastMessage?: {
     content: string;
     authorId: string;
@@ -24,6 +24,6 @@ export interface CreateChatroomDto {
 export interface UpdateChatroomDto {
   title?: string;
   description?: string;
-  imageUrl?: string;
+  image?: string | null;
   participants?: string[];
 }
