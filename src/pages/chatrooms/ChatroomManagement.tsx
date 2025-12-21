@@ -144,11 +144,18 @@ export function ChatroomManagement() {
       const createdChatroom = await chatroomService.createChatroom(newChatroom);
 
       if (selectedImage) {
-        const imageUrl = await chatroomService.uploadChatroomImage(
-          createdChatroom.id,
-          selectedImage
-        );
-        await chatroomService.updateChatroom(createdChatroom.id, { imageUrl });
+        try {
+          const imageUrl = await chatroomService.uploadChatroomImage(
+            createdChatroom.id,
+            selectedImage
+          );
+          await chatroomService.updateChatroom(createdChatroom.id, { imageUrl });
+        } catch (imageError: any) {
+          const errorMessage =
+            imageError?.message || 'Fehler beim Hochladen des Bildes. Bitte versuchen Sie es erneut.';
+          toast.error(errorMessage);
+          return;
+        }
       }
 
       toast.success('Chatroom wurde erfolgreich erstellt.');
@@ -162,8 +169,10 @@ export function ChatroomManagement() {
       setSelectedImage(null);
       setImagePreview(null);
       loadChatrooms();
-    } catch (error) {
-      toast.error('Chatroom konnte nicht erstellt werden.');
+    } catch (error: any) {
+      const errorMessage =
+        error?.message || 'Chatroom konnte nicht erstellt werden.';
+      toast.error(errorMessage);
     }
   };
 
@@ -177,11 +186,18 @@ export function ChatroomManagement() {
       });
 
       if (selectedImage) {
-        const imageUrl = await chatroomService.uploadChatroomImage(
-          selectedChatroom.id,
-          selectedImage
-        );
-        await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl });
+        try {
+          const imageUrl = await chatroomService.uploadChatroomImage(
+            selectedChatroom.id,
+            selectedImage
+          );
+          await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl });
+        } catch (imageError: any) {
+          const errorMessage =
+            imageError?.message || 'Fehler beim Hochladen des Bildes. Bitte versuchen Sie es erneut.';
+          toast.error(errorMessage);
+          return;
+        }
       }
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
@@ -190,8 +206,10 @@ export function ChatroomManagement() {
       setSelectedImage(null);
       setImagePreview(null);
       loadChatrooms();
-    } catch (error) {
-      toast.error('Chatroom konnte nicht aktualisiert werden.');
+    } catch (error: any) {
+      const errorMessage =
+        error?.message || 'Chatroom konnte nicht aktualisiert werden.';
+      toast.error(errorMessage);
     }
   };
 
