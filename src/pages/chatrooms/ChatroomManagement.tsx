@@ -47,6 +47,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
+import { AlertCircle } from 'lucide-react';
 
 function ChatroomSkeleton() {
   return (
@@ -104,6 +106,8 @@ export function ChatroomManagement() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<UserFriendlyError | null>(null);
+  const [editError, setEditError] = useState<UserFriendlyError | null>(null);
   const [newChatroom, setNewChatroom] = useState({
     title: '',
     description: '',
@@ -140,19 +144,28 @@ export function ChatroomManagement() {
   };
 
   const handleCreateChatroom = async () => {
+    setCreateError(null);
     try {
       const createdChatroom = await chatroomService.createChatroom(newChatroom);
 
       if (selectedImage) {
-        const imageUrl = await chatroomService.uploadChatroomImage(
-          createdChatroom.id,
-          selectedImage
-        );
-        await chatroomService.updateChatroom(createdChatroom.id, { imageUrl });
+        try {
+          const imageUrl = await chatroomService.uploadChatroomImage(
+            createdChatroom.id,
+            selectedImage
+          );
+          await chatroomService.updateChatroom(createdChatroom.id, { image: imageUrl });
+        } catch (imageError: any) {
+          const friendlyError = getUserFriendlyError(imageError);
+          setCreateError(friendlyError);
+          showUserFriendlyError(imageError, toast);
+          return;
+        }
       }
 
       toast.success('Chatroom wurde erfolgreich erstellt.');
       setIsCreateDialogOpen(false);
+      setCreateError(null);
       setNewChatroom({
         title: '',
         description: '',
@@ -162,20 +175,23 @@ export function ChatroomManagement() {
       setSelectedImage(null);
       setImagePreview(null);
       loadChatrooms();
-    } catch (error) {
-      toast.error('Chatroom konnte nicht erstellt werden.');
+    } catch (error: any) {
+      const friendlyError = getUserFriendlyError(error);
+      setCreateError(friendlyError);
+      showUserFriendlyError(error, toast);
     }
   };
 
   const handleEditChatroom = async () => {
     if (!selectedChatroom) return;
+    setEditError(null);
 
     try {
       // Bereite Update-Daten vor
       const updateData: {
         title: string;
         description: string;
-        imageUrl?: string;
+        image?: string;
       } = {
         title: selectedChatroom.title,
         description: selectedChatroom.description,
@@ -183,16 +199,23 @@ export function ChatroomManagement() {
 
       // Prüfe ob ein neues Bild hochgeladen werden soll
       if (selectedImage) {
-        const imageUrl = await chatroomService.uploadChatroomImage(
-          selectedChatroom.id,
-          selectedImage
-        );
-        updateData.imageUrl = imageUrl;
+        try {
+          const imageUrl = await chatroomService.uploadChatroomImage(
+            selectedChatroom.id,
+            selectedImage
+          );
+          updateData.image = imageUrl;
+        } catch (imageError: any) {
+          const friendlyError = getUserFriendlyError(imageError);
+          setEditError(friendlyError);
+          showUserFriendlyError(imageError, toast);
+          return;
+        }
       }
       // Prüfe ob das bestehende Bild gelöscht werden soll
       // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
       else if (originalImageUrl && !imagePreview) {
-        updateData.imageUrl = '';
+        updateData.image = '';
       }
 
       // Führe das Update in einem Request aus
@@ -200,13 +223,16 @@ export function ChatroomManagement() {
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
       setIsEditDialogOpen(false);
+      setEditError(null);
       setSelectedChatroom(null);
       setSelectedImage(null);
       setImagePreview(null);
       setOriginalImageUrl(null);
       loadChatrooms();
-    } catch (error) {
-      toast.error('Chatroom konnte nicht aktualisiert werden.');
+    } catch (error: any) {
+      const friendlyError = getUserFriendlyError(error);
+      setEditError(friendlyError);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -234,6 +260,7 @@ export function ChatroomManagement() {
     setImagePreview(chatroom.imageUrl || null);
     setOriginalImageUrl(chatroom.imageUrl || null);
     setSelectedImage(null);
+    setEditError(null);
     setIsEditDialogOpen(true);
   };
 
@@ -281,7 +308,15 @@ export function ChatroomManagement() {
                   Verwalten Sie hier alle Chatrooms und deren Einstellungen
                 </div>
               </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={open => {
+                  setIsCreateDialogOpen(open);
+                  if (!open) {
+                    setCreateError(null);
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">
                     <Plus className="mr-2 h-4 w-4" />
@@ -295,6 +330,27 @@ export function ChatroomManagement() {
                       Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
                     </DialogDescription>
                   </DialogHeader>
+                  {createError && (
+                    <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 space-y-1">
+                          <h4 className="font-semibold text-red-200">{createError.title}</h4>
+                          <p className="text-sm text-red-100/90">{createError.message}</p>
+                          {createError.actionHint && (
+                            <p className="text-xs text-red-100/70 mt-2">{createError.actionHint}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setCreateError(null)}
+                          className="text-red-300 hover:text-red-100 transition-colors"
+                          aria-label="Fehler schließen"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
                       <Label htmlFor="title" className="text-white/90">
@@ -387,7 +443,18 @@ export function ChatroomManagement() {
             </div>
           </div>
 
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <Dialog
+            open={isEditDialogOpen}
+            onOpenChange={open => {
+              setIsEditDialogOpen(open);
+              if (!open) {
+                setEditError(null);
+                setSelectedImage(null);
+                setImagePreview(null);
+                setOriginalImageUrl(null);
+              }
+            }}
+          >
             <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
               <DialogHeader>
                 <DialogTitle className="text-white">Chatroom bearbeiten</DialogTitle>
@@ -395,6 +462,27 @@ export function ChatroomManagement() {
                   Bearbeiten Sie die Einstellungen des Chatrooms.
                 </DialogDescription>
               </DialogHeader>
+              {editError && (
+                <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 space-y-1">
+                      <h4 className="font-semibold text-red-200">{editError.title}</h4>
+                      <p className="text-sm text-red-100/90">{editError.message}</p>
+                      {editError.actionHint && (
+                        <p className="text-xs text-red-100/70 mt-2">{editError.actionHint}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setEditError(null)}
+                      className="text-red-300 hover:text-red-100 transition-colors"
+                      aria-label="Fehler schließen"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-title" className="text-white/90">
@@ -443,8 +531,13 @@ export function ChatroomManagement() {
                             onClick={() => {
                               setSelectedImage(null);
                               setImagePreview(null);
+                              // Wenn im Edit-Dialog, markiere dass das Bild gelöscht werden soll
+                              if (isEditDialogOpen && originalImageUrl) {
+                                // Das Bild wird beim Speichern gelöscht
+                              }
                             }}
                             className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
+                            aria-label="Bild entfernen"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -555,7 +648,7 @@ export function ChatroomManagement() {
                       )}
                       <div className="flex items-center gap-2 text-sm text-white/70">
                         <Users className="h-4 w-4" />
-                        {chatroom.participants.length} Teilnehmer
+                        {chatroom.participants?.length ?? 0} Teilnehmer
                       </div>
                       {chatroom.lastMessage && (
                         <div className="text-xs text-white/60">
