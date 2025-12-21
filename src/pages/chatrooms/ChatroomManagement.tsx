@@ -35,7 +35,6 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import {
   AlertDialog,
@@ -48,6 +47,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
+import { AlertCircle } from 'lucide-react';
 
 function ChatroomSkeleton() {
   return (
@@ -104,6 +105,8 @@ export function ChatroomManagement() {
   const [selectedChatroom, setSelectedChatroom] = useState<Chatroom | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<UserFriendlyError | null>(null);
+  const [editError, setEditError] = useState<UserFriendlyError | null>(null);
   const [newChatroom, setNewChatroom] = useState({
     title: '',
     description: '',
@@ -140,6 +143,7 @@ export function ChatroomManagement() {
   };
 
   const handleCreateChatroom = async () => {
+    setCreateError(null);
     try {
       const createdChatroom = await chatroomService.createChatroom(newChatroom);
 
@@ -151,15 +155,16 @@ export function ChatroomManagement() {
           );
           await chatroomService.updateChatroom(createdChatroom.id, { imageUrl });
         } catch (imageError: any) {
-          const errorMessage =
-            imageError?.message || 'Fehler beim Hochladen des Bildes. Bitte versuchen Sie es erneut.';
-          toast.error(errorMessage);
+          const friendlyError = getUserFriendlyError(imageError);
+          setCreateError(friendlyError);
+          showUserFriendlyError(imageError, toast);
           return;
         }
       }
 
       toast.success('Chatroom wurde erfolgreich erstellt.');
       setIsCreateDialogOpen(false);
+      setCreateError(null);
       setNewChatroom({
         title: '',
         description: '',
@@ -170,17 +175,18 @@ export function ChatroomManagement() {
       setImagePreview(null);
       loadChatrooms();
     } catch (error: any) {
-      const errorMessage =
-        error?.message || 'Chatroom konnte nicht erstellt werden.';
-      toast.error(errorMessage);
+      const friendlyError = getUserFriendlyError(error);
+      setCreateError(friendlyError);
+      showUserFriendlyError(error, toast);
     }
   };
 
   const handleEditChatroom = async () => {
     if (!selectedChatroom) return;
+    setEditError(null);
 
     try {
-      const updatedChatroom = await chatroomService.updateChatroom(selectedChatroom.id, {
+      await chatroomService.updateChatroom(selectedChatroom.id, {
         title: selectedChatroom.title,
         description: selectedChatroom.description,
       });
@@ -193,23 +199,24 @@ export function ChatroomManagement() {
           );
           await chatroomService.updateChatroom(selectedChatroom.id, { imageUrl });
         } catch (imageError: any) {
-          const errorMessage =
-            imageError?.message || 'Fehler beim Hochladen des Bildes. Bitte versuchen Sie es erneut.';
-          toast.error(errorMessage);
+          const friendlyError = getUserFriendlyError(imageError);
+          setEditError(friendlyError);
+          showUserFriendlyError(imageError, toast);
           return;
         }
       }
 
       toast.success('Chatroom wurde erfolgreich aktualisiert.');
       setIsEditDialogOpen(false);
+      setEditError(null);
       setSelectedChatroom(null);
       setSelectedImage(null);
       setImagePreview(null);
       loadChatrooms();
     } catch (error: any) {
-      const errorMessage =
-        error?.message || 'Chatroom konnte nicht aktualisiert werden.';
-      toast.error(errorMessage);
+      const friendlyError = getUserFriendlyError(error);
+      setEditError(friendlyError);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -235,6 +242,7 @@ export function ChatroomManagement() {
     e.stopPropagation();
     setSelectedChatroom(chatroom);
     setImagePreview(chatroom.imageUrl || null);
+    setEditError(null);
     setIsEditDialogOpen(true);
   };
 
@@ -282,7 +290,15 @@ export function ChatroomManagement() {
                   Verwalten Sie hier alle Chatrooms und deren Einstellungen
                 </div>
               </div>
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={open => {
+                  setIsCreateDialogOpen(open);
+                  if (!open) {
+                    setCreateError(null);
+                  }
+                }}
+              >
                 <DialogTrigger asChild>
                   <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">
                     <Plus className="mr-2 h-4 w-4" />
@@ -296,6 +312,27 @@ export function ChatroomManagement() {
                       Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
                     </DialogDescription>
                   </DialogHeader>
+                  {createError && (
+                    <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1 space-y-1">
+                          <h4 className="font-semibold text-red-200">{createError.title}</h4>
+                          <p className="text-sm text-red-100/90">{createError.message}</p>
+                          {createError.actionHint && (
+                            <p className="text-xs text-red-100/70 mt-2">{createError.actionHint}</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => setCreateError(null)}
+                          className="text-red-300 hover:text-red-100 transition-colors"
+                          aria-label="Fehler schließen"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                   <div className="space-y-4 py-4">
                     <div className="space-y-2">
                       <Label htmlFor="title" className="text-white/90">
@@ -388,7 +425,15 @@ export function ChatroomManagement() {
             </div>
           </div>
 
-          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <Dialog
+            open={isEditDialogOpen}
+            onOpenChange={open => {
+              setIsEditDialogOpen(open);
+              if (!open) {
+                setEditError(null);
+              }
+            }}
+          >
             <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
               <DialogHeader>
                 <DialogTitle className="text-white">Chatroom bearbeiten</DialogTitle>
@@ -396,6 +441,27 @@ export function ChatroomManagement() {
                   Bearbeiten Sie die Einstellungen des Chatrooms.
                 </DialogDescription>
               </DialogHeader>
+              {editError && (
+                <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 space-y-1">
+                      <h4 className="font-semibold text-red-200">{editError.title}</h4>
+                      <p className="text-sm text-red-100/90">{editError.message}</p>
+                      {editError.actionHint && (
+                        <p className="text-xs text-red-100/70 mt-2">{editError.actionHint}</p>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setEditError(null)}
+                      className="text-red-300 hover:text-red-100 transition-colors"
+                      aria-label="Fehler schließen"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-title" className="text-white/90">
