@@ -747,46 +747,68 @@ export const EventDetail: React.FC = () => {
                     {editedEvent.dailyTimeSlots && editedEvent.dailyTimeSlots.length > 0 && (
                       <div className="space-y-2">
                         {editedEvent.dailyTimeSlots.map((slot, index) => (
-                          <div key={index} className="grid grid-cols-3 gap-2 items-end">
-                            <div>
-                              <Label className="text-white/80">Datum</Label>
-                              <Input
-                                type="date"
-                                value={slot.date}
-                                onChange={e => {
-                                  const newSlots = [...editedEvent.dailyTimeSlots!];
-                                  newSlots[index] = { ...slot, date: e.target.value };
-                                  handleInputChange('dailyTimeSlots', newSlots);
-                                }}
-                                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
-                              />
+                          <div key={index} className="flex gap-2 items-end">
+                            <div className="grid grid-cols-3 gap-2 flex-1">
+                              <div>
+                                <Label className="text-white/80">Datum</Label>
+                                <Input
+                                  type="date"
+                                  value={slot.date}
+                                  onChange={e => {
+                                    const newSlots = [...editedEvent.dailyTimeSlots!];
+                                    newSlots[index] = { ...slot, date: e.target.value };
+                                    handleInputChange('dailyTimeSlots', newSlots);
+                                  }}
+                                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-white/80">Von</Label>
+                                <Input
+                                  type="time"
+                                  value={slot.from || ''}
+                                  onChange={e => {
+                                    const newSlots = [...editedEvent.dailyTimeSlots!];
+                                    newSlots[index] = { ...slot, from: e.target.value };
+                                    handleInputChange('dailyTimeSlots', newSlots);
+                                  }}
+                                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-white/80">Bis</Label>
+                                <Input
+                                  type="time"
+                                  value={slot.to || ''}
+                                  onChange={e => {
+                                    const newSlots = [...editedEvent.dailyTimeSlots!];
+                                    newSlots[index] = { ...slot, to: e.target.value };
+                                    handleInputChange('dailyTimeSlots', newSlots);
+                                  }}
+                                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <Label className="text-white/80">Von</Label>
-                              <Input
-                                type="time"
-                                value={slot.from || ''}
-                                onChange={e => {
-                                  const newSlots = [...editedEvent.dailyTimeSlots!];
-                                  newSlots[index] = { ...slot, from: e.target.value };
-                                  handleInputChange('dailyTimeSlots', newSlots);
-                                }}
-                                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-white/80">Bis</Label>
-                              <Input
-                                type="time"
-                                value={slot.to || ''}
-                                onChange={e => {
-                                  const newSlots = [...editedEvent.dailyTimeSlots!];
-                                  newSlots[index] = { ...slot, to: e.target.value };
-                                  handleInputChange('dailyTimeSlots', newSlots);
-                                }}
-                                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
-                              />
-                            </div>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                const newSlots = editedEvent.dailyTimeSlots!.filter(
+                                  (_, i) => i !== index
+                                );
+                                if (newSlots.length === 0) {
+                                  toast.warning('Letztes Zeitfenster entfernt', {
+                                    description:
+                                      'Das Event hat jetzt keine Zeitfenster mehr. Du kannst später neue hinzufügen.',
+                                  });
+                                }
+                                handleInputChange('dailyTimeSlots', newSlots);
+                              }}
+                              className="backdrop-blur-2xl bg-red-500/20 border-red-400/30 text-white hover:bg-red-500/30 mb-0"
+                              title="Zeitfenster löschen"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         ))}
                         <Button

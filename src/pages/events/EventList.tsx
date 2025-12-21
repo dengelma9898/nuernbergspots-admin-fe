@@ -27,13 +27,14 @@ import {
   Star,
   StarOff,
   Plus,
+  Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
-import { format, isPast, isFuture, isWithinInterval } from 'date-fns';
+import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { convertFFToHex } from '@/utils/colorUtils';
 import {
@@ -97,83 +98,6 @@ export const EventList: React.FC = () => {
     }
   };
 
-  const formatDate = (date: string) => {
-    try {
-      return format(new Date(date), 'dd. MMMM yyyy', { locale: de });
-    } catch (error) {
-      return 'Ungültiges Datum';
-    }
-  };
-
-  const formatDateTime = (date: string) => {
-    return format(new Date(date), 'dd. MMMM yyyy HH:mm', { locale: de });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('de-DE', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(price);
-  };
-
-  const getEventStatus = (event: Event) => {
-    if (!event.dailyTimeSlots?.length) {
-      return {
-        label: 'Unbekannt',
-        icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'secondary' as const,
-      };
-    }
-
-    const now = new Date();
-    const firstSlot = event.dailyTimeSlots[0];
-    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-
-    const firstDate = new Date(firstSlot.date);
-    const lastDate = new Date(lastSlot.date);
-
-    if (isPast(lastDate)) {
-      return {
-        label: 'Beendet',
-        icon: <CheckCircle2 className="h-4 w-4" />,
-        variant: 'secondary' as const,
-      };
-    }
-
-    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-      return {
-        label: 'Läuft jetzt',
-        icon: <Clock className="h-4 w-4" />,
-        variant: 'default' as const,
-      };
-    }
-
-    if (isFuture(firstDate)) {
-      return {
-        label: 'Kommend',
-        icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'outline' as const,
-      };
-    }
-
-    return {
-      label: 'Unbekannt',
-      icon: <AlertCircle className="h-4 w-4" />,
-      variant: 'secondary' as const,
-    };
-  };
-
-  const getEventDateTime = (event: Event) => {
-    if (!event.dailyTimeSlots?.length) return 'Kein Datum';
-
-    const firstSlot = event.dailyTimeSlots[0];
-    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-
-    if (firstSlot.date === lastSlot.date) {
-      return formatDate(firstSlot.date);
-    }
-    return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
-  };
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -206,27 +130,31 @@ export const EventList: React.FC = () => {
     return matchesSearch && matchesStatus && matchesCategory && matchesTime;
   });
 
-  const groupedEvents = {
-    past: filteredEvents.filter(event => {
-      if (!event.dailyTimeSlots?.length) return false;
-      const lastDate = new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date);
-      return isPast(lastDate);
-    }),
-    running: filteredEvents.filter(event => {
-      if (!event.dailyTimeSlots?.length) return false;
-      const firstDate = new Date(event.dailyTimeSlots[0].date);
-      const lastDate = new Date(event.dailyTimeSlots[event.dailyTimeSlots.length - 1].date);
-      return isWithinInterval(new Date(), {
-        start: firstDate,
-        end: lastDate,
-      });
-    }),
-    future: filteredEvents.filter(event => {
-      if (!event.dailyTimeSlots?.length) return false;
-      const firstDate = new Date(event.dailyTimeSlots[0].date);
-      return isFuture(firstDate);
-    }),
-  };
+  // Gruppiere Events nach Monat (basierend auf Startmonat)
+  const groupedEventsByMonth = filteredEvents.reduce((acc, event) => {
+    if (!event.dailyTimeSlots?.length) return acc;
+
+    const firstSlot = event.dailyTimeSlots[0];
+    const firstDate = new Date(firstSlot.date);
+    const monthKey = format(startOfMonth(firstDate), 'yyyy-MM', { locale: de });
+    const monthLabel = format(startOfMonth(firstDate), 'MMMM yyyy', { locale: de });
+
+    if (!acc[monthKey]) {
+      acc[monthKey] = {
+        label: monthLabel,
+        date: firstDate,
+        events: [],
+      };
+    }
+
+    acc[monthKey].events.push(event);
+    return acc;
+  }, {} as Record<string, { label: string; date: Date; events: Event[] }>);
+
+  // Sortiere die Monate absteigend (neueste zuerst)
+  const sortedMonths = Object.keys(groupedEventsByMonth).sort((a, b) => {
+    return groupedEventsByMonth[b].date.getTime() - groupedEventsByMonth[a].date.getTime();
+  });
 
   const handleGenerateImage = () => {
     navigate('/events/image-editor', {
@@ -455,59 +383,27 @@ export const EventList: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            {groupedEvents.running.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
-                  Laufende Events
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.running.map(event => (
+            {sortedMonths.map(monthKey => {
+              const monthGroup = groupedEventsByMonth[monthKey];
+              return (
+                <div key={monthKey}>
+                  <h2 className="text-2xl font-bold text-white mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent capitalize">
+                    {monthGroup.label}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {monthGroup.events.map(event => (
                     <EventCard
                       key={event.id}
                       event={event}
                       category={categories.find(cat => cat.id === event.categoryId)}
                       onDelete={handleDelete}
+                      onCopy={(id) => navigate(`/events/${id}/copy`)}
                     />
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {groupedEvents.future.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
-                  Zukünftige Events
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.future.map(event => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      category={categories.find(cat => cat.id === event.categoryId)}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {groupedEvents.past.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
-                  Vergangene Events
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {groupedEvents.past.map(event => (
-                    <EventCard
-                      key={event.id}
-                      event={event}
-                      category={categories.find(cat => cat.id === event.categoryId)}
-                      onDelete={handleDelete}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
 
@@ -524,6 +420,7 @@ interface EventCardProps {
   event: Event;
   category?: EventCategory;
   onDelete: (id: string) => void;
+  onCopy?: (id: string) => void;
   isPreview?: boolean;
   onEdit?: () => void;
   showDeleteButton?: boolean;
@@ -533,19 +430,12 @@ export const EventCard: React.FC<EventCardProps> = ({
   event,
   category,
   onDelete,
+  onCopy,
   isPreview = false,
   onEdit,
   showDeleteButton = false,
 }) => {
   const navigate = useNavigate();
-
-  const formatDateTime = (date: string) => {
-    try {
-      return format(new Date(date), 'dd. MMMM yyyy HH:mm', { locale: de });
-    } catch (error) {
-      return format(new Date(date), 'dd. MMMM yyyy', { locale: de });
-    }
-  };
 
   const formatDate = (date: string) => {
     try {
@@ -781,6 +671,17 @@ export const EventCard: React.FC<EventCardProps> = ({
               >
                 Bearbeiten
               </Button>
+              {onCopy && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onCopy(event.id)}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  title="Event kopieren"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              )}
               {showDeleteButton && (
                 <Button
                   variant="destructive"
@@ -802,6 +703,17 @@ export const EventCard: React.FC<EventCardProps> = ({
               >
                 Bearbeiten
               </Button>
+              {onCopy && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onCopy(event.id)}
+                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20"
+                  title="Event kopieren"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              )}
               <Button
                 variant="destructive"
                 size="sm"
