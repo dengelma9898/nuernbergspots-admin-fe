@@ -2,7 +2,7 @@ import { Chatroom, CreateChatroomDto, UpdateChatroomDto } from '@/models/chatroo
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { useAuth } from '../contexts/AuthContext';
-import { compressImage, isImageTooLarge } from '@/utils/imageUtils';
+import { validateImageFile } from '@/utils/fileValidationUtils';
 
 export function useChatroomService() {
   const api = useApi();
@@ -90,19 +90,19 @@ export function useChatroomService() {
 
     /**
      * Lädt ein Bild für einen Chatroom hoch
-     * Komprimiert das Bild automatisch vor dem Upload
+     * Validiert die Datei vor dem Upload (max 1 MB für Chatrooms)
      */
     uploadChatroomImage: async (chatroomId: string, file: File): Promise<string> => {
-      // Prüfe Dateigröße (max 5MB vor Komprimierung)
-      if (isImageTooLarge(file, 5)) {
-        throw new Error('Bild ist zu groß. Maximale Größe: 5 MB');
+      // Validiere Datei vor Upload (max 1 MB für Chatrooms)
+      const validation = validateImageFile(file, 1);
+      if (!validation.isValid && validation.error) {
+        const error = new Error(validation.error.message);
+        (error as any).validationError = validation.error;
+        throw error;
       }
 
-      // Komprimiere Bild vor Upload (max 1920x1920, Qualität 0.8, max 2MB)
-      const compressedFile = await compressImage(file, 1920, 1920, 0.8, 2);
-
       const formData = new FormData();
-      formData.append('file', compressedFile);
+      formData.append('file', file);
 
       const response = await api.patch<ApiResponse<{ imageUrl: string }>>(
         `${endpoints.chatroomById(chatroomId)}/image`,
