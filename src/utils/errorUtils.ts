@@ -21,14 +21,29 @@ interface ErrorWithStatus extends Error {
 function extractStatusCode(error: unknown): number | null {
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;
+    
+    // 1. Prüfe direktes status-Property
     if (typeof err.status === 'number') {
       return err.status;
     }
-    // Versuche Status-Code aus Fehlermeldung zu extrahieren
+    
+    // 2. Prüfe response.status falls vorhanden
+    if ((err as any).response?.status && typeof (err as any).response.status === 'number') {
+      return (err as any).response.status;
+    }
+    
+    // 3. Versuche Status-Code aus Fehlermeldung zu extrahieren
     const message = err.message || String(error);
-    const statusMatch = message.match(/status:\s*(\d{3})/i);
+    
+    // Suche nach "status: 413" oder "413" oder "HTTP error! status: 413"
+    const statusMatch = message.match(/(?:status|code)[:\s]*(\d{3})/i) || 
+                        message.match(/\b(\d{3})\b/);
     if (statusMatch) {
-      return parseInt(statusMatch[1], 10);
+      const code = parseInt(statusMatch[1], 10);
+      // Validiere dass es ein gültiger HTTP-Status-Code ist
+      if (code >= 100 && code < 600) {
+        return code;
+      }
     }
   }
   return null;
@@ -43,18 +58,8 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
   const errorString = errorMessage.toLowerCase();
   const statusCode = extractStatusCode(error);
 
-  // 5XX Server-Fehler (500-599) - Priorität: Hoch, da sehr spezifisch
-  if (statusCode && statusCode >= 500 && statusCode < 600) {
-    return {
-      title: 'Server hat Probleme',
-      message:
-        'Der Server hat gerade technische Probleme. Das liegt nicht an dir - bitte versuche es in ein paar Minuten nochmal.',
-      isPersistent: true,
-      actionHint: 'Wenn das Problem länger besteht, kontaktiere bitte den Support.',
-    };
-  }
-
-  // Datei zu groß (413) - Sehr spezifisch
+  // WICHTIG: Status-Codes ZUERST prüfen, bevor generische Netzwerkfehler behandelt werden
+  // Datei zu groß (413) - Höchste Priorität für Upload-Fehler
   if (
     statusCode === 413 ||
     errorString.includes('413') ||
@@ -73,26 +78,78 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
     };
   }
 
-  // 4XX Client-Fehler (400-499) - außer 413, 401, 403, 404 die bereits behandelt werden
-  if (statusCode && statusCode >= 400 && statusCode < 500) {
-    // 401 und 403 werden separat behandelt
-    if (statusCode === 401 || statusCode === 403 || statusCode === 404 || statusCode === 413) {
-      // Wird weiter unten behandelt
-    } else {
-      return {
-        title: 'Fehler bei der Anfrage',
-        message: `Deine Anfrage konnte nicht verarbeitet werden (Fehlercode: ${statusCode}). Bitte überprüfe deine Eingaben und versuche es erneut.`,
-        isPersistent: true,
-        actionHint: 'Wenn das Problem weiterhin besteht, kontaktiere bitte den Support.',
-      };
-    }
+  // 5XX Server-Fehler (500-599) - Priorität: Hoch, da sehr spezifisch
+  if (statusCode && statusCode >= 500 && statusCode < 600) {
+    return {
+      title: 'Server hat Probleme',
+      message:
+        'Der Server hat gerade technische Probleme. Das liegt nicht an dir - bitte versuche es in ein paar Minuten nochmal.',
+      isPersistent: true,
+      actionHint: 'Wenn das Problem länger besteht, kontaktiere bitte den Support.',
+    };
   }
 
-  // CORS-Fehler
+  // Authentifizierungsfehler (401) - Vor anderen 4XX Fehlern
   if (
-    errorString.includes('cors') ||
-    errorString.includes('access-control-allow-origin') ||
-    errorString.includes('blocked by cors policy')
+    statusCode === 401 ||
+    errorString.includes('401') ||
+    errorString.includes('unauthorized') ||
+    errorString.includes('authentication')
+  ) {
+    return {
+      title: 'Anmeldung erforderlich',
+      message: 'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
+      isPersistent: true,
+      actionHint: 'Bitte melde dich erneut an.',
+    };
+  }
+
+  // Berechtigungsfehler (403)
+  if (
+    statusCode === 403 ||
+    errorString.includes('403') ||
+    errorString.includes('forbidden') ||
+    errorString.includes('permission')
+  ) {
+    return {
+      title: 'Keine Berechtigung',
+      message: 'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
+      isPersistent: true,
+      actionHint: 'Kontaktiere einen Administrator, wenn du glaubst, dass dies ein Fehler ist.',
+    };
+  }
+
+  // Nicht gefunden (404)
+  if (
+    statusCode === 404 ||
+    errorString.includes('404') ||
+    errorString.includes('not found') ||
+    errorString.includes('nicht gefunden')
+  ) {
+    return {
+      title: 'Nicht gefunden',
+      message: 'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
+      isPersistent: false,
+      actionHint: 'Bitte aktualisiere die Seite und versuche es erneut.',
+    };
+  }
+
+  // 4XX Client-Fehler (400-499) - Generische Behandlung für andere 4XX Fehler
+  if (statusCode && statusCode >= 400 && statusCode < 500) {
+    return {
+      title: 'Fehler bei der Anfrage',
+      message: `Deine Anfrage konnte nicht verarbeitet werden (Fehlercode: ${statusCode}). Bitte überprüfe deine Eingaben und versuche es erneut.`,
+      isPersistent: true,
+      actionHint: 'Wenn das Problem weiterhin besteht, kontaktiere bitte den Support.',
+    };
+  }
+
+  // CORS-Fehler - Nur wenn KEIN Status-Code vorhanden ist
+  if (
+    !statusCode &&
+    (errorString.includes('cors') ||
+      errorString.includes('access-control-allow-origin') ||
+      errorString.includes('blocked by cors policy'))
   ) {
     return {
       title: 'Verbindungsproblem',
@@ -103,13 +160,14 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
     };
   }
 
-  // Netzwerkfehler
+  // Netzwerkfehler - Nur wenn KEIN Status-Code vorhanden ist (echter Netzwerkfehler)
   if (
-    (error as ErrorWithStatus)?.isNetworkError ||
-    errorString.includes('failed to fetch') ||
-    errorString.includes('network error') ||
-    errorString.includes('networkerror') ||
-    errorString.includes('err_network')
+    !statusCode &&
+    ((error as ErrorWithStatus)?.isNetworkError ||
+      errorString.includes('failed to fetch') ||
+      errorString.includes('network error') ||
+      errorString.includes('networkerror') ||
+      errorString.includes('err_network'))
   ) {
     return {
       title: 'Netzwerkfehler',
