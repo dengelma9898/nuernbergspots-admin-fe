@@ -49,6 +49,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
+import { validateImageFile } from '@/utils/fileValidationUtils';
 
 function ChatroomSkeleton() {
   return (
@@ -134,7 +135,42 @@ export function ChatroomManagement() {
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validiere Datei vor der Auswahl (max 1 MB für Chatrooms)
+      const validation = validateImageFile(file, 1);
+      
+      if (!validation.isValid && validation.error) {
+        // Zeige Fehler sofort an
+        const friendlyError = {
+          title: validation.error.title,
+          message: validation.error.message,
+          isPersistent: true,
+          actionHint: validation.error.actionHint,
+        };
+        
+        if (isEditDialogOpen) {
+          setEditError(friendlyError);
+        } else {
+          setCreateError(friendlyError);
+        }
+        
+        showUserFriendlyError(
+          Object.assign(new Error(validation.error.message), { validationError: validation.error }),
+          toast
+        );
+        
+        // Setze File-Input zurück
+        event.target.value = '';
+        return;
+      }
+      
       setSelectedImage(file);
+      // Lösche Fehler wenn Datei gültig ist
+      if (isEditDialogOpen) {
+        setEditError(null);
+      } else {
+        setCreateError(null);
+      }
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);

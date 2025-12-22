@@ -13,6 +13,11 @@ export interface UserFriendlyError {
 interface ErrorWithStatus extends Error {
   status?: number;
   isNetworkError?: boolean;
+  validationError?: {
+    title: string;
+    message: string;
+    actionHint?: string;
+  };
 }
 
 /**
@@ -57,6 +62,19 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorString = errorMessage.toLowerCase();
   const statusCode = extractStatusCode(error);
+
+  // Validation-Fehler haben höchste Priorität (werden vor Upload geprüft)
+  if (error && typeof error === 'object') {
+    const err = error as ErrorWithStatus;
+    if (err.validationError) {
+      return {
+        title: err.validationError.title,
+        message: err.validationError.message,
+        isPersistent: true,
+        actionHint: err.validationError.actionHint,
+      };
+    }
+  }
 
   // WICHTIG: Status-Codes ZUERST prüfen, bevor generische Netzwerkfehler behandelt werden
   // Datei zu groß (413) - Höchste Priorität für Upload-Fehler
