@@ -50,6 +50,7 @@ export const scaleIn: Variants = {
  * Verwendet für: Card-Lists, Grid-Layouts
  */
 export const staggerContainer: Variants = {
+  initial: {},
   animate: {
     transition: {
       staggerChildren: 0.05,

@@ -221,14 +221,15 @@ const TimeAnalysisCard = ({
   <motion.div
     whileHover={{ scale: 1.02 }}
     transition={defaultTransition}
+    className="space-y-4"
   >
+    <div>
+      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
+        Zeitanalyse
+      </h3>
+      <p className="text-sm text-muted-foreground">Besuchermuster und Stoßzeiten</p>
+    </div>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
-      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
-        <h3 className="text-lg font-bold text-foreground">
-          Zeitanalyse
-        </h3>
-        <p className="text-muted-foreground">Besuchermuster und Stoßzeiten</p>
-      </CardHeader>
       <CardContent className="!px-4 !py-4 gap-0">
         {isLoading ? (
           <div className="space-y-4">
@@ -293,14 +294,15 @@ const CustomerRetentionCard = ({
   <motion.div
     whileHover={{ scale: 1.02 }}
     transition={defaultTransition}
+    className="space-y-4"
   >
+    <div>
+      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
+        Kundenbindung
+      </h3>
+      <p className="text-sm text-muted-foreground">Analyse der Kundenbeziehungen</p>
+    </div>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
-      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
-        <h3 className="text-lg font-bold text-foreground">
-          Kundenbindung
-        </h3>
-        <p className="text-muted-foreground">Analyse der Kundenbeziehungen</p>
-      </CardHeader>
       <CardContent className="!px-4 !py-4 gap-0">
         {isLoading ? (
           <div className="space-y-4">
@@ -352,14 +354,15 @@ const BusinessDetails = ({
   if (!business) return null;
 
   return (
-    <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
-      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
-        <h3 className="text-lg font-bold text-foreground">
+    <div className="space-y-4">
+      <div>
+        <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
           Detaillierte Business-Analyse
         </h3>
-        <p className="text-muted-foreground">Ausführliche Statistiken für {business.businessName}</p>
-      </CardHeader>
-      <CardContent className="!px-4 !py-4 gap-0">
+        <p className="text-sm text-muted-foreground">Ausführliche Statistiken für {business.businessName}</p>
+      </div>
+      <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+        <CardContent className="!px-4 !py-4 gap-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <h3 className="font-medium text-foreground">Scans</h3>
@@ -390,8 +393,9 @@ const BusinessDetails = ({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
@@ -477,11 +481,9 @@ export function Analytics() {
 
             {/* Overview Cards */}
             <motion.div variants={fadeInUp}>
-              <Card className={cn(glassCard, 'p-4 mb-6')}>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Übersicht
-                </h2>
-              </Card>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+                Übersicht
+              </h2>
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
                 variants={staggerContainer}
@@ -526,18 +528,16 @@ export function Analytics() {
 
             {/* Revenue Overview */}
             <motion.div variants={fadeInUp}>
-              <Card className={cn(glassCard, 'p-4 mb-6')}>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Umsatzübersicht
-                </h2>
-              </Card>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+                Umsatzübersicht
+              </h2>
+              <div className="mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
+                  Umsatzverteilung
+                </h3>
+                <p className="text-sm text-muted-foreground">Einnahmen über verschiedene Zeiträume</p>
+              </div>
               <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden mb-6')}>
-                <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
-                  <h3 className="text-lg font-bold text-foreground">
-                    Umsatzverteilung
-                  </h3>
-                  <p className="text-muted-foreground">Einnahmen über verschiedene Zeiträume</p>
-                </CardHeader>
                 <CardContent className="!px-4 !py-4 gap-0">
                   {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -643,13 +643,11 @@ export function Analytics() {
 
             {/* Pricing Calculator */}
             {!isLoading && analytics?.businesses && (
-              <motion.div variants={fadeInUp}>
+              <motion.div variants={fadeInUp} className="space-y-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
+                  Preiskalkulator
+                </h2>
                 <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
-                  <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
-                    <h2 className="text-2xl font-bold text-foreground">
-                      Preiskalkulator
-                    </h2>
-                  </CardHeader>
                   <CardContent className="!px-4 !py-4 gap-0">
                     <PricingCalculator analytics={analytics.businesses} />
                   </CardContent>
@@ -695,11 +693,9 @@ export function Analytics() {
 
             {/* Existing business cards */}
             <motion.div variants={fadeInUp}>
-              <Card className={cn(glassCard, 'p-4 mb-6')}>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Alle Partner-Analysen
-                </h2>
-              </Card>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+                Alle Partner-Analysen
+              </h2>
               <motion.div
                 className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
                 variants={staggerContainer}

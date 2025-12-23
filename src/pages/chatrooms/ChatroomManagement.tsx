@@ -52,7 +52,6 @@ import { validateImageFile } from '@/utils/fileValidationUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
-import { LoadingButton } from '@/components/LoadingButton';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
@@ -132,9 +131,16 @@ export function ChatroomManagement() {
     try {
       setIsLoading(true);
       const data = await chatroomService.getChatrooms();
-      setChatrooms(data);
+      // Stelle sicher, dass data ein Array ist
+      if (Array.isArray(data)) {
+        setChatrooms(data);
+      } else {
+        toast.error('Chatrooms konnten nicht geladen werden: Ungültiges Datenformat.');
+        setChatrooms([]);
+      }
     } catch (error) {
       toast.error('Chatrooms konnten nicht geladen werden.');
+      setChatrooms([]);
     } finally {
       setIsLoading(false);
     }
@@ -649,6 +655,7 @@ export function ChatroomManagement() {
             </AlertDialog>
 
             <motion.div
+              key={`chatrooms-${chatrooms.length}-${isLoading}`}
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
               variants={staggerContainer}
               initial="initial"
@@ -657,7 +664,10 @@ export function ChatroomManagement() {
               {isLoading ? (
                 // Show 6 skeleton chatroom cards
                 Array.from({ length: 6 }).map((_, index) => (
-                  <motion.div key={index} variants={fadeInUp}>
+                  <motion.div 
+                    key={index} 
+                    variants={fadeInUp}
+                  >
                     <ChatroomSkeleton />
                   </motion.div>
                 ))
@@ -676,8 +686,11 @@ export function ChatroomManagement() {
                   </Card>
                 </motion.div>
               ) : (
-                chatrooms.map((chatroom, index) => (
-                  <motion.div key={chatroom.id} variants={fadeInUp}>
+                chatrooms.map((chatroom) => (
+                  <motion.div 
+                    key={chatroom.id} 
+                    variants={fadeInUp}
+                  >
                     <Card
                       className={cn(glassCard, 'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}
                       onClick={() => handleChatroomClick(chatroom.id)}

@@ -11,7 +11,16 @@ export function useNewsService() {
      */
     getAll: async (): Promise<NewsItem[]> => {
       const response = await api.get<ApiResponse<NewsItem[]>>(endpoints.news);
-      return unwrapData(response);
+      const data = unwrapData(response);
+      // Stelle sicher, dass wir ein Array zurückgeben
+      if (Array.isArray(data)) {
+        return data;
+      }
+      // Falls die API direkt ein Array zurückgibt (ohne data-Wrapper)
+      if (Array.isArray(response)) {
+        return response as NewsItem[];
+      }
+      return [];
     },
 
     /**

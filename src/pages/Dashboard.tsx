@@ -418,7 +418,7 @@ export function Dashboard() {
                       <AnimatedButton
                         onClick={() => navigate('/contacts?filter=pending')}
                         size="sm"
-                        className="backdrop-blur-2xl bg-background/60 border-border/50 hover:bg-background/80 hover:border-border/70 rounded-xl shrink-0"
+                        className={cn(glassButton, 'shrink-0')}
                       >
                         <span className="hidden sm:inline">Jetzt prüfen</span>
                         <span className="sm:hidden">Prüfen</span>

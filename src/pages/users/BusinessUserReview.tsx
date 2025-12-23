@@ -227,12 +227,13 @@ export const BusinessUserReview: React.FC = () => {
               </motion.div>
             ) : (
               <motion.div
+                key={`users-${users.length}`}
                 className="grid grid-cols-1 gap-6"
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
               >
-                {users.map((user, index) => (
+                {users.map((user) => (
                   <motion.div key={user.id} variants={fadeInUp}>
                     <Card className={cn(glassCard, 'overflow-hidden')} data-slot="card">
                       <div className="p-4 sm:p-6">

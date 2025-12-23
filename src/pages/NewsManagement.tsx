@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Loader2,
   UserCircle,
   Image as ImageIcon,
   BarChart2,
@@ -121,17 +120,13 @@ const MonthHeader: React.FC<{ label: string }> = ({ label }) => {
   );
 };
 
-const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void; index?: number }> = ({
+const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }> = ({
   item,
   onEdit,
-  index = 0,
 }) => {
   return (
     <motion.div
       variants={fadeInUp}
-      initial="initial"
-      animate="animate"
-      transition={{ ...defaultTransition, delay: index * 0.05 }}
       whileHover={{ scale: 1.02 }}
     >
       <Card className={cn(glassCard, 'w-full')}>
@@ -276,14 +271,19 @@ const NewsManagement: React.FC = () => {
     setLoading(true);
     try {
       const allNews = await newsService.getAll();
-      setNews(
-        allNews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      );
-      setTimeout(() => {
-        feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'auto' });
-      }, 100);
+      // Stelle sicher, dass allNews ein Array ist
+      if (Array.isArray(allNews)) {
+        setNews(
+          allNews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        );
+        setTimeout(() => {
+          feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'auto' });
+        }, 100);
+      } else {
+        setNews([]);
+      }
     } catch (e) {
-      // Fehlerbehandlung
+      setNews([]);
     } finally {
       setLoading(false);
     }
@@ -553,6 +553,7 @@ const NewsManagement: React.FC = () => {
                 </motion.div>
               ) : (
                 <motion.div
+                  key={`news-${news.length}`}
                   variants={staggerContainer}
                   initial="initial"
                   animate="animate"
@@ -560,8 +561,8 @@ const NewsManagement: React.FC = () => {
                   {sortedMonthGroups.map(group => (
                     <div key={group.label} className="space-y-4">
                       <MonthHeader label={group.label} />
-                      {group.items.map((item, index) => (
-                        <NewsBubble key={item.id} item={item} onEdit={handleEdit} index={index} />
+                      {group.items.map((item) => (
+                        <NewsBubble key={item.id} item={item} onEdit={handleEdit} />
                       ))}
                     </div>
                   ))}
