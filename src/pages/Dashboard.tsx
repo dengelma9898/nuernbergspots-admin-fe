@@ -1,13 +1,20 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
 import { useContactService } from '../services/contactService';
-import { BusinessAnalytics } from '../models/business';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import { motion } from 'framer-motion';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { staggerContainer, staggerItem, fadeInUp, fadeIn } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassCardHover, glassBadge, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 import {
   User,
   Calendar,
@@ -17,12 +24,8 @@ import {
   Key,
   ArrowRight,
   Tag,
-  TrendingUp,
-  TrendingDown,
   Users,
-  Scan,
   BarChart,
-  Euro,
   MessageSquare,
   Briefcase,
   MessageCircle,
@@ -32,36 +35,36 @@ import {
 
 // Skeleton Loading Component for Dashboard Cards
 const DashboardCardSkeleton = ({ icon: Icon, titleText }: { icon: any; titleText: string }) => (
-  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+  <Card className={cn(glassCardHover, 'p-4')}>
     <CardContent className="p-0">
       {/* Header with icon and title in one line */}
       <div className="flex items-center gap-2 mb-3">
-        <Icon className="h-5 w-5 text-white drop-shadow-lg" />
-        <span className="text-sm sm:text-base font-semibold text-white">{titleText}</span>
+        <Icon className="h-5 w-5 text-foreground" />
+        <span className="text-sm sm:text-base font-semibold text-foreground">{titleText}</span>
       </div>
 
       {/* Main content with skeleton animation */}
       <div className="flex items-center justify-between gap-4">
         {/* Number and emoji skeleton */}
         <div className="flex items-center gap-3">
-          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-            <div className="w-12 h-8 bg-white/20 rounded-lg animate-pulse"></div>
+          <div className="text-2xl sm:text-3xl font-bold text-foreground">
+            <div className="w-12 h-8 bg-muted rounded-lg animate-pulse"></div>
           </div>
           <div className="text-xl sm:text-2xl">
-            <div className="w-8 h-8 bg-white/20 rounded-lg animate-pulse"></div>
+            <div className="w-8 h-8 bg-muted rounded-lg animate-pulse"></div>
           </div>
         </div>
 
         {/* Action button skeleton */}
         <div className="shrink-0">
-          <div className="w-20 sm:w-24 h-8 bg-white/20 rounded-xl animate-pulse"></div>
+          <div className="w-20 sm:w-24 h-8 bg-muted rounded-xl animate-pulse"></div>
         </div>
       </div>
 
       {/* Description text skeleton */}
       <div className="mt-3 space-y-1">
-        <div className="w-full h-3 bg-white/15 rounded animate-pulse"></div>
-        <div className="w-3/4 h-3 bg-white/15 rounded animate-pulse"></div>
+        <div className="w-full h-3 bg-muted rounded animate-pulse"></div>
+        <div className="w-3/4 h-3 bg-muted rounded animate-pulse"></div>
       </div>
     </CardContent>
   </Card>
@@ -72,84 +75,66 @@ const NavigationCard = ({
   title,
   description,
   href,
+  index = 0,
 }: {
   icon: any;
   title: string;
   description: string;
   href: string;
+  index?: number;
 }) => {
   const navigate = useNavigate();
 
   return (
-    <Card
-      className="cursor-pointer transition-all duration-500 ease-out group backdrop-blur-3xl bg-white/10 border-white/20 shadow-2xl hover:shadow-3xl hover:bg-white/20 hover:border-white/30 hover:scale-105 hover:-translate-y-2 rounded-2xl ring-1 ring-white/30"
-      onClick={() => navigate(href)}
+    <motion.div
+      variants={staggerItem}
+      initial="initial"
+      animate="animate"
+      transition={{
+        ...defaultTransition,
+        delay: index * 0.05
+      }}
+      whileHover={{ 
+        scale: 1.02,
+        y: -4,
+        transition: defaultTransition
+      }}
     >
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl border border-white/30 shadow-xl transition-all duration-300 group-hover:scale-110 group-hover:shadow-2xl group-hover:bg-white/40">
-              <Icon className="h-6 w-6 text-white drop-shadow-lg" />
+      <Card
+        className={cn(glassCardHover, 'cursor-pointer group')}
+        onClick={() => navigate(href)}
+      >
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <motion.div
+                className={cn(glassBadge, 'p-3')}
+                whileHover={{ scale: 1.1 }}
+                transition={defaultTransition}
+              >
+                <Icon className="h-6 w-6 text-foreground" />
+              </motion.div>
+              <div>
+                <CardTitle className="text-lg font-semibold text-foreground group-hover:text-foreground/95 transition-colors duration-300">
+                  {title}
+                </CardTitle>
+                <CardDescription className="text-muted-foreground group-hover:text-muted-foreground/90 transition-colors duration-300">
+                  {description}
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-lg font-semibold text-white group-hover:text-white/95 transition-colors duration-300 drop-shadow-sm">
-                {title}
-              </CardTitle>
-              <CardDescription className="text-white/80 group-hover:text-white/90 transition-colors duration-300">
-                {description}
-              </CardDescription>
-            </div>
+            <motion.div
+              whileHover={{ x: 4, scale: 1.1 }}
+              transition={defaultTransition}
+            >
+              <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+            </motion.div>
           </div>
-          <ArrowRight className="h-5 w-5 text-white/70 transition-all duration-300 group-hover:translate-x-2 group-hover:text-white group-hover:scale-110 drop-shadow-lg" />
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
+    </motion.div>
   );
 };
-
-const AnalyticsCard = ({
-  icon: Icon,
-  title,
-  value,
-  trend,
-  description,
-  trendDescription,
-}: {
-  icon: any;
-  title: string;
-  value: string | number;
-  trend?: number;
-  description?: string;
-  trendDescription?: string;
-}) => (
-  <Card className="backdrop-blur-3xl bg-white/10 border-white/20 shadow-2xl hover:shadow-3xl hover:bg-white/20 transition-all duration-500 rounded-2xl ring-1 ring-white/30">
-    <CardHeader className="pb-2">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm rounded-xl border border-white/30 shadow-xl">
-            <Icon className="h-5 w-5 text-white drop-shadow-lg" />
-          </div>
-          <CardTitle className="text-sm font-medium text-white">{title}</CardTitle>
-        </div>
-        {trend !== undefined && (
-          <div
-            className={`flex items-center backdrop-blur-xl rounded-lg px-3 py-1 border ${trend >= 0 ? 'text-emerald-200 bg-emerald-500/20 border-emerald-300/30' : 'text-red-200 bg-red-500/20 border-red-300/30'}`}
-          >
-            {trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            <span className="ml-1 text-sm font-medium">{Math.abs(trend).toFixed(1)}%</span>
-          </div>
-        )}
-      </div>
-    </CardHeader>
-    <CardContent>
-      <div className="space-y-1">
-        <div className="text-2xl font-bold text-white drop-shadow-lg">{value}</div>
-        {description && <p className="text-sm text-white/80">{description}</p>}
-        {trendDescription && <p className="text-xs text-white/70">{trendDescription}</p>}
-      </div>
-    </CardContent>
-  </Card>
-);
 
 export function Dashboard() {
   const { logout } = useAuth();
@@ -223,81 +208,91 @@ export function Dashboard() {
   }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated rainbow gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-      </div>
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Reduzierte Background-Komponente */}
+        <Background />
 
-      {/* Dynamic animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-      </div>
-
-      <div className="container mx-auto max-w-full p-8 sm:p-8 px-2 overflow-x-hidden relative z-10">
-        <div className="space-y-8">
+        <div className="container mx-auto max-w-full p-8 sm:p-8 px-2 overflow-x-hidden relative z-10">
+        <motion.div
+          className="space-y-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
           {/* Header Section */}
-          <div className="space-y-4 backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20">
+          <motion.div
+            className={cn(glassCard, 'p-6')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
             <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-4">
               <div className="space-y-2">
-                <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">
+                <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
                   Admin Dashboard
                 </h1>
-                <div className="text-lg sm:text-xl text-white/90 font-medium backdrop-blur-sm bg-white/5 rounded-2xl px-4 py-2 border border-white/10">
-                  Hi Sarah 👋, schön dass du wieder da bist ✨
+                <motion.div
+                  className={cn(glassBadge, 'text-lg sm:text-xl font-medium px-4 py-2')}
+                  variants={fadeIn}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ ...defaultTransition, delay: 0.2 }}
+                >
+                  <span className="text-foreground">Hi Sarah 👋, schön dass du wieder da bist ✨</span>
                   {(pendingApprovals > 0 || usersInReview > 0 || openContactRequests > 0) && (
-                    <span className="block mt-2 text-white/80">
+                    <span className="block mt-2 text-muted-foreground">
                       {pendingApprovals + usersInReview + openContactRequests > 10
                         ? 'Da wartet eine Menge Arbeit auf dich! 💪'
                         : 'Es gibt ein bisschen was zu tun für dich 😊'}
                     </span>
                   )}
-                </div>
+                </motion.div>
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                <Button
+                <ThemeToggle />
+                <AnimatedButton
                   variant="outline"
                   onClick={() => navigate('/profile')}
-                  className="backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl w-full sm:w-auto rounded-xl text-white/90 hover:text-white"
+                  className={cn(glassButton, 'w-full sm:w-auto')}
                 >
-                  <User className="h-4 w-4 drop-shadow-sm" />
-                </Button>
-                <Button
+                  <User className="h-4 w-4" />
+                </AnimatedButton>
+                <AnimatedButton
                   variant="outline"
                   onClick={handleLogout}
-                  className="backdrop-blur-2xl bg-red-500/10 border-red-300/20 hover:bg-red-500/20 hover:border-red-300/30 hover:text-red-100 transition-all duration-300 hover:scale-105 hover:shadow-xl w-full sm:w-auto rounded-xl text-red-200"
+                  className="bg-background border border-destructive text-destructive hover:bg-destructive/10 hover:border-destructive w-full sm:w-auto rounded-lg transition-all duration-300"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Abmelden
-                </Button>
+                </AnimatedButton>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* Management Section */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent">
-              Management
-            </h2>
-
-            {/* Pending Reviews Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Pending Reviews Cards - Direkt auf Background ohne Management-Kachel */}
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.3 }}
+          >
               {/* Pending Business Approvals Card */}
               {pendingApprovalsLoading ? (
                 <DashboardCardSkeleton icon={Store} titleText="Ausstehende Partner ✍️" />
               ) : (
                 pendingApprovals > 0 && (
-                  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+                  <AnimatedCard
+                    index={0}
+                    className={cn(glassCardHover, 'p-4')}
+                  >
                     <CardContent className="p-0">
                       {/* Header with icon and title in one line */}
                       <div className="flex items-center gap-2 mb-3">
-                        <Store className="h-5 w-5 text-white drop-shadow-lg" />
-                        <span className="text-sm sm:text-base font-semibold text-white">
+                        <Store className="h-5 w-5 text-foreground" />
+                        <span className="text-sm sm:text-base font-semibold text-foreground">
                           Ausstehende Partner ✍️
                         </span>
                       </div>
@@ -306,7 +301,7 @@ export function Dashboard() {
                       <div className="flex items-center justify-between gap-4">
                         {/* Number and emoji in compact layout */}
                         <div className="flex items-center gap-3">
-                          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+                          <div className="text-2xl sm:text-3xl font-bold text-foreground">
                             {pendingApprovals}
                           </div>
                           <div className="text-xl sm:text-2xl">
@@ -315,25 +310,25 @@ export function Dashboard() {
                         </div>
 
                         {/* Action button - always visible */}
-                        <Button
+                        <AnimatedButton
                           onClick={() => navigate('/businesses?filter=pending')}
                           size="sm"
-                          className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
+                          className={cn(glassButton, 'shrink-0')}
                         >
                           <span className="hidden sm:inline">Jetzt prüfen</span>
                           <span className="sm:hidden">Prüfen</span>
                           <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
+                        </AnimatedButton>
                       </div>
 
                       {/* Description text - more compact */}
-                      <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
+                      <div className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {pendingApprovals === 1
                           ? 'Neues Geschäft wartet auf Genehmigung'
                           : `${pendingApprovals} neue Geschäfte warten auf Genehmigung`}
                       </div>
                     </CardContent>
-                  </Card>
+                  </AnimatedCard>
                 )
               )}
 
@@ -342,12 +337,15 @@ export function Dashboard() {
                 <DashboardCardSkeleton icon={User} titleText="Geschäftsinhaber prüfen 🔍" />
               ) : (
                 usersInReview > 0 && (
-                  <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+                  <AnimatedCard
+                    index={1}
+                    className={cn(glassCardHover, 'p-4')}
+                  >
                     <CardContent className="p-0">
                       {/* Header with icon and title in one line */}
                       <div className="flex items-center gap-2 mb-3">
-                        <User className="h-5 w-5 text-white drop-shadow-lg" />
-                        <span className="text-sm sm:text-base font-semibold text-white">
+                        <User className="h-5 w-5 text-foreground" />
+                        <span className="text-sm sm:text-base font-semibold text-foreground">
                           Geschäftsinhaber prüfen 🔍
                         </span>
                       </div>
@@ -356,7 +354,7 @@ export function Dashboard() {
                       <div className="flex items-center justify-between gap-4">
                         {/* Number and emoji in compact layout */}
                         <div className="flex items-center gap-3">
-                          <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+                          <div className="text-2xl sm:text-3xl font-bold text-foreground">
                             {usersInReview}
                           </div>
                           <div className="text-xl sm:text-2xl">
@@ -365,25 +363,25 @@ export function Dashboard() {
                         </div>
 
                         {/* Action button - always visible */}
-                        <Button
+                        <AnimatedButton
                           onClick={() => navigate('/users/business/review')}
                           size="sm"
-                          className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
+                          className={cn(glassButton, 'shrink-0')}
                         >
                           <span className="hidden sm:inline">Jetzt prüfen</span>
                           <span className="sm:hidden">Prüfen</span>
                           <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                        </Button>
+                        </AnimatedButton>
                       </div>
 
                       {/* Description text - more compact */}
-                      <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
+                      <div className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                         {usersInReview === 1
                           ? 'Geschäftsinhaber wartet auf Verifizierung'
                           : `${usersInReview} Geschäftsinhaber warten auf Verifizierung`}
                       </div>
                     </CardContent>
-                  </Card>
+                  </AnimatedCard>
                 )
               )}
 
@@ -391,12 +389,15 @@ export function Dashboard() {
               {contactRequestsLoading ? (
                 <DashboardCardSkeleton icon={MessageSquare} titleText="Offene Kontaktanfragen 📧" />
               ) : (
-                <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-4 ring-1 ring-white/30">
+                <AnimatedCard
+                  index={2}
+                  className={cn(glassCardHover, 'p-4')}
+                >
                   <CardContent className="p-0">
                     {/* Header with icon and title in one line */}
                     <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="h-5 w-5 text-white drop-shadow-lg" />
-                      <span className="text-sm sm:text-base font-semibold text-white">
+                      <MessageSquare className="h-5 w-5 text-foreground" />
+                      <span className="text-sm sm:text-base font-semibold text-foreground">
                         Offene Kontaktanfragen 📧
                       </span>
                     </div>
@@ -405,7 +406,7 @@ export function Dashboard() {
                     <div className="flex items-center justify-between gap-4">
                       {/* Number and emoji in compact layout */}
                       <div className="flex items-center gap-3">
-                        <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
+                        <div className="text-2xl sm:text-3xl font-bold text-foreground">
                           {openContactRequests}
                         </div>
                         <div className="text-xl sm:text-2xl">
@@ -414,183 +415,246 @@ export function Dashboard() {
                       </div>
 
                       {/* Action button - always visible */}
-                      <Button
+                      <AnimatedButton
                         onClick={() => navigate('/contacts?filter=pending')}
                         size="sm"
-                        className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl shrink-0"
+                        className={cn(glassButton, 'shrink-0')}
                       >
                         <span className="hidden sm:inline">Jetzt prüfen</span>
                         <span className="sm:hidden">Prüfen</span>
                         <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      </Button>
+                      </AnimatedButton>
                     </div>
 
                     {/* Description text - more compact */}
-                    <div className="mt-3 text-xs sm:text-sm text-white/80 leading-relaxed">
+                    <div className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
                       {openContactRequests === 1
                         ? 'Neue Kontaktanfrage wartet auf Bearbeitung'
                         : `${openContactRequests} neue Kontaktanfragen warten auf Bearbeitung`}
                     </div>
                   </CardContent>
-                </Card>
+                </AnimatedCard>
               )}
-            </div>
+          </motion.div>
 
-            {/* Partner */}
-            <div className="mt-8 space-y-4">
-              <div className="backdrop-blur-2xl bg-white/8 rounded-2xl p-4 border border-white/15 ring-1 ring-white/25">
-                <h3 className="text-xl font-semibold mb-4 text-white">Partner</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                  <NavigationCard
-                    icon={Store}
-                    title="Partner verwalten"
-                    description="Partner hinzufügen, bearbeiten und löschen"
-                    href="/businesses"
-                  />
-                  <NavigationCard
-                    icon={Users}
-                    title="Business User verwalten"
-                    description="Business-User und deren Berechtigungen verwalten"
-                    href="/business-users"
-                  />
-                  <NavigationCard
-                    icon={User}
-                    title="Geschäftsinhaber prüfen"
-                    description="Geschäftsinhaber warten auf Verifizierung"
-                    href="/users/business/review"
-                  />
-                  <NavigationCard
-                    icon={Tags}
-                    title="Business Kategorien verwalten"
-                    description="Geschäftskategorien und deren Zuordnungen verwalten"
-                    href="/categories"
-                  />
-                  <NavigationCard
-                    icon={Key}
-                    title="Keywords verwalten"
-                    description="Suchbegriffe und Tags für bessere Auffindbarkeit"
-                    href="/keywords"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Partner */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.4 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Partner</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+                <NavigationCard
+                  icon={Store}
+                  title="Partner verwalten"
+                  description="Partner hinzufügen, bearbeiten und löschen"
+                  href="/businesses"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Users}
+                  title="Business User verwalten"
+                  description="Business-User und deren Berechtigungen verwalten"
+                  href="/business-users"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={User}
+                  title="Geschäftsinhaber prüfen"
+                  description="Geschäftsinhaber warten auf Verifizierung"
+                  href="/users/business/review"
+                  index={2}
+                />
+                <NavigationCard
+                  icon={Tags}
+                  title="Business Kategorien verwalten"
+                  description="Geschäftskategorien und deren Zuordnungen verwalten"
+                  href="/categories"
+                  index={3}
+                />
+                <NavigationCard
+                  icon={Key}
+                  title="Keywords verwalten"
+                  description="Suchbegriffe und Tags für bessere Auffindbarkeit"
+                  href="/keywords"
+                  index={4}
+                />
+            </motion.div>
+          </motion.div>
 
-            {/* Events */}
-            <div className="mt-8 space-y-4">
-              <div className="backdrop-blur-2xl bg-white/8 rounded-2xl p-4 border border-white/15 ring-1 ring-white/25">
-                <h3 className="text-xl font-semibold mb-4 text-white">Events</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                  <NavigationCard
-                    icon={Calendar}
-                    title="Events verwalten"
-                    description="Events und Veranstaltungen organisieren"
-                    href="/events"
-                  />
-                  <NavigationCard
-                    icon={Tag}
-                    title="Event Kategorien verwalten"
-                    description="Event-Kategorien hinzufügen und bearbeiten"
-                    href="/event-categories"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Events */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.5 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Events</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+                <NavigationCard
+                  icon={Calendar}
+                  title="Events verwalten"
+                  description="Events und Veranstaltungen organisieren"
+                  href="/events"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Tag}
+                  title="Event Kategorien verwalten"
+                  description="Event-Kategorien hinzufügen und bearbeiten"
+                  href="/event-categories"
+                  index={1}
+                />
+            </motion.div>
+          </motion.div>
 
-            {/* Kontaktanfragen */}
-            <div className="mt-8 space-y-4">
-              <div className="backdrop-blur-2xl bg-white/8 rounded-2xl p-4 border border-white/15 ring-1 ring-white/25">
-                <h3 className="text-xl font-semibold mb-4 text-white">Kontaktanfragen</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                  <NavigationCard
-                    icon={MessageSquare}
-                    title="Partner"
-                    description="Offene Kontaktanfragen von Partnern verwalten"
-                    href="/contacts?filter=partner"
-                  />
-                  <NavigationCard
-                    icon={MessageSquare}
-                    title="Nutzer"
-                    description="Offene Kontaktanfragen von Nutzern verwalten"
-                    href="/contacts?filter=user"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Kontaktanfragen */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.6 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Kontaktanfragen</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+                <NavigationCard
+                  icon={MessageSquare}
+                  title="Partner"
+                  description="Offene Kontaktanfragen von Partnern verwalten"
+                  href="/contacts?filter=partner"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={MessageSquare}
+                  title="Nutzer"
+                  description="Offene Kontaktanfragen von Nutzern verwalten"
+                  href="/contacts?filter=user"
+                  index={1}
+                />
+            </motion.div>
+          </motion.div>
 
-            {/* Community */}
-            <div className="mt-8 space-y-4">
-              <div className="backdrop-blur-2xl bg-white/8 rounded-2xl p-4 border border-white/15 ring-1 ring-white/25">
-                <h3 className="text-xl font-semibold mb-4 text-white">Community</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                  <NavigationCard
-                    icon={MessageSquare}
-                    title="News"
-                    description="Verwalte aktuelle News und Ankündigungen."
-                    href="/news-management"
-                  />
-                  <NavigationCard
-                    icon={Handshake}
-                    title="Mittmach Mittwoch"
-                    description="Aktionen, Ideen und Engagement für die Community am Mittwoch."
-                    href="/mittmach-mittwoch"
-                  />
-                  <NavigationCard
-                    icon={Calendar}
-                    title="Adventskalender"
-                    description="Adventskalender-Einträge erstellen und verwalten"
-                    href="/advent-calendar"
-                  />
-                  <NavigationCard
-                    icon={MessageCircle}
-                    title="Chatrooms"
-                    description="Chatrooms erstellen, bearbeiten und moderieren"
-                    href="/chatrooms"
-                  />
-                  <NavigationCard
-                    icon={Briefcase}
-                    title="Jobs"
-                    description="Stellenangebote erstellen und verwalten"
-                    href="/job-offers"
-                  />
-                  <NavigationCard
-                    icon={Tags}
-                    title="Job-Kategorien"
-                    description="Verwalten Sie die Kategorien für Stellenanzeigen"
-                    href="/job-categories"
-                  />
-                </div>
-              </div>
-            </div>
+          {/* Community */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.7 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Community</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+                <NavigationCard
+                  icon={MessageSquare}
+                  title="News"
+                  description="Verwalte aktuelle News und Ankündigungen."
+                  href="/news-management"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Handshake}
+                  title="Mittmach Mittwoch"
+                  description="Aktionen, Ideen und Engagement für die Community am Mittwoch."
+                  href="/mittmach-mittwoch"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={Calendar}
+                  title="Adventskalender"
+                  description="Adventskalender-Einträge erstellen und verwalten"
+                  href="/advent-calendar"
+                  index={2}
+                />
+                <NavigationCard
+                  icon={MessageCircle}
+                  title="Chatrooms"
+                  description="Chatrooms erstellen, bearbeiten und moderieren"
+                  href="/chatrooms"
+                  index={3}
+                />
+                <NavigationCard
+                  icon={Briefcase}
+                  title="Jobs"
+                  description="Stellenangebote erstellen und verwalten"
+                  href="/job-offers"
+                  index={4}
+                />
+                <NavigationCard
+                  icon={Tags}
+                  title="Job-Kategorien"
+                  description="Verwalten Sie die Kategorien für Stellenanzeigen"
+                  href="/job-categories"
+                  index={5}
+                />
+            </motion.div>
+          </motion.div>
 
-            {/* Analytics und Sonstiges */}
-            <div className="mt-8 space-y-4">
-              <div className="backdrop-blur-2xl bg-white/8 rounded-2xl p-4 border border-white/15 ring-1 ring-white/25">
-                <h3 className="text-xl font-semibold mb-4 text-white">Analytics und Sonstiges</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                  <NavigationCard
-                    icon={BarChart}
-                    title="Analytics Dashboard"
-                    description="Detaillierte Einblicke in die Performance deiner Partner"
-                    href="/analytics"
-                  />
-                  <NavigationCard
-                    icon={Users}
-                    title="Account-Management"
-                    description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
-                    href="/account-management"
-                  />
-                  <NavigationCard
-                    icon={Power}
-                    title="Downtime-Verwaltung"
-                    description="Wartungsmodus aktivieren oder deaktivieren"
-                    href="/downtime-management"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Analytics und Sonstiges */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.8 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Analytics und Sonstiges</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+                <NavigationCard
+                  icon={BarChart}
+                  title="Analytics Dashboard"
+                  description="Detaillierte Einblicke in die Performance deiner Partner"
+                  href="/analytics"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Users}
+                  title="Account-Management"
+                  description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
+                  href="/account-management"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={Power}
+                  title="Downtime-Verwaltung"
+                  description="Wartungsmodus aktivieren oder deaktivieren"
+                  href="/downtime-management"
+                  index={2}
+                />
+            </motion.div>
+          </motion.div>
+        </motion.div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

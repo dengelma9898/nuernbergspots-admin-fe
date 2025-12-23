@@ -69,10 +69,13 @@ export const ScraperEventCard: React.FC<ScraperEventCardProps> = ({ event, onDel
               <span>Tickets erforderlich</span>
             </div>
           )}
-          {event.price !== undefined && (
+          {(event.priceString || event.price !== undefined) && (
             <div className="flex items-center gap-1 text-sm">
               <Euro className="h-4 w-4 text-muted-foreground" />
-              <span>{event.price.toFixed(2)} €</span>
+              <span>
+                {event.priceString ||
+                  (event.price !== undefined ? `${event.price.toFixed(2)} €` : 'Kostenlos')}
+              </span>
             </div>
           )}
         </div>

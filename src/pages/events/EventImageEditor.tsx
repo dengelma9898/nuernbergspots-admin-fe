@@ -2,9 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { format, isSameDay, isWithinInterval, startOfDay } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toPng } from 'html-to-image';
-import { Button } from '@/components/ui/button';
 import { Event } from '@/models/events';
-import { Download, Settings, Palette, Type, Image as ImageIcon } from 'lucide-react';
+import { Download, Palette, Type, Image as ImageIcon } from 'lucide-react';
 import { siInstagram, siFacebook, siTiktok } from 'simple-icons';
 import LogoImage from '@/assets/Logo_nuernbergspots.png';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -26,6 +25,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { motion } from 'framer-motion';
+import { fadeInUp } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 interface GroupedEvent {
   date: Date;
@@ -306,67 +313,52 @@ export const EventImageEditor: React.FC = () => {
   const groupedEvents = groupEventsByDate(events);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Header */}
+          <motion.div
+            className={cn(glassCard, 'p-6 mb-8')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <AnimatedButton
+                variant="ghost"
+                onClick={() => navigate('/events')}
+                className={cn(glassButton, 'w-full sm:w-auto')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück zur Übersicht
+              </AnimatedButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+                Event-Bild Editor
+              </h1>
+            </div>
+          </motion.div>
 
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-
-      <div className="relative z-10 container mx-auto py-4 px-2 sm:px-4 md:py-8">
-        {/* Glass Header */}
-        <div className="backdrop-blur-3xl bg-white/5 rounded-2xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/events')}
-              className="mb-2 sm:mb-0 backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Zurück zur Übersicht
-            </Button>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-              Event-Bild Editor
-            </h1>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {/* Linke Spalte - Einstellungen */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl transition-all duration-500">
-              <div className="backdrop-blur-2xl bg-white/5 rounded-t-3xl p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-lg sm:text-xl font-bold text-white bg-gradient-to-r from-white via-cyan-200 to-blue-200 bg-clip-text text-transparent">
-                  Design-Einstellungen
-                </h2>
-              </div>
-              <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+            <Card className={cn(glassCard)}>
+              <CardHeader>
+                <CardTitle className="text-foreground">Design-Einstellungen</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <Tabs defaultValue="title">
-                  <TabsList className="grid grid-cols-3 backdrop-blur-2xl bg-white/10 border-white/20 rounded-xl">
-                    <TabsTrigger
-                      value="title"
-                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
-                    >
+                  <TabsList className="grid grid-cols-3">
+                    <TabsTrigger value="title">
                       <Type className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Titel</span>
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="content"
-                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
-                    >
+                    <TabsTrigger value="content">
                       <Palette className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Inhalt</span>
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="logo"
-                      className="text-white/80 hover:text-white data-[state=active]:text-white data-[state=active]:bg-white/20 rounded-lg"
-                    >
+                    <TabsTrigger value="logo">
                       <ImageIcon className="h-4 w-4 mr-2" />
                       <span className="hidden sm:inline">Logo</span>
                     </TabsTrigger>
@@ -374,7 +366,7 @@ export const EventImageEditor: React.FC = () => {
 
                   <TabsContent value="title" className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="custom-title" className="text-white/90 font-medium">
+                      <Label htmlFor="custom-title" className="text-foreground">
                         Titel Text
                       </Label>
                       <Textarea
@@ -386,7 +378,7 @@ export const EventImageEditor: React.FC = () => {
                           setCustomTitle(newValue);
                         }}
                         placeholder="Titel eingeben..."
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl font-mono min-h-[100px] resize-y"
+                        className={cn(glassInput, 'font-mono min-h-[100px] resize-y')}
                       />
                       <p className="text-sm text-white/70">
                         Leer lassen, um den Kategorienamen zu verwenden
@@ -394,20 +386,20 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schriftgröße</Label>
+                      <Label className="text-foreground">Schriftgröße</Label>
                       <Slider
                         value={[settings.title.fontSize]}
                         onValueChange={([value]) => updateSetting('title', 'fontSize', value)}
                         min={24}
                         max={72}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">{settings.title.fontSize}px</div>
+                      <div className="text-sm text-muted-foreground">{settings.title.fontSize}px</div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Textfarbe</Label>
+                      <Label className="text-foreground">Textfarbe</Label>
                       <ColorPicker
                         value={settings.title.color}
                         onChange={value => updateSetting('title', 'color', value)}
@@ -415,7 +407,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
+                      <Label className="text-foreground">Hintergrundfarbe</Label>
                       <ColorPicker
                         value={settings.title.backgroundColor}
                         onChange={value => updateSetting('title', 'backgroundColor', value)}
@@ -423,7 +415,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Rahmenfarbe</Label>
+                      <Label className="text-foreground">Rahmenfarbe</Label>
                       <ColorPicker
                         value={settings.title.borderColor}
                         onChange={value => updateSetting('title', 'borderColor', value)}
@@ -431,7 +423,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schattenfarbe</Label>
+                      <Label className="text-foreground">Schattenfarbe</Label>
                       <ColorPicker
                         value={settings.title.shadowColor}
                         onChange={value => updateSetting('title', 'shadowColor', value)}
@@ -439,7 +431,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schriftart</Label>
+                      <Label className="text-foreground">Schriftart</Label>
                       <Select
                         value={settings.title.fontFamily}
                         onValueChange={value => updateSetting('title', 'fontFamily', value)}
@@ -465,7 +457,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schriftschnitt</Label>
+                      <Label className="text-foreground">Schriftschnitt</Label>
                       <Select
                         value={settings.title.fontWeight.toString()}
                         onValueChange={value =>
@@ -524,7 +516,7 @@ export const EventImageEditor: React.FC = () => {
 
                   <TabsContent value="content" className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schriftart</Label>
+                      <Label className="text-foreground">Schriftart</Label>
                       <Select
                         value={settings.content.fontFamily}
                         onValueChange={value => updateSetting('content', 'fontFamily', value)}
@@ -550,7 +542,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Schriftschnitt</Label>
+                      <Label className="text-foreground">Schriftschnitt</Label>
                       <Select
                         value={settings.content.fontWeight.toString()}
                         onValueChange={value =>
@@ -593,7 +585,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Hintergrundfarbe</Label>
+                      <Label className="text-foreground">Hintergrundfarbe</Label>
                       <ColorPicker
                         value={settings.content.backgroundColor}
                         onChange={value => {
@@ -603,7 +595,7 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Container Transparenz</Label>
+                      <Label className="text-foreground">Container Transparenz</Label>
                       <Slider
                         value={[Math.round(settings.content.containerOpacity * 100)]}
                         onValueChange={([value]) => {
@@ -612,54 +604,54 @@ export const EventImageEditor: React.FC = () => {
                         min={0}
                         max={100}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">
+                      <div className="text-sm text-muted-foreground">
                         {Math.round(settings.content.containerOpacity * 100)}%
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Innenabstand</Label>
+                      <Label className="text-foreground">Innenabstand</Label>
                       <Slider
                         value={[settings.content.padding]}
                         onValueChange={([value]) => updateSetting('content', 'padding', value)}
                         min={0.5}
                         max={3}
                         step={0.1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">{settings.content.padding}rem</div>
+                      <div className="text-sm text-muted-foreground">{settings.content.padding}rem</div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Datum Schriftgröße</Label>
+                      <Label className="text-foreground">Datum Schriftgröße</Label>
                       <Slider
                         value={[settings.date.fontSize]}
                         onValueChange={([value]) => updateSetting('date', 'fontSize', value)}
                         min={12}
                         max={24}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">{settings.date.fontSize}px</div>
+                      <div className="text-sm text-muted-foreground">{settings.date.fontSize}px</div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Event Schriftgröße</Label>
+                      <Label className="text-foreground">Event Schriftgröße</Label>
                       <Slider
                         value={[settings.event.fontSize]}
                         onValueChange={([value]) => updateSetting('event', 'fontSize', value)}
                         min={10}
                         max={20}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">{settings.event.fontSize}px</div>
+                      <div className="text-sm text-muted-foreground">{settings.event.fontSize}px</div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Hintergrundbild</Label>
+                      <Label className="text-foreground">Hintergrundbild</Label>
                       <Input
                         type="file"
                         accept="image/*"
@@ -667,19 +659,19 @@ export const EventImageEditor: React.FC = () => {
                         className="backdrop-blur-2xl bg-white/10 border-white/20 text-white file:text-white file:bg-white/20 file:border-white/20 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
                       />
                       {backgroundImage && (
-                        <div className="mt-2 flex items-center gap-4 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
+                        <div className={cn(glassCard, 'mt-2 flex items-center gap-4 p-3')}>
                           <img
                             src={backgroundImage}
                             alt="Vorschau"
                             className="h-16 rounded shadow"
                           />
-                          <Button
+                          <AnimatedButton
                             variant="outline"
                             onClick={removeBackgroundImage}
-                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl"
+                            className={cn(glassButton)}
                           >
                             Entfernen
-                          </Button>
+                          </AnimatedButton>
                         </div>
                       )}
                     </div>
@@ -687,41 +679,47 @@ export const EventImageEditor: React.FC = () => {
 
                   <TabsContent value="logo" className="space-y-4">
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Logo-Größe</Label>
+                      <Label className="text-foreground">Logo-Größe</Label>
                       <Slider
                         value={[settings.logo.size]}
                         onValueChange={([value]) => updateSetting('logo', 'size', value)}
                         min={10}
                         max={40}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">{settings.logo.size}rem</div>
+                      <div className="text-sm text-muted-foreground">{settings.logo.size}rem</div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-white/90 font-medium">Transparenz</Label>
+                      <Label className="text-foreground">Transparenz</Label>
                       <Slider
                         value={[settings.logo.opacity * 100]}
                         onValueChange={([value]) => updateSetting('logo', 'opacity', value / 100)}
                         min={0}
                         max={100}
                         step={1}
-                        className="backdrop-blur-2xl bg-white/5 rounded-xl p-2"
+                        className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-white/70">
+                      <div className="text-sm text-muted-foreground">
                         {Math.round(settings.logo.opacity * 100)}%
                       </div>
                     </div>
                   </TabsContent>
                 </Tabs>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Rechte Spalte - Vorschau */}
-          <div className="lg:col-span-2">
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-6">
+          <motion.div
+            className="lg:col-span-2"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <Card className={cn(glassCard, 'p-6 mb-6')}>
               <div
                 ref={elementRef}
                 className="bg-white p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg max-w-2xl mx-auto relative"
@@ -950,20 +948,21 @@ export const EventImageEditor: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </Card>
 
             <div className="flex justify-center">
-              <Button
+              <AnimatedButton
                 onClick={handleDownload}
-                className="backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg gap-2"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
               >
                 <Download className="h-4 w-4" />
                 Als Bild herunterladen
-              </Button>
+              </AnimatedButton>
             </div>
+          </motion.div>
           </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

@@ -4,7 +4,6 @@ import { useSpecialPollService } from '@/services/specialPollService';
 import { SpecialPoll, SpecialPollStatus, SpecialPollResponse } from '@/models/specialPoll';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -17,7 +16,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowLeft } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -25,6 +24,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 export default function SpecialPollDetail() {
   const { pollId } = useParams<{ pollId: string }>();
@@ -54,16 +62,16 @@ export default function SpecialPollDetail() {
     }
   };
 
-  const getStatusColor = (status: SpecialPollStatus) => {
+  const getStatusVariant = (status: SpecialPollStatus): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case SpecialPollStatus.ACTIVE:
-        return 'bg-green-100 text-green-800';
+        return 'default';
       case SpecialPollStatus.PENDING:
-        return 'bg-yellow-100 text-yellow-800';
+        return 'secondary';
       case SpecialPollStatus.CLOSED:
-        return 'bg-gray-200 text-gray-800';
+        return 'outline';
       default:
-        return '';
+        return 'secondary';
     }
   };
 
@@ -111,136 +119,189 @@ export default function SpecialPollDetail() {
   };
 
   return (
-    <div className="container mx-auto p-8 max-w-2xl">
-      <Button variant="outline" className="mb-6" onClick={() => navigate('/mittmach-mittwoch')}>
-        Zurück zur Übersicht
-      </Button>
-      {isLoading ? (
-        <div className="text-center py-8">Lade Aktion...</div>
-      ) : poll ? (
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>{poll.title}</CardTitle>
-              <Badge className={getStatusColor(poll.status)}>{poll.status}</Badge>
-            </div>
-            <CardDescription>
-              Erstellt am {format(new Date(poll.createdAt), 'dd.MM.yyyy', { locale: de })}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-4 flex items-center gap-4">
-              <span className="font-semibold">Status:</span>
-              <Select
-                value={poll.status}
-                onValueChange={handleStatusChange}
-                disabled={isStatusUpdating}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={SpecialPollStatus.ACTIVE}>Aktiv</SelectItem>
-                  <SelectItem value={SpecialPollStatus.PENDING}>Ausstehend</SelectItem>
-                  <SelectItem value={SpecialPollStatus.CLOSED}>Geschlossen</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="mb-4">
-              <span className="font-semibold">Anzahl Antworten:</span> {poll.responses.length}
-            </div>
-            <div className="mb-6">
-              <span className="font-semibold">Antworten:</span>
-              {poll.responses.length === 0 ? (
-                <div className="text-muted-foreground mt-2">Noch keine Antworten vorhanden.</div>
-              ) : (
-                <ul className="mt-2 space-y-2">
-                  {poll.responses.map((resp, idx) => (
-                    <li
-                      key={idx}
-                      className="border rounded p-2 bg-muted flex items-start justify-between gap-2"
-                    >
-                      <div>
-                        <div className="font-medium">{resp.userName}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
-                        </div>
-                        <div className="mt-1">{resp.response}</div>
-                      </div>
-                      <Dialog
-                        open={deleteDialogOpen && responseToDelete === resp}
-                        onOpenChange={open => {
-                          setDeleteDialogOpen(open);
-                          if (!open) setResponseToDelete(null);
-                        }}
-                      >
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:bg-destructive/10"
-                            onClick={() => {
-                              setResponseToDelete(resp);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Antwort wirklich löschen?</DialogTitle>
-                          </DialogHeader>
-                          <div className="mb-4 p-3 bg-muted rounded">
-                            <div className="font-medium mb-1">{resp.userName}</div>
-                            <div className="text-sm text-muted-foreground mb-2">
-                              {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
-                            </div>
-                            <div className="italic">{resp.response}</div>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-                              Abbrechen
-                            </Button>
-                            <Button variant="destructive" onClick={handleDeleteResponse}>
-                              Löschen
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleAddResponse();
-              }}
-              className="flex gap-2"
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="container mx-auto p-4 md:p-8 max-w-2xl relative z-10">
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <AnimatedButton variant="outline" className="mb-6" onClick={() => navigate('/mittmach-mittwoch')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Zurück zur Übersicht
+            </AnimatedButton>
+          </motion.div>
+          {isLoading ? (
+            <motion.div
+              className="text-center py-8"
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
             >
-              <Input
-                value={responseText}
-                onChange={e => setResponseText(e.target.value)}
-                placeholder="Deine Antwort..."
-                disabled={isSubmitting}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' && !e.shiftKey && responseText.trim()) {
-                    e.preventDefault();
-                    handleAddResponse();
-                  }
-                }}
-              />
-              <Button type="submit" disabled={!responseText.trim() || isSubmitting}>
-                Antwort absenden
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="text-center py-8 text-destructive">Aktion nicht gefunden.</div>
-      )}
-    </div>
+              <Card className={cn(glassCard, 'p-8')}>
+                <div className="text-muted-foreground">Lade Aktion...</div>
+              </Card>
+            </motion.div>
+          ) : poll ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.1 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle className="text-foreground">{poll.title}</CardTitle>
+                    <Badge variant={getStatusVariant(poll.status)}>{poll.status}</Badge>
+                  </div>
+                  <CardDescription className="text-muted-foreground">
+                    Erstellt am {format(new Date(poll.createdAt), 'dd.MM.yyyy', { locale: de })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4 flex items-center gap-4">
+                    <span className="font-semibold text-foreground">Status:</span>
+                    <Select
+                      value={poll.status}
+                      onValueChange={handleStatusChange}
+                      disabled={isStatusUpdating}
+                    >
+                      <SelectTrigger className={cn(glassInput, 'w-40')}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className={cn(glassCard)}>
+                        <SelectItem value={SpecialPollStatus.ACTIVE}>Aktiv</SelectItem>
+                        <SelectItem value={SpecialPollStatus.PENDING}>Ausstehend</SelectItem>
+                        <SelectItem value={SpecialPollStatus.CLOSED}>Geschlossen</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="mb-4">
+                    <span className="font-semibold text-foreground">Anzahl Antworten:</span> <span className="text-foreground">{poll.responses.length}</span>
+                  </div>
+                  <div className="mb-6">
+                    <span className="font-semibold text-foreground">Antworten:</span>
+                    {poll.responses.length === 0 ? (
+                      <div className="text-muted-foreground mt-2">Noch keine Antworten vorhanden.</div>
+                    ) : (
+                      <motion.ul
+                        className="mt-2 space-y-2"
+                        variants={staggerContainer}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        {poll.responses.map((resp, idx) => (
+                          <motion.li
+                            key={idx}
+                            variants={fadeInUp}
+                            className={cn(glassCard, 'p-3 flex items-start justify-between gap-2')}
+                          >
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">{resp.userName}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                              </div>
+                              <div className="mt-1 text-foreground">{resp.response}</div>
+                            </div>
+                            <Dialog
+                              open={deleteDialogOpen && responseToDelete === resp}
+                              onOpenChange={open => {
+                                setDeleteDialogOpen(open);
+                                if (!open) setResponseToDelete(null);
+                              }}
+                            >
+                              <DialogTrigger asChild>
+                                <AnimatedButton
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:bg-destructive/10"
+                                  onClick={() => {
+                                    setResponseToDelete(resp);
+                                    setDeleteDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </AnimatedButton>
+                              </DialogTrigger>
+                              <DialogContent className={cn(glassCard)}>
+                                <DialogHeader>
+                                  <DialogTitle className="text-foreground">Antwort wirklich löschen?</DialogTitle>
+                                </DialogHeader>
+                                <Card className={cn(glassCard, 'mb-4 p-3')}>
+                                  <div className="font-medium mb-1 text-foreground">{resp.userName}</div>
+                                  <div className="text-sm text-muted-foreground mb-2">
+                                    {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                                  </div>
+                                  <div className="italic text-foreground">{resp.response}</div>
+                                </Card>
+                                <DialogFooter>
+                                  <AnimatedButton variant="outline" onClick={() => setDeleteDialogOpen(false)} className={cn(glassButton)}>
+                                    Abbrechen
+                                  </AnimatedButton>
+                                  <AnimatedButton variant="destructive" onClick={handleDeleteResponse}>
+                                    Löschen
+                                  </AnimatedButton>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                          </motion.li>
+                        ))}
+                      </motion.ul>
+                    )}
+                  </div>
+                  <form
+                    onSubmit={e => {
+                      e.preventDefault();
+                      handleAddResponse();
+                    }}
+                    className="flex gap-2"
+                  >
+                    <Input
+                      value={responseText}
+                      onChange={e => setResponseText(e.target.value)}
+                      placeholder="Deine Antwort..."
+                      disabled={isSubmitting}
+                      className={cn(glassInput, 'flex-1')}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.shiftKey && responseText.trim()) {
+                          e.preventDefault();
+                          handleAddResponse();
+                        }
+                      }}
+                    />
+                    <LoadingButton
+                      type="submit"
+                      disabled={!responseText.trim() || isSubmitting}
+                      isLoading={isSubmitting}
+                      loadingText="Wird gesendet..."
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    >
+                      Antwort absenden
+                    </LoadingButton>
+                  </form>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="text-center py-8"
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <Card className={cn(glassCard, 'p-8')}>
+                <div className="text-destructive">Aktion nicht gefunden.</div>
+              </Card>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </PageTransition>
   );
 }

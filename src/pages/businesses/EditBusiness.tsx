@@ -7,13 +7,14 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, Image as ImageIcon, Upload } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -21,8 +22,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from 'framer-motion';
+import { fadeInUp } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassButton, glassInput } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -427,188 +435,166 @@ export const EditBusiness: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Rainbow Background Layers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-        {/* Animated Blur Circles */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '1000ms' }}
-        ></div>
-        <div
-          className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '500ms' }}
-        ></div>
-        <div
-          className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '700ms' }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
-          style={{ animationDelay: '300ms' }}
-        ></div>
-
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-          {/* Glass Header Skeleton */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-40 bg-white/10 backdrop-blur-xl rounded-xl" />
-                <Skeleton className="h-8 w-48 bg-white/10 backdrop-blur-xl rounded" />
+      <PageTransition>
+        <div className="min-h-screen relative overflow-hidden">
+          <Background />
+          <div className="relative z-10 container mx-auto py-6">
+            {/* Header Skeleton */}
+            <div className={cn(glassCard, 'p-6 mb-8')}>
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-10 w-40 rounded-xl" />
+                  <Skeleton className="h-8 w-48 rounded" />
+                </div>
               </div>
             </div>
-          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Linke Spalte Skeletons */}
             <div className="lg:col-span-1 space-y-6">
               {/* Basisinformationen Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-64 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-40 rounded mb-2" />
+                  <Skeleton className="h-4 w-64 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   {Array.from({ length: 4 }, (_, index) => (
                     <div key={index} className="space-y-2">
-                      <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
-                      <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-5 w-20 rounded" />
+                      <Skeleton className="h-4 w-full rounded" />
                       {index === 3 && (
-                        <Skeleton className="h-4 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-4 w-3/4 rounded" />
                       )}
                     </div>
                   ))}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Status & Highlight Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-40 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-40 rounded mb-2" />
+                  <Skeleton className="h-4 w-48 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Skeleton className="h-5 w-16 bg-white/10 backdrop-blur-xl rounded" />
-                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-5 w-16 rounded" />
+                      <Skeleton className="h-10 w-full rounded" />
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Skeleton className="h-5 w-9 bg-white/10 backdrop-blur-xl rounded-full" />
+                      <Skeleton className="h-5 w-9 rounded-full" />
                       <div className="space-y-2">
-                        <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
-                        <Skeleton className="h-3 w-48 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-4 w-32 rounded" />
+                        <Skeleton className="h-3 w-48 rounded" />
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Kategorien Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-40 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-32 rounded mb-2" />
+                  <Skeleton className="h-4 w-40 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-4 w-24 rounded" />
                     <div className="flex flex-wrap gap-2">
                       {Array.from({ length: 6 }, (_, index) => (
                         <Skeleton
                           key={index}
-                          className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded-full"
+                          className="h-6 w-20 rounded-full"
                         />
                       ))}
                     </div>
-                    <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-3 w-full rounded" />
                   </div>
                   <div className="space-y-2">
-                    <Skeleton className="h-4 w-20 bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-4 w-20 rounded" />
                     <div className="flex flex-wrap gap-2">
                       {Array.from({ length: 8 }, (_, index) => (
                         <Skeleton
                           key={index}
-                          className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                          className="h-6 w-16 rounded-full"
                         />
                       ))}
                     </div>
-                    <Skeleton className="h-3 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-3 w-full rounded" />
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Rechte Spalte Skeletons */}
             <div className="lg:col-span-2 space-y-6">
               {/* Medien Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-20 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-48 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-20 rounded mb-2" />
+                  <Skeleton className="h-4 w-48 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-4">
                     {/* Logo Skeleton */}
                     <div>
-                      <Skeleton className="h-5 w-12 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <Skeleton className="h-5 w-12 rounded mb-2" />
                       <div className="flex items-center gap-4">
-                        <Skeleton className="w-32 h-32 bg-white/10 backdrop-blur-xl rounded-lg" />
+                        <Skeleton className="w-32 h-32 rounded-lg" />
                         <div className="space-y-2">
-                          <Skeleton className="h-10 w-32 bg-white/10 backdrop-blur-xl rounded" />
-                          <Skeleton className="h-3 w-40 bg-white/10 backdrop-blur-xl rounded" />
+                          <Skeleton className="h-10 w-32 rounded" />
+                          <Skeleton className="h-3 w-40 rounded" />
                         </div>
                       </div>
                     </div>
                     {/* Geschäftsbilder Skeleton */}
                     <div>
-                      <Skeleton className="h-5 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <Skeleton className="h-5 w-32 rounded mb-2" />
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {Array.from({ length: 5 }, (_, index) => (
                           <Skeleton
                             key={index}
-                            className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg"
+                            className="aspect-video rounded-lg"
                           />
                         ))}
                       </div>
-                      <Skeleton className="h-3 w-48 bg-white/10 backdrop-blur-xl rounded mt-2" />
+                      <Skeleton className="h-3 w-48 rounded mt-2" />
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Öffnungszeiten Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-32 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-64 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-32 rounded mb-2" />
+                  <Skeleton className="h-4 w-64 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   {/* Zeitslots Skeletons */}
                   {Array.from({ length: 2 }, (_, index) => (
                     <div
                       key={index}
-                      className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4"
+                      className={cn(glassCard, 'p-4 space-y-4')}
                     >
                       <div className="flex justify-between items-center">
-                        <Skeleton className="h-5 w-20 bg-white/10 backdrop-blur-xl rounded" />
-                        <Skeleton className="h-8 w-8 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-5 w-20 rounded" />
+                        <Skeleton className="h-8 w-8 rounded" />
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-                        <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-10 w-full rounded" />
+                        <Skeleton className="h-10 w-full rounded" />
                       </div>
                       <div className="space-y-2">
-                        <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                        <Skeleton className="h-4 w-16 rounded" />
                         <div className="flex flex-wrap gap-2">
                           {Array.from({ length: 7 }, (_, dayIndex) => (
                             <Skeleton
                               key={dayIndex}
-                              className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                              className="h-6 w-16 rounded-full"
                             />
                           ))}
                         </div>
@@ -616,64 +602,65 @@ export const EditBusiness: React.FC = () => {
                     </div>
                   ))}
                   {/* Neuer Zeitraum Skeleton */}
-                  <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4">
-                    <Skeleton className="h-5 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                  <div className={cn(glassCard, 'p-4 space-y-4')}>
+                    <Skeleton className="h-5 w-32 rounded" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-                      <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-10 w-full rounded" />
+                      <Skeleton className="h-10 w-full rounded" />
                     </div>
                     <div className="space-y-2">
-                      <Skeleton className="h-4 w-16 bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-4 w-16 rounded" />
                       <div className="flex flex-wrap gap-2">
                         {Array.from({ length: 7 }, (_, dayIndex) => (
                           <Skeleton
                             key={dayIndex}
-                            className="h-6 w-16 bg-white/10 backdrop-blur-xl rounded-full"
+                            className="h-6 w-16 rounded-full"
                           />
                         ))}
                       </div>
                     </div>
-                    <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                    <Skeleton className="h-10 w-full rounded" />
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Nuernbergspots Review Card Skeleton */}
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                  <Skeleton className="h-6 w-48 bg-white/10 backdrop-blur-xl rounded mb-2" />
-                  <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-                <div className="p-4 sm:p-6 space-y-6">
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-48 rounded mb-2" />
+                  <Skeleton className="h-4 w-56 rounded" />
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
-                      <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+                      <Skeleton className="h-4 w-24 rounded" />
+                      <Skeleton className="h-24 w-full rounded" />
                     </div>
                     <div>
-                      <Skeleton className="h-4 w-28 bg-white/10 backdrop-blur-xl rounded mb-2" />
+                      <Skeleton className="h-4 w-28 rounded mb-2" />
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {Array.from({ length: 4 }, (_, index) => (
                           <Skeleton
                             key={index}
-                            className="aspect-video bg-white/10 backdrop-blur-xl rounded-lg"
+                            className="aspect-video rounded-lg"
                           />
                         ))}
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Action Buttons Skeleton */}
               <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-                <Skeleton className="h-10 w-24 bg-white/10 backdrop-blur-xl rounded" />
-                <Skeleton className="h-10 w-40 bg-white/10 backdrop-blur-xl rounded" />
+                <Skeleton className="h-10 w-24 rounded" />
+                <Skeleton className="h-10 w-40 rounded" />
               </div>
             </div>
           </div>
         </div>
       </div>
+      </PageTransition>
     );
   }
 
@@ -682,513 +669,524 @@ export const EditBusiness: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background Layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div
-        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '1000ms' }}
-      ></div>
-      <div
-        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '500ms' }}
-      ></div>
-      <div
-        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '700ms' }}
-      ></div>
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '300ms' }}
-      ></div>
-
-      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-        {/* Glass Header */}
-        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Header */}
+        <motion.div
+          className={cn(glassCard, 'p-6 mb-8')}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
             <div className="flex items-center gap-3">
-              <Button
+              <AnimatedButton
                 variant="ghost"
                 onClick={() => navigate('/businesses')}
-                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl px-3 py-2 border"
+                className={cn(glassButton)}
               >
                 <ArrowLeft className="h-5 w-5 mr-2" />
                 Zurück zur Übersicht
-              </Button>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+              </AnimatedButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                 Partner bearbeiten
               </h1>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Linke Spalte - Basisinformationen */}
           <div className="lg:col-span-1 space-y-6">
             {/* Basisinformationen Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Basisinformationen
-                </h2>
-                <p className="text-white/70 text-sm mt-2">Grundlegende Informationen zum Partner</p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Name</h3>
-                    <p className="text-sm text-white/70">{business.name}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Kategorie</h3>
-                    <div className="flex-grow">
-                      <p className="text-sm text-white/70">
-                        Kategorie-IDs: {business.categoryIds.join(', ')}
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Basisinformationen</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Grundlegende Informationen zum Partner
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Name</h3>
+                      <p className="text-sm text-muted-foreground">{business.name}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Kategorie</h3>
+                      <div className="flex-grow">
+                        <p className="text-sm text-muted-foreground">
+                          Kategorie-IDs: {business.categoryIds.join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Adresse</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {business.address.street} {business.address.houseNumber},{' '}
+                        {business.address.postalCode} {business.address.city}
                       </p>
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Adresse</h3>
-                    <p className="text-sm text-white/70">
-                      {business.address.street} {business.address.houseNumber},{' '}
-                      {business.address.postalCode} {business.address.city}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Kontakt</h3>
-                    <div className="text-sm text-white/70 space-y-1">
-                      {business.contact.email && <p>{business.contact.email}</p>}
-                      {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Kontakt</h3>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        {business.contact.email && <p>{business.contact.email}</p>}
+                        {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Status & Highlight Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Status & Highlight
-                </h2>
-                <p className="text-white/70 text-sm mt-2">Partner-Status und Sichtbarkeit</p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Status</h3>
-                    <Select
-                      value={business.status}
-                      onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
-                    >
-                      <SelectTrigger className="w-full backdrop-blur-2xl bg-white/10 border-white/20 text-white">
-                        <SelectValue placeholder="Status auswählen" />
-                      </SelectTrigger>
-                      <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                        <SelectItem
-                          value={BusinessStatus.ACTIVE}
-                          className="text-white hover:bg-white/20"
-                        >
-                          Aktiv
-                        </SelectItem>
-                        <SelectItem
-                          value={BusinessStatus.PENDING}
-                          className="text-white hover:bg-white/20"
-                        >
-                          Ausstehend
-                        </SelectItem>
-                        <SelectItem
-                          value={BusinessStatus.INACTIVE}
-                          className="text-white hover:bg-white/20"
-                        >
-                          Inaktiv
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isPromoted"
-                      checked={business.isPromoted}
-                      onCheckedChange={async checked => {
-                        try {
-                          await businessService.updateBusiness(business.id, {
-                            isPromoted: checked,
-                          });
-                          setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
-                          toast.success('Highlight-Status aktualisiert', {
-                            description: checked
-                              ? 'Der Partner wurde als Highlight markiert.'
-                              : 'Der Highlight-Status wurde entfernt.',
-                          });
-                        } catch (error) {
-                          toast.error('Fehler beim Aktualisieren', {
-                            description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
-                          });
-                        }
-                      }}
-                    />
-                    <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-white">
-                        Als "Highlight" markieren
-                      </Label>
-                      <p className="text-sm text-white/70">
-                        {business.isPromoted
-                          ? 'Dieser Partner wird als Highlight angezeigt ✨'
-                          : 'Markiere diesen Partner als Highlight'}
-                      </p>
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.1 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Status & Highlight</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Partner-Status und Sichtbarkeit
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Status</h3>
+                      <Select
+                        value={business.status}
+                        onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Status auswählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={BusinessStatus.ACTIVE}>Aktiv</SelectItem>
+                          <SelectItem value={BusinessStatus.PENDING}>Ausstehend</SelectItem>
+                          <SelectItem value={BusinessStatus.INACTIVE}>Inaktiv</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="isPromoted"
+                        checked={business.isPromoted}
+                        onCheckedChange={async checked => {
+                          try {
+                            await businessService.updateBusiness(business.id, {
+                              isPromoted: checked,
+                            });
+                            setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
+                            toast.success('Highlight-Status aktualisiert', {
+                              description: checked
+                                ? 'Der Partner wurde als Highlight markiert.'
+                                : 'Der Highlight-Status wurde entfernt.',
+                            });
+                          } catch (error) {
+                            toast.error('Fehler beim Aktualisieren', {
+                              description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
+                            });
+                          }
+                        }}
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="isPromoted" className="text-foreground">
+                          Als "Highlight" markieren
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          {business.isPromoted
+                            ? 'Dieser Partner wird als Highlight angezeigt ✨'
+                            : 'Markiere diesen Partner als Highlight'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Kategorien Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Kategorien
-                </h2>
-                <p className="text-white/70 text-sm mt-2">Kategorien des Partners</p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-2">
-                  <Label className="text-white">Kategorien (max. 3)</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map(category => (
-                      <Badge
-                        key={category.id}
-                        variant={
-                          business?.categoryIds.includes(category.id) ? 'default' : 'outline'
-                        }
-                        className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                        onClick={() => toggleCategory(category.id)}
-                      >
-                        {category.name}
-                      </Badge>
-                    ))}
-                  </div>
-                  <p className="text-sm text-white/70">
-                    Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
-                  </p>
-                </div>
-
-                {keywords.length > 0 && (
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.2 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Kategorien</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Kategorien des Partners
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label className="text-white">Keywords</Label>
+                    <Label className="text-foreground">Kategorien (max. 3)</Label>
                     <div className="flex flex-wrap gap-2">
-                      {keywords.map(keyword => (
+                      {categories.map(category => (
                         <Badge
-                          key={keyword.id}
+                          key={category.id}
                           variant={
-                            business?.keywordIds.includes(keyword.id) ? 'default' : 'outline'
+                            business?.categoryIds.includes(category.id) ? 'default' : 'outline'
                           }
-                          className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                          onClick={() => toggleKeyword(keyword.id)}
+                          className="cursor-pointer transition-all duration-300 hover:scale-105"
+                          onClick={() => toggleCategory(category.id)}
                         >
-                          {keyword.name}
+                          {category.name}
                         </Badge>
                       ))}
                     </div>
-                    <p className="text-sm text-white/70">
-                      Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
+                    <p className="text-sm text-muted-foreground">
+                      Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
                     </p>
                   </div>
-                )}
-              </div>
-            </div>
+
+                  {keywords.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Keywords</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {keywords.map(keyword => (
+                          <Badge
+                            key={keyword.id}
+                            variant={
+                              business?.keywordIds.includes(keyword.id) ? 'default' : 'outline'
+                            }
+                            className="cursor-pointer transition-all duration-300 hover:scale-105"
+                            onClick={() => toggleKeyword(keyword.id)}
+                          >
+                            {keyword.name}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
 
           {/* Rechte Spalte - Medien & Öffnungszeiten */}
           <div className="lg:col-span-2 space-y-6">
             {/* Medien Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Medien
-                </h2>
-                <p className="text-white/70 text-sm mt-2">Logo und Geschäftsbilder</p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Logo</h3>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-white/20">
-                        <img
-                          src={logoPreview || business.logoUrl}
-                          alt="Logo"
-                          className="w-full h-full object-cover"
-                        />
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.3 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Medien</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Logo und Geschäftsbilder
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Logo</h3>
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-32 h-32 rounded-lg overflow-hidden border-2 border-dashed border-secondary">
+                          <img
+                            src={logoPreview || business.logoUrl}
+                            alt="Logo"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div>
+                          <label className={cn(glassButton, 'inline-flex items-center px-4 py-2 cursor-pointer')}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Logo hochladen
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={handleLogoUpload}
+                            />
+                          </label>
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Empfohlene Größe: 512x512 Pixel
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <label className="inline-flex items-center px-4 py-2 backdrop-blur-2xl bg-white/10 border border-white/20 text-white rounded-md cursor-pointer hover:bg-white/20 hover:scale-105 transition-all duration-300">
-                          <Upload className="mr-2 h-4 w-4" />
-                          Logo hochladen
+                    </div>
+
+                    <div>
+                      <h3 className="font-medium mb-2 text-foreground">Geschäftsbilder</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {businessImages.map((url, index) => (
+                          <div key={url} className="relative group">
+                            <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
+                              <img
+                                src={url}
+                                alt={`Geschäftsbild ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleRemoveBusinessImage(url)}
+                              className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className="aspect-video rounded-lg border-2 border-dashed border-secondary bg-muted flex items-center justify-center cursor-pointer hover:border-primary transition-all duration-300">
+                          <div className="text-center">
+                            <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
+                          </div>
                           <input
                             type="file"
+                            multiple
                             accept="image/*"
                             className="hidden"
-                            onChange={handleLogoUpload}
+                            onChange={handleBusinessImageUpload}
                           />
                         </label>
-                        <p className="text-sm text-white/70 mt-2">
-                          Empfohlene Größe: 512x512 Pixel
-                        </p>
                       </div>
+                      <p className="text-sm text-muted-foreground mt-2">Empfohlene Größe: 1200x800 Pixel</p>
                     </div>
                   </div>
-
-                  <div>
-                    <h3 className="font-medium mb-2 text-white">Geschäftsbilder</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {businessImages.map((url, index) => (
-                        <div key={url} className="relative group">
-                          <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5">
-                            <img
-                              src={url}
-                              alt={`Geschäftsbild ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <button
-                            onClick={() => handleRemoveBusinessImage(url)}
-                            className="absolute top-2 right-2 p-1 bg-red-500/80 backdrop-blur-2xl text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600/80 hover:scale-110"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                      <label className="aspect-video rounded-lg border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all duration-300">
-                        <div className="text-center">
-                          <ImageIcon className="h-8 w-8 mx-auto text-white/70" />
-                          <p className="text-sm text-white/70 mt-2">Bilder hinzufügen</p>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleBusinessImageUpload}
-                        />
-                      </label>
-                    </div>
-                    <p className="text-sm text-white/70 mt-2">Empfohlene Größe: 1200x800 Pixel</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Öffnungszeiten Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Öffnungszeiten
-                </h2>
-                <p className="text-white/70 text-sm mt-2">
-                  Definieren Sie die Öffnungszeiten des Partners
-                </p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-4">
-                  {timeSlots.map(slot => (
-                    <div
-                      key={slot.id}
-                      className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg"
-                    >
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium text-white">Zeitraum</h4>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeTimeSlot(slot.id)}
-                          className="text-red-300 hover:text-red-200 hover:bg-red-500/20 backdrop-blur-2xl"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.4 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Öffnungszeiten</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Definieren Sie die Öffnungszeiten des Partners
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    {timeSlots.map(slot => (
+                      <div
+                        key={slot.id}
+                        className={cn(glassCard, 'p-4 space-y-4')}
+                      >
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium text-foreground">Zeitraum</h4>
+                          <AnimatedButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeTimeSlot(slot.id)}
+                            className="text-destructive hover:text-destructive/80"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </AnimatedButton>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-foreground">Von</Label>
+                            <Input
+                              type="time"
+                              value={slot.from}
+                              onChange={e => handleTimeSlotChange(slot.id, 'from', e.target.value)}
+                              className={cn(glassInput)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-foreground">Bis</Label>
+                            <Input
+                              type="time"
+                              value={slot.to}
+                              onChange={e => handleTimeSlotChange(slot.id, 'to', e.target.value)}
+                              className={cn(glassInput)}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-foreground">Gültig an</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                              <Badge
+                                key={day}
+                                variant={
+                                  slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
+                                }
+                                className="cursor-pointer transition-all duration-300 hover:scale-105"
+                                onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                              >
+                                {dayName}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
                       </div>
+                    ))}
+
+                    <div className={cn(glassCard, 'p-4 space-y-4')}>
+                      <h4 className="font-medium text-foreground">Neuer Zeitraum</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label className="text-white">Von</Label>
+                          <Label className="text-foreground">Von</Label>
                           <Input
                             type="time"
-                            value={slot.from}
-                            onChange={e => handleTimeSlotChange(slot.id, 'from', e.target.value)}
-                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                            value={newTimeSlot.from}
+                            onChange={e =>
+                              setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
+                            }
+                            className={cn(glassInput)}
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label className="text-white">Bis</Label>
+                          <Label className="text-foreground">Bis</Label>
                           <Input
                             type="time"
-                            value={slot.to}
-                            onChange={e => handleTimeSlotChange(slot.id, 'to', e.target.value)}
-                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
+                            value={newTimeSlot.to}
+                            onChange={e => setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))}
+                            className={cn(glassInput)}
                           />
                         </div>
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-white">Gültig an</Label>
+                        <Label className="text-foreground">Gültig an</Label>
                         <div className="flex flex-wrap gap-2">
                           {Object.entries(WEEKDAYS).map(([day, dayName]) => (
                             <Badge
                               key={day}
                               variant={
-                                slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
+                                newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
                               }
-                              className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                              onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                              className="cursor-pointer transition-all duration-300 hover:scale-105"
+                              onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
                             >
                               {dayName}
                             </Badge>
                           ))}
                         </div>
                       </div>
+                      <AnimatedButton
+                        onClick={addTimeSlot}
+                        className="w-full"
+                        disabled={newTimeSlot.days.length === 0}
+                      >
+                        Zeitraum hinzufügen
+                      </AnimatedButton>
                     </div>
-                  ))}
-
-                  <div className="backdrop-blur-2xl bg-white/5 border border-white/10 rounded-lg p-4 space-y-4 shadow-lg">
-                    <h4 className="font-medium text-white">Neuer Zeitraum</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-white">Von</Label>
-                        <Input
-                          type="time"
-                          value={newTimeSlot.from}
-                          onChange={e =>
-                            setNewTimeSlot(prev => ({ ...prev, from: e.target.value }))
-                          }
-                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-white">Bis</Label>
-                        <Input
-                          type="time"
-                          value={newTimeSlot.to}
-                          onChange={e => setNewTimeSlot(prev => ({ ...prev, to: e.target.value }))}
-                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-white">Gültig an</Label>
-                      <div className="flex flex-wrap gap-2">
-                        {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                          <Badge
-                            key={day}
-                            variant={
-                              newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
-                            }
-                            className="cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                            onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
-                          >
-                            {dayName}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <Button
-                      onClick={addTimeSlot}
-                      className="w-full backdrop-blur-2xl bg-white/15 border border-white/20 text-white hover:bg-white/25 hover:scale-105 transition-all duration-300"
-                      disabled={newTimeSlot.days.length === 0}
-                    >
-                      Zeitraum hinzufügen
-                    </Button>
                   </div>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Nuernbergspots Review Card */}
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Nuernbergspots Review
-                </h2>
-                <p className="text-white/70 text-sm mt-2">Bewertung und Bilder des Partners</p>
-              </div>
-              <div className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-white">Review Text</Label>
-                    <Textarea
-                      value={editReview.reviewText || ''}
-                      onChange={e =>
-                        setEditReview(prev => ({
-                          ...prev,
-                          reviewText: e.target.value,
-                        }))
-                      }
-                      placeholder="Geben Sie hier die Review ein..."
-                      className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/50"
-                    />
-                  </div>
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.5 }}
+            >
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground">Nuernbergspots Review</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Bewertung und Bilder des Partners
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Review Text</Label>
+                      <Textarea
+                        value={editReview.reviewText || ''}
+                        onChange={e =>
+                          setEditReview(prev => ({
+                            ...prev,
+                            reviewText: e.target.value,
+                          }))
+                        }
+                        placeholder="Geben Sie hier die Review ein..."
+                        className={cn(glassInput, 'min-h-[100px]')}
+                      />
+                    </div>
 
-                  <div>
-                    <h4 className="text-sm font-medium mb-2 text-white">Review Bilder</h4>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {editReview.reviewImageUrls?.map((url, index) => (
-                        <div key={url} className="relative group">
-                          <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5">
-                            <img
-                              src={url}
-                              alt={`Review Bild ${index + 1}`}
-                              className="w-full h-full object-cover"
-                            />
+                    <div>
+                      <h4 className="text-sm font-medium mb-2 text-foreground">Review Bilder</h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {editReview.reviewImageUrls?.map((url, index) => (
+                          <div key={url} className="relative group">
+                            <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
+                              <img
+                                src={url}
+                                alt={`Review Bild ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleRemoveImage(url)}
+                              className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleRemoveImage(url)}
-                            className="absolute top-2 right-2 p-1 bg-red-500/80 backdrop-blur-2xl text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600/80 hover:scale-110"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                      <label className="aspect-video rounded-lg border-2 border-dashed border-white/20 backdrop-blur-2xl bg-white/5 flex items-center justify-center cursor-pointer hover:border-white/40 hover:bg-white/10 transition-all duration-300">
-                        <div className="text-center">
-                          <ImageIcon className="h-8 w-8 mx-auto text-white/70" />
-                          <p className="text-sm text-white/70 mt-2">Bilder hinzufügen</p>
-                        </div>
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          className="hidden"
-                          onChange={handleImageUpload}
-                        />
-                      </label>
+                        ))}
+                        <label className="aspect-video rounded-lg border-2 border-dashed border-secondary bg-muted flex items-center justify-center cursor-pointer hover:border-primary transition-all duration-300">
+                          <div className="text-center">
+                            <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground" />
+                            <p className="text-sm text-muted-foreground mt-2">Bilder hinzufügen</p>
+                          </div>
+                          <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                          />
+                        </label>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4">
-              <Button
+            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-secondary">
+              <AnimatedButton
                 variant="outline"
                 onClick={() => navigate('/businesses')}
-                className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+                className={cn(glassButton, 'w-full sm:w-auto')}
               >
                 Abbrechen
-              </Button>
-              <Button
+              </AnimatedButton>
+              <LoadingButton
                 onClick={handleUpdateBusiness}
-                disabled={isSaving}
-                className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-600/80 border border-white/20 text-white hover:from-green-600/80 hover:to-emerald-700/80 hover:scale-105 transition-all duration-300 disabled:opacity-50"
+                isLoading={isSaving}
+                loadingText="Speichert..."
+                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
               >
-                {isSaving ? 'Speichert...' : 'Änderungen speichern'}
-              </Button>
+                Änderungen speichern
+              </LoadingButton>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 };

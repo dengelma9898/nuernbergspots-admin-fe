@@ -9,7 +9,6 @@ import {
   CardDescription,
   CardFooter,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -50,45 +49,53 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
 import { validateImageFile } from '@/utils/fileValidationUtils';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 function ChatroomSkeleton() {
   return (
-    <Card className="backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full ring-1 ring-white/30">
+    <Card className={cn(glassCard, 'rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}>
       <CardHeader className="pb-2">
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2">
-            <Skeleton className="h-5 w-5 rounded bg-white/10 backdrop-blur-xl" />
-            <Skeleton className="h-6 w-3/4 bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-5 w-5 rounded" />
+            <Skeleton className="h-6 w-3/4 rounded" />
           </CardTitle>
           <CardDescription>
-            <Skeleton className="h-4 w-full bg-white/10 backdrop-blur-xl rounded" />
-            <Skeleton className="h-4 w-2/3 mt-1 bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-4 w-2/3 mt-1 rounded" />
           </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="space-y-3">
           {/* Image placeholder */}
-          <Skeleton className="aspect-video rounded-lg bg-white/10 backdrop-blur-xl" />
+          <Skeleton className="aspect-video rounded-lg" />
 
           {/* Participants info */}
           <div className="flex items-center gap-2">
-            <Skeleton className="h-4 w-4 rounded bg-white/10 backdrop-blur-xl" />
-            <Skeleton className="h-4 w-24 bg-white/10 backdrop-blur-xl rounded" />
+            <Skeleton className="h-4 w-4 rounded" />
+            <Skeleton className="h-4 w-24 rounded" />
           </div>
 
           {/* Last message */}
-          <Skeleton className="h-3 w-5/6 bg-white/10 backdrop-blur-xl rounded" />
+          <Skeleton className="h-3 w-5/6 rounded" />
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 pt-4 border-t border-white/20 mt-2">
+      <CardFooter className="flex flex-col gap-2 pt-4 border-t border-secondary mt-2">
         {/* Created date */}
-        <Skeleton className="h-3 w-32 bg-white/10 backdrop-blur-xl rounded mx-auto" />
+        <Skeleton className="h-3 w-32 rounded mx-auto" />
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-2 w-full">
-          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
-          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 bg-white/10 backdrop-blur-xl rounded-xl" />
+          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 rounded-xl" />
+          <Skeleton className="h-9 w-full sm:w-auto sm:flex-1 rounded-xl" />
         </div>
       </CardFooter>
     </Card>
@@ -124,9 +131,16 @@ export function ChatroomManagement() {
     try {
       setIsLoading(true);
       const data = await chatroomService.getChatrooms();
-      setChatrooms(data);
+      // Stelle sicher, dass data ein Array ist
+      if (Array.isArray(data)) {
+        setChatrooms(data);
+      } else {
+        toast.error('Chatrooms konnten nicht geladen werden: Ungültiges Datenformat.');
+        setChatrooms([]);
+      }
     } catch (error) {
       toast.error('Chatrooms konnten nicht geladen werden.');
+      setChatrooms([]);
     } finally {
       setIsLoading(false);
     }
@@ -307,426 +321,449 @@ export function ChatroomManagement() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background Layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500">
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70" />
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60" />
-      </div>
-
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500" />
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300" />
-      </div>
-
-      {/* Main Content */}
-      <div className="container mx-auto p-4 sm:p-8 max-w-7xl relative z-10">
-        <div className="space-y-6 sm:space-y-8">
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl p-6 border border-white/10 shadow-2xl ring-1 ring-white/20">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-              <div className="flex flex-col gap-1">
-                <Button
-                  variant="ghost"
-                  className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer backdrop-blur-2xl bg-white/10 border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl text-white/90 hover:text-white rounded-xl"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Zurück zum Dashboard
-                </Button>
-                <h1 className="text-2xl sm:text-3xl font-bold leading-tight bg-gradient-to-r from-white via-white/90 to-white/80 bg-clip-text text-transparent drop-shadow-lg">
-                  Chatroom Management
-                </h1>
-                <div className="text-base sm:text-lg text-white/80 max-w-md">
-                  Verwalten Sie hier alle Chatrooms und deren Einstellungen
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        {/* Main Content */}
+        <div className="container mx-auto p-4 sm:p-8 max-w-7xl relative z-10">
+          <div className="space-y-6 sm:space-y-8">
+            <motion.div
+              className={cn(glassCard, 'p-6')}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                <div className="flex flex-col gap-1">
+                  <AnimatedButton
+                    variant="ghost"
+                    className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Zurück zum Dashboard
+                  </AnimatedButton>
+                  <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
+                    Chatroom Management
+                  </h1>
+                  <div className="text-base sm:text-lg text-muted-foreground max-w-md">
+                    Verwalten Sie hier alle Chatrooms und deren Einstellungen
+                  </div>
                 </div>
-              </div>
-              <Dialog
-                open={isCreateDialogOpen}
-                onOpenChange={open => {
-                  setIsCreateDialogOpen(open);
-                  if (!open) {
-                    setCreateError(null);
-                  }
-                }}
-              >
-                <DialogTrigger asChild>
-                  <Button className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Neuer Chatroom
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
-                  <DialogHeader>
-                    <DialogTitle className="text-white">Neuen Chatroom erstellen</DialogTitle>
-                    <DialogDescription className="text-white/80">
-                      Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
-                    </DialogDescription>
-                  </DialogHeader>
-                  {createError && (
-                    <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
-                      <div className="flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                        <div className="flex-1 space-y-1">
-                          <h4 className="font-semibold text-red-200">{createError.title}</h4>
-                          <p className="text-sm text-red-100/90">{createError.message}</p>
-                          {createError.actionHint && (
-                            <p className="text-xs text-red-100/70 mt-2">{createError.actionHint}</p>
-                          )}
+                <Dialog
+                  open={isCreateDialogOpen}
+                  onOpenChange={open => {
+                    setIsCreateDialogOpen(open);
+                    if (!open) {
+                      setCreateError(null);
+                    }
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <AnimatedButton className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Neuer Chatroom
+                    </AnimatedButton>
+                  </DialogTrigger>
+                  <DialogContent className={cn(glassCard)}>
+                    <DialogHeader>
+                      <DialogTitle className="text-foreground">Neuen Chatroom erstellen</DialogTitle>
+                      <DialogDescription className="text-muted-foreground">
+                        Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
+                      </DialogDescription>
+                    </DialogHeader>
+                    {createError && (
+                      <Card className="rounded-lg border-destructive bg-destructive/10 p-4 space-y-2">
+                        <div className="flex items-start gap-3">
+                          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                          <div className="flex-1 space-y-1">
+                            <h4 className="font-semibold text-destructive">{createError.title}</h4>
+                            <p className="text-sm text-muted-foreground">{createError.message}</p>
+                            {createError.actionHint && (
+                              <p className="text-xs text-muted-foreground mt-2">{createError.actionHint}</p>
+                            )}
+                          </div>
+                          <AnimatedButton
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setCreateError(null)}
+                            className="text-destructive hover:text-destructive/90"
+                            aria-label="Fehler schließen"
+                          >
+                            <X className="h-4 w-4" />
+                          </AnimatedButton>
                         </div>
-                        <button
-                          onClick={() => setCreateError(null)}
-                          className="text-red-300 hover:text-red-100 transition-colors"
-                          aria-label="Fehler schließen"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
+                      </Card>
+                    )}
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="title" className="text-foreground">
+                          Titel
+                        </Label>
+                        <Input
+                          id="title"
+                          value={newChatroom.title}
+                          onChange={e => setNewChatroom({ ...newChatroom, title: e.target.value })}
+                          placeholder="Chatroom Titel"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="description" className="text-foreground">
+                          Beschreibung
+                        </Label>
+                        <Textarea
+                          id="description"
+                          value={newChatroom.description}
+                          onChange={e =>
+                            setNewChatroom({ ...newChatroom, description: e.target.value })
+                          }
+                          placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-foreground">Chatroom Bild</Label>
+                        <div className="flex items-center gap-4">
+                          <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
+                            {imagePreview ? (
+                              <>
+                                <img
+                                  src={imagePreview}
+                                  alt="Vorschau"
+                                  className="w-full h-full object-cover"
+                                />
+                                <AnimatedButton
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    setSelectedImage(null);
+                                    setImagePreview(null);
+                                  }}
+                                  className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+                                >
+                                  <X className="h-4 w-4" />
+                                </AnimatedButton>
+                              </>
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-muted">
+                                <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageSelect}
+                              className="hidden"
+                              id="image-upload"
+                            />
+                            <Label
+                              htmlFor="image-upload"
+                              className={cn(glassButton, 'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2')}
+                            >
+                              Bild auswählen
+                            </Label>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  )}
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title" className="text-white/90">
-                        Titel
-                      </Label>
-                      <Input
-                        id="title"
-                        value={newChatroom.title}
-                        onChange={e => setNewChatroom({ ...newChatroom, title: e.target.value })}
-                        placeholder="Chatroom Titel"
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
-                      />
+                    <DialogFooter>
+                      <AnimatedButton
+                        variant="outline"
+                        onClick={() => setIsCreateDialogOpen(false)}
+                        className={cn(glassButton)}
+                      >
+                        Abbrechen
+                      </AnimatedButton>
+                      <AnimatedButton
+                        onClick={handleCreateChatroom}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                      >
+                        Erstellen
+                      </AnimatedButton>
+                    </DialogFooter>
+                </DialogContent>
+                </Dialog>
+              </div>
+            </motion.div>
+
+            <Dialog
+              open={isEditDialogOpen}
+              onOpenChange={open => {
+                setIsEditDialogOpen(open);
+                if (!open) {
+                  setEditError(null);
+                  setSelectedImage(null);
+                  setImagePreview(null);
+                  setOriginalImageUrl(null);
+                }
+              }}
+            >
+              <DialogContent className={cn(glassCard)}>
+                <DialogHeader>
+                  <DialogTitle className="text-foreground">Chatroom bearbeiten</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    Bearbeiten Sie die Einstellungen des Chatrooms.
+                  </DialogDescription>
+                </DialogHeader>
+                {editError && (
+                  <Card className="rounded-lg border-destructive bg-destructive/10 p-4 space-y-2">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                      <div className="flex-1 space-y-1">
+                        <h4 className="font-semibold text-destructive">{editError.title}</h4>
+                        <p className="text-sm text-muted-foreground">{editError.message}</p>
+                        {editError.actionHint && (
+                          <p className="text-xs text-muted-foreground mt-2">{editError.actionHint}</p>
+                        )}
+                      </div>
+                      <AnimatedButton
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditError(null)}
+                        className="text-destructive hover:text-destructive/90"
+                        aria-label="Fehler schließen"
+                      >
+                        <X className="h-4 w-4" />
+                      </AnimatedButton>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description" className="text-white/90">
-                        Beschreibung
-                      </Label>
-                      <Textarea
-                        id="description"
-                        value={newChatroom.description}
-                        onChange={e =>
-                          setNewChatroom({ ...newChatroom, description: e.target.value })
-                        }
-                        placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
-                      />
+                  </Card>
+                )}
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title" className="text-foreground">
+                      Titel
+                    </Label>
+                    <Input
+                      id="edit-title"
+                      value={selectedChatroom?.title || ''}
+                      onChange={e =>
+                        setSelectedChatroom(prev =>
+                          prev ? { ...prev, title: e.target.value } : null
+                        )
+                      }
+                      placeholder="Chatroom Titel"
+                      className={cn(glassInput)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-description" className="text-foreground">
+                      Beschreibung
+                    </Label>
+                    <Textarea
+                      id="edit-description"
+                      value={selectedChatroom?.description || ''}
+                      onChange={e =>
+                        setSelectedChatroom(prev =>
+                          prev ? { ...prev, description: e.target.value } : null
+                        )
+                      }
+                      placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                      className={cn(glassInput)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Chatroom Bild</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
+                        {imagePreview ? (
+                          <>
+                            <img
+                              src={imagePreview}
+                              alt="Vorschau"
+                              className="w-full h-full object-cover"
+                            />
+                            <AnimatedButton
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setSelectedImage(null);
+                                setImagePreview(null);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+                              aria-label="Bild entfernen"
+                            >
+                              <X className="h-4 w-4" />
+                            </AnimatedButton>
+                          </>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-muted">
+                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageSelect}
+                          className="hidden"
+                          id="edit-image-upload"
+                        />
+                        <Label
+                          htmlFor="edit-image-upload"
+                          className={cn(glassButton, 'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2')}
+                        >
+                          Bild auswählen
+                        </Label>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-white/90">Chatroom Bild</Label>
-                      <div className="flex items-center gap-4">
-                        <div className="relative w-32 h-32 border-2 border-dashed border-white/30 rounded-lg overflow-hidden">
-                          {imagePreview ? (
-                            <>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => setIsEditDialogOpen(false)}
+                    className={cn(glassButton)}
+                  >
+                    Abbrechen
+                  </AnimatedButton>
+                  <AnimatedButton
+                    onClick={handleEditChatroom}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                  >
+                    Speichern
+                  </AnimatedButton>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogContent className={cn(glassCard)}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-foreground">Chatroom löschen</AlertDialogTitle>
+                  <AlertDialogDescription className="text-muted-foreground">
+                    Möchten Sie den Chatroom "{selectedChatroom?.title}" wirklich löschen? Diese
+                    Aktion kann nicht rückgängig gemacht werden.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className={cn(glassButton)}>
+                    Abbrechen
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteChatroom}
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
+                  >
+                    Löschen
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            <motion.div
+              key={`chatrooms-${chatrooms.length}-${isLoading}`}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {isLoading ? (
+                // Show 6 skeleton chatroom cards
+                Array.from({ length: 6 }).map((_, index) => (
+                  <motion.div 
+                    key={index} 
+                    variants={fadeInUp}
+                  >
+                    <ChatroomSkeleton />
+                  </motion.div>
+                ))
+              ) : chatrooms.length === 0 ? (
+                <motion.div
+                  className="col-span-full"
+                  variants={fadeInUp}
+                  initial="initial"
+                  animate="animate"
+                  transition={defaultTransition}
+                >
+                  <Card className={cn(glassCard, 'p-8 text-center')}>
+                    <div className="text-muted-foreground text-lg">
+                      Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!
+                    </div>
+                  </Card>
+                </motion.div>
+              ) : (
+                chatrooms.map((chatroom) => (
+                  <motion.div 
+                    key={chatroom.id} 
+                    variants={fadeInUp}
+                  >
+                    <Card
+                      className={cn(glassCard, 'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}
+                      onClick={() => handleChatroomClick(chatroom.id)}
+                    >
+                      <CardHeader className="pb-2">
+                        <div className="space-y-1">
+                          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
+                            <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                            {chatroom.title}
+                          </CardTitle>
+                          <CardDescription className="text-sm sm:text-base text-muted-foreground">
+                            {chatroom.description}
+                          </CardDescription>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="space-y-3">
+                          {chatroom.imageUrl && (
+                            <div className="relative aspect-video rounded-lg overflow-hidden">
                               <img
-                                src={imagePreview}
-                                alt="Vorschau"
-                                className="w-full h-full object-cover"
+                                src={chatroom.imageUrl}
+                                alt={chatroom.title}
+                                className="w-full h-full object-cover border border-secondary"
                               />
-                              <button
-                                onClick={() => {
-                                  setSelectedImage(null);
-                                  setImagePreview(null);
-                                }}
-                                className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
-                              >
-                                <X className="h-4 w-4" />
-                              </button>
-                            </>
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-white/10">
-                              <ImageIcon className="h-8 w-8 text-white/60" />
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Users className="h-4 w-4" />
+                            {chatroom.participants?.length ?? 0} Teilnehmer
+                          </div>
+                          {chatroom.lastMessage && (
+                            <div className="text-xs text-muted-foreground">
+                              Letzte Nachricht: {chatroom.lastMessage.content}
                             </div>
                           )}
                         </div>
-                        <div className="flex-1">
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageSelect}
-                            className="hidden"
-                            id="image-upload"
-                          />
-                          <Label
-                            htmlFor="image-upload"
-                            className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 hover:scale-105 hover:shadow-xl rounded-xl"
-                          >
-                            Bild auswählen
-                          </Label>
+                      </CardContent>
+                      <CardFooter className="flex flex-col gap-2 pt-4 border-t border-secondary mt-2">
+                        <div className="text-xs text-muted-foreground w-full text-center">
+                          Erstellt am{' '}
+                          {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
                         </div>
-                      </div>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => setIsCreateDialogOpen(false)}
-                      className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                    >
-                      Abbrechen
-                    </Button>
-                    <Button
-                      onClick={handleCreateChatroom}
-                      className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                    >
-                      Erstellen
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-
-          <Dialog
-            open={isEditDialogOpen}
-            onOpenChange={open => {
-              setIsEditDialogOpen(open);
-              if (!open) {
-                setEditError(null);
-                setSelectedImage(null);
-                setImagePreview(null);
-                setOriginalImageUrl(null);
-              }
-            }}
-          >
-            <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
-              <DialogHeader>
-                <DialogTitle className="text-white">Chatroom bearbeiten</DialogTitle>
-                <DialogDescription className="text-white/80">
-                  Bearbeiten Sie die Einstellungen des Chatrooms.
-                </DialogDescription>
-              </DialogHeader>
-              {editError && (
-                <div className="rounded-lg border border-red-500/50 bg-red-500/10 backdrop-blur-xl p-4 space-y-2">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                    <div className="flex-1 space-y-1">
-                      <h4 className="font-semibold text-red-200">{editError.title}</h4>
-                      <p className="text-sm text-red-100/90">{editError.message}</p>
-                      {editError.actionHint && (
-                        <p className="text-xs text-red-100/70 mt-2">{editError.actionHint}</p>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => setEditError(null)}
-                      className="text-red-300 hover:text-red-100 transition-colors"
-                      aria-label="Fehler schließen"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-title" className="text-white/90">
-                    Titel
-                  </Label>
-                  <Input
-                    id="edit-title"
-                    value={selectedChatroom?.title || ''}
-                    onChange={e =>
-                      setSelectedChatroom(prev =>
-                        prev ? { ...prev, title: e.target.value } : null
-                      )
-                    }
-                    placeholder="Chatroom Titel"
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-description" className="text-white/90">
-                    Beschreibung
-                  </Label>
-                  <Textarea
-                    id="edit-description"
-                    value={selectedChatroom?.description || ''}
-                    onChange={e =>
-                      setSelectedChatroom(prev =>
-                        prev ? { ...prev, description: e.target.value } : null
-                      )
-                    }
-                    placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 placeholder:text-white/60 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-white/90">Chatroom Bild</Label>
-                  <div className="flex items-center gap-4">
-                    <div className="relative w-32 h-32 border-2 border-dashed border-white/30 rounded-lg overflow-hidden">
-                      {imagePreview ? (
-                        <>
-                          <img
-                            src={imagePreview}
-                            alt="Vorschau"
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            onClick={() => {
-                              setSelectedImage(null);
-                              setImagePreview(null);
-                              // Wenn im Edit-Dialog, markiere dass das Bild gelöscht werden soll
-                              if (isEditDialogOpen && originalImageUrl) {
-                                // Das Bild wird beim Speichern gelöscht
-                              }
+                        <div className="flex flex-col sm:flex-row gap-2 w-full">
+                          <AnimatedButton
+                            variant="outline"
+                            onClick={e => {
+                              e.stopPropagation();
+                              openEditDialog(chatroom, e);
                             }}
-                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full hover:bg-red-500 transition-opacity"
-                            aria-label="Bild entfernen"
+                            className={cn(glassButton, 'w-full sm:w-auto flex items-center justify-center')}
                           >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </>
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-white/10">
-                          <ImageIcon className="h-8 w-8 text-white/60" />
+                            <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
+                          </AnimatedButton>
+                          <AnimatedButton
+                            variant="destructive"
+                            onClick={e => {
+                              e.stopPropagation();
+                              openDeleteDialog(chatroom, e);
+                            }}
+                            className="w-full sm:w-auto flex items-center justify-center"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" /> Löschen
+                          </AnimatedButton>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageSelect}
-                        className="hidden"
-                        id="edit-image-upload"
-                      />
-                      <Label
-                        htmlFor="edit-image-upload"
-                        className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors h-10 px-4 py-2 backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 hover:scale-105 hover:shadow-xl rounded-xl"
-                      >
-                        Bild auswählen
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setIsEditDialogOpen(false)}
-                  className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                >
-                  Abbrechen
-                </Button>
-                <Button
-                  onClick={handleEditChatroom}
-                  className="backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                >
-                  Speichern
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-            <AlertDialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white">
-              <AlertDialogHeader>
-                <AlertDialogTitle className="text-white">Chatroom löschen</AlertDialogTitle>
-                <AlertDialogDescription className="text-white/80">
-                  Möchten Sie den Chatroom "{selectedChatroom?.title}" wirklich löschen? Diese
-                  Aktion kann nicht rückgängig gemacht werden.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel className="backdrop-blur-2xl bg-white/10 text-white hover:bg-white/20 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl">
-                  Abbrechen
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteChatroom}
-                  className="backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                >
-                  Löschen
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {isLoading ? (
-              // Show 6 skeleton chatroom cards
-              Array.from({ length: 6 }).map((_, index) => <ChatroomSkeleton key={index} />)
-            ) : chatrooms.length === 0 ? (
-              <div className="col-span-full backdrop-blur-3xl bg-white/5 rounded-3xl p-8 border border-white/10 shadow-2xl ring-1 ring-white/20 text-center">
-                <div className="text-white/90 text-lg">
-                  Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!
-                </div>
-              </div>
-            ) : (
-              chatrooms.map(chatroom => (
-                <Card
-                  key={chatroom.id}
-                  className="cursor-pointer backdrop-blur-3xl bg-gradient-to-br from-white/15 to-white/5 border-white/20 shadow-2xl hover:shadow-3xl hover:scale-105 transition-all duration-500 rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full ring-1 ring-white/30"
-                  onClick={() => handleChatroomClick(chatroom.id)}
-                >
-                  <CardHeader className="pb-2">
-                    <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-white">
-                        <MessageCircle className="h-5 w-5 text-white/90" />
-                        {chatroom.title}
-                      </CardTitle>
-                      <CardDescription className="text-sm sm:text-base text-white/80">
-                        {chatroom.description}
-                      </CardDescription>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="space-y-3">
-                      {chatroom.imageUrl && (
-                        <div className="relative aspect-video rounded-lg overflow-hidden">
-                          <img
-                            src={chatroom.imageUrl}
-                            alt={chatroom.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="flex items-center gap-2 text-sm text-white/70">
-                        <Users className="h-4 w-4" />
-                        {chatroom.participants?.length ?? 0} Teilnehmer
-                      </div>
-                      {chatroom.lastMessage && (
-                        <div className="text-xs text-white/60">
-                          Letzte Nachricht: {chatroom.lastMessage.content}
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex flex-col gap-2 pt-4 border-t border-white/20 mt-2">
-                    <div className="text-xs text-white/70 w-full text-center">
-                      Erstellt am{' '}
-                      {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2 w-full">
-                      <Button
-                        variant="outline"
-                        onClick={e => {
-                          e.stopPropagation();
-                          openEditDialog(chatroom, e);
-                        }}
-                        className="w-full sm:w-auto cursor-pointer flex items-center justify-center backdrop-blur-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 hover:border-white/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                      >
-                        <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={e => {
-                          e.stopPropagation();
-                          openDeleteDialog(chatroom, e);
-                        }}
-                        className="w-full sm:w-auto cursor-pointer flex items-center justify-center backdrop-blur-2xl bg-red-500/20 text-red-100 hover:bg-red-500/30 border-red-300/30 hover:border-red-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl rounded-xl"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" /> Löschen
-                      </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
-              ))
-            )}
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))
+              )}
+            </motion.div>
           </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

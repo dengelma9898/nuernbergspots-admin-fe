@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -17,6 +17,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -29,6 +31,15 @@ import { toast } from 'sonner';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
 import { useNavigate } from 'react-router-dom';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 export function KeywordList() {
   const keywordService = useKeywordService();
@@ -133,258 +144,293 @@ export function KeywordList() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Header */}
+          <motion.div
+            className={cn(glassCard, 'p-6 mb-8')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            {/* Back Button */}
+            <div className="mb-4">
+              <AnimatedButton
+                variant="ghost"
+                onClick={() => navigate('/dashboard')}
+                className={cn(glassButton, 'w-full sm:w-auto')}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Zurück zum Dashboard
+              </AnimatedButton>
+            </div>
 
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-
-      <div className="relative z-10 container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
-        {/* Glass Header */}
-        <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-4 sm:mb-6">
-          {/* Back Button */}
-          <div className="mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/dashboard')}
-              className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl border w-full sm:w-auto"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Zurück zum Dashboard
-            </Button>
-          </div>
-
-          {/* Header und Button */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-              Keywords verwalten
-            </h1>
-            <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-              <DialogTrigger asChild>
-                <Button
-                  onClick={resetModalState}
-                  className="backdrop-blur-2xl bg-gradient-to-r from-blue-500/80 to-purple-500/80 border border-white/20 text-white hover:from-blue-600/90 hover:to-purple-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Neues Keyword
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="backdrop-blur-3xl bg-white/10 border-white/20 text-white max-w-2xl">
-                <DialogHeader className="border-b border-white/10 pb-4">
-                  <DialogTitle className="text-white text-lg font-semibold">
-                    {editingKeyword ? 'Keyword bearbeiten' : 'Neues Keyword'}
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/90">Name</label>
-                    <Input
-                      value={newKeyword.name}
-                      onChange={e => setNewKeyword({ ...newKeyword, name: e.target.value })}
-                      placeholder="Keyword Name"
-                      className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
-                    />
+            {/* Header und Button */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                Keywords verwalten
+              </h1>
+              <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+                <DialogTrigger asChild>
+                  <AnimatedButton
+                    onClick={resetModalState}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Neues Keyword
+                  </AnimatedButton>
+                </DialogTrigger>
+                <DialogContent className={cn(glassCard, 'max-w-2xl')}>
+                  <DialogHeader>
+                    <DialogTitle className="text-foreground">
+                      {editingKeyword ? 'Keyword bearbeiten' : 'Neues Keyword'}
+                    </DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      {editingKeyword
+                        ? 'Bearbeiten Sie das Keyword'
+                        : 'Erstellen Sie ein neues Keyword'}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <motion.div
+                      className="space-y-2"
+                      variants={fadeInUp}
+                      initial="initial"
+                      animate="animate"
+                      transition={{ ...defaultTransition, delay: 0.1 }}
+                    >
+                      <Label className="text-foreground">Name</Label>
+                      <Input
+                        value={newKeyword.name}
+                        onChange={e => setNewKeyword({ ...newKeyword, name: e.target.value })}
+                        placeholder="Keyword Name"
+                        className={cn(glassInput)}
+                      />
+                    </motion.div>
+                    <motion.div
+                      className="space-y-2"
+                      variants={fadeInUp}
+                      initial="initial"
+                      animate="animate"
+                      transition={{ ...defaultTransition, delay: 0.2 }}
+                    >
+                      <Label className="text-foreground">Beschreibung</Label>
+                      <Input
+                        value={newKeyword.description}
+                        onChange={e => setNewKeyword({ ...newKeyword, description: e.target.value })}
+                        placeholder="Beschreibung"
+                        className={cn(glassInput)}
+                      />
+                    </motion.div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/90">Beschreibung</label>
-                    <Input
-                      value={newKeyword.description}
-                      onChange={e => setNewKeyword({ ...newKeyword, description: e.target.value })}
-                      placeholder="Beschreibung"
-                      className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
-                    />
-                  </div>
-                  <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4 pt-4">
-                    <Button
+                  <DialogFooter>
+                    <AnimatedButton
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
-                      className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl order-2 sm:order-1"
+                      className={cn(glassButton)}
                     >
                       <X className="mr-2 h-4 w-4" />
                       Abbrechen
-                    </Button>
-                    <Button
+                    </AnimatedButton>
+                    <LoadingButton
                       onClick={editingKeyword ? handleUpdateKeyword : handleAddKeyword}
-                      className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-white/20 text-white hover:from-green-600/90 hover:to-emerald-600/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg order-1 sm:order-2"
+                      isLoading={false}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90"
                     >
                       <Check className="mr-2 h-4 w-4" />
                       {editingKeyword ? 'Aktualisieren' : 'Hinzufügen'}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        </div>
+                    </LoadingButton>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </motion.div>
 
-        {/* Mobile Card-Ansicht */}
-        {isLoading ? (
-          <div className="block md:hidden space-y-4">
-            {[...Array(4)].map((_, index) => (
-              <div
-                key={index}
-                className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6"
-              >
-                {/* Header */}
-                <Skeleton className="bg-white/10 backdrop-blur-xl h-6 w-3/4 mb-2 rounded" />
+          {/* Mobile Card-Ansicht */}
+          {isLoading ? (
+            <motion.div
+              className="block md:hidden space-y-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {[...Array(4)].map((_, index) => (
+                <motion.div key={index} variants={fadeInUp}>
+                  <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+                    {/* Header */}
+                    <Skeleton className="h-6 w-3/4 mb-2 rounded" />
 
-                {/* Description */}
-                <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-full mb-3 rounded" />
+                    {/* Description */}
+                    <Skeleton className="h-4 w-full mb-3 rounded" />
 
-                {/* Dates */}
-                <div className="space-y-1 mb-4">
-                  <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
-                  <Skeleton className="bg-white/10 backdrop-blur-xl h-3 w-1/2 rounded" />
-                </div>
+                    {/* Dates */}
+                    <div className="space-y-1 mb-4">
+                      <Skeleton className="h-3 w-1/2 rounded" />
+                      <Skeleton className="h-3 w-1/2 rounded" />
+                    </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-full sm:flex-1 rounded-xl" />
-                  <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-full sm:flex-1 rounded-xl" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : keywords.length === 0 ? (
-          <div className="block md:hidden backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6 text-center">
-            <div className="text-white/80">Keine Keywords vorhanden</div>
-          </div>
-        ) : (
-          <div className="block md:hidden space-y-4">
-            {keywords.map(keyword => (
-              <div
-                key={keyword.id}
-                className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 hover:shadow-3xl hover:scale-105 transition-all duration-500 p-4 sm:p-6"
-              >
-                <div className="font-bold text-lg mb-2 text-white">{keyword.name}</div>
-                <div className="text-sm text-white/80 mb-3">{keyword.description || '-'}</div>
-                <div className="text-xs text-white/60 mb-4 space-y-1">
-                  <div>Erstellt: {new Date(keyword.createdAt).toLocaleDateString()}</div>
-                  <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleEditKeyword(keyword)}
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl cursor-pointer flex-1"
-                  >
-                    <Pencil className="mr-2 h-4 w-4" /> Bearbeiten
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteKeyword(keyword.id)}
-                    className="backdrop-blur-2xl bg-red-500/80 border-red-400/50 text-white hover:bg-red-600/90 hover:scale-105 transition-all duration-300 rounded-xl cursor-pointer flex-1"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" /> Löschen
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
+                      <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : keywords.length === 0 ? (
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <Card className={cn(glassCard, 'block md:hidden p-6 text-center')}>
+                <div className="text-muted-foreground">Keine Keywords vorhanden</div>
+              </Card>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="block md:hidden space-y-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {keywords.map((keyword, index) => (
+                <motion.div key={keyword.id} variants={fadeInUp}>
+                  <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+                    <div className="font-bold text-lg mb-2 text-foreground">{keyword.name}</div>
+                    <div className="text-sm text-muted-foreground mb-3">{keyword.description || '-'}</div>
+                    <div className="text-xs text-muted-foreground mb-4 space-y-1">
+                      <div>Erstellt: {new Date(keyword.createdAt).toLocaleDateString()}</div>
+                      <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <AnimatedButton
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditKeyword(keyword)}
+                        className={cn(glassButton, 'flex-1')}
+                      >
+                        <Pencil className="mr-2 h-4 w-4" /> Bearbeiten
+                      </AnimatedButton>
+                      <AnimatedButton
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteKeyword(keyword.id)}
+                        className="flex-1"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" /> Löschen
+                      </AnimatedButton>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
 
-        {/* Desktop/Table Ansicht */}
-        <div className="hidden md:block backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-white/10 hover:bg-white/5">
-                <TableHead className="text-white/90 font-semibold">Name</TableHead>
-                <TableHead className="text-white/90 font-semibold">Beschreibung</TableHead>
-                <TableHead className="text-white/90 font-semibold">Erstellt am</TableHead>
-                <TableHead className="text-white/90 font-semibold">Aktualisiert am</TableHead>
-                <TableHead className="text-white/90 font-semibold w-[100px]">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <>
-                  {[...Array(5)].map((_, index) => (
-                    <TableRow key={index} className="border-white/10 hover:bg-white/5">
-                      <TableCell className="py-4">
-                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-24 rounded" />
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-48 rounded" />
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <Skeleton className="bg-white/10 backdrop-blur-xl h-4 w-20 rounded" />
-                      </TableCell>
-                      <TableCell className="py-4">
-                        <Skeleton className="bg-white/10 backdrop-blur-xl h-8 w-8 rounded-lg" />
+          {/* Desktop/Table Ansicht */}
+          <motion.div
+            className="hidden md:block"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.2 }}
+          >
+            <Card className={cn(glassCard, 'overflow-hidden')}>
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-secondary hover:bg-muted/50">
+                    <TableHead className="text-foreground font-semibold">Name</TableHead>
+                    <TableHead className="text-foreground font-semibold">Beschreibung</TableHead>
+                    <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
+                    <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
+                    <TableHead className="text-foreground font-semibold w-[100px]">Aktionen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    <>
+                      {[...Array(5)].map((_, index) => (
+                        <TableRow key={index} className="border-secondary hover:bg-muted/50">
+                          <TableCell className="py-4">
+                            <Skeleton className="h-4 w-24 rounded" />
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Skeleton className="h-4 w-48 rounded" />
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Skeleton className="h-4 w-20 rounded" />
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Skeleton className="h-4 w-20 rounded" />
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <Skeleton className="h-8 w-8 rounded-lg" />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </>
+                  ) : keywords.length === 0 ? (
+                    <TableRow className="border-secondary hover:bg-muted/50">
+                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        Keine Keywords vorhanden
                       </TableCell>
                     </TableRow>
-                  ))}
-                </>
-              ) : keywords.length === 0 ? (
-                <TableRow className="border-white/10 hover:bg-white/5">
-                  <TableCell colSpan={5} className="text-center text-white/80 py-8">
-                    Keine Keywords vorhanden
-                  </TableCell>
-                </TableRow>
-              ) : (
-                keywords.map(keyword => (
-                  <TableRow
-                    key={keyword.id}
-                    className="border-white/10 hover:bg-white/5 transition-colors"
-                  >
-                    <TableCell className="font-medium text-white">{keyword.name}</TableCell>
-                    <TableCell className="text-white/80">{keyword.description || '-'}</TableCell>
-                    <TableCell className="text-white/70">
-                      {new Date(keyword.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-white/70">
-                      {new Date(keyword.updatedAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-white hover:bg-white/20 hover:scale-110 transition-all duration-300 rounded-lg"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="backdrop-blur-3xl bg-white/10 border-white/20 text-white"
-                        >
-                          <DropdownMenuItem
-                            onClick={() => handleEditKeyword(keyword)}
-                            className="text-white hover:bg-white/20 focus:bg-white/20 cursor-pointer"
-                          >
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Bearbeiten
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleDeleteKeyword(keyword.id)}
-                            className="text-red-300 hover:text-red-200 hover:bg-red-500/20 focus:bg-red-500/20 cursor-pointer"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Löschen
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                  ) : (
+                    keywords.map((keyword, index) => (
+                      <TableRow
+                        key={keyword.id}
+                        className="border-secondary hover:bg-muted/50 transition-colors"
+                      >
+                        <TableCell className="font-medium text-foreground">{keyword.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{keyword.description || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(keyword.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {new Date(keyword.updatedAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <AnimatedButton
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </AnimatedButton>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className={cn(glassCard)}>
+                              <DropdownMenuItem
+                                onClick={() => handleEditKeyword(keyword)}
+                                className="cursor-pointer"
+                              >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                Bearbeiten
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleDeleteKeyword(keyword.id)}
+                                className="text-destructive cursor-pointer"
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Löschen
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </Card>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

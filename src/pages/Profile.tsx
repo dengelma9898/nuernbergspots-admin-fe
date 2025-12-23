@@ -3,38 +3,55 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { UserProfile } from '../models/users';
 import { useUserService } from '../services/userService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { User, Calendar, MapPin, Store, Heart, History, Settings, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 const StatCard = ({
   icon: Icon,
   label,
   value,
   helpText,
+  index = 0,
 }: {
   icon: any;
   label: string;
   value: string | number;
   helpText?: string;
+  index?: number;
 }) => (
-  <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
-    <div className="p-6">
-      <div className="flex items-center space-x-4">
-        <div className="p-3 backdrop-blur-2xl bg-white/20 rounded-2xl border border-white/30">
-          <Icon className="h-8 w-8 text-white" />
-        </div>
-        <div>
-          <p className="text-sm text-white/70">{label}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
-          {helpText && <p className="text-xs text-white/60">{helpText}</p>}
+  <motion.div
+    variants={fadeInUp}
+    initial="initial"
+    animate="animate"
+    transition={{ ...defaultTransition, delay: index * 0.1 }}
+    whileHover={{ scale: 1.05 }}
+  >
+    <Card className={cn(glassCard, 'overflow-hidden')}>
+      <div className="p-6">
+        <div className="flex items-center space-x-4">
+          <div className={cn(glassCard, 'p-3')}>
+            <Icon className="h-8 w-8 text-foreground" />
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-2xl font-bold text-foreground">{value}</p>
+            {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </Card>
+  </motion.div>
 );
 
 export function Profile() {
@@ -65,240 +82,280 @@ export function Profile() {
   }, [fetchCurrentUser]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background Layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div
-        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '1000ms' }}
-      ></div>
-      <div
-        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '500ms' }}
-      ></div>
-      <div
-        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '700ms' }}
-      ></div>
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '300ms' }}
-      ></div>
-
-      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-        <div className="space-y-8 max-w-7xl mx-auto">
-          {/* Glass Header */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => navigate(-1)}
-                className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück
-              </Button>
-              <h1 className="text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Mein Profil
-              </h1>
-            </div>
-          </div>
-
-          {/* Profile Card */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-              <div className="flex items-center space-x-4">
-                <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/30 p-1">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage src={currentUser?.profilePictureUrl} />
-                    <AvatarFallback className="backdrop-blur-2xl bg-white/20 text-white text-xl font-bold">
-                      {currentUser?.name?.charAt(0) || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                    {currentUser?.name || 'Benutzer'}
-                  </h2>
-                  <div className="backdrop-blur-2xl bg-white/20 text-white border-white/30 px-3 py-1 rounded-xl text-sm font-medium">
-                    {currentUser?.userType}
-                  </div>
-                </div>
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 container mx-auto py-6">
+          <div className="space-y-8 max-w-7xl mx-auto">
+            {/* Header */}
+            <motion.div
+              className={cn(glassCard, 'p-6')}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="flex items-center gap-4">
+                <AnimatedButton
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className={cn(glassButton)}
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Zurück
+                </AnimatedButton>
+                <h1 className="text-3xl font-bold text-foreground">
+                  Mein Profil
+                </h1>
               </div>
-            </div>
-            <div className="p-4 sm:p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 hover:scale-105 transition-all duration-300">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-xl border border-white/30">
-                      <User className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-white/70">E-Mail</p>
-                      <p className="text-lg font-bold text-white">{currentUser?.email || '-'}</p>
-                      <p className="text-xs text-white/60">Hauptkontakt</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 hover:scale-105 transition-all duration-300">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-xl border border-white/30">
-                      <Store className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-white/70">Management ID</p>
-                      <p className="text-lg font-bold text-white">
-                        {currentUser?.managementId || '-'}
-                      </p>
-                      <p className="text-xs text-white/60">Business Identifikation</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="backdrop-blur-2xl bg-white/10 rounded-2xl border border-white/20 p-4 hover:scale-105 transition-all duration-300">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-xl border border-white/30">
-                      <MapPin className="h-6 w-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-white/70">Stadt</p>
-                      <p className="text-lg font-bold text-white">
-                        {currentUser?.currentCityId || '-'}
-                      </p>
-                      <p className="text-xs text-white/60">Aktueller Standort</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            </motion.div>
 
-          {/* Stats Grid */}
-          <div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 mb-6">
-              <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Statistiken
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard
-                icon={Store}
-                label="Besuchte Geschäfte"
-                value={currentUser?.businessHistory?.length || 0}
-                helpText="Gesamtbesuche"
-              />
-              <StatCard
-                icon={Heart}
-                label="Favorisierte Events"
-                value={currentUser?.favoriteEventIds?.length || 0}
-                helpText="Interessante Events"
-              />
-              <StatCard
-                icon={Store}
-                label="Favorisierte Businesses"
-                value={currentUser?.favoriteBusinessIds?.length || 0}
-                helpText="Lieblingsgeschäfte"
-              />
-              <StatCard
-                icon={Calendar}
-                label="Mitglied seit"
-                value={
-                  currentUser?.memberSince
-                    ? new Date(currentUser.memberSince).toLocaleDateString()
-                    : '-'
-                }
-                helpText="Registrierungsdatum"
-              />
-            </div>
-          </div>
-
-          {/* Recent Activity */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-            <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-              <div className="flex items-center space-x-2">
-                <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-xl border border-white/30">
-                  <History className="h-5 w-5 text-white" />
+            {/* Profile Card */}
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.1 }}
+            >
+              <Card className={cn(glassCard, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <div className="flex items-center space-x-4">
+                    <motion.div
+                      className={cn(glassCard, 'p-1')}
+                      whileHover={{ scale: 1.1 }}
+                      transition={defaultTransition}
+                    >
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={currentUser?.profilePictureUrl} />
+                        <AvatarFallback className="bg-muted text-foreground text-xl font-bold">
+                          {currentUser?.name?.charAt(0) || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </motion.div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-foreground">
+                        {currentUser?.name || 'Benutzer'}
+                      </h2>
+                      <Badge variant="secondary" className="mt-2">
+                        {currentUser?.userType}
+                      </Badge>
+                    </div>
+                  </div>
                 </div>
-                <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Letzte Aktivitäten
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <motion.div
+                      className={cn(glassCard, 'p-4')}
+                      whileHover={{ scale: 1.05 }}
+                      transition={defaultTransition}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={cn(glassCard, 'p-2')}>
+                          <User className="h-6 w-6 text-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">E-Mail</p>
+                          <p className="text-lg font-bold text-foreground">{currentUser?.email || '-'}</p>
+                          <p className="text-xs text-muted-foreground">Hauptkontakt</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className={cn(glassCard, 'p-4')}
+                      whileHover={{ scale: 1.05 }}
+                      transition={defaultTransition}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={cn(glassCard, 'p-2')}>
+                          <Store className="h-6 w-6 text-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Management ID</p>
+                          <p className="text-lg font-bold text-foreground">
+                            {currentUser?.managementId || '-'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Business Identifikation</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      className={cn(glassCard, 'p-4')}
+                      whileHover={{ scale: 1.05 }}
+                      transition={defaultTransition}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className={cn(glassCard, 'p-2')}>
+                          <MapPin className="h-6 w-6 text-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Stadt</p>
+                          <p className="text-lg font-bold text-foreground">
+                            {currentUser?.currentCityId || '-'}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Aktueller Standort</p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Stats Grid */}
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.2 }}
+            >
+              <Card className={cn(glassCard, 'p-4 mb-6')}>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Statistiken
                 </h2>
-              </div>
-            </div>
-            <div className="p-4 sm:p-6">
-              <div className="space-y-4">
-                {currentUser?.businessHistory?.slice(0, 5).map((visit, index) => (
-                  <div
-                    key={index}
-                    className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4 hover:scale-105 hover:bg-white/15 transition-all duration-300"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <p className="font-medium text-white">{visit.businessName}</p>
-                        <p className="text-sm text-white/70">Benefit: {visit.benefit}</p>
-                      </div>
-                      <p className="text-sm text-white/70">
-                        {new Date(visit.visitedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {(!currentUser?.businessHistory || currentUser.businessHistory.length === 0) && (
-                  <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-8 text-center">
-                    <p className="text-white/70">Keine Aktivitäten vorhanden</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+              </Card>
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <StatCard
+                  icon={Store}
+                  label="Besuchte Geschäfte"
+                  value={currentUser?.businessHistory?.length || 0}
+                  helpText="Gesamtbesuche"
+                  index={0}
+                />
+                <StatCard
+                  icon={Heart}
+                  label="Favorisierte Events"
+                  value={currentUser?.favoriteEventIds?.length || 0}
+                  helpText="Interessante Events"
+                  index={1}
+                />
+                <StatCard
+                  icon={Store}
+                  label="Favorisierte Businesses"
+                  value={currentUser?.favoriteBusinessIds?.length || 0}
+                  helpText="Lieblingsgeschäfte"
+                  index={2}
+                />
+                <StatCard
+                  icon={Calendar}
+                  label="Mitglied seit"
+                  value={
+                    currentUser?.memberSince
+                      ? new Date(currentUser.memberSince).toLocaleDateString()
+                      : '-'
+                  }
+                  helpText="Registrierungsdatum"
+                  index={3}
+                />
+              </motion.div>
+            </motion.div>
 
-          {/* Preferences Section */}
-          {(currentUser?.preferences?.length || currentUser?.language) && (
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 sm:p-6 border-b border-white/10">
-                <div className="flex items-center space-x-2">
-                  <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-xl border border-white/30">
-                    <Settings className="h-5 w-5 text-white" />
+            {/* Recent Activity */}
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.3 }}
+            >
+              <Card className={cn(glassCard, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <div className="flex items-center space-x-2">
+                    <div className={cn(glassCard, 'p-2')}>
+                      <History className="h-5 w-5 text-foreground" />
+                    </div>
+                    <h2 className="text-xl font-bold text-foreground">
+                      Letzte Aktivitäten
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                    Präferenzen
-                  </h2>
                 </div>
-              </div>
-              <div className="p-4 sm:p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {currentUser.language && (
-                    <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4">
-                      <p className="font-medium mb-2 text-white">Sprache</p>
-                      <div className="backdrop-blur-2xl bg-white/20 text-white border-white/30 px-3 py-1 rounded-xl text-sm font-medium inline-block">
-                        {currentUser.language}
-                      </div>
-                    </div>
-                  )}
-                  {currentUser.preferences?.length && currentUser.preferences.length > 0 && (
-                    <div className="backdrop-blur-2xl bg-white/10 border border-white/20 rounded-2xl p-4">
-                      <p className="font-medium mb-2 text-white">Interessen</p>
-                      <div className="flex flex-wrap gap-2">
-                        {currentUser.preferences.map((pref, index) => (
-                          <div
-                            key={index}
-                            className="backdrop-blur-2xl bg-white/15 text-white border-white/30 px-3 py-1 rounded-xl text-sm"
-                          >
-                            {pref}
+                <div className="p-4 sm:p-6">
+                  <motion.div
+                    className="space-y-4"
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                  >
+                    {currentUser?.businessHistory?.slice(0, 5).map((visit, index) => (
+                      <motion.div
+                        key={index}
+                        variants={fadeInUp}
+                        whileHover={{ scale: 1.02 }}
+                        transition={defaultTransition}
+                      >
+                        <Card className={cn(glassCard, 'p-4')}>
+                          <div className="flex justify-between items-start">
+                            <div className="space-y-1">
+                              <p className="font-medium text-foreground">{visit.businessName}</p>
+                              <p className="text-sm text-muted-foreground">Benefit: {visit.benefit}</p>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(visit.visitedAt).toLocaleDateString()}
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                        </Card>
+                      </motion.div>
+                    ))}
+                    {(!currentUser?.businessHistory || currentUser.businessHistory.length === 0) && (
+                      <Card className={cn(glassCard, 'p-8 text-center')}>
+                        <p className="text-muted-foreground">Keine Aktivitäten vorhanden</p>
+                      </Card>
+                    )}
+                  </motion.div>
                 </div>
-              </div>
-            </div>
-          )}
+              </Card>
+            </motion.div>
+
+            {/* Preferences Section */}
+            {(currentUser?.preferences?.length || currentUser?.language) && (
+              <motion.div
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={{ ...defaultTransition, delay: 0.4 }}
+              >
+                <Card className={cn(glassCard, 'overflow-hidden')}>
+                  <div className="p-4 sm:p-6 border-b border-secondary">
+                    <div className="flex items-center space-x-2">
+                      <div className={cn(glassCard, 'p-2')}>
+                        <Settings className="h-5 w-5 text-foreground" />
+                      </div>
+                      <h2 className="text-xl font-bold text-foreground">
+                        Präferenzen
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="p-4 sm:p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {currentUser.language && (
+                        <Card className={cn(glassCard, 'p-4')}>
+                          <p className="font-medium mb-2 text-foreground">Sprache</p>
+                          <Badge variant="secondary">{currentUser.language}</Badge>
+                        </Card>
+                      )}
+                      {currentUser.preferences?.length && currentUser.preferences.length > 0 && (
+                        <Card className={cn(glassCard, 'p-4')}>
+                          <p className="font-medium mb-2 text-foreground">Interessen</p>
+                          <div className="flex flex-wrap gap-2">
+                            {currentUser.preferences.map((pref, index) => (
+                              <Badge key={index} variant="outline">
+                                {pref}
+                              </Badge>
+                            ))}
+                          </div>
+                        </Card>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }

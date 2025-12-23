@@ -5,7 +5,6 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -24,6 +23,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from 'framer-motion';
+import { fadeInUp } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 interface NewEvent {
   title: string;
@@ -34,6 +42,7 @@ interface NewEvent {
   latitude: number;
   longitude: number;
   price: number | null;
+  priceString: string | null;
   ticketsNeeded: boolean;
   imageUrls: string[];
   favoriteCount: number;
@@ -88,6 +97,7 @@ export const CopyEvent: React.FC = () => {
   const [copyImages, setCopyImages] = useState(true);
   const [imageUrlsToCopy, setImageUrlsToCopy] = useState<string[]>([]);
   const [titleImageUrlToCopy, setTitleImageUrlToCopy] = useState<string | null>(null);
+  const [hasValidLocation, setHasValidLocation] = useState(false);
   const [newEvent, setNewEvent] = useState<NewEvent>({
     title: '',
     description: '',
@@ -97,6 +107,7 @@ export const CopyEvent: React.FC = () => {
     latitude: 0,
     longitude: 0,
     price: null,
+    priceString: null,
     ticketsNeeded: false,
     imageUrls: [],
     favoriteCount: 0,
@@ -137,15 +148,42 @@ export const CopyEvent: React.FC = () => {
       const startDate = firstSlot ? format(parseISO(firstSlot.date), 'yyyy-MM-dd') : '';
       const endDate = lastSlot ? format(parseISO(lastSlot.date), 'yyyy-MM-dd') : '';
 
+      // Migriere price zu priceString beim Kopieren
+      let priceString: string | null = null;
+      if (fetchedEvent.priceString) {
+        // Wenn priceString vorhanden ist, verwende es
+        priceString = fetchedEvent.priceString;
+      } else if (fetchedEvent.price !== undefined && fetchedEvent.price !== null) {
+        // Wenn nur price vorhanden ist, konvertiere es zu priceString
+        priceString = new Intl.NumberFormat('de-DE', {
+          style: 'currency',
+          currency: 'EUR',
+        }).format(fetchedEvent.price);
+      }
+
+      // Validiere Location-Daten
+      const isValidLocation =
+        fetchedEvent.location?.address &&
+        fetchedEvent.location.address.trim() !== '' &&
+        fetchedEvent.location.latitude !== undefined &&
+        fetchedEvent.location.latitude !== null &&
+        fetchedEvent.location.latitude !== 0 &&
+        fetchedEvent.location.longitude !== undefined &&
+        fetchedEvent.location.longitude !== null &&
+        fetchedEvent.location.longitude !== 0;
+
+      setHasValidLocation(isValidLocation);
+
       setNewEvent({
         title: `${fetchedEvent.title} (Kopie)`,
         description: fetchedEvent.description,
         startDate,
         endDate,
-        address: fetchedEvent.location.address,
-        latitude: fetchedEvent.location.latitude,
-        longitude: fetchedEvent.location.longitude,
-        price: fetchedEvent.price ?? null,
+        address: isValidLocation ? fetchedEvent.location.address : '',
+        latitude: isValidLocation ? fetchedEvent.location.latitude : 0,
+        longitude: isValidLocation ? fetchedEvent.location.longitude : 0,
+        price: null, // Beim Kopieren setzen wir price nicht mehr, nur priceString
+        priceString: priceString,
         ticketsNeeded: fetchedEvent.ticketsNeeded ?? false,
         imageUrls: [],
         favoriteCount: 0,
@@ -163,8 +201,8 @@ export const CopyEvent: React.FC = () => {
         titleImageUrl: undefined,
       });
 
-      // Setze Location für LocationSearch
-      if (fetchedEvent.location) {
+      // Setze Location für LocationSearch nur wenn gültig
+      if (isValidLocation && fetchedEvent.location) {
         setSearchValue({
           address: {
             label: fetchedEvent.location.address,
@@ -174,6 +212,8 @@ export const CopyEvent: React.FC = () => {
             lng: fetchedEvent.location.longitude,
           },
         });
+      } else {
+        setSearchValue(null);
       }
 
       // Lade Bilder herunter, wenn copyImages aktiviert ist
@@ -274,7 +314,22 @@ export const CopyEvent: React.FC = () => {
   };
 
   const handleLocationSelect = (location: LocationResult | null) => {
-    if (!location) return;
+    if (!location) {
+      setHasValidLocation(false);
+      return;
+    }
+
+    const isValid =
+      location.address?.label &&
+      location.address.label.trim() !== '' &&
+      location.position?.lat !== undefined &&
+      location.position.lat !== null &&
+      location.position.lat !== 0 &&
+      location.position?.lng !== undefined &&
+      location.position.lng !== null &&
+      location.position.lng !== 0;
+
+    setHasValidLocation(isValid);
 
     setNewEvent(prev => ({
       ...prev,
@@ -289,21 +344,29 @@ export const CopyEvent: React.FC = () => {
     try {
       setLoading(true);
 
-      // Erstelle das Event zuerst
-      const eventToCreate = {
-        ...newEvent,
-        location: {
-          address: newEvent.address,
-          latitude: newEvent.latitude,
-          longitude: newEvent.longitude,
-        },
+      // Validiere Location-Daten vor dem Speichern
+      if (!newEvent.address || !newEvent.address.trim() || newEvent.latitude === 0 || newEvent.longitude === 0) {
+        toast.error('Adresse erforderlich', {
+          description: 'Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.',
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Entferne Felder, die nicht im Event-Interface sind und erstelle flache Location-Daten
+      const { startDate, endDate, price, ...eventData } = newEvent;
+      
+      // Stelle sicher, dass nur priceString gesendet wird, nicht price, und Location-Daten flach sind
+      const finalEventData = {
+        ...eventData,
+        address: newEvent.address,
+        latitude: newEvent.latitude,
+        longitude: newEvent.longitude,
+        priceString: newEvent.priceString || undefined,
       };
 
-      // Entferne Felder, die nicht im Event-Interface sind
-      const { startDate, endDate, address, latitude, longitude, ...eventData } = eventToCreate;
-
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
-      const createdEvent = await eventService.createEvent(eventData);
+      const createdEvent = await eventService.createEvent(finalEventData);
 
       // Lade Bilder hoch, wenn sie kopiert wurden
       if (copyImages) {
@@ -397,506 +460,512 @@ export const CopyEvent: React.FC = () => {
 
   if (loadingEvent) {
     return (
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Rainbow Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-        <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-        {/* Animated Blur Circles */}
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent">
-          <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-6">
-              <Skeleton className="bg-white/10 backdrop-blur-xl h-10 w-64 mb-4 rounded-xl" />
-              <Skeleton className="bg-white/10 backdrop-blur-xl h-96 w-full rounded-xl" />
+      <PageTransition>
+        <div className="min-h-screen relative overflow-hidden">
+          <Background />
+          <div className="relative z-10 container mx-auto py-6">
+            <div className={cn(glassCard, 'p-6')}>
+              <Skeleton className="bg-muted h-10 w-64 mb-4 rounded-lg" />
+              <Skeleton className="bg-muted h-96 w-full rounded-lg" />
             </div>
           </div>
         </div>
-      </div>
+      </PageTransition>
     );
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse delay-700"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse delay-300"></div>
-
-      <div className="relative z-10 min-h-screen bg-muted !bg-transparent">
-        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          {/* Glass Header */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6 mb-6 sm:mb-8">
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Header */}
+          <motion.div
+            className={cn(glassCard, 'p-6 mb-8')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <Button
+              <AnimatedButton
                 variant="ghost"
                 onClick={() => navigate('/events')}
-                className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl p-2 border w-full sm:w-auto"
+                className={cn(glassButton, 'w-full sm:w-auto')}
               >
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Zurück zur Übersicht
-              </Button>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+              </AnimatedButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                 Event kopieren
               </h1>
             </div>
-          </div>
+          </motion.div>
 
           {/* Main Content Card */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-            <div className="p-6 border-b border-white/10">
-              <h2 className="text-lg font-semibold text-white">Event Details</h2>
-              <p className="text-white/70 text-sm mt-1">
-                Passe die Daten an und erstelle eine Kopie des Events.
-              </p>
-            </div>
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <Card className={cn(glassCard)}>
+              <CardHeader>
+                <CardTitle className="text-foreground">Event Details</CardTitle>
+                <CardDescription className="text-muted-foreground">
+                  Passe die Daten an und erstelle eine Kopie des Events.
+                </CardDescription>
+              </CardHeader>
 
-            <div className="p-4 sm:p-6 space-y-6">
-              {/* Bilder kopieren Option */}
-              <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
-                <div className="flex items-center space-x-3">
-                  <Switch
-                    id="copyImages"
-                    checked={copyImages}
-                    onCheckedChange={setCopyImages}
-                    className="data-[state=checked]:bg-white/30"
-                  />
-                  <div className="space-y-1">
-                    <Label htmlFor="copyImages" className="text-white font-medium">
-                      Bilder mitkopieren
-                    </Label>
-                    <p className="text-xs text-white/60">
-                      Wenn aktiviert, werden alle Bilder des ursprünglichen Events mitkopiert.
-                      {imageUrlsToCopy.length > 0 || titleImageUrlToCopy ? (
-                        <span className="block mt-1 text-yellow-400">
-                          Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du das ursprüngliche Event oder dessen Bilder später löschst, sind die Bilder auch im kopierten Event nicht mehr verfügbar.
-                        </span>
-                      ) : null}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Titelbild Vorschau */}
-              {copyImages && titleImagePreview && (
-                <div className="space-y-2">
-                  <Label className="text-white font-medium">Titelbild (kopiert)</Label>
-                  <div className="relative inline-block">
-                    <img
-                      src={titleImagePreview}
-                      alt="Titelbild Vorschau"
-                      className="h-48 w-full object-cover rounded-xl backdrop-blur-2xl bg-white/10 border border-white/20"
+              <CardContent className="space-y-6">
+                {/* Bilder kopieren Option */}
+                <div className={cn(glassCard, 'p-4')}>
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="copyImages"
+                      checked={copyImages}
+                      onCheckedChange={setCopyImages}
                     />
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={removeTitleImagePreview}
-                      className="absolute top-2 right-2 backdrop-blur-2xl bg-red-500/80 border-red-400/30 text-white hover:bg-red-500/90"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <div className="space-y-1">
+                      <Label htmlFor="copyImages" className="text-foreground">
+                        Bilder mitkopieren
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Wenn aktiviert, werden alle Bilder des ursprünglichen Events mitkopiert.
+                        {imageUrlsToCopy.length > 0 || titleImageUrlToCopy ? (
+                          <span className="block mt-1 text-destructive">
+                            Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du das ursprüngliche Event oder dessen Bilder später löschst, sind die Bilder auch im kopierten Event nicht mehr verfügbar.
+                          </span>
+                        ) : null}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* Bilder Vorschau */}
-              {copyImages && imagePreviews.length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-white font-medium">Bilder (kopiert)</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative">
-                        <img
-                          src={preview}
-                          alt={`Bild ${index + 1}`}
-                          className="h-32 w-full object-cover rounded-xl backdrop-blur-2xl bg-white/10 border border-white/20"
-                        />
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeImagePreview(index)}
-                          className="absolute top-1 right-1 backdrop-blur-2xl bg-red-500/80 border-red-400/30 text-white hover:bg-red-500/90 h-6 w-6 p-0"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Title */}
-              <div className="space-y-2">
-                <Label htmlFor="title" className="text-white font-medium">
-                  Titel
-                </Label>
-                <Input
-                  id="title"
-                  value={newEvent.title}
-                  onChange={e => handleInputChange('title', e.target.value)}
-                  placeholder="z.B. Sommerfest 2024"
-                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                />
-                <p className="text-xs text-white/60">
-                  Ein prägnanter Titel, der das Event gut beschreibt.
-                </p>
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-white font-medium">
-                  Beschreibung
-                </Label>
-                <Textarea
-                  id="description"
-                  value={newEvent.description}
-                  onChange={e => handleInputChange('description', e.target.value)}
-                  placeholder="Beschreibe das Event im Detail..."
-                  className="min-h-[100px] backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                />
-                <p className="text-xs text-white/60">
-                  Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie
-                  Programm, Highlights oder besondere Hinweise.
-                </p>
-              </div>
-
-              {/* Date Range */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate" className="text-white font-medium">
-                    Startdatum
-                  </Label>
-                  <Input
-                    id="startDate"
-                    type="date"
-                    value={newEvent.startDate.split('T')[0]}
-                    onChange={e => handleInputChange('startDate', e.target.value)}
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate" className="text-white font-medium">
-                    Enddatum
-                  </Label>
-                  <Input
-                    id="endDate"
-                    type="date"
-                    value={newEvent.endDate.split('T')[0]}
-                    onChange={e => handleInputChange('endDate', e.target.value)}
-                    className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl"
-                  />
-                </div>
-              </div>
-
-              {/* Daily Time Slots */}
-              {newEvent.dailyTimeSlots.length > 0 && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-white font-medium">
-                      Tägliche Zeitangaben (optional)
-                    </Label>
-                  </div>
-
-                  <div className="space-y-4">
-                    {newEvent.dailyTimeSlots.map(slot => (
-                      <div
-                        key={slot.date}
-                        className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4"
+                {/* Titelbild Vorschau */}
+                {copyImages && titleImagePreview && (
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Titelbild (kopiert)</Label>
+                    <div className="relative inline-block">
+                      <img
+                        src={titleImagePreview}
+                        alt="Titelbild Vorschau"
+                        className="h-48 w-full object-cover rounded-lg border border-secondary bg-card"
+                      />
+                      <AnimatedButton
+                        variant="destructive"
+                        size="sm"
+                        onClick={removeTitleImagePreview}
+                        className="absolute top-2 right-2"
                       >
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                          <div className="font-medium text-white">
-                            {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
-                          </div>
-                          <Input
-                            type="time"
-                            value={slot.from || ''}
-                            onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
-                            placeholder="Von"
-                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
+                        <X className="h-4 w-4" />
+                      </AnimatedButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bilder Vorschau */}
+                {copyImages && imagePreviews.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Bilder (kopiert)</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                      {imagePreviews.map((preview, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={preview}
+                            alt={`Bild ${index + 1}`}
+                            className="h-32 w-full object-cover rounded-lg border border-secondary bg-card"
                           />
-                          <Input
-                            type="time"
-                            value={slot.to || ''}
-                            onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
-                            placeholder="Bis"
-                            className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                          />
+                          <AnimatedButton
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeImagePreview(index)}
+                            className="absolute top-1 right-1 h-6 w-6 p-0"
+                          >
+                            <X className="h-3 w-3" />
+                          </AnimatedButton>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-foreground">
+                    Titel
+                  </Label>
+                  <Input
+                    id="title"
+                    value={newEvent.title}
+                    onChange={e => handleInputChange('title', e.target.value)}
+                    placeholder="z.B. Sommerfest 2024"
+                    className={cn(glassInput)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Ein prägnanter Titel, der das Event gut beschreibt.
+                  </p>
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-foreground">
+                    Beschreibung
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={newEvent.description}
+                    onChange={e => handleInputChange('description', e.target.value)}
+                    placeholder="Beschreibe das Event im Detail..."
+                    className={cn(glassInput, 'min-h-[100px]')}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie
+                    Programm, Highlights oder besondere Hinweise.
+                  </p>
+                </div>
+
+                {/* Date Range */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate" className="text-foreground">
+                      Startdatum
+                    </Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={newEvent.startDate.split('T')[0]}
+                      onChange={e => handleInputChange('startDate', e.target.value)}
+                      className={cn(glassInput)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate" className="text-foreground">
+                      Enddatum
+                    </Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={newEvent.endDate.split('T')[0]}
+                      onChange={e => handleInputChange('endDate', e.target.value)}
+                      className={cn(glassInput)}
+                    />
                   </div>
                 </div>
-              )}
 
-              {/* Location */}
-              <div className="space-y-2">
-                <Label className="text-white font-medium">Adresse</Label>
-                <div className="backdrop-blur-2xl bg-white/10 border-white/20 rounded-xl">
+                {/* Daily Time Slots */}
+                {newEvent.dailyTimeSlots.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-foreground">
+                        Tägliche Zeitangaben (optional)
+                      </Label>
+                    </div>
+
+                    <div className="space-y-4">
+                      {newEvent.dailyTimeSlots.map(slot => (
+                        <div key={slot.date} className={cn(glassCard, 'p-4')}>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                            <div className="font-medium text-foreground">
+                              {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
+                            </div>
+                            <Input
+                              type="time"
+                              value={slot.from || ''}
+                              onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
+                              placeholder="Von"
+                              className={cn(glassInput)}
+                            />
+                            <Input
+                              type="time"
+                              value={slot.to || ''}
+                              onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
+                              placeholder="Bis"
+                              className={cn(glassInput)}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Location */}
+                <div className="space-y-2">
+                  <Label className="text-foreground">Adresse</Label>
+                  {!hasValidLocation && (
+                    <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-2">
+                      <div className="text-sm text-destructive font-semibold mb-1">
+                        ⚠️ Adresse muss neu gesetzt werden
+                      </div>
+                      <p className="text-xs text-destructive/80">
+                        Die Adresse des kopierten Events ist nicht vollständig oder konnte nicht korrekt übertragen werden. Bitte suchen Sie die Adresse erneut über das Suchfeld und wählen Sie den passenden Eintrag aus.
+                      </p>
+                    </div>
+                  )}
                   <LocationSearch
                     value={searchValue}
                     onChange={handleLocationSelect}
                     placeholder="Adresse suchen..."
                     debounce={1000}
-                    className="border-0 bg-transparent text-white placeholder:text-white/60 focus:ring-white/20"
                   />
-                </div>
-                <p className="text-xs text-white/60">
-                  Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den
-                  passenden Eintrag aus.
-                </p>
-              </div>
-
-              {/* Price */}
-              <div className="space-y-2">
-                <Label htmlFor="price" className="text-white font-medium">
-                  Preis (in €)
-                </Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={newEvent.price || ''}
-                  onChange={e => handleInputChange('price', parseFloat(e.target.value))}
-                  placeholder="0.00"
-                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                />
-                <p className="text-xs text-white/60">
-                  Der Eintrittspreis in Euro. Lass das Feld leer oder gib 0 ein für
-                  kostenlose Events.
-                </p>
-              </div>
-
-              {/* Category */}
-              <div className="space-y-2">
-                <Label htmlFor="category" className="text-white font-medium">
-                  Kategorie
-                </Label>
-                <Select
-                  value={newEvent.categoryId || ''}
-                  onValueChange={value => handleInputChange('categoryId', value)}
-                >
-                  <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white focus:border-white/40 focus:ring-white/20 rounded-xl">
-                    <SelectValue placeholder="Kategorie auswählen" className="text-white" />
-                  </SelectTrigger>
-                  <SelectContent className="backdrop-blur-3xl bg-white/10 border border-white/20 rounded-xl">
-                    {categories.map(category => (
-                      <SelectItem
-                        key={category.id}
-                        value={category.id}
-                        className="text-white hover:bg-white/20 focus:bg-white/20"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="flex items-center">
-                            {getIconComponent(category.iconName)}
-                          </span>
-                          {category.name}
+                  {hasValidLocation && newEvent.address && (
+                    <div className={cn(glassCard, 'p-4')}>
+                      <div className="font-semibold mb-2 flex items-center gap-2 text-foreground">
+                        <span>📍</span>
+                        {newEvent.address}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <div>
+                          Latitude:
+                          <br />
+                          {newEvent.latitude}
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-white/60">
-                  Wähle eine passende Kategorie für dein Event aus.
-                </p>
-              </div>
-
-              {/* Switches */}
-              <div className="space-y-4">
-                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="ticketsNeeded"
-                      checked={newEvent.ticketsNeeded}
-                      onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
-                      className="data-[state=checked]:bg-white/30"
-                    />
-                    <div className="space-y-1">
-                      <Label htmlFor="ticketsNeeded" className="text-white font-medium">
-                        Tickets erforderlich
-                      </Label>
-                      <p className="text-xs text-white/60">
-                        Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben
-                        müssen.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4">
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="isPromoted"
-                      checked={newEvent.isPromoted}
-                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
-                      className="data-[state=checked]:bg-white/30"
-                    />
-                    <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-white font-medium">
-                        Als "Highlight" markieren
-                      </Label>
-                      <p className="text-xs text-white/60">
-                        Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="space-y-4">
-                <Label className="text-white font-medium text-lg">Kontaktinformationen</Label>
-
-                <div className="backdrop-blur-2xl bg-white/5 rounded-2xl border border-white/10 p-4 space-y-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="contactEmail" className="text-white/90">
-                        E-Mail
-                      </Label>
-                      <Input
-                        id="contactEmail"
-                        type="email"
-                        value={newEvent.contactEmail || ''}
-                        onChange={e => handleInputChange('contactEmail', e.target.value)}
-                        placeholder="kontakt@beispiel.de"
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="contactPhone" className="text-white/90">
-                        Telefon
-                      </Label>
-                      <Input
-                        id="contactPhone"
-                        type="tel"
-                        value={newEvent.contactPhone || ''}
-                        onChange={e => handleInputChange('contactPhone', e.target.value)}
-                        placeholder="+49 123 4567890"
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                      />
-                    </div>
-                    <div className="space-y-2 lg:col-span-2">
-                      <Label htmlFor="website" className="text-white/90">
-                        Website
-                      </Label>
-                      <Input
-                        id="website"
-                        type="url"
-                        value={newEvent.website || ''}
-                        onChange={e => handleInputChange('website', e.target.value)}
-                        placeholder="https://www.beispiel.de"
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="mt-6">
-                    <Label className="text-white/90 text-base">Social Media</Label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="instagram" className="text-white/80 text-sm">
-                          Instagram
-                        </Label>
-                        <Input
-                          id="instagram"
-                          value={newEvent.socialMedia.instagram || ''}
-                          onChange={e =>
-                            setNewEvent(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                instagram: e.target.value,
-                              },
-                            }))
-                          }
-                          placeholder="@benutzername"
-                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="facebook" className="text-white/80 text-sm">
-                          Facebook
-                        </Label>
-                        <Input
-                          id="facebook"
-                          value={newEvent.socialMedia.facebook || ''}
-                          onChange={e =>
-                            setNewEvent(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                facebook: e.target.value,
-                              },
-                            }))
-                          }
-                          placeholder="@seitename"
-                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="tiktok" className="text-white/80 text-sm">
-                          TikTok
-                        </Label>
-                        <Input
-                          id="tiktok"
-                          value={newEvent.socialMedia.tiktok || ''}
-                          onChange={e =>
-                            setNewEvent(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                tiktok: e.target.value,
-                              },
-                            }))
-                          }
-                          placeholder="@benutzername"
-                          className="backdrop-blur-2xl bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:border-white/40 focus:ring-white/20 rounded-xl"
-                        />
+                        <div>
+                          Longitude:
+                          <br />
+                          {newEvent.longitude}
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <p className="text-xs text-white/60 mt-4">
-                    Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu,
-                    die du öffentlich teilen möchtest.
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den
+                    passenden Eintrag aus.
                   </p>
                 </div>
-              </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-white/10">
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/events')}
-                  className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 rounded-xl w-full sm:w-auto"
-                >
-                  Abbrechen
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="backdrop-blur-2xl bg-gradient-to-r from-green-500/80 to-emerald-500/80 border border-green-400/30 text-white hover:from-green-400/90 hover:to-emerald-400/90 hover:scale-105 transition-all duration-300 rounded-xl shadow-lg w-full sm:w-auto"
-                >
-                  {loading ? 'Wird kopiert...' : 'Event kopieren'}
-                </Button>
-              </div>
-            </div>
-          </div>
+                {/* Price */}
+                <div className="space-y-2">
+                  <Label htmlFor="priceString" className="text-foreground">
+                    Preis
+                  </Label>
+                  <Input
+                    id="priceString"
+                    type="text"
+                    value={newEvent.priceString || ''}
+                    onChange={e => handleInputChange('priceString', e.target.value || null)}
+                    placeholder="z.B. 15€, Kostenlos, Spende, etc."
+                    className={cn(glassInput)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Der Eintrittspreis als Text. Lass das Feld leer für kostenlose Events.
+                  </p>
+                </div>
+
+                {/* Category */}
+                <div className="space-y-2">
+                  <Label htmlFor="category" className="text-foreground">
+                    Kategorie
+                  </Label>
+                  <Select
+                    value={newEvent.categoryId || ''}
+                    onValueChange={value => handleInputChange('categoryId', value)}
+                  >
+                    <SelectTrigger className={cn(glassInput)}>
+                      <SelectValue placeholder="Kategorie auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(category => (
+                        <SelectItem key={category.id} value={category.id}>
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center">
+                              {getIconComponent(category.iconName)}
+                            </span>
+                            {category.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Wähle eine passende Kategorie für dein Event aus.
+                  </p>
+                </div>
+
+                {/* Switches */}
+                <div className="space-y-4">
+                  <div className={cn(glassCard, 'p-4')}>
+                    <div className="flex items-center space-x-3">
+                      <Switch
+                        id="ticketsNeeded"
+                        checked={newEvent.ticketsNeeded}
+                        onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="ticketsNeeded" className="text-foreground">
+                          Tickets erforderlich
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben
+                          müssen.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={cn(glassCard, 'p-4')}>
+                    <div className="flex items-center space-x-3">
+                      <Switch
+                        id="isPromoted"
+                        checked={newEvent.isPromoted}
+                        onCheckedChange={checked => handleInputChange('isPromoted', checked)}
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="isPromoted" className="text-foreground">
+                          Als "Highlight" markieren
+                        </Label>
+                        <p className="text-xs text-muted-foreground">
+                          Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information */}
+                <div className="space-y-4">
+                  <Label className="text-foreground text-lg">Kontaktinformationen</Label>
+
+                  <div className={cn(glassCard, 'p-4 space-y-4')}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="contactEmail" className="text-muted-foreground">
+                          E-Mail
+                        </Label>
+                        <Input
+                          id="contactEmail"
+                          type="email"
+                          value={newEvent.contactEmail || ''}
+                          onChange={e => handleInputChange('contactEmail', e.target.value)}
+                          placeholder="kontakt@beispiel.de"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="contactPhone" className="text-muted-foreground">
+                          Telefon
+                        </Label>
+                        <Input
+                          id="contactPhone"
+                          type="tel"
+                          value={newEvent.contactPhone || ''}
+                          onChange={e => handleInputChange('contactPhone', e.target.value)}
+                          placeholder="+49 123 4567890"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2 lg:col-span-2">
+                        <Label htmlFor="website" className="text-muted-foreground">
+                          Website
+                        </Label>
+                        <Input
+                          id="website"
+                          type="url"
+                          value={newEvent.website || ''}
+                          onChange={e => handleInputChange('website', e.target.value)}
+                          placeholder="https://www.beispiel.de"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mt-6">
+                      <Label className="text-muted-foreground text-base">Social Media</Label>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="instagram" className="text-muted-foreground text-sm">
+                            Instagram
+                          </Label>
+                          <Input
+                            id="instagram"
+                            value={newEvent.socialMedia.instagram || ''}
+                            onChange={e =>
+                              setNewEvent(prev => ({
+                                ...prev,
+                                socialMedia: {
+                                  ...prev.socialMedia,
+                                  instagram: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="@benutzername"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="facebook" className="text-muted-foreground text-sm">
+                            Facebook
+                          </Label>
+                          <Input
+                            id="facebook"
+                            value={newEvent.socialMedia.facebook || ''}
+                            onChange={e =>
+                              setNewEvent(prev => ({
+                                ...prev,
+                                socialMedia: {
+                                  ...prev.socialMedia,
+                                  facebook: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="@seitename"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tiktok" className="text-muted-foreground text-sm">
+                            TikTok
+                          </Label>
+                          <Input
+                            id="tiktok"
+                            value={newEvent.socialMedia.tiktok || ''}
+                            onChange={e =>
+                              setNewEvent(prev => ({
+                                ...prev,
+                                socialMedia: {
+                                  ...prev.socialMedia,
+                                  tiktok: e.target.value,
+                                },
+                              }))
+                            }
+                            placeholder="@benutzername"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground mt-4">
+                      Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu,
+                      die du öffentlich teilen möchtest.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-secondary">
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => navigate('/events')}
+                    className={cn(glassButton, 'w-full sm:w-auto')}
+                  >
+                    Abbrechen
+                  </AnimatedButton>
+                  <LoadingButton
+                    onClick={handleSubmit}
+                    isLoading={loading}
+                    loadingText="Wird kopiert..."
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                  >
+                    Event kopieren
+                  </LoadingButton>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
