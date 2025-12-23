@@ -374,6 +374,10 @@ export function AdventCalendarManagement() {
                         checked={featureStatus}
                         onCheckedChange={handleFeatureStatusToggle}
                         disabled={isUpdatingFeatureStatus}
+                        className={cn(
+                          'data-[state=checked]:bg-green-600 dark:data-[state=checked]:bg-green-500',
+                          'data-[state=unchecked]:bg-red-600 dark:data-[state=unchecked]:bg-red-500'
+                        )}
                       />
                     )}
                   </div>
