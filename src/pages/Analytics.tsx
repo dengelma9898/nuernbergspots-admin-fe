@@ -19,7 +19,6 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PricingCalculator } from '@/components/PricingCalculator';
@@ -30,6 +29,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Background } from '@/components/Background';
+import { PageTransition } from '@/components/PageTransition';
+import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from 'framer-motion';
+import { fadeInUp, staggerContainer } from '@/lib/animations';
+import { defaultTransition } from '@/lib/animations';
+import { glassCard, glassCardHover, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cn } from '@/lib/utils';
 
 const AnalyticsCard = ({
   icon: Icon,
@@ -48,42 +56,47 @@ const AnalyticsCard = ({
   trendDescription?: string;
   isLoading?: boolean;
 }) => (
-  <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
-    <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <div className="p-2 backdrop-blur-2xl bg-white/20 rounded-lg border border-white/30">
-            <Icon className="h-5 w-5 text-white" />
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={defaultTransition}
+  >
+    <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className={cn(glassCard, 'p-2')}>
+              <Icon className="h-5 w-5 text-foreground" />
+            </div>
+            <h3 className="text-sm font-medium text-foreground">{title}</h3>
           </div>
-          <h3 className="text-sm font-medium text-white">{title}</h3>
+          {trend !== undefined && !isLoading && (
+            <div className={`flex items-center ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
+              {trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              <span className="ml-1 text-sm">{Math.abs(trend).toFixed(1)}%</span>
+            </div>
+          )}
         </div>
-        {trend !== undefined && !isLoading && (
-          <div className={`flex items-center ${trend >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-            {trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            <span className="ml-1 text-sm">{Math.abs(trend).toFixed(1)}%</span>
-          </div>
-        )}
-      </div>
-    </div>
-    <div className="p-4">
-      <div className="space-y-1">
-        {isLoading ? (
-          <>
-            <div className="h-8 w-24 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            {description && (
-              <div className="h-4 w-32 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="text-2xl font-bold text-white">{value}</div>
-            {description && <p className="text-sm text-white/70">{description}</p>}
-            {trendDescription && <p className="text-xs text-white/60">{trendDescription}</p>}
-          </>
-        )}
-      </div>
-    </div>
-  </div>
+      </CardHeader>
+      <CardContent className="!px-4 !py-4 gap-0">
+        <div className="space-y-1">
+          {isLoading ? (
+            <>
+              <Skeleton className="h-8 w-24 rounded" />
+              {description && (
+                <Skeleton className="h-4 w-32 rounded" />
+              )}
+            </>
+          ) : (
+            <>
+              <div className="text-2xl font-bold text-foreground">{value}</div>
+              {description && <p className="text-sm text-muted-foreground">{description}</p>}
+              {trendDescription && <p className="text-xs text-muted-foreground">{trendDescription}</p>}
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const BusinessAnalyticsCard = ({
@@ -93,104 +106,109 @@ const BusinessAnalyticsCard = ({
   business: BusinessAnalytics;
   isLoading?: boolean;
 }) => (
-  <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
-    <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <div className="flex items-center justify-between">
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={defaultTransition}
+  >
+    <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+        <div className="flex items-center justify-between">
+          {isLoading ? (
+            <Skeleton className="h-6 w-32 rounded" />
+          ) : (
+            <>
+              <h3 className="text-sm font-medium text-foreground">{business.businessName}</h3>
+              <div className="flex items-center space-x-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">{business.uniqueCustomers}</span>
+              </div>
+            </>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="!px-4 !py-4 gap-0">
         {isLoading ? (
-          <div className="h-6 w-32 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-2 w-full rounded" />
+            <div className="grid grid-cols-3 gap-2">
+              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-8 w-full rounded" />
+              <Skeleton className="h-8 w-full rounded" />
+            </div>
+          </div>
         ) : (
-          <>
-            <h3 className="text-sm font-medium text-white">{business.businessName}</h3>
-            <div className="flex items-center space-x-2">
-              <Users className="h-4 w-4 text-white/70" />
-              <span className="text-sm text-white/70">{business.uniqueCustomers}</span>
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Gesamtscans</span>
+              <span className="font-medium text-foreground">{business.totalScans}</span>
             </div>
-          </>
+            <div className="bg-muted rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full bg-primary transition-all duration-500"
+                style={{ width: `${(business.totalScans / business.yearlyScans) * 100}%` }}
+              ></div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+              <div>
+                <div className="font-medium text-foreground">{business.weeklyScans}</div>
+                Woche
+              </div>
+              <div>
+                <div className="font-medium text-foreground">{business.monthlyScans}</div>
+                Monat
+              </div>
+              <div>
+                <div className="font-medium text-foreground">{business.yearlyScans}</div>
+                Jahr
+              </div>
+            </div>
+            <div className="pt-2 border-t border-secondary flex justify-between text-xs text-muted-foreground">
+              <div>
+                <span>Ø Preis:</span>
+                <span className="ml-1 font-medium text-foreground">
+                  {business.averagePrice.toFixed(2)}€
+                </span>
+              </div>
+              <div>
+                <span>Ø Personen:</span>
+                <span className="ml-1 font-medium text-foreground">
+                  {business.averageNumberOfPeople.toFixed(1)}
+                </span>
+              </div>
+            </div>
+            <div className="pt-2 border-t border-secondary grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+              <div>
+                <div className="font-medium text-foreground">
+                  {business.customerRetention.returningCustomers}
+                </div>
+                Stammkunden
+              </div>
+              <div>
+                <div className="font-medium text-foreground">
+                  {business.customerRetention.retentionRate.toFixed(1)}%
+                </div>
+                Treue-Rate
+              </div>
+            </div>
+            <div className="pt-2 border-t border-secondary text-xs text-muted-foreground">
+              <div className="mb-1">Beliebteste Zeiten:</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="font-medium text-foreground">{business.peakTimes.dayOfWeek}</span>
+                  <span className="block">Tag</span>
+                </div>
+                <div>
+                  <span className="font-medium text-foreground">{business.peakTimes.timeOfDay}</span>
+                  <span className="block">Uhrzeit</span>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
-    </div>
-    <div className="p-4">
-      {isLoading ? (
-        <div className="space-y-2">
-          <div className="h-4 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          <div className="h-2 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="h-8 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            <div className="h-8 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            <div className="h-8 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-white/70">Gesamtscans</span>
-            <span className="font-medium text-white">{business.totalScans}</span>
-          </div>
-          <div className="backdrop-blur-2xl bg-white/10 rounded-full h-2 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-green-400 to-blue-500 transition-all duration-500"
-              style={{ width: `${(business.totalScans / business.yearlyScans) * 100}%` }}
-            ></div>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-xs text-white/70">
-            <div>
-              <div className="font-medium text-white">{business.weeklyScans}</div>
-              Woche
-            </div>
-            <div>
-              <div className="font-medium text-white">{business.monthlyScans}</div>
-              Monat
-            </div>
-            <div>
-              <div className="font-medium text-white">{business.yearlyScans}</div>
-              Jahr
-            </div>
-          </div>
-          <div className="pt-2 border-t border-white/10 flex justify-between text-xs text-white/70">
-            <div>
-              <span>Ø Preis:</span>
-              <span className="ml-1 font-medium text-white">
-                {business.averagePrice.toFixed(2)}€
-              </span>
-            </div>
-            <div>
-              <span>Ø Personen:</span>
-              <span className="ml-1 font-medium text-white">
-                {business.averageNumberOfPeople.toFixed(1)}
-              </span>
-            </div>
-          </div>
-          <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2 text-xs text-white/70">
-            <div>
-              <div className="font-medium text-white">
-                {business.customerRetention.returningCustomers}
-              </div>
-              Stammkunden
-            </div>
-            <div>
-              <div className="font-medium text-white">
-                {business.customerRetention.retentionRate.toFixed(1)}%
-              </div>
-              Treue-Rate
-            </div>
-          </div>
-          <div className="pt-2 border-t border-white/10 text-xs text-white/70">
-            <div className="mb-1">Beliebteste Zeiten:</div>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <span className="font-medium text-white">{business.peakTimes.dayOfWeek}</span>
-                <span className="block">Tag</span>
-              </div>
-              <div>
-                <span className="font-medium text-white">{business.peakTimes.timeOfDay}</span>
-                <span className="block">Uhrzeit</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const TimeAnalysisCard = ({
@@ -200,64 +218,69 @@ const TimeAnalysisCard = ({
   analytics: DashboardAnalytics | null;
   isLoading: boolean;
 }) => (
-  <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
-    <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-        Zeitanalyse
-      </h3>
-      <p className="text-white/70">Besuchermuster und Stoßzeiten</p>
-    </div>
-    <div className="p-4">
-      {isLoading ? (
-        <div className="space-y-4">
-          <div className="h-20 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            <div className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={defaultTransition}
+  >
+    <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+        <h3 className="text-lg font-bold text-foreground">
+          Zeitanalyse
+        </h3>
+        <p className="text-muted-foreground">Besuchermuster und Stoßzeiten</p>
+      </CardHeader>
+      <CardContent className="!px-4 !py-4 gap-0">
+        {isLoading ? (
+          <div className="space-y-4">
+            <Skeleton className="h-20 w-full rounded" />
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-16 w-full rounded" />
+              <Skeleton className="h-16 w-full rounded" />
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h4 className="text-sm font-medium mb-2 text-white">Beliebteste Tage</h4>
-              <div className="space-y-1">
-                {analytics?.timeAnalysis.peakDays.slice(0, 3).map((day, index) => (
-                  <div key={day} className="flex items-center justify-between text-sm">
-                    <span className="text-white/70">{day}</span>
-                    <span className="font-medium">
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                    </span>
-                  </div>
-                ))}
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Beliebteste Tage</h4>
+                <div className="space-y-1">
+                  {analytics?.timeAnalysis.peakDays.slice(0, 3).map((day, index) => (
+                    <div key={day} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{day}</span>
+                      <span className="font-medium text-foreground">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium mb-2 text-foreground">Stoßzeiten</h4>
+                <div className="space-y-1">
+                  {analytics?.timeAnalysis.peakHours.slice(0, 3).map((hour, index) => (
+                    <div key={hour} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">{hour} Uhr</span>
+                      <span className="font-medium text-foreground">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-            <div>
-              <h4 className="text-sm font-medium mb-2 text-white">Stoßzeiten</h4>
-              <div className="space-y-1">
-                {analytics?.timeAnalysis.peakHours.slice(0, 3).map((hour, index) => (
-                  <div key={hour} className="flex items-center justify-between text-sm">
-                    <span className="text-white/70">{hour} Uhr</span>
-                    <span className="font-medium">
-                      {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                    </span>
-                  </div>
-                ))}
+            <div className="pt-4 border-t border-secondary">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-sm font-medium text-foreground">Durchschnittliche Besuche pro Tag</h4>
+                <span className="text-lg font-bold text-foreground">
+                  {analytics?.categoryAnalysis.averageVisitsPerDay.toFixed(1)}
+                </span>
               </div>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-sm font-medium text-white">Durchschnittliche Besuche pro Tag</h4>
-              <span className="text-lg font-bold text-white">
-                {analytics?.categoryAnalysis.averageVisitsPerDay.toFixed(1)}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
+        )}
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const CustomerRetentionCard = ({
@@ -267,51 +290,56 @@ const CustomerRetentionCard = ({
   analytics: DashboardAnalytics | null;
   isLoading: boolean;
 }) => (
-  <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden hover:scale-105 transition-all duration-500 hover:shadow-3xl">
-    <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-      <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-        Kundenbindung
-      </h3>
-      <p className="text-white/70">Analyse der Kundenbeziehungen</p>
-    </div>
-    <div className="p-4">
-      {isLoading ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-            <div className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          </div>
-          <div className="h-4 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-          <div className="h-8 w-3/4 backdrop-blur-2xl bg-white/10 rounded animate-pulse"></div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-sm text-white/70">Neue Kunden (30 Tage)</p>
-              <p className="text-2xl font-bold text-white">
-                {analytics?.customerData.newCustomersThisMonth}
-              </p>
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    transition={defaultTransition}
+  >
+    <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+        <h3 className="text-lg font-bold text-foreground">
+          Kundenbindung
+        </h3>
+        <p className="text-muted-foreground">Analyse der Kundenbeziehungen</p>
+      </CardHeader>
+      <CardContent className="!px-4 !py-4 gap-0">
+        {isLoading ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Skeleton className="h-16 w-full rounded" />
+              <Skeleton className="h-16 w-full rounded" />
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-white/70">Wiederkehrende Kunden</p>
-              <p className="text-2xl font-bold text-white">
-                {analytics?.customerData.returningCustomersRate.toFixed(1)}%
-              </p>
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-8 w-3/4 rounded" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Neue Kunden (30 Tage)</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analytics?.customerData.newCustomersThisMonth}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Wiederkehrende Kunden</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {analytics?.customerData.returningCustomersRate.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-secondary">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">Durchschnittliche Gruppengröße</p>
+                <p className="text-lg font-bold text-foreground">
+                  {analytics?.customerData.averageGroupSize.toFixed(1)} Personen
+                </p>
+              </div>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-white/70">Durchschnittliche Gruppengröße</p>
-              <p className="text-lg font-bold text-white">
-                {analytics?.customerData.averageGroupSize.toFixed(1)} Personen
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
+        )}
+      </CardContent>
+    </Card>
+  </motion.div>
 );
 
 const BusinessDetails = ({
@@ -324,46 +352,46 @@ const BusinessDetails = ({
   if (!business) return null;
 
   return (
-    <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-      <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-        <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
+    <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+      <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+        <h3 className="text-lg font-bold text-foreground">
           Detaillierte Business-Analyse
         </h3>
-        <p className="text-white/70">Ausführliche Statistiken für {business.businessName}</p>
-      </div>
-      <div className="p-4">
+        <p className="text-muted-foreground">Ausführliche Statistiken für {business.businessName}</p>
+      </CardHeader>
+      <CardContent className="!px-4 !py-4 gap-0">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <h3 className="font-medium text-white">Scans</h3>
+            <h3 className="font-medium text-foreground">Scans</h3>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-sm text-white/70">Gesamt</p>
-                <p className="text-lg font-bold text-white">{business.totalScans}</p>
+                <p className="text-sm text-muted-foreground">Gesamt</p>
+                <p className="text-lg font-bold text-foreground">{business.totalScans}</p>
               </div>
               <div>
-                <p className="text-sm text-white/70">Diese Woche</p>
-                <p className="text-lg font-bold text-white">{business.weeklyScans}</p>
+                <p className="text-sm text-muted-foreground">Diese Woche</p>
+                <p className="text-lg font-bold text-foreground">{business.weeklyScans}</p>
               </div>
             </div>
           </div>
           <div className="space-y-2">
-            <h3 className="font-medium text-white">Kunden</h3>
+            <h3 className="font-medium text-foreground">Kunden</h3>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-sm text-white/70">Unique Kunden</p>
-                <p className="text-lg font-bold text-white">{business.uniqueCustomers}</p>
+                <p className="text-sm text-muted-foreground">Unique Kunden</p>
+                <p className="text-lg font-bold text-foreground">{business.uniqueCustomers}</p>
               </div>
               <div>
-                <p className="text-sm text-white/70">Ø Scans/Kunde</p>
-                <p className="text-lg font-bold text-white">
+                <p className="text-sm text-muted-foreground">Ø Scans/Kunde</p>
+                <p className="text-lg font-bold text-foreground">
                   {business.totalScans / business.uniqueCustomers}
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -398,74 +426,68 @@ export function Analytics() {
   }, [fetchAnalytics]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Rainbow Background Layers */}
-      <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-red-500 to-yellow-500"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-green-500 to-blue-500 opacity-70"></div>
-      <div className="absolute inset-0 bg-gradient-to-bl from-blue-500 via-purple-500 to-pink-500 opacity-60"></div>
-
-      {/* Animated Blur Circles */}
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-r from-cyan-400/30 to-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div
-        className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-gradient-to-r from-purple-400/30 to-pink-500/30 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '1000ms' }}
-      ></div>
-      <div
-        className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-r from-yellow-400/20 to-orange-500/20 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '500ms' }}
-      ></div>
-      <div
-        className="absolute bottom-1/3 left-1/4 w-72 h-72 bg-gradient-to-r from-green-400/25 to-teal-500/25 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '700ms' }}
-      ></div>
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/15 to-purple-500/15 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '300ms' }}
-      ></div>
-
-      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-        <div className="space-y-8">
-          {/* Glass Header */}
-          <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div className="space-y-1">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Analytics Dashboard
-                </h1>
-                <p className="text-base sm:text-lg text-white/80">
-                  Detaillierte Einblicke in die Performance deiner Partner
-                </p>
+    <PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <Background />
+        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+          <motion.div
+            className="space-y-8"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {/* Glass Header */}
+            <motion.div
+              className={cn(glassCard, 'p-4 sm:p-6')}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="space-y-1">
+                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                    Analytics Dashboard
+                  </h1>
+                  <p className="text-base sm:text-lg text-muted-foreground">
+                    Detaillierte Einblicke in die Performance deiner Partner
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <LoadingButton
+                    variant="outline"
+                    onClick={fetchAnalytics}
+                    disabled={isLoading}
+                    className={cn(glassButton)}
+                  >
+                    <RefreshCcw className="mr-2 h-4 w-4" />
+                    Aktualisieren
+                  </LoadingButton>
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => navigate('/dashboard')}
+                    className={cn(glassButton)}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Zurück
+                  </AnimatedButton>
+                </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={fetchAnalytics}
-                  disabled={isLoading}
-                  className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                >
-                  <RefreshCcw className="mr-2 h-4 w-4" />
-                  Aktualisieren
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/dashboard')}
-                  className="backdrop-blur-2xl bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Zurück
-                </Button>
-              </div>
-            </div>
-          </div>
+            </motion.div>
 
-          {/* Overview Cards */}
-          <div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 mb-6">
-              <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Übersicht
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* Overview Cards */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(glassCard, 'p-4 mb-6')}>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Übersicht
+                </h2>
+              </Card>
+              <motion.div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
               <AnalyticsCard
                 icon={Scan}
                 title="Gesamtscans"
@@ -489,184 +511,214 @@ export function Analytics() {
                 description={`${analytics?.customerData.newCustomersThisMonth || 0} neue Kunden diesen Monat`}
                 isLoading={isLoading}
               />
-              <AnalyticsCard
-                icon={Store}
-                title="Scans pro Partner"
-                value={(analytics?.averageScansPerBusiness || 0).toFixed(1)}
-                trend={analytics?.weeklyTrend}
-                description={`${analytics?.businesses.length || 0} aktive Partner`}
-                isLoading={isLoading}
-              />
-            </div>
-          </div>
-
-          {/* Revenue Overview */}
-          <div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 mb-6">
-              <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Umsatzübersicht
-              </h2>
-            </div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden mb-6">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-                <h3 className="text-lg font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Umsatzverteilung
-                </h3>
-                <p className="text-white/70">Einnahmen über verschiedene Zeiträume</p>
-              </div>
-              <div className="p-4">
-                {isLoading ? (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {[...Array(4)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-16 w-full backdrop-blur-2xl bg-white/10 rounded animate-pulse"
-                      ></div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-sm text-white/70">Diese Woche</p>
-                      <p className="text-2xl font-bold text-white">
-                        {analytics?.revenueData.weekly.toFixed(2) || '0'}€
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-white/70">Dieser Monat</p>
-                      <p className="text-2xl font-bold text-white">
-                        {analytics?.revenueData.monthly.toFixed(2) || '0'}€
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-white/70">Dieses Jahr</p>
-                      <p className="text-2xl font-bold text-white">
-                        {analytics?.revenueData.yearly.toFixed(2) || '0'}€
-                      </p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm text-white/70">Ø pro Scan</p>
-                      <p className="text-2xl font-bold text-white">
-                        {analytics?.revenueData.averagePerScan.toFixed(2) || '0'}€
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Additional Analytics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <TimeAnalysisCard analytics={analytics} isLoading={isLoading} />
-            <CustomerRetentionCard analytics={analytics} isLoading={isLoading} />
-          </div>
-
-          {/* Top Performing Businesses */}
-          <div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 mb-6">
-              <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Top Partner
-              </h2>
-            </div>
-            {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[...Array(3)].map((_, i) => (
-                  <BusinessAnalyticsCard
-                    key={i}
-                    business={{} as BusinessAnalytics}
-                    isLoading={true}
+                <motion.div variants={fadeInUp}>
+                  <AnalyticsCard
+                    icon={Store}
+                    title="Scans pro Partner"
+                    value={(analytics?.averageScansPerBusiness || 0).toFixed(1)}
+                    trend={analytics?.weeklyTrend}
+                    description={`${analytics?.businesses.length || 0} aktive Partner`}
+                    isLoading={isLoading}
                   />
-                ))}
-              </div>
-            ) : analytics?.topBusinesses && analytics.topBusinesses.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {analytics.topBusinesses.map(business => (
-                  <BusinessAnalyticsCard
-                    key={business.businessName}
-                    business={business}
-                    isLoading={false}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-                <div className="py-8 px-4">
-                  <p className="text-center text-white/70">Noch keine Partner-Daten verfügbar</p>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+
+            {/* Revenue Overview */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(glassCard, 'p-4 mb-6')}>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Umsatzübersicht
+                </h2>
+              </Card>
+              <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden mb-6')}>
+                <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+                  <h3 className="text-lg font-bold text-foreground">
+                    Umsatzverteilung
+                  </h3>
+                  <p className="text-muted-foreground">Einnahmen über verschiedene Zeiträume</p>
+                </CardHeader>
+                <CardContent className="!px-4 !py-4 gap-0">
+                  {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      {[...Array(4)].map((_, i) => (
+                        <Skeleton
+                          key={i}
+                          className="h-16 w-full rounded"
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Diese Woche</p>
+                        <p className="text-2xl font-bold text-foreground">
+                          {analytics?.revenueData.weekly.toFixed(2) || '0'}€
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Dieser Monat</p>
+                        <p className="text-2xl font-bold text-foreground">
+                          {analytics?.revenueData.monthly.toFixed(2) || '0'}€
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Dieses Jahr</p>
+                        <p className="text-2xl font-bold text-foreground">
+                          {analytics?.revenueData.yearly.toFixed(2) || '0'}€
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Ø pro Scan</p>
+                        <p className="text-2xl font-bold text-foreground">
+                          {analytics?.revenueData.averagePerScan.toFixed(2) || '0'}€
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Additional Analytics */}
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              <motion.div variants={fadeInUp}>
+                <TimeAnalysisCard analytics={analytics} isLoading={isLoading} />
+              </motion.div>
+              <motion.div variants={fadeInUp}>
+                <CustomerRetentionCard analytics={analytics} isLoading={isLoading} />
+              </motion.div>
+            </motion.div>
+
+            {/* Top Performing Businesses */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(glassCard, 'p-4 mb-6')}>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Top Partner
+                </h2>
+              </Card>
+              {isLoading ? (
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div key={i} variants={fadeInUp}>
+                      <BusinessAnalyticsCard
+                        business={{} as BusinessAnalytics}
+                        isLoading={true}
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : analytics?.topBusinesses && analytics.topBusinesses.length > 0 ? (
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                  variants={staggerContainer}
+                  initial="initial"
+                  animate="animate"
+                >
+                  {analytics.topBusinesses.map((business, index) => (
+                    <motion.div key={business.businessName} variants={fadeInUp}>
+                      <BusinessAnalyticsCard
+                        business={business}
+                        isLoading={false}
+                      />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <Card className={cn(glassCard, 'py-8 px-4')}>
+                  <p className="text-center text-muted-foreground">Noch keine Partner-Daten verfügbar</p>
+                </Card>
+              )}
+            </motion.div>
+
+            {/* Pricing Calculator */}
+            {!isLoading && analytics?.businesses && (
+              <motion.div variants={fadeInUp}>
+                <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
+                  <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
+                    <h2 className="text-2xl font-bold text-foreground">
+                      Preiskalkulator
+                    </h2>
+                  </CardHeader>
+                  <CardContent className="!px-4 !py-4 gap-0">
+                    <PricingCalculator analytics={analytics.businesses} />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            )}
+
+            {/* New Business Selection and Details Section */}
+            <motion.div className="space-y-4" variants={fadeInUp}>
+              <Card className={cn(glassCard, 'p-4')}>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <h2 className="text-2xl font-bold text-foreground">
+                    Business-Details
+                  </h2>
+                  <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
+                    <SelectTrigger className={cn(glassInput, 'w-full sm:w-[200px]')}>
+                      <SelectValue placeholder="Business auswählen" />
+                    </SelectTrigger>
+                    <SelectContent className={cn(glassCard)}>
+                      {analytics?.businesses?.map(business => (
+                        <SelectItem
+                          key={business.businessName}
+                          value={business.businessName}
+                          className="cursor-pointer"
+                        >
+                          {business.businessName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
-            )}
-          </div>
+              </Card>
 
-          {/* Pricing Calculator */}
-          {!isLoading && analytics?.businesses && (
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 overflow-hidden">
-              <div className="backdrop-blur-2xl bg-gradient-to-br from-white/15 to-white/5 p-4 border-b border-white/10">
-                <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Preiskalkulator
-                </h2>
-              </div>
-              <div className="p-4">
-                <PricingCalculator analytics={analytics.businesses} />
-              </div>
-            </div>
-          )}
-
-          {/* New Business Selection and Details Section */}
-          <div className="space-y-4">
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                  Business-Details
-                </h2>
-                <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
-                  <SelectTrigger className="w-full sm:w-[200px] backdrop-blur-2xl bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder="Business auswählen" />
-                  </SelectTrigger>
-                  <SelectContent className="backdrop-blur-3xl bg-black/80 border-white/20">
-                    {analytics?.businesses?.map(business => (
-                      <SelectItem
-                        key={business.businessName}
-                        value={business.businessName}
-                        className="text-white hover:bg-white/20"
-                      >
-                        {business.businessName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {selectedBusiness && analytics?.businesses && (
-              <BusinessDetails
-                business={
-                  analytics.businesses.find(b => b.businessName === selectedBusiness) || null
-                }
-                isLoading={isLoading}
-              />
-            )}
-          </div>
-
-          {/* Existing business cards */}
-          <div>
-            <div className="backdrop-blur-3xl bg-white/5 rounded-3xl border border-white/10 shadow-2xl ring-1 ring-white/20 p-4 mb-6">
-              <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
-                Alle Partner-Analysen
-              </h2>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {analytics?.businesses.map(business => (
-                <BusinessAnalyticsCard
-                  key={business.businessName}
-                  business={business}
+              {selectedBusiness && analytics?.businesses && (
+                <BusinessDetails
+                  business={
+                    analytics.businesses.find(b => b.businessName === selectedBusiness) || null
+                  }
                   isLoading={isLoading}
                 />
-              ))}
-            </div>
-          </div>
+              )}
+            </motion.div>
+
+            {/* Existing business cards */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(glassCard, 'p-4 mb-6')}>
+                <h2 className="text-2xl font-bold text-foreground">
+                  Alle Partner-Analysen
+                </h2>
+              </Card>
+              <motion.div
+                className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                {analytics?.businesses.map((business, index) => (
+                  <motion.div key={business.businessName} variants={fadeInUp}>
+                    <BusinessAnalyticsCard
+                      business={business}
+                      isLoading={isLoading}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 }
