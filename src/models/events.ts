@@ -20,6 +20,7 @@ export interface Event {
   favoriteCount?: number;
   ticketsNeeded?: boolean;
   price?: number;
+  priceString?: string;
   categoryId?: string;
   isPromoted?: boolean;
   dailyTimeSlots: DailyTimeSlot[];
