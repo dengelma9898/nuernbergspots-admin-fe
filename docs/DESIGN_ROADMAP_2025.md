@@ -372,14 +372,14 @@
 **Aufwand:** 3-4 Stunden
 
 **Seiten:**
-- ContactRequests (`/contacts`)
-- ContactRequestDetail (`/contacts/:id`)
+- ✅ ContactRequests (`/contacts`)
+- ✅ ContactRequestDetail (`/contacts/:id`)
 
 **Verbesserungen:**
-- [ ] List-Animationen: Stagger für Request-Cards
-- [ ] Status-Badges: Color-Transition bei Status-Änderung
-- [ ] Reply-Form: Smooth Expand-Animation
-- [ ] Notification-Badges: Pulse-Animation
+- [x] List-Animationen: Stagger für Request-Cards
+- [x] Status-Badges: Color-Transition bei Status-Änderung
+- [x] Reply-Form: Smooth Expand-Animation
+- [x] Notification-Badges: Pulse-Animation
 
 ---
 
