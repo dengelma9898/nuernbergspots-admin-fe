@@ -357,15 +357,15 @@
 **Seiten:**
 - ✅ AccountManagement (`/account-management`)
 - ✅ DowntimeManagement (`/downtime-management`)
-- [ ] AdventCalendarManagement (`/advent-calendar`)
-- [ ] AdventCalendarForm (`/advent-calendar/new`, `/advent-calendar/:id/edit`)
-- [ ] AdventCalendarParticipants (`/advent-calendar/:id/participants`)
+- ✅ AdventCalendarManagement (`/advent-calendar`)
+- ✅ AdventCalendarForm (`/advent-calendar/new`, `/advent-calendar/:id/edit`)
+- ✅ AdventCalendarParticipants (`/advent-calendar/:id/participants`)
 
 **Verbesserungen:**
 - [x] Toggle-Switches: Smooth Transition
 - [x] Status-Indikatoren: Pulse-Animation bei aktiven States
-- [ ] Calendar-Animationen: Date-Picker mit Fade-In
-- [ ] Participant-List: Stagger-Animation
+- [x] Calendar-Animationen: Date-Picker mit Fade-In
+- [x] Participant-List: Stagger-Animation
 
 #### 4.3 Kontaktanfragen
 **Priorität:** Mittel  
