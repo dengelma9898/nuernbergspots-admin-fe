@@ -224,7 +224,7 @@ export default function MittmachMittwoch() {
           </motion.div>
           {/* Title Section */}
           <motion.div
-            className={cn(glassCard, 'p-6 md:p-8 mb-8')}
+            className="mb-8"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
@@ -240,6 +240,7 @@ export default function MittmachMittwoch() {
           </motion.div>
           {/* Content Grid - Improved mobile-first responsive design */}
           <motion.div
+            key={`polls-${polls.length}-${isLoading}`}
             className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6"
             variants={staggerContainer}
             initial="initial"
@@ -249,9 +250,7 @@ export default function MittmachMittwoch() {
               <>
                 {/* Section Header Skeleton */}
                 <div className="col-span-full mt-6 mb-2">
-                  <Card className={cn(glassCard, 'p-4')}>
-                    <Skeleton className="h-6 w-48 rounded" />
-                  </Card>
+                  <Skeleton className="h-6 w-48 rounded" />
                 </div>
                 {/* Action Cards Skeletons */}
                 {[...Array(6)].map((_, index) => (
@@ -283,15 +282,13 @@ export default function MittmachMittwoch() {
                         initial="initial"
                         animate="animate"
                       >
-                        <Card className={cn(glassCard, 'p-4')}>
-                          <h2 className="text-lg md:text-xl font-semibold text-foreground">
-                            {status === SpecialPollStatus.ACTIVE && 'Aktive Aktionen'}
-                            {status === SpecialPollStatus.PENDING && 'Ausstehende Aktionen'}
-                            {status === SpecialPollStatus.CLOSED && 'Geschlossene Aktionen'}
-                          </h2>
-                        </Card>
+                        <h2 className="text-lg md:text-xl font-semibold text-foreground">
+                          {status === SpecialPollStatus.ACTIVE && 'Aktive Aktionen'}
+                          {status === SpecialPollStatus.PENDING && 'Ausstehende Aktionen'}
+                          {status === SpecialPollStatus.CLOSED && 'Geschlossene Aktionen'}
+                        </h2>
                       </motion.div>
-                      {polls.map((poll, index) => (
+                      {polls.map((poll) => (
                         <motion.div key={poll.id} variants={fadeInUp}>
                           <Card
                             className={cn(glassCard, 'cursor-pointer rounded-2xl')}
