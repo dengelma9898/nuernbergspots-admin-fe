@@ -27,6 +27,12 @@
   --accent-foreground: oklch(0.145 0 0); /* Schwarz */
   --destructive: oklch(0.577 0.245 27.325); /* Rot */
   --destructive-foreground: oklch(1 0 0); /* Weiß */
+  --success: oklch(0.637 0.237 149.579); /* Grün - für erfolgreiche Zustände */
+  --success-foreground: oklch(1 0 0); /* Weiß */
+  --warning: oklch(0.795 0.184 86.047); /* Gelb - für Warnungen */
+  --warning-foreground: oklch(0.145 0 0); /* Schwarz */
+  --error: oklch(0.577 0.245 27.325); /* Rot - für Fehlerzustände */
+  --error-foreground: oklch(1 0 0); /* Weiß */
   --border: oklch(0.9 0 0); /* Hellgrau Border */
   --input: oklch(0.95 0 0); /* Hellgrau Input */
   --ring: oklch(0.577 0.245 27.325); /* Rot Ring */
@@ -65,6 +71,12 @@
   --accent-foreground: oklch(1 0 0); /* Weiß */
   --destructive: oklch(0.704 0.191 22.216); /* Rot */
   --destructive-foreground: oklch(1 0 0); /* Weiß */
+  --success: oklch(0.723 0.219 149.579); /* Grün - heller für Dark Mode */
+  --success-foreground: oklch(1 0 0); /* Weiß */
+  --warning: oklch(0.852 0.199 91.936); /* Gelb - heller für Dark Mode */
+  --warning-foreground: oklch(0.145 0 0); /* Schwarz */
+  --error: oklch(0.704 0.191 22.216); /* Rot - für Fehlerzustände */
+  --error-foreground: oklch(1 0 0); /* Weiß */
   --border: oklch(0.3 0 0); /* Mittelgrau Border */
   --input: oklch(0.25 0 0); /* Dunkelgrau Input */
   --ring: oklch(0.704 0.191 22.216); /* Rot Ring */
@@ -103,6 +115,12 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
