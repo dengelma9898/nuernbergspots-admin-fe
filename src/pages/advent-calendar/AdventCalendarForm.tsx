@@ -493,13 +493,16 @@ export function AdventCalendarForm() {
                     <LoadingButton
                       type="submit"
                       disabled={isSaving || isUploadingImage}
+                      isLoading={isSaving || isUploadingImage}
+                      loadingText={
+                        isUploadingImage
+                          ? 'Bild wird hochgeladen...'
+                          : id
+                            ? 'Wird aktualisiert...'
+                            : 'Wird erstellt...'
+                      }
                       className="flex-1"
                     >
-                      {isUploadingImage
-                        ? 'Bild wird hochgeladen...'
-                        : id
-                          ? 'Wird aktualisiert...'
-                          : 'Wird erstellt...'}
                       {id ? 'Eintrag aktualisieren' : 'Eintrag erstellen'}
                     </LoadingButton>
                     <AnimatedButton

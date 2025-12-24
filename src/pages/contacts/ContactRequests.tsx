@@ -190,6 +190,7 @@ export function ContactRequests() {
               variants={staggerContainer}
               initial="initial"
               animate="animate"
+              key="contact-requests-list"
             >
               {loading ? (
                 // Show skeleton cards while loading
@@ -218,6 +219,8 @@ export function ContactRequests() {
                   <motion.div
                     key={request.id}
                     variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
                     whileHover={{ scale: 1.02 }}
                     transition={defaultTransition}
                   >
@@ -255,7 +258,7 @@ export function ContactRequests() {
                               {request.messages.length === 1 ? 'Nachricht' : 'Nachrichten'}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-foreground group-hover:text-primary transition-colors">
+                          <div className="flex items-center gap-2 text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                             <span className="text-sm font-medium">Details anzeigen</span>
                             <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                           </div>
