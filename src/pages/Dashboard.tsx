@@ -31,6 +31,8 @@ import {
   MessageCircle,
   Handshake,
   Power,
+  Shield,
+  FileText,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -620,7 +622,7 @@ export function Dashboard() {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            transition={{ ...defaultTransition, delay: 0.8 }}
+            transition={{ ...defaultTransition, delay: 0.85 }}
           >
             <h3 className="text-xl font-semibold mb-4 text-foreground">Analytics und Sonstiges</h3>
             <motion.div
@@ -644,12 +646,58 @@ export function Dashboard() {
                   index={1}
                 />
                 <NavigationCard
+                  icon={Shield}
+                  title="User Blockierung"
+                  description="User blockieren oder entsperren bei Verstößen gegen AGBs"
+                  href="/users/block-management"
+                  index={2}
+                />
+                <NavigationCard
                   icon={Power}
                   title="Downtime-Verwaltung"
                   description="Wartungsmodus aktivieren oder deaktivieren"
                   href="/downtime-management"
-                  index={2}
+                  index={3}
                 />
+            </motion.div>
+          </motion.div>
+
+          {/* Legal */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.75 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Legal</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              <NavigationCard
+                icon={FileText}
+                title="Impressum"
+                description="Impressums-Informationen verwalten und bearbeiten"
+                href="/legal/impressum/edit"
+                index={0}
+              />
+              <NavigationCard
+                icon={FileText}
+                title="Datenschutzerklärung"
+                description="Datenschutzerklärung verwalten und bearbeiten"
+                href="/legal/datenschutz/edit"
+                index={1}
+              />
+              <NavigationCard
+                icon={FileText}
+                title="AGBs"
+                description="Allgemeine Geschäftsbedingungen verwalten und bearbeiten"
+                href="/legal/agb/edit"
+                index={2}
+              />
             </motion.div>
           </motion.div>
         </motion.div>

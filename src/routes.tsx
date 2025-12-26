@@ -21,6 +21,7 @@ import { ContactRequestDetail } from './pages/contacts/ContactRequestDetail';
 import { Analytics } from './pages/Analytics';
 import { BusinessUserList } from './pages/users/BusinessUserList';
 import { EditBusinessUser } from './pages/users/EditBusinessUser';
+import { UserBlockManagement } from './pages/users/UserBlockManagement';
 import { EditBusiness } from './pages/businesses/EditBusiness';
 import NewsManagement from './pages/NewsManagement';
 import { JobOffers } from '@/pages/JobOffers';
@@ -35,6 +36,8 @@ import { DowntimeManagement } from './pages/DowntimeManagement';
 import { AdventCalendarManagement } from './pages/advent-calendar/AdventCalendarManagement';
 import { AdventCalendarForm } from './pages/advent-calendar/AdventCalendarForm';
 import { AdventCalendarParticipants } from './pages/advent-calendar/AdventCalendarParticipants';
+import { LegalManagement } from './pages/legal/LegalManagement';
+import { LegalDocumentEdit } from './pages/legal/LegalDocumentEdit';
 
 export function AppRoutes() {
   return (
@@ -61,6 +64,7 @@ export function AppRoutes() {
         <Route path="/users/business/review" element={<BusinessUserReview />} />
         <Route path="/business-users" element={<BusinessUserList />} />
         <Route path="/business-users/:id/edit" element={<EditBusinessUser />} />
+        <Route path="/users/block-management" element={<UserBlockManagement />} />
         <Route path="/contacts" element={<ContactRequests />} />
         <Route path="/contacts/:id" element={<ContactRequestDetail />} />
         <Route path="/event-categories" element={<EventCategoryList />} />
@@ -81,6 +85,8 @@ export function AppRoutes() {
         <Route path="/advent-calendar/new" element={<AdventCalendarForm />} />
         <Route path="/advent-calendar/:id/edit" element={<AdventCalendarForm />} />
         <Route path="/advent-calendar/:id/participants" element={<AdventCalendarParticipants />} />
+        <Route path="/legal" element={<LegalManagement />} />
+        <Route path="/legal/:type/edit" element={<LegalDocumentEdit />} />
       </Route>
 
       {/* Fallback */}
