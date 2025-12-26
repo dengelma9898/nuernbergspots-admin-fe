@@ -1,4 +1,4 @@
-import { UserProfile, BusinessUser } from '../models/users';
+import { UserProfile, BusinessUser, User, BlockUserRequest } from '../models/users';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { useMemo } from 'react';
@@ -151,6 +151,36 @@ export function useUserService() {
         await api.patch(`${endpoints.users}/${userId}/business-profile/needs-review`, {
           needsReview: needsReview,
         });
+      },
+
+      /**
+       * Blockiert oder entsperrt einen User
+       */
+      blockUser: async (request: BlockUserRequest): Promise<User> => {
+        const response = await api.patch<ApiResponse<User>>(`${endpoints.users}/block`, {
+          customerId: request.customerId,
+          isBlocked: request.isBlocked,
+          blockReason: request.blockReason,
+        });
+        return unwrapData(response);
+      },
+
+      /**
+       * Lädt alle User (für Super Admin)
+       */
+      getAllUsers: async (): Promise<User[]> => {
+        const response = await api.get<ApiResponse<User[]>>(endpoints.users);
+        return unwrapData(response);
+      },
+
+      /**
+       * Sucht User nach E-Mail oder Name
+       */
+      searchUsers: async (query: string): Promise<User[]> => {
+        const response = await api.get<ApiResponse<User[]>>(
+          `${endpoints.users}/search?q=${encodeURIComponent(query)}`
+        );
+        return unwrapData(response);
       },
     }),
     [api]
