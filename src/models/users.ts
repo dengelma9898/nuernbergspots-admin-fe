@@ -56,3 +56,22 @@ export interface BusinessUser {
   eventIds?: string[];
   businessNames?: string[];
 }
+
+export interface User {
+  id?: string;
+  email: string;
+  name?: string;
+  userType: UserType;
+  managementId?: string;
+  customerId?: string;
+  isBlocked?: boolean;
+  blockReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BlockUserRequest {
+  customerId: string;
+  isBlocked: boolean;
+  blockReason?: string;
+}

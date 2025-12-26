@@ -1,6 +1,6 @@
 import ApiClient from './api-client';
 import { useAuth } from '../contexts/AuthContext';
-import type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users';
+import type { UserProfile, BusinessUser, UserType, BusinessHistory, User } from '../models/users';
 import { useMemo } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -58,4 +58,4 @@ export const endpoints = {
 } as const;
 
 // Re-export models
-export type { UserProfile, BusinessUser, UserType, BusinessHistory } from '../models/users';
+export type { UserProfile, BusinessUser, UserType, BusinessHistory, User } from '../models/users';
