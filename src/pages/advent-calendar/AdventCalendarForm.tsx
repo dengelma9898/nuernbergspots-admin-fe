@@ -14,6 +14,7 @@ import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
@@ -76,6 +77,7 @@ export function AdventCalendarForm() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+  const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [formData, setFormData] = useState<CreateAdventCalendarEntryDto>({
     number: 1,
     canParticipate: true,
@@ -103,6 +105,7 @@ export function AdventCalendarForm() {
       });
       if (entry.imageUrl) {
         setImagePreview(entry.imageUrl);
+        setShouldDeleteImage(false);
       }
     } catch (error) {
       toast.error('Fehler beim Laden des Eintrags', {
@@ -124,6 +127,8 @@ export function AdventCalendarForm() {
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Wenn ein neues Bild ausgewählt wird, wird das alte ersetzt (nicht gelöscht)
+      setShouldDeleteImage(false);
       setSelectedImage(file);
       const previewUrl = URL.createObjectURL(file);
       setImagePreview(previewUrl);
@@ -136,6 +141,10 @@ export function AdventCalendarForm() {
     }
     setSelectedImage(null);
     setImagePreview('');
+    // Wenn ein bestehendes Bild gelöscht wird (nicht blob:), markiere es zum Löschen
+    if (imagePreview && !imagePreview.startsWith('blob:')) {
+      setShouldDeleteImage(true);
+    }
   };
 
   const normalizeUrl = (urlString: string): string => {
@@ -202,14 +211,26 @@ export function AdventCalendarForm() {
           description: formData.description,
           linkUrl: formData.linkUrl?.trim() ? normalizeUrl(formData.linkUrl.trim()) : undefined,
         };
+        
+        // Wenn Bild gelöscht werden soll UND kein neues Bild ausgewählt wurde, sende null ans Backend
+        if (shouldDeleteImage && !selectedImage) {
+          updateData.imageUrl = null;
+        }
+        
         const updatedEntry = await adventCalendarService.update(id, updateData);
         entryId = updatedEntry.id;
 
-        // Upload Image if selected
+        // Upload Image if selected (ersetzt das alte Bild, wenn shouldDeleteImage true ist)
         if (selectedImage) {
           setIsUploadingImage(true);
           await adventCalendarService.uploadImage(entryId, selectedImage);
+        } else if (shouldDeleteImage) {
+          // Wenn kein neues Bild ausgewählt wurde, aber gelöscht werden soll,
+          // wurde das bereits im updateData.imageUrl = null gesetzt
         }
+        
+        // Reset delete flag
+        setShouldDeleteImage(false);
 
         toast.success('Eintrag aktualisiert', {
           description: 'Der Adventskalender-Eintrag wurde erfolgreich aktualisiert.',
@@ -443,22 +464,23 @@ export function AdventCalendarForm() {
                     <Label className="text-foreground">Bild</Label>
                     <div className="space-y-4">
                       {imagePreview ? (
-                        <div className="relative">
+                        <div className="relative group">
                           <div className={cn(glassCard, 'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2')}>
                             <img
                               src={imagePreview}
                               alt="Vorschau"
                               className="w-full h-full object-cover rounded"
                             />
-                            <AnimatedButton
+                            <Button
                               type="button"
                               variant="destructive"
                               size="icon"
                               onClick={removeImage}
-                              className="absolute top-2 right-2"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-8 w-8 z-10"
+                              title="Bild entfernen"
                             >
                               <X className="h-4 w-4" />
-                            </AnimatedButton>
+                            </Button>
                           </div>
                         </div>
                       ) : (
