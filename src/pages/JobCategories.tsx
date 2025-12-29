@@ -40,6 +40,9 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const toSnakeCase = (str: string): string => {
   return str
@@ -157,8 +160,13 @@ export function JobCategories() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
+  
+  // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
+  const imageUpload = useValidatedImageUpload({
+    maxImages: 5,
+    maxSizeMB: 1,
+  });
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -195,8 +203,8 @@ export function JobCategories() {
 
       const category = await jobCategoryService.createCategory(categoryToSave);
 
-      if (selectedImages.length > 0) {
-        await jobCategoryService.updateFallbackImages(category.id, selectedImages);
+      if (imageUpload.files.length > 0) {
+        await jobCategoryService.updateFallbackImages(category.id, imageUpload.files);
         const updatedCategory = await jobCategoryService.getCategory(category.id);
         setCategories(prev => [...prev, updatedCategory]);
       } else {
@@ -210,8 +218,8 @@ export function JobCategories() {
         iconName: '',
         fallbackImages: [],
       });
-      setSelectedImages([]);
-      setPreviewUrls([]);
+      imageUpload.clearImages();
+      setExistingImageUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
@@ -233,12 +241,11 @@ export function JobCategories() {
     });
 
     if (category.fallbackImages && category.fallbackImages.length > 0) {
-      setPreviewUrls(category.fallbackImages);
-      setSelectedImages([]);
+      setExistingImageUrls(category.fallbackImages);
     } else {
-      setPreviewUrls([]);
-      setSelectedImages([]);
+      setExistingImageUrls([]);
     }
+    imageUpload.clearImages();
 
     setIsDialogOpen(true);
   };
@@ -264,10 +271,10 @@ export function JobCategories() {
       );
 
       // Füge neue Bilder hinzu, falls vorhanden
-      if (selectedImages.length > 0) {
+      if (imageUpload.files.length > 0) {
         const finalCategory = await jobCategoryService.updateFallbackImages(
           updatedCategory.id,
-          selectedImages
+          imageUpload.files
         );
         setCategories(prev =>
           prev.map(cat => (cat.id === updatedCategory.id ? finalCategory : cat))
@@ -286,8 +293,8 @@ export function JobCategories() {
         iconName: '',
         fallbackImages: [],
       });
-      setSelectedImages([]);
-      setPreviewUrls([]);
+      imageUpload.clearImages();
+      setExistingImageUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
@@ -318,6 +325,8 @@ export function JobCategories() {
       iconName: '',
       fallbackImages: [],
     });
+    imageUpload.clearImages();
+    setExistingImageUrls([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -328,29 +337,21 @@ export function JobCategories() {
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length + selectedImages.length > 5) {
-      toast.error('Maximal 5 Bilder erlaubt');
-      return;
-    }
-
-    setSelectedImages([...selectedImages, ...files]);
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+    imageUpload.handleFileChange(e);
   };
 
-  const removeImage = async (index: number) => {
-    if (editingCategory && !selectedImages.length && previewUrls.length > 0) {
+  const removeImage = async (index: number, isExisting: boolean) => {
+    if (isExisting && editingCategory) {
       try {
         // Hole die URL des zu entfernenden Bildes
-        const imageToRemove = previewUrls[index];
+        const imageToRemove = existingImageUrls[index];
 
         // Entferne das Bild über den separaten Endpoint
         await jobCategoryService.deleteFallbackImage(editingCategory.id, imageToRemove);
 
         // Aktualisiere den lokalen State
-        const updatedUrls = previewUrls.filter((_, i) => i !== index);
-        setPreviewUrls(updatedUrls);
+        const updatedUrls = existingImageUrls.filter((_, i) => i !== index);
+        setExistingImageUrls(updatedUrls);
         setNewCategory(prev => ({
           ...prev,
           fallbackImages: updatedUrls,
@@ -363,9 +364,7 @@ export function JobCategories() {
       }
     } else {
       // Wenn wir ein neu ausgewähltes Bild entfernen
-      setSelectedImages(selectedImages.filter((_, i) => i !== index));
-      URL.revokeObjectURL(previewUrls[index]);
-      setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+      imageUpload.removeImage(index);
     }
   };
 
@@ -464,23 +463,54 @@ export function JobCategories() {
                       <label className="text-sm font-medium text-foreground">
                         Fallback-Bilder (max. 5)
                       </label>
+                      {imageUpload.error && (
+                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>{imageUpload.error.title}</AlertTitle>
+                          <AlertDescription className="mt-2">
+                            <p>{imageUpload.error.message}</p>
+                            {imageUpload.error.actionHint && (
+                              <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                            )}
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <div className="grid grid-cols-5 gap-2">
-                        {previewUrls.map((url, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={url}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg"
-                          />
-                          <button
-                            onClick={() => removeImage(index)}
-                            className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                        {previewUrls.length < 5 && (
+                        {/* Bestehende Bilder */}
+                        {existingImageUrls.map((url, index) => (
+                          <div key={`existing-${index}`} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Bild ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                            <button
+                              onClick={() => removeImage(index, true)}
+                              className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                              aria-label="Bild entfernen"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Neue Bilder */}
+                        {imageUpload.previewUrls.map((url, index) => (
+                          <div key={`new-${index}`} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg"
+                            />
+                            <button
+                              onClick={() => removeImage(index, false)}
+                              className="absolute top-1 right-1 p-1 bg-red-500/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+                              aria-label="Bild entfernen"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {(existingImageUrls.length + imageUpload.previewUrls.length) < 5 && (
                           <label className={cn(glassCard, 'flex items-center justify-center h-24 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-colors')}>
                             <input
                               type="file"

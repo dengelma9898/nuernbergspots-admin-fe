@@ -48,8 +48,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
-import { validateImageFile } from '@/utils/fileValidationUtils';
 import { Background } from '@/components/Background';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { motion } from 'framer-motion';
@@ -111,11 +112,21 @@ export function ChatroomManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedChatroom, setSelectedChatroom] = useState<Chatroom | null>(null);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [createError, setCreateError] = useState<UserFriendlyError | null>(null);
   const [editError, setEditError] = useState<UserFriendlyError | null>(null);
+  
+  // Zentrale Bildvalidierung für Create-Dialog
+  const createImageUpload = useValidatedImageUpload({
+    maxImages: 1,
+    maxSizeMB: 1,
+  });
+  
+  // Zentrale Bildvalidierung für Edit-Dialog
+  const editImageUpload = useValidatedImageUpload({
+    maxImages: 1,
+    maxSizeMB: 1,
+  });
   const [newChatroom, setNewChatroom] = useState({
     title: '',
     description: '',
@@ -146,50 +157,35 @@ export function ChatroomManagement() {
     }
   };
 
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // Validiere Datei vor der Auswahl (max 1 MB für Chatrooms)
-      const validation = validateImageFile(file, 1);
-      
-      if (!validation.isValid && validation.error) {
-        // Zeige Fehler sofort an
-        const friendlyError = {
-          title: validation.error.title,
-          message: validation.error.message,
-          isPersistent: true,
-          actionHint: validation.error.actionHint,
-        };
-        
-        if (isEditDialogOpen) {
-          setEditError(friendlyError);
-        } else {
-          setCreateError(friendlyError);
-        }
-        
-        showUserFriendlyError(
-          Object.assign(new Error(validation.error.message), { validationError: validation.error }),
-          toast
-        );
-        
-        // Setze File-Input zurück
-        event.target.value = '';
-        return;
-      }
-      
-      setSelectedImage(file);
-      // Lösche Fehler wenn Datei gültig ist
-      if (isEditDialogOpen) {
-        setEditError(null);
-      } else {
-        setCreateError(null);
-      }
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  // Handler für Create-Dialog
+  const handleCreateImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    createImageUpload.handleFileChange(event);
+    // Konvertiere Hook-Error zu UserFriendlyError für Kompatibilität
+    if (createImageUpload.error) {
+      setCreateError({
+        title: createImageUpload.error.title,
+        message: createImageUpload.error.message,
+        isPersistent: true,
+        actionHint: createImageUpload.error.actionHint,
+      });
+    } else {
+      setCreateError(null);
+    }
+  };
+  
+  // Handler für Edit-Dialog
+  const handleEditImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    editImageUpload.handleFileChange(event);
+    // Konvertiere Hook-Error zu UserFriendlyError für Kompatibilität
+    if (editImageUpload.error) {
+      setEditError({
+        title: editImageUpload.error.title,
+        message: editImageUpload.error.message,
+        isPersistent: true,
+        actionHint: editImageUpload.error.actionHint,
+      });
+    } else {
+      setEditError(null);
     }
   };
 
@@ -198,11 +194,11 @@ export function ChatroomManagement() {
     try {
       const createdChatroom = await chatroomService.createChatroom(newChatroom);
 
-      if (selectedImage) {
+      if (createImageUpload.files.length > 0) {
         try {
           const imageUrl = await chatroomService.uploadChatroomImage(
             createdChatroom.id,
-            selectedImage
+            createImageUpload.files[0]
           );
           await chatroomService.updateChatroom(createdChatroom.id, { image: imageUrl });
         } catch (imageError: any) {
@@ -222,8 +218,7 @@ export function ChatroomManagement() {
         imageUrl: '',
         participants: [],
       });
-      setSelectedImage(null);
-      setImagePreview(null);
+      createImageUpload.clearImages();
       loadChatrooms();
     } catch (error: any) {
       const friendlyError = getUserFriendlyError(error);
@@ -248,11 +243,11 @@ export function ChatroomManagement() {
       };
 
       // Prüfe ob ein neues Bild hochgeladen werden soll
-      if (selectedImage) {
+      if (editImageUpload.files.length > 0) {
         try {
           const imageUrl = await chatroomService.uploadChatroomImage(
             selectedChatroom.id,
-            selectedImage
+            editImageUpload.files[0]
           );
           updateData.image = imageUrl;
         } catch (imageError: any) {
@@ -263,8 +258,8 @@ export function ChatroomManagement() {
         }
       }
       // Prüfe ob das bestehende Bild gelöscht werden soll
-      // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde)
-      else if (originalImageUrl && !imagePreview) {
+      // (wenn ursprünglich ein Bild vorhanden war, aber jetzt kein neues Bild ausgewählt wurde und originalImageUrl null ist)
+      else if (originalImageUrl === null && selectedChatroom.imageUrl) {
         updateData.image = '';
       }
 
@@ -275,8 +270,7 @@ export function ChatroomManagement() {
       setIsEditDialogOpen(false);
       setEditError(null);
       setSelectedChatroom(null);
-      setSelectedImage(null);
-      setImagePreview(null);
+      editImageUpload.clearImages();
       setOriginalImageUrl(null);
       loadChatrooms();
     } catch (error: any) {
@@ -307,9 +301,8 @@ export function ChatroomManagement() {
   const openEditDialog = (chatroom: Chatroom, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedChatroom(chatroom);
-    setImagePreview(chatroom.imageUrl || null);
     setOriginalImageUrl(chatroom.imageUrl || null);
-    setSelectedImage(null);
+    editImageUpload.clearImages();
     setEditError(null);
     setIsEditDialogOpen(true);
   };
@@ -373,28 +366,21 @@ export function ChatroomManagement() {
                         Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
                       </DialogDescription>
                     </DialogHeader>
-                    {createError && (
-                      <Card className="rounded-lg border-destructive bg-destructive/10 p-4 space-y-2">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                          <div className="flex-1 space-y-1">
-                            <h4 className="font-semibold text-destructive">{createError.title}</h4>
-                            <p className="text-sm text-muted-foreground">{createError.message}</p>
-                            {createError.actionHint && (
-                              <p className="text-xs text-muted-foreground mt-2">{createError.actionHint}</p>
-                            )}
-                          </div>
-                          <AnimatedButton
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setCreateError(null)}
-                            className="text-destructive hover:text-destructive/90"
-                            aria-label="Fehler schließen"
-                          >
-                            <X className="h-4 w-4" />
-                          </AnimatedButton>
-                        </div>
-                      </Card>
+                    {(createError || createImageUpload.error) && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>
+                          {createImageUpload.error?.title || createError?.title}
+                        </AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <p>{createImageUpload.error?.message || createError?.message}</p>
+                          {(createImageUpload.error?.actionHint || createError?.actionHint) && (
+                            <p className="mt-2 text-sm opacity-90">
+                              {createImageUpload.error?.actionHint || createError?.actionHint}
+                            </p>
+                          )}
+                        </AlertDescription>
+                      </Alert>
                     )}
                     <div className="space-y-4 py-4">
                       <div className="space-y-2">
@@ -427,24 +413,21 @@ export function ChatroomManagement() {
                         <Label className="text-foreground">Chatroom Bild</Label>
                         <div className="flex items-center gap-4">
                           <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
-                            {imagePreview ? (
+                            {createImageUpload.previewUrls.length > 0 ? (
                               <>
                                 <img
-                                  src={imagePreview}
+                                  src={createImageUpload.previewUrls[0]}
                                   alt="Vorschau"
                                   className="w-full h-full object-cover"
                                 />
-                                <AnimatedButton
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => {
-                                    setSelectedImage(null);
-                                    setImagePreview(null);
-                                  }}
-                                  className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+                                <button
+                                  type="button"
+                                  onClick={() => createImageUpload.removeImage(0)}
+                                  className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
+                                  aria-label="Bild entfernen"
                                 >
                                   <X className="h-4 w-4" />
-                                </AnimatedButton>
+                                </button>
                               </>
                             ) : (
                               <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -456,7 +439,7 @@ export function ChatroomManagement() {
                             <Input
                               type="file"
                               accept="image/*"
-                              onChange={handleImageSelect}
+                              onChange={handleCreateImageSelect}
                               className="hidden"
                               id="image-upload"
                             />
@@ -473,7 +456,11 @@ export function ChatroomManagement() {
                     <DialogFooter>
                       <AnimatedButton
                         variant="outline"
-                        onClick={() => setIsCreateDialogOpen(false)}
+                        onClick={() => {
+                          setIsCreateDialogOpen(false);
+                          createImageUpload.clearImages();
+                          setCreateError(null);
+                        }}
                         className={cn(glassButton)}
                       >
                         Abbrechen
@@ -496,8 +483,7 @@ export function ChatroomManagement() {
                 setIsEditDialogOpen(open);
                 if (!open) {
                   setEditError(null);
-                  setSelectedImage(null);
-                  setImagePreview(null);
+                  editImageUpload.clearImages();
                   setOriginalImageUrl(null);
                 }
               }}
@@ -509,28 +495,21 @@ export function ChatroomManagement() {
                     Bearbeiten Sie die Einstellungen des Chatrooms.
                   </DialogDescription>
                 </DialogHeader>
-                {editError && (
-                  <Card className="rounded-lg border-destructive bg-destructive/10 p-4 space-y-2">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                      <div className="flex-1 space-y-1">
-                        <h4 className="font-semibold text-destructive">{editError.title}</h4>
-                        <p className="text-sm text-muted-foreground">{editError.message}</p>
-                        {editError.actionHint && (
-                          <p className="text-xs text-muted-foreground mt-2">{editError.actionHint}</p>
-                        )}
-                      </div>
-                      <AnimatedButton
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditError(null)}
-                        className="text-destructive hover:text-destructive/90"
-                        aria-label="Fehler schließen"
-                      >
-                        <X className="h-4 w-4" />
-                      </AnimatedButton>
-                    </div>
-                  </Card>
+                {(editError || editImageUpload.error) && (
+                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>
+                      {editImageUpload.error?.title || editError?.title}
+                    </AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <p>{editImageUpload.error?.message || editError?.message}</p>
+                      {(editImageUpload.error?.actionHint || editError?.actionHint) && (
+                        <p className="mt-2 text-sm opacity-90">
+                          {editImageUpload.error?.actionHint || editError?.actionHint}
+                        </p>
+                      )}
+                    </AlertDescription>
+                  </Alert>
                 )}
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
@@ -569,25 +548,29 @@ export function ChatroomManagement() {
                     <Label className="text-foreground">Chatroom Bild</Label>
                     <div className="flex items-center gap-4">
                       <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
-                        {imagePreview ? (
+                        {(editImageUpload.previewUrls.length > 0 || originalImageUrl) ? (
                           <>
                             <img
-                              src={imagePreview}
+                              src={editImageUpload.previewUrls[0] || originalImageUrl || ''}
                               alt="Vorschau"
                               className="w-full h-full object-cover"
                             />
-                            <AnimatedButton
-                              variant="ghost"
-                              size="icon"
+                            <button
+                              type="button"
                               onClick={() => {
-                                setSelectedImage(null);
-                                setImagePreview(null);
+                                if (editImageUpload.previewUrls.length > 0) {
+                                  // Neues Bild entfernen
+                                  editImageUpload.removeImage(0);
+                                } else if (originalImageUrl) {
+                                  // Ursprüngliches Bild markieren zum Löschen
+                                  setOriginalImageUrl(null);
+                                }
                               }}
-                              className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
+                              className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
                               aria-label="Bild entfernen"
                             >
                               <X className="h-4 w-4" />
-                            </AnimatedButton>
+                            </button>
                           </>
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-muted">
@@ -599,7 +582,7 @@ export function ChatroomManagement() {
                         <Input
                           type="file"
                           accept="image/*"
-                          onChange={handleImageSelect}
+                          onChange={handleEditImageSelect}
                           className="hidden"
                           id="edit-image-upload"
                         />

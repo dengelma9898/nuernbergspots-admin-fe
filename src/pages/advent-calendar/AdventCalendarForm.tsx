@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Image as ImageIcon, Upload, X, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, Image as ImageIcon, Upload, X, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
@@ -20,6 +20,8 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function AdventCalendarFormSkeleton() {
   return (
@@ -75,9 +77,14 @@ export function AdventCalendarForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
   const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
+  
+  // Zentrale Bildvalidierung mit max 1 MB pro Bild
+  const imageUpload = useValidatedImageUpload({
+    maxImages: 1,
+    maxSizeMB: 1,
+  });
   const [formData, setFormData] = useState<CreateAdventCalendarEntryDto>({
     number: 1,
     canParticipate: true,
@@ -104,7 +111,7 @@ export function AdventCalendarForm() {
         linkUrl: entry.linkUrl,
       });
       if (entry.imageUrl) {
-        setImagePreview(entry.imageUrl);
+        setOriginalImageUrl(entry.imageUrl);
         setShouldDeleteImage(false);
       }
     } catch (error) {
@@ -125,25 +132,19 @@ export function AdventCalendarForm() {
   }, [id]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Wenn ein neues Bild ausgewählt wird, wird das alte ersetzt (nicht gelöscht)
+    imageUpload.handleFileChange(e);
+    // Wenn ein neues Bild ausgewählt wird, wird das alte ersetzt (nicht gelöscht)
+    if (imageUpload.files.length > 0) {
       setShouldDeleteImage(false);
-      setSelectedImage(file);
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
     }
   };
 
   const removeImage = () => {
-    if (imagePreview && imagePreview.startsWith('blob:')) {
-      URL.revokeObjectURL(imagePreview);
-    }
-    setSelectedImage(null);
-    setImagePreview('');
-    // Wenn ein bestehendes Bild gelöscht wird (nicht blob:), markiere es zum Löschen
-    if (imagePreview && !imagePreview.startsWith('blob:')) {
+    imageUpload.clearImages();
+    // Wenn ein bestehendes Bild gelöscht wird, markiere es zum Löschen
+    if (originalImageUrl) {
       setShouldDeleteImage(true);
+      setOriginalImageUrl('');
     }
   };
 
@@ -213,7 +214,7 @@ export function AdventCalendarForm() {
         };
         
         // Wenn Bild gelöscht werden soll UND kein neues Bild ausgewählt wurde, sende null ans Backend
-        if (shouldDeleteImage && !selectedImage) {
+        if (shouldDeleteImage && imageUpload.files.length === 0) {
           updateData.imageUrl = null;
         }
         
@@ -221,9 +222,9 @@ export function AdventCalendarForm() {
         entryId = updatedEntry.id;
 
         // Upload Image if selected (ersetzt das alte Bild, wenn shouldDeleteImage true ist)
-        if (selectedImage) {
+        if (imageUpload.files.length > 0) {
           setIsUploadingImage(true);
-          await adventCalendarService.uploadImage(entryId, selectedImage);
+          await adventCalendarService.uploadImage(entryId, imageUpload.files[0]);
         } else if (shouldDeleteImage) {
           // Wenn kein neues Bild ausgewählt wurde, aber gelöscht werden soll,
           // wurde das bereits im updateData.imageUrl = null gesetzt
@@ -245,9 +246,9 @@ export function AdventCalendarForm() {
         entryId = newEntry.id;
 
         // Upload Image if selected
-        if (selectedImage) {
+        if (imageUpload.files.length > 0) {
           setIsUploadingImage(true);
-          await adventCalendarService.uploadImage(entryId, selectedImage);
+          await adventCalendarService.uploadImage(entryId, imageUpload.files[0]);
         }
 
         toast.success('Eintrag erstellt', {
@@ -462,25 +463,35 @@ export function AdventCalendarForm() {
                   {/* Image Upload */}
                   <div className="space-y-2">
                     <Label className="text-foreground">Bild</Label>
+                    {imageUpload.error && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>{imageUpload.error.title}</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <p>{imageUpload.error.message}</p>
+                          {imageUpload.error.actionHint && (
+                            <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <div className="space-y-4">
-                      {imagePreview ? (
+                      {(imageUpload.previewUrls.length > 0 || originalImageUrl) ? (
                         <div className="relative group">
                           <div className={cn(glassCard, 'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2')}>
                             <img
-                              src={imagePreview}
+                              src={imageUpload.previewUrls[0] || originalImageUrl}
                               alt="Vorschau"
                               className="w-full h-full object-cover rounded"
                             />
-                            <Button
+                            <button
                               type="button"
-                              variant="destructive"
-                              size="icon"
                               onClick={removeImage}
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-8 w-8 z-10"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-8 w-8 z-10 flex items-center justify-center"
                               title="Bild entfernen"
                             >
                               <X className="h-4 w-4" />
-                            </Button>
+                            </button>
                           </div>
                         </div>
                       ) : (

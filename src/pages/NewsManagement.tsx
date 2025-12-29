@@ -41,6 +41,9 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 
 const NewsSkeletonBubble: React.FC<{ type?: 'text' | 'image' | 'poll' }> = ({ type = 'text' }) => {
   return (
@@ -252,9 +255,21 @@ const NewsManagement: React.FC = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [showPollModal, setShowPollModal] = useState(false);
   const [imageContent, setImageContent] = useState('');
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [imageSending, setImageSending] = useState(false);
+  
+  // Zentrale Bildvalidierung mit max 1 MB pro Bild
+  const {
+    files: imageFiles,
+    previewUrls: imagePreviews,
+    error: imageError,
+    clearError: clearImageError,
+    handleFileChange: handleImageFiles,
+    removeImage: handleRemoveImage,
+    clearImages: clearImageFiles,
+  } = useValidatedImageUpload({
+    maxImages: MAX_IMAGES,
+    maxSizeMB: 1, // Max 1 MB pro Bild
+  });
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [allowMultipleAnswers, setAllowMultipleAnswers] = useState(false);
@@ -336,23 +351,6 @@ const NewsManagement: React.FC = () => {
     }
   };
 
-  const handleImageFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files).slice(0, MAX_IMAGES - imageFiles.length);
-    setImageFiles(prev => [...prev, ...files]);
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleRemoveImage = (idx: number) => {
-    setImageFiles(prev => prev.filter((_, i) => i !== idx));
-    setImagePreviews(prev => prev.filter((_, i) => i !== idx));
-  };
 
   const handleSendImageNews = async () => {
     if (!imageContent.trim() || imageFiles.length === 0) return;
@@ -370,8 +368,7 @@ const NewsManagement: React.FC = () => {
       await newsService.updateNewsImages(created.id, imageFiles);
       setShowImageModal(false);
       setImageContent('');
-      setImageFiles([]);
-      setImagePreviews([]);
+      clearImageFiles();
       await fetchNews();
       setTimeout(() => {
         feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' });
@@ -624,7 +621,17 @@ const NewsManagement: React.FC = () => {
                 </div>
               </div>
             </motion.form>
-            <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+            <Dialog
+              open={showImageModal}
+              onOpenChange={(open) => {
+                setShowImageModal(open);
+                if (!open) {
+                  // Reset state when dialog closes
+                  setImageContent('');
+                  clearImageFiles();
+                }
+              }}
+            >
               <DialogContent className={cn(glassCard)}>
                 <DialogHeader>
                   <DialogTitle className="text-foreground">Bild-News erstellen</DialogTitle>
@@ -637,6 +644,18 @@ const NewsManagement: React.FC = () => {
                     disabled={imageSending}
                     className={cn(glassInput)}
                   />
+                  {imageError && (
+                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>{imageError.title}</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <p>{imageError.message}</p>
+                        {imageError.actionHint && (
+                          <p className="mt-2 text-sm opacity-90">{imageError.actionHint}</p>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <div>
                     <input
                       type="file"
@@ -662,22 +681,25 @@ const NewsManagement: React.FC = () => {
                       {imagePreviews.map((url, idx) => (
                         <div
                           key={idx}
-                          className="relative w-20 h-20 border border-secondary rounded-xl overflow-hidden"
+                          className="relative w-20 h-20 overflow-visible"
                         >
                           <img
                             src={url}
                             alt={`Preview ${idx + 1}`}
-                            className="object-cover w-full h-full"
+                            className="object-cover w-full h-full rounded-xl border border-secondary"
                           />
-                          <AnimatedButton
+                          <button
                             type="button"
-                            size="icon"
-                            className="absolute -top-1 -right-1 w-6 h-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full"
-                            onClick={() => handleRemoveImage(idx)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveImage(idx);
+                            }}
                             disabled={imageSending}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full shadow-md z-10 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{ position: 'absolute' }}
                           >
                             <Trash2 className="w-3 h-3" />
-                          </AnimatedButton>
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -881,22 +903,25 @@ const NewsManagement: React.FC = () => {
                     {editImageUrls.length > 0 ? (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {editImageUrls.map((url, idx) => (
-                          <div key={idx} className="relative group">
+                          <div key={idx} className="relative group overflow-visible">
                             <img
                               src={url}
                               alt={`Bild ${idx + 1}`}
                               className="w-full h-32 object-cover rounded-xl border border-secondary"
                             />
-                            <AnimatedButton
+                            <button
                               type="button"
-                              size="icon"
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-7 w-7"
-                              onClick={() => handleRemoveImageFromEdit(url)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveImageFromEdit(url);
+                              }}
                               disabled={editSaving}
                               title="Bild entfernen"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-7 w-7 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{ position: 'absolute' }}
                             >
                               <X className="w-4 h-4" />
-                            </AnimatedButton>
+                            </button>
                           </div>
                         ))}
                       </div>

@@ -31,6 +31,9 @@ import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassButton, glassInput } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -64,13 +67,24 @@ export const EditBusiness: React.FC = () => {
     reviewText: '',
     reviewImageUrls: [],
   });
-  const [newImages, setNewImages] = useState<File[]>([]);
   const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const [newLogo, setNewLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const [businessImages, setBusinessImages] = useState<string[]>([]);
-  const [newBusinessImages, setNewBusinessImages] = useState<File[]>([]);
+  const [existingBusinessImages, setExistingBusinessImages] = useState<string[]>([]); // Bestehende Business-Bilder
   const [businessImagesToDelete, setBusinessImagesToDelete] = useState<string[]>([]);
+  const [existingReviewImages, setExistingReviewImages] = useState<string[]>([]); // Bestehende Review-Bilder
+  
+  // Zentrale Bildvalidierung für Business-Bilder (max 1 MB pro Bild)
+  const businessImageUpload = useValidatedImageUpload({
+    maxImages: 20, // Max 20 Business-Bilder
+    maxSizeMB: 1,
+  });
+  
+  // Zentrale Bildvalidierung für Review-Bilder (max 1 MB pro Bild)
+  const reviewImageUpload = useValidatedImageUpload({
+    maxImages: 10, // Max 10 Review-Bilder
+    maxSizeMB: 1,
+  });
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [newTimeSlot, setNewTimeSlot] = useState<Omit<TimeSlot, 'id'>>({
     from: '09:00',
@@ -127,13 +141,13 @@ export const EditBusiness: React.FC = () => {
         setTimeSlots(slots);
       }
 
-      setEditReview(
-        fetchedBusiness.nuernbergspotsReview || {
-          reviewText: '',
-          reviewImageUrls: [],
-        }
-      );
-      setBusinessImages(fetchedBusiness.imageUrls || []);
+      const review = fetchedBusiness.nuernbergspotsReview || {
+        reviewText: '',
+        reviewImageUrls: [],
+      };
+      setEditReview(review);
+      setExistingReviewImages(review.reviewImageUrls || []);
+      setExistingBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
       toast.error('Fehler beim Laden des Geschäfts', {
         description: 'Das Geschäft konnte nicht geladen werden.',
@@ -207,63 +221,39 @@ export const EditBusiness: React.FC = () => {
   };
 
   const handleBusinessImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const fileArray = Array.from(files);
-    setNewBusinessImages(prev => [...prev, ...fileArray]);
-
-    const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
-    setBusinessImages(prev => [...prev, ...newImageUrls]);
+    businessImageUpload.handleFileChange(event);
   };
 
-  const handleRemoveBusinessImage = (imageUrl: string) => {
-    if (imageUrl.startsWith('http')) {
+  const handleRemoveBusinessImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // Bestehendes Bild zum Löschen markieren
+      const imageUrl = existingBusinessImages[index];
       setBusinessImagesToDelete(prev => [...prev, imageUrl]);
+      setExistingBusinessImages(prev => prev.filter((_, i) => i !== index));
+    } else {
+      // Neues Bild entfernen
+      businessImageUpload.removeImage(index);
     }
-
-    if (imageUrl.startsWith('blob:')) {
-      const index = businessImages.indexOf(imageUrl);
-      if (index >= 0) {
-        URL.revokeObjectURL(imageUrl);
-        setNewBusinessImages(prev => prev.filter((_, i) => i !== index));
-      }
-    }
-
-    setBusinessImages(prev => prev.filter(url => url !== imageUrl));
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files) return;
-
-    const fileArray = Array.from(files);
-    setNewImages(prev => [...prev, ...fileArray]);
-
-    const newImageUrls = fileArray.map(file => URL.createObjectURL(file));
-    setEditReview(prev => ({
-      ...prev,
-      reviewImageUrls: [...(prev.reviewImageUrls || []), ...newImageUrls],
-    }));
+    reviewImageUpload.handleFileChange(event);
   };
 
-  const handleRemoveImage = (imageUrl: string) => {
-    if (imageUrl.startsWith('http')) {
+  const handleRemoveImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // Bestehendes Bild zum Löschen markieren
+      const imageUrl = existingReviewImages[index];
       setImagesToDelete(prev => [...prev, imageUrl]);
+      setExistingReviewImages(prev => prev.filter((_, i) => i !== index));
+      setEditReview(prev => ({
+        ...prev,
+        reviewImageUrls: prev.reviewImageUrls?.filter((_, i) => i !== index) || [],
+      }));
+    } else {
+      // Neues Bild entfernen
+      reviewImageUpload.removeImage(index);
     }
-
-    if (imageUrl.startsWith('blob:')) {
-      const index = editReview.reviewImageUrls?.indexOf(imageUrl) || -1;
-      if (index >= 0) {
-        URL.revokeObjectURL(imageUrl);
-        setNewImages(prev => prev.filter((_, i) => i !== index));
-      }
-    }
-
-    setEditReview(prev => ({
-      ...prev,
-      reviewImageUrls: prev.reviewImageUrls?.filter(url => url !== imageUrl) || [],
-    }));
   };
 
   const addTimeSlot = () => {
@@ -375,27 +365,24 @@ export const EditBusiness: React.FC = () => {
       }
 
       // 2. Geschäftsbilder aktualisieren
-      const updatedBusinessImages = businessImages
-        .filter(url => !businessImagesToDelete.includes(url))
-        .filter(url => url.startsWith('http'));
-
-      if (newBusinessImages.length > 0) {
-        await businessService.uploadBusinessImages(business.id, newBusinessImages);
+      // Business-Bilder hochladen, falls neue vorhanden
+      if (businessImageUpload.files.length > 0) {
+        await businessService.uploadBusinessImages(business.id, businessImageUpload.files);
       }
 
       // 3. Review aktualisieren
       const updatedReview: NuernbergspotsReview = {
         reviewText: editReview.reviewText,
         reviewImageUrls:
-          editReview.reviewImageUrls
-            ?.filter(url => !imagesToDelete.includes(url))
-            .filter(url => url.startsWith('http')) || [],
+          existingReviewImages
+            .filter(url => !imagesToDelete.includes(url)) || [],
       };
 
       await businessService.updateNuernbergspotsReview(business.id, updatedReview);
 
-      if (newImages.length > 0) {
-        await businessService.uploadReviewImages(business.id, newImages);
+      // Review-Bilder hochladen, falls neue vorhanden
+      if (reviewImageUpload.files.length > 0) {
+        await businessService.uploadReviewImages(business.id, reviewImageUpload.files);
       }
 
       // 4. Öffnungszeiten aktualisieren
@@ -929,9 +916,22 @@ export const EditBusiness: React.FC = () => {
 
                     <div>
                       <h3 className="font-medium mb-2 text-foreground">Geschäftsbilder</h3>
+                      {businessImageUpload.error && (
+                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50 mb-4')}>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>{businessImageUpload.error.title}</AlertTitle>
+                          <AlertDescription className="mt-2">
+                            <p>{businessImageUpload.error.message}</p>
+                            {businessImageUpload.error.actionHint && (
+                              <p className="mt-2 text-sm opacity-90">{businessImageUpload.error.actionHint}</p>
+                            )}
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {businessImages.map((url, index) => (
-                          <div key={url} className="relative group">
+                        {/* Bestehende Business-Bilder */}
+                        {existingBusinessImages.map((url, index) => (
+                          <div key={`existing-${index}`} className="relative group">
                             <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
                               <img
                                 src={url}
@@ -940,8 +940,28 @@ export const EditBusiness: React.FC = () => {
                               />
                             </div>
                             <button
-                              onClick={() => handleRemoveBusinessImage(url)}
+                              onClick={() => handleRemoveBusinessImage(index, true)}
                               className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                              aria-label="Bild entfernen"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Neue Business-Bilder */}
+                        {businessImageUpload.previewUrls.map((url, index) => (
+                          <div key={`new-${index}`} className="relative group">
+                            <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
+                              <img
+                                src={url}
+                                alt={`Geschäftsbild ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleRemoveBusinessImage(index, false)}
+                              className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                              aria-label="Bild entfernen"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -1127,9 +1147,22 @@ export const EditBusiness: React.FC = () => {
 
                     <div>
                       <h4 className="text-sm font-medium mb-2 text-foreground">Review Bilder</h4>
+                      {reviewImageUpload.error && (
+                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50 mb-4')}>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>{reviewImageUpload.error.title}</AlertTitle>
+                          <AlertDescription className="mt-2">
+                            <p>{reviewImageUpload.error.message}</p>
+                            {reviewImageUpload.error.actionHint && (
+                              <p className="mt-2 text-sm opacity-90">{reviewImageUpload.error.actionHint}</p>
+                            )}
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {editReview.reviewImageUrls?.map((url, index) => (
-                          <div key={url} className="relative group">
+                        {/* Bestehende Review-Bilder */}
+                        {existingReviewImages.map((url, index) => (
+                          <div key={`existing-${index}`} className="relative group">
                             <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
                               <img
                                 src={url}
@@ -1138,8 +1171,28 @@ export const EditBusiness: React.FC = () => {
                               />
                             </div>
                             <button
-                              onClick={() => handleRemoveImage(url)}
+                              onClick={() => handleRemoveImage(index, true)}
                               className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                              aria-label="Bild entfernen"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Neue Review-Bilder */}
+                        {reviewImageUpload.previewUrls.map((url, index) => (
+                          <div key={`new-${index}`} className="relative group">
+                            <div className="aspect-video rounded-lg overflow-hidden border-2 border-dashed border-secondary bg-muted">
+                              <img
+                                src={url}
+                                alt={`Review Bild ${index + 1}`}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleRemoveImage(index, false)}
+                              className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-destructive/80 hover:scale-110"
+                              aria-label="Bild entfernen"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>

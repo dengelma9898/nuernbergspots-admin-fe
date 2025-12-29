@@ -40,6 +40,9 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 function JobOfferFormSkeleton() {
   return (
@@ -238,10 +241,15 @@ export function JobOfferForm() {
   const jobCategoryService = useJobCategoryService();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string>('');
+  
+  // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild)
+  const imageUpload = useValidatedImageUpload({
+    maxImages: 10, // Max 10 Bilder insgesamt
+    maxSizeMB: 1,
+  });
   const [categories, setCategories] = useState<JobCategory[]>([]);
   const [formData, setFormData] = useState<JobOfferCreation>({
     title: '',
@@ -336,7 +344,7 @@ export function JobOfferForm() {
         isHighlight: jobOffer.isHighlight || false,
         jobOfferCategoryId: jobOffer.jobOfferCategoryId || '',
       });
-      setPreviewUrls(jobOffer.images);
+      setExistingImageUrls(jobOffer.images);
 
       if (jobOffer.companyLogo) {
         setCompanyLogoPreview(jobOffer.companyLogo);
@@ -383,8 +391,8 @@ export function JobOfferForm() {
         await jobOfferService.updateCompanyLogo(jobOffer.id, companyLogoFile);
       }
 
-      if (selectedImages.length > 0) {
-        await jobOfferService.updateImages(jobOffer.id, selectedImages);
+      if (imageUpload.files.length > 0) {
+        await jobOfferService.updateImages(jobOffer.id, imageUpload.files);
       }
 
       toast.success(`Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`);
@@ -397,16 +405,17 @@ export function JobOfferForm() {
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setSelectedImages([...selectedImages, ...files]);
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+    imageUpload.handleFileChange(e);
   };
 
-  const removeImage = (index: number) => {
-    setSelectedImages(selectedImages.filter((_, i) => i !== index));
-    URL.revokeObjectURL(previewUrls[index]);
-    setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+  const removeImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // Entferne bestehendes Bild
+      setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
+    } else {
+      // Entferne neues Bild
+      imageUpload.removeImage(index);
+    }
   };
 
   const addArrayItem = (field: 'tasks' | 'benefits') => {
@@ -1015,35 +1024,68 @@ export function JobOfferForm() {
                       Bilder
                     </h2>
                   </div>
-                  <div className="p-4 sm:p-6">
+                  <div className="p-4 sm:p-6 space-y-4">
+                    {imageUpload.error && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>{imageUpload.error.title}</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <p>{imageUpload.error.message}</p>
+                          {imageUpload.error.actionHint && (
+                            <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {previewUrls.map((url, index) => (
-                        <div key={index} className="relative group">
+                      {/* Bestehende Bilder */}
+                      {existingImageUrls.map((url, index) => (
+                        <div key={`existing-${index}`} className="relative group">
+                          <img
+                            src={url}
+                            alt={`Bild ${index + 1}`}
+                            className={cn(glassCard, 'w-full h-32 object-cover')}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index, true)}
+                            className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+                            aria-label="Bild entfernen"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                      {/* Neue Bilder */}
+                      {imageUpload.previewUrls.map((url, index) => (
+                        <div key={`new-${index}`} className="relative group">
                           <img
                             src={url}
                             alt={`Preview ${index + 1}`}
                             className={cn(glassCard, 'w-full h-32 object-cover')}
                           />
-                          <AnimatedButton
+                          <button
                             type="button"
-                            size="icon"
-                            onClick={() => removeImage(index)}
+                            onClick={() => removeImage(index, false)}
                             className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+                            aria-label="Bild entfernen"
                           >
                             <X className="h-4 w-4" />
-                          </AnimatedButton>
+                          </button>
                         </div>
                       ))}
-                      <label className={cn(glassCard, 'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300')}>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleImageSelect}
-                          className="hidden"
-                        />
-                        <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                      </label>
+                      {(existingImageUrls.length + imageUpload.previewUrls.length) < 10 && (
+                        <label className={cn(glassCard, 'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300')}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleImageSelect}
+                            className="hidden"
+                          />
+                          <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                        </label>
+                      )}
                     </div>
                   </div>
                 </Card>

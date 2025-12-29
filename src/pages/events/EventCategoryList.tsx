@@ -44,6 +44,9 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 const toSnakeCase = (str: string): string => {
   return str
@@ -65,10 +68,15 @@ export function EventCategoryList() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
+  const imageUpload = useValidatedImageUpload({
+    maxImages: 5,
+    maxSizeMB: 1,
+  });
 
   useEffect(() => {
     loadCategories();
@@ -99,9 +107,15 @@ export function EventCategoryList() {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
         colorCode: convertHexToFF(newCategory.colorCode),
-        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http')),
+        fallbackImages: existingImageUrls, // Bestehende Bilder (leer beim Erstellen)
       };
       const category = await eventCategoryService.createCategory(categoryToSave);
+      
+      // Wenn neue Bilder ausgewählt wurden, lade diese hoch
+      if (imageUpload.files.length > 0) {
+        await eventCategoryService.updateFallbackImages(category.id, imageUpload.files);
+      }
+      
       setCategories([...categories, category]);
       setNewCategory({
         name: '',
@@ -109,8 +123,8 @@ export function EventCategoryList() {
         colorCode: '#000000',
         iconName: '',
       });
-      setSelectedImages([]);
-      setPreviewUrls([]);
+      imageUpload.clearImages();
+      setExistingImageUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
@@ -132,14 +146,11 @@ export function EventCategoryList() {
 
     // Setze die vorhandenen Fallback-Bilder
     if (category.fallbackImages && category.fallbackImages.length > 0) {
-      setPreviewUrls(category.fallbackImages);
-      // Da wir die URLs haben, aber keine File-Objekte, setzen wir selectedImages auf ein leeres Array
-      // Die URLs werden direkt vom Backend verwendet
-      setSelectedImages([]);
+      setExistingImageUrls(category.fallbackImages);
     } else {
-      setPreviewUrls([]);
-      setSelectedImages([]);
+      setExistingImageUrls([]);
     }
+    imageUpload.clearImages();
 
     setIsDialogOpen(true);
   };
@@ -156,7 +167,7 @@ export function EventCategoryList() {
         ...newCategory,
         iconName: toSnakeCase(newCategory.iconName),
         colorCode: convertHexToFF(newCategory.colorCode),
-        fallbackImages: previewUrls.filter(url => !url.startsWith('blob:http')),
+        fallbackImages: existingImageUrls, // Bestehende Bilder
       };
       const updatedCategory = await eventCategoryService.updateCategory(
         editingCategory.id,
@@ -164,10 +175,10 @@ export function EventCategoryList() {
       );
 
       // Wenn neue Bilder ausgewählt wurden, lade diese hoch
-      if (selectedImages.length > 0) {
+      if (imageUpload.files.length > 0) {
         const categoryWithImages = await eventCategoryService.updateFallbackImages(
           editingCategory.id,
-          selectedImages
+          imageUpload.files
         );
         setCategories(
           categories.map(cat => (cat.id === editingCategory.id ? categoryWithImages : cat))
@@ -185,8 +196,8 @@ export function EventCategoryList() {
         colorCode: '#000000',
         iconName: '',
       });
-      setSelectedImages([]);
-      setPreviewUrls([]);
+      imageUpload.clearImages();
+      setExistingImageUrls([]);
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
@@ -216,6 +227,8 @@ export function EventCategoryList() {
       colorCode: '#000000',
       iconName: '',
     });
+    imageUpload.clearImages();
+    setExistingImageUrls([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -227,16 +240,15 @@ export function EventCategoryList() {
   };
 
   const handleImageUpload = async (categoryId: string) => {
-    if (selectedImages.length === 0) return;
+    if (imageUpload.files.length === 0) return;
 
     try {
       const updatedCategory = await eventCategoryService.updateFallbackImages(
         categoryId,
-        selectedImages
+        imageUpload.files
       );
       setCategories(categories.map(cat => (cat.id === categoryId ? updatedCategory : cat)));
-      setSelectedImages([]);
-      setPreviewUrls([]);
+      imageUpload.clearImages();
       toast.success('Bilder erfolgreich hochgeladen');
     } catch (error) {
       toast.error('Fehler beim Hochladen der Bilder');
@@ -245,28 +257,16 @@ export function EventCategoryList() {
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length + selectedImages.length > 5) {
-      toast.error('Maximal 5 Bilder erlaubt');
-      return;
-    }
-
-    setSelectedImages([...selectedImages, ...files]);
-    const newPreviewUrls = files.map(file => URL.createObjectURL(file));
-    setPreviewUrls([...previewUrls, ...newPreviewUrls]);
+    imageUpload.handleFileChange(e);
   };
 
-  const removeImage = (index: number) => {
-    // Wenn wir im Bearbeitungsmodus sind und die Bilder vom Backend kommen
-    if (editingCategory && !selectedImages.length && previewUrls.length > 0) {
-      const updatedUrls = previewUrls.filter((_, i) => i !== index);
-      setPreviewUrls(updatedUrls);
-      // Hier könnten wir auch einen API-Call machen, um das Bild vom Backend zu entfernen
-      // await eventCategoryService.removeFallbackImage(editingCategory.id, previewUrls[index]);
+  const removeImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // Entferne bestehendes Bild
+      setExistingImageUrls(prev => prev.filter((_, i) => i !== index));
     } else {
-      setSelectedImages(selectedImages.filter((_, i) => i !== index));
-      URL.revokeObjectURL(previewUrls[index]);
-      setPreviewUrls(previewUrls.filter((_, i) => i !== index));
+      // Entferne neues Bild
+      imageUpload.removeImage(index);
     }
   };
 
@@ -400,23 +400,54 @@ export function EventCategoryList() {
                       <Label className="text-foreground">
                         Fallback-Bilder (max. 5)
                       </Label>
+                      {imageUpload.error && (
+                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>{imageUpload.error.title}</AlertTitle>
+                          <AlertDescription className="mt-2">
+                            <p>{imageUpload.error.message}</p>
+                            {imageUpload.error.actionHint && (
+                              <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                            )}
+                          </AlertDescription>
+                        </Alert>
+                      )}
                       <div className="grid grid-cols-5 gap-2">
-                        {previewUrls.map((url, index) => (
-                          <div key={index} className="relative group">
+                        {/* Bestehende Bilder */}
+                        {existingImageUrls.map((url, index) => (
+                          <div key={`existing-${index}`} className="relative group">
+                            <img
+                              src={url}
+                              alt={`Bild ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border border-secondary"
+                            />
+                            <button
+                              onClick={() => removeImage(index, true)}
+                              className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                              aria-label="Bild entfernen"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* Neue Bilder */}
+                        {imageUpload.previewUrls.map((url, index) => (
+                          <div key={`new-${index}`} className="relative group">
                             <img
                               src={url}
                               alt={`Preview ${index + 1}`}
                               className="w-full h-24 object-cover rounded-lg border border-secondary"
                             />
                             <button
-                              onClick={() => removeImage(index)}
+                              onClick={() => removeImage(index, false)}
                               className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                              aria-label="Bild entfernen"
                             >
                               <X className="h-4 w-4" />
                             </button>
                           </div>
                         ))}
-                        {previewUrls.length < 5 && (
+                        {(existingImageUrls.length + imageUpload.previewUrls.length) < 5 && (
                           <label className="flex items-center justify-center h-24 border-2 border-dashed border-secondary rounded-lg cursor-pointer hover:bg-muted transition-colors">
                             <input
                               type="file"
