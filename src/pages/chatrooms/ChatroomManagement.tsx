@@ -146,11 +146,13 @@ export function ChatroomManagement() {
       if (Array.isArray(data)) {
         setChatrooms(data);
       } else {
-        toast.error('Chatrooms konnten nicht geladen werden: Ungültiges Datenformat.');
+        console.error('Ungültiges Datenformat beim Laden der Chatrooms:', data);
+        showUserFriendlyError(new Error('Ungültiges Datenformat'), toast);
         setChatrooms([]);
       }
     } catch (error) {
-      toast.error('Chatrooms konnten nicht geladen werden.');
+      console.error('Fehler beim Laden der Chatrooms:', error);
+      showUserFriendlyError(error, toast);
       setChatrooms([]);
     } finally {
       setIsLoading(false);
@@ -290,7 +292,8 @@ export function ChatroomManagement() {
       setSelectedChatroom(null);
       loadChatrooms();
     } catch (error) {
-      toast.error('Chatroom konnte nicht gelöscht werden.');
+      console.error('Fehler beim Löschen des Chatrooms:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
