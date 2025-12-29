@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { JobCategory, JobCategoryCreation } from '@/models/job-category';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -180,8 +181,8 @@ export function JobCategories() {
       const data = await jobCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
       console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -223,8 +224,8 @@ export function JobCategories() {
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }
@@ -298,8 +299,8 @@ export function JobCategories() {
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }
@@ -311,8 +312,8 @@ export function JobCategories() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       toast.success('Kategorie gelöscht');
     } catch (error) {
-      toast.error('Fehler beim Löschen der Kategorie');
       console.error('Fehler beim Löschen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -360,7 +361,7 @@ export function JobCategories() {
         toast.success('Bild erfolgreich entfernt');
       } catch (error) {
         console.error('Fehler beim Entfernen des Bildes:', error);
-        toast.error('Fehler beim Entfernen des Bildes');
+        showUserFriendlyError(error, toast);
       }
     } else {
       // Wenn wir ein neu ausgewähltes Bild entfernen

@@ -15,6 +15,7 @@ import {
   Instagram,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { Label } from '@/components/ui/label';
@@ -350,7 +351,8 @@ export function JobOfferForm() {
         setCompanyLogoPreview(jobOffer.companyLogo);
       }
     } catch (error) {
-      toast.error('Fehler beim Laden des Stellenangebots');
+      console.error('Fehler beim Laden des Stellenangebots:', error);
+      showUserFriendlyError(error, toast);
       navigate('/job-offers');
     } finally {
       setIsLoading(false);
@@ -398,7 +400,8 @@ export function JobOfferForm() {
       toast.success(`Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`);
       navigate('/job-offers');
     } catch (error) {
-      toast.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots`);
+      console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }

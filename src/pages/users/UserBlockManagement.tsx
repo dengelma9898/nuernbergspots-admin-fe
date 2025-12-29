@@ -34,6 +34,7 @@ import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 
 export function UserBlockManagement() {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ export function UserBlockManagement() {
       setFilteredUsers(allUsers);
     } catch (error) {
       console.error('Fehler beim Laden der User:', error);
-      toast.error('Fehler beim Laden der User');
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -123,7 +124,7 @@ export function UserBlockManagement() {
       await loadUsers();
     } catch (error) {
       console.error('Fehler beim Blockieren/Entsperren:', error);
-      toast.error('Fehler beim Blockieren/Entsperren des Users');
+      showUserFriendlyError(error, toast);
     } finally {
       setIsBlocking(false);
     }

@@ -44,6 +44,8 @@ import { cn } from '@/lib/utils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
+import { showUserFriendlyError } from '@/utils/errorUtils';
+import { toast } from 'sonner';
 
 const NewsSkeletonBubble: React.FC<{ type?: 'text' | 'image' | 'poll' }> = ({ type = 'text' }) => {
   return (
@@ -298,6 +300,8 @@ const NewsManagement: React.FC = () => {
         setNews([]);
       }
     } catch (e) {
+      console.error('Fehler beim Laden der News:', e);
+      showUserFriendlyError(e, toast);
       setNews([]);
     } finally {
       setLoading(false);
@@ -345,7 +349,8 @@ const NewsManagement: React.FC = () => {
         feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' });
       }, 100);
     } catch (e) {
-      // Fehlerbehandlung
+      console.error('Fehler beim Senden der Text-News:', e);
+      showUserFriendlyError(e, toast);
     } finally {
       setSending(false);
     }
@@ -374,7 +379,8 @@ const NewsManagement: React.FC = () => {
         feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' });
       }, 100);
     } catch (e) {
-      // Fehlerbehandlung
+      console.error('Fehler beim Senden der Bild-News:', e);
+      showUserFriendlyError(e, toast);
     } finally {
       setImageSending(false);
     }
@@ -429,7 +435,8 @@ const NewsManagement: React.FC = () => {
         feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: 'smooth' });
       }, 100);
     } catch (e) {
-      // Fehlerbehandlung
+      console.error('Fehler beim Senden der Umfrage:', e);
+      showUserFriendlyError(e, toast);
     } finally {
       setPollSending(false);
     }
@@ -465,7 +472,8 @@ const NewsManagement: React.FC = () => {
       setEditImageUrls([]);
       await fetchNews();
     } catch (e) {
-      // Fehlerbehandlung
+      console.error('Fehler beim Speichern der Bearbeitung:', e);
+      showUserFriendlyError(e, toast);
     } finally {
       setEditSaving(false);
     }

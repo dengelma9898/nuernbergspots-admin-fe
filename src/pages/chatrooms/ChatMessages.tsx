@@ -5,6 +5,7 @@ import { useUserService } from '@/services/userService';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Send, Smile, MoreVertical, Edit2, Trash2, ArrowLeft } from 'lucide-react';
@@ -61,7 +62,7 @@ export function ChatMessages() {
 
   useEffect(() => {
     if (!chatroomId) {
-      toast.error('Chatroom ID fehlt');
+      showUserFriendlyError(new Error('Chatroom ID fehlt'), toast);
       return;
     }
     loadMessages();
@@ -76,7 +77,8 @@ export function ChatMessages() {
       setMessages(data);
       scrollToBottom();
     } catch (error) {
-      toast.error('Nachrichten konnten nicht geladen werden.');
+      console.error('Fehler beim Laden der Nachrichten:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -106,11 +108,7 @@ export function ChatMessages() {
       scrollToBottom();
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
-      if (error instanceof Error) {
-        toast.error(`Nachricht konnte nicht gesendet werden: ${error.message}`);
-      } else {
-        toast.error('Nachricht konnte nicht gesendet werden.');
-      }
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -129,7 +127,8 @@ export function ChatMessages() {
       setMessages(prev => prev.map(msg => (msg.id === messageId ? updatedMessage : msg)));
       setEditingMessage(null);
     } catch (error) {
-      toast.error('Nachricht konnte nicht bearbeitet werden.');
+      console.error('Fehler beim Bearbeiten der Nachricht:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -138,7 +137,8 @@ export function ChatMessages() {
       await chatMessageService.deleteMessage(chatroomId!, messageId);
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
     } catch (error) {
-      toast.error('Nachricht konnte nicht gelöscht werden.');
+      console.error('Fehler beim Löschen der Nachricht:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -147,7 +147,8 @@ export function ChatMessages() {
       const updatedMessage = await chatMessageService.addReaction(chatroomId!, messageId, { type });
       setMessages(prev => prev.map(msg => (msg.id === messageId ? updatedMessage : msg)));
     } catch (error) {
-      toast.error('Reaktion konnte nicht hinzugefügt werden.');
+      console.error('Fehler beim Hinzufügen der Reaktion:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 

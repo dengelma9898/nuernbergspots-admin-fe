@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -115,9 +116,8 @@ export function AdventCalendarForm() {
         setShouldDeleteImage(false);
       }
     } catch (error) {
-      toast.error('Fehler beim Laden des Eintrags', {
-        description: 'Der Eintrag konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Eintrags:', error);
+      showUserFriendlyError(error, toast);
       navigate('/advent-calendar');
     } finally {
       setIsLoading(false);
@@ -258,11 +258,8 @@ export function AdventCalendarForm() {
 
       navigate('/advent-calendar');
     } catch (error) {
-      console.error('Error saving entry:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      toast.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'}`, {
-        description: errorMessage || 'Der Eintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
-      });
+      console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Eintrags:`, error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
       setIsUploadingImage(false);

@@ -30,6 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -88,8 +89,8 @@ export function EventCategoryList() {
       const data = await eventCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
       console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -128,8 +129,8 @@ export function EventCategoryList() {
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }
@@ -201,8 +202,8 @@ export function EventCategoryList() {
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }
@@ -214,8 +215,8 @@ export function EventCategoryList() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       toast.success('Kategorie gelöscht');
     } catch (error) {
-      toast.error('Fehler beim Löschen der Kategorie');
       console.error('Fehler beim Löschen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -251,8 +252,8 @@ export function EventCategoryList() {
       imageUpload.clearImages();
       toast.success('Bilder erfolgreich hochgeladen');
     } catch (error) {
-      toast.error('Fehler beim Hochladen der Bilder');
       console.error('Fehler beim Hochladen der Bilder:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 

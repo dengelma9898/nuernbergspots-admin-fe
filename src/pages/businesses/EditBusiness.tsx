@@ -7,6 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -149,9 +150,8 @@ export const EditBusiness: React.FC = () => {
       setExistingReviewImages(review.reviewImageUrls || []);
       setExistingBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
-      toast.error('Fehler beim Laden des Geschäfts', {
-        description: 'Das Geschäft konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Geschäfts:', error);
+      showUserFriendlyError(error, toast);
       navigate('/businesses');
     } finally {
       setLoading(false);
@@ -163,9 +163,8 @@ export const EditBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description: 'Die Kategorien konnten nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -185,9 +184,7 @@ export const EditBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error('Fehler beim Laden der Keywords', {
-        description: 'Die Keywords konnten nicht geladen werden.',
-      });
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -205,9 +202,8 @@ export const EditBusiness: React.FC = () => {
         description: 'Der Status wurde erfolgreich aktualisiert.',
       });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Status', {
-        description: 'Der Status konnte nicht aktualisiert werden.',
-      });
+      console.error('Fehler beim Aktualisieren des Status:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -412,9 +408,8 @@ export const EditBusiness: React.FC = () => {
 
       navigate('/businesses');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren', {
-        description: 'Die Änderungen konnten nicht gespeichert werden.',
-      });
+      console.error('Fehler beim Aktualisieren des Geschäfts:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSaving(false);
     }
@@ -783,9 +778,8 @@ export const EditBusiness: React.FC = () => {
                                 : 'Der Highlight-Status wurde entfernt.',
                             });
                           } catch (error) {
-                            toast.error('Fehler beim Aktualisieren', {
-                              description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
-                            });
+                            console.error('Fehler beim Aktualisieren des Highlight-Status:', error);
+                            showUserFriendlyError(error, toast);
                           }
                         }}
                       />
