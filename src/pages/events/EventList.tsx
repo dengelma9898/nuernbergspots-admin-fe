@@ -38,6 +38,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
@@ -89,10 +90,8 @@ export const EventList: React.FC = () => {
       setEvents(fetchedEvents);
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Daten', {
-        description:
-          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Daten:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }
@@ -123,10 +122,8 @@ export const EventList: React.FC = () => {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Das Event konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Events:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsDeleting(false);
     }

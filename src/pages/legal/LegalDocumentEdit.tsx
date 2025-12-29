@@ -21,6 +21,7 @@ import {
   History,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { LegalDocument, LegalDocumentType, LegalDocumentVersion } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
 import { format } from 'date-fns';
@@ -204,7 +205,7 @@ export function LegalDocumentEdit() {
       await loadDocument(type);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      toast.error('Fehler beim Speichern des Dokuments');
+      showUserFriendlyError(error, toast);
     } finally {
       setSaving(false);
     }

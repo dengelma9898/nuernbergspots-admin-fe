@@ -24,6 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -91,7 +92,7 @@ export function EditBusinessUser() {
       );
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Geschäfts:', error);
-      toast.error('Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.');
+      showUserFriendlyError(error, toast);
     } finally {
       setIsAddingBusiness(false);
       setIsConfirmDialogOpen(false);

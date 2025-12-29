@@ -5,6 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -86,7 +87,8 @@ export const EventScraperDetail: React.FC = () => {
       const fetchedCategories = await eventCategoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -151,7 +153,8 @@ export const EventScraperDetail: React.FC = () => {
       toast.success('Event erfolgreich erstellt');
       navigate('/events/scraper');
     } catch (error) {
-      toast.error('Fehler beim Speichern des Events');
+      console.error('Fehler beim Speichern des Events:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }

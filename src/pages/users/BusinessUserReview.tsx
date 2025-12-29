@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mail, Building2, CheckCircle2, XCircle, ArrowLeft, Tag, Store } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { BusinessUser } from '@/models/users';
 import { useUserService } from '@/services/userService';
 import { useNavigate } from 'react-router-dom';
@@ -31,10 +32,8 @@ export const BusinessUserReview: React.FC = () => {
       const fetchedUsers = await userService.getBusinessUsersInReview();
       setUsers(fetchedUsers.filter(user => user.needsReview));
     } catch (error) {
-      toast.error('Fehler beim Laden der Benutzer', {
-        description:
-          'Die Benutzer konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Benutzer:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }
@@ -52,10 +51,8 @@ export const BusinessUserReview: React.FC = () => {
       });
       loadUsers();
     } catch (error) {
-      toast.error('Fehler bei der Verifizierung', {
-        description:
-          'Der Benutzer konnte nicht verifiziert werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler bei der Verifizierung:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -67,10 +64,8 @@ export const BusinessUserReview: React.FC = () => {
       });
       loadUsers();
     } catch (error) {
-      toast.error('Fehler bei der Ablehnung', {
-        description:
-          'Der Benutzer konnte nicht abgelehnt werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler bei der Ablehnung:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 

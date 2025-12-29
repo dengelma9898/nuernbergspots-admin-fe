@@ -12,6 +12,7 @@ import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { Event } from '@/models/events';
 import { useEventService } from '@/services/eventService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { ScraperEventCard } from '@/components/events/ScraperEventCard';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
@@ -116,7 +117,8 @@ export const EventScraper: React.FC = () => {
       setFoundEvents(events);
       toast.success(`${events.length} Events gefunden`);
     } catch (error) {
-      toast.error('Fehler beim Scrapen der Events');
+      console.error('Fehler beim Scrapen der Events:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }

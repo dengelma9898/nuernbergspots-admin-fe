@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
 import { useNavigate } from 'react-router-dom';
@@ -60,8 +61,8 @@ export function KeywordList() {
       const data = await keywordService.getKeywords();
       setKeywords(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Keywords');
       console.error('Fehler beim Laden der Keywords:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -83,8 +84,8 @@ export function KeywordList() {
       setIsDialogOpen(false);
       toast.success('Keyword hinzugefügt');
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen des Keywords');
       console.error('Fehler beim Hinzufügen des Keywords:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -114,8 +115,8 @@ export function KeywordList() {
       setIsDialogOpen(false);
       toast.success('Keyword aktualisiert');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Keywords');
       console.error('Fehler beim Aktualisieren des Keywords:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -125,8 +126,8 @@ export function KeywordList() {
       setKeywords(keywords.filter(kw => kw.id !== keywordId));
       toast.success('Keyword gelöscht');
     } catch (error) {
-      toast.error('Fehler beim Löschen des Keywords');
       console.error('Fehler beim Löschen des Keywords:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
