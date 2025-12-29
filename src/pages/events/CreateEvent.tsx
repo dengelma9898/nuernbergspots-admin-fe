@@ -5,6 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -106,10 +107,8 @@ export const CreateEvent: React.FC = () => {
         }));
       }
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description:
-          'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -151,9 +150,8 @@ export const CreateEvent: React.FC = () => {
       });
       navigate('/events');
     } catch (error) {
-      toast.error('Fehler beim Erstellen', {
-        description: 'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
-      });
+      console.error('Fehler beim Erstellen des Events:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }

@@ -16,6 +16,7 @@ import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Textarea } from '@/components/ui/textarea';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -46,7 +47,7 @@ export function ContactRequestDetail() {
       toast.success('Kontaktanfrage erfolgreich aktualisiert');
     } catch (error) {
       console.error('Fehler beim Laden der Kontaktanfrage:', error);
-      toast.error('Fehler beim Laden der Kontaktanfrage');
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -65,7 +66,7 @@ export function ContactRequestDetail() {
       toast.success('Antwort erfolgreich gesendet');
     } catch (error) {
       console.error('Fehler beim Senden der Antwort:', error);
-      toast.error('Fehler beim Senden der Antwort');
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSending(false);
     }

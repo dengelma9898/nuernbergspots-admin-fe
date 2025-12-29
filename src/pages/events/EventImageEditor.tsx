@@ -17,6 +17,7 @@ import { ColorPicker } from '@/components/ui/color-picker';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import {
   Select,
   SelectContent,
@@ -191,9 +192,8 @@ export const EventImageEditor: React.FC = () => {
           setCustomTitle(category.name);
           setIsInitialized(true);
         } catch (error) {
-          toast.error('Fehler beim Laden des Events', {
-            description: 'Das Event konnte nicht geladen werden.',
-          });
+          console.error('Fehler beim Laden des Events:', error);
+          showUserFriendlyError(error, toast);
           navigate('/events');
         }
       };

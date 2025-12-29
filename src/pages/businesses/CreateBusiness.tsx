@@ -7,6 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -108,9 +109,8 @@ export const CreateBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description: 'Die Kategorien konnten nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -134,9 +134,7 @@ export const CreateBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error('Fehler beim Laden der Keywords', {
-        description: 'Die Keywords konnten nicht geladen werden.',
-      });
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -304,11 +302,8 @@ export const CreateBusiness: React.FC = () => {
       });
       navigate('/businesses');
     } catch (error) {
-      console.error('Error creating business:', error);
-      toast.error('Fehler beim Erstellen des Geschäfts', {
-        description:
-          'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Erstellen des Geschäfts:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }

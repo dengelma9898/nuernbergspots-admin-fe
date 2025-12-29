@@ -30,6 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -77,8 +78,8 @@ export function CategoryList() {
       const data = await businessCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
       console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +107,8 @@ export function CategoryList() {
       setIsDialogOpen(false);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -143,8 +144,8 @@ export function CategoryList() {
       setIsDialogOpen(false);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -154,8 +155,8 @@ export function CategoryList() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       toast.success('Kategorie gelöscht');
     } catch (error) {
-      toast.error('Fehler beim Löschen der Kategorie');
       console.error('Fehler beim Löschen der Kategorie:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 

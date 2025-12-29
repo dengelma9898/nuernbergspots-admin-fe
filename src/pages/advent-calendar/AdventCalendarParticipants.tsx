@@ -15,6 +15,7 @@ import {
   Shuffle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -59,9 +60,8 @@ export function AdventCalendarParticipants() {
       const data = await adventCalendarService.getById(id);
       setEntry(data);
     } catch (error) {
-      toast.error('Fehler beim Laden des Eintrags', {
-        description: 'Der Eintrag konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Eintrags:', error);
+      showUserFriendlyError(error, toast);
       navigate('/advent-calendar');
     } finally {
       setLoading(false);
@@ -78,10 +78,8 @@ export function AdventCalendarParticipants() {
       });
       loadEntry();
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen des Gewinners', {
-        description: 'Der Gewinner konnte nicht hinzugefügt werden.',
-      });
       console.error('Fehler beim Hinzufügen des Gewinners:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSelectingWinner(false);
     }

@@ -5,6 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -221,9 +222,8 @@ export const CopyEvent: React.FC = () => {
         await loadImagesForCopy(fetchedEvent);
       }
     } catch (error) {
-      toast.error('Fehler beim Laden des Events', {
-        description: 'Das Event konnte nicht geladen werden. Bitte versuche es später erneut.',
-      });
+      console.error('Fehler beim Laden des Events:', error);
+      showUserFriendlyError(error, toast);
       navigate('/events');
     } finally {
       setLoadingEvent(false);
@@ -299,10 +299,8 @@ export const CopyEvent: React.FC = () => {
       const fetchedCategories = await eventCategoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description:
-          'Die Kategorien konnten nicht geladen werden. Bitte versuche es später erneut.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -398,9 +396,8 @@ export const CopyEvent: React.FC = () => {
       });
       navigate('/events');
     } catch (error) {
-      toast.error('Fehler beim Kopieren', {
-        description: 'Das Event konnte nicht kopiert werden. Bitte überprüfe deine Eingaben.',
-      });
+      console.error('Fehler beim Kopieren des Events:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }

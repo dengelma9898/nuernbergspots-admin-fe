@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, Users, Clock, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { useAccountManagementService } from '@/services/accountManagementService';
 import {
   AlertDialog,
@@ -102,7 +103,8 @@ export function AccountManagement() {
       const data = await accountManagementService.getAnonymousAccountStats();
       setStats(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Statistiken');
+      console.error('Fehler beim Laden der Statistiken:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +117,8 @@ export function AccountManagement() {
       await loadStats();
       toast.success('Anonyme Accounts erfolgreich bereinigt');
     } catch (error) {
-      toast.error('Fehler beim Bereinigen der anonymen Accounts');
+      console.error('Fehler beim Bereinigen der anonymen Accounts:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsCleaning(false);
     }

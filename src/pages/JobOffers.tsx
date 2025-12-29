@@ -29,6 +29,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { JobOffer } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { format } from 'date-fns';
@@ -213,10 +214,8 @@ export function JobOffers() {
       const fetchedJobOffers = await jobOfferService.getJobOffers();
       setJobOffers(fetchedJobOffers);
     } catch (error) {
-      toast.error('Fehler beim Laden der Daten', {
-        description:
-          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Daten:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }
@@ -235,10 +234,8 @@ export function JobOffers() {
       });
       loadData();
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Stellenangebots:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 

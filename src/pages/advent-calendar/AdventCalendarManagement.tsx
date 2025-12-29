@@ -23,6 +23,7 @@ import {
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { useUserService } from '@/services/userService';
@@ -161,10 +162,8 @@ export function AdventCalendarManagement() {
       const sortedEntries = fetchedEntries.sort((a, b) => a.number - b.number);
       setEntries(sortedEntries);
     } catch (error) {
-      toast.error('Fehler beim Laden der Daten', {
-        description:
-          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Daten:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setLoading(false);
     }
@@ -206,10 +205,8 @@ export function AdventCalendarManagement() {
           : 'Adventskalender-Feature wurde deaktiviert'
       );
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Feature-Status', {
-        description: 'Der Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.',
-      });
       console.error('Fehler beim Aktualisieren des Feature-Status:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsUpdatingFeatureStatus(false);
     }
@@ -234,10 +231,8 @@ export function AdventCalendarManagement() {
       });
       loadData();
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Der Eintrag konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Eintrags:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
