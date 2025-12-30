@@ -23,7 +23,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Search, Ban, CheckCircle2, ArrowLeft, Shield } from 'lucide-react';
+import { Search, Ban, CheckCircle2, ArrowLeft, Shield, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -46,6 +47,7 @@ export function UserBlockManagement() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [blockReason, setBlockReason] = useState('');
   const [isBlocking, setIsBlocking] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const userService = useUserService();
 
   const loadUsers = useCallback(async () => {
@@ -90,9 +92,11 @@ export function UserBlockManagement() {
 
   const handleBlockConfirm = async () => {
     if (!selectedUser) {
-      toast.error('Kein User ausgewählt');
+      setValidationErrors(['Kein User ausgewählt']);
       return;
     }
+    
+    setValidationErrors([]);
 
     // Verwende customerId für die Blockierung
     const customerId = selectedUser.customerId;
@@ -444,6 +448,21 @@ export function UserBlockManagement() {
                     : `Bitte geben Sie einen Grund für die Blockierung von ${selectedUser?.email} an.`}
                 </DialogDescription>
               </DialogHeader>
+              {/* Validierungsfehler */}
+              {validationErrors.length > 0 && (
+                <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                  <AlertDescription className="mt-2">
+                    <ul className="list-disc list-inside space-y-1">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               {!selectedUser?.isBlocked && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -469,6 +488,7 @@ export function UserBlockManagement() {
                   onClick={() => {
                     setIsBlockDialogOpen(false);
                     setBlockReason('');
+                    setValidationErrors([]);
                   }}
                   className={cn(glassButton)}
                 >

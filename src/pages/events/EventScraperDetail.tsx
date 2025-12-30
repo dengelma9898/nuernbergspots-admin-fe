@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -56,6 +57,7 @@ export const EventScraperDetail: React.FC = () => {
   const [event, setEvent] = useState<Event>(location.state?.event);
   const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
   const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   React.useEffect(() => {
     if (!event) {
@@ -110,6 +112,10 @@ export const EventScraperDetail: React.FC = () => {
         longitude: location.position.lng,
       },
     }));
+    // Fehler zurücksetzen, wenn Location geändert wird
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
   };
 
   const handleSave = async () => {
@@ -204,6 +210,21 @@ export const EventScraperDetail: React.FC = () => {
                 <CardTitle className="text-foreground">Event Informationen</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Validierungsfehler */}
+                {validationErrors.length > 0 && (
+                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-foreground">
                     Titel

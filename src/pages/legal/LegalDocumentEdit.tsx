@@ -376,11 +376,32 @@ export function LegalDocumentEdit() {
                 </p>
               )}
             </div>
+            
+            {/* Validierungsfehler */}
+            {validationErrors.length > 0 && (
+              <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50 mb-6')}>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                <AlertDescription className="mt-2">
+                  <ul className="list-disc list-inside space-y-1">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="mb-6">
               <MarkdownEditor
                 value={currentContent}
-                onChange={setCurrentContent}
+                onChange={(value) => {
+                  setCurrentContent(value);
+                  // Fehler zurücksetzen, wenn Wert geändert wird
+                  if (validationErrors.length > 0) {
+                    setValidationErrors([]);
+                  }
+                }}
                 placeholder="Markdown-Text eingeben..."
                 minHeight="min-h-[500px]"
                 required
