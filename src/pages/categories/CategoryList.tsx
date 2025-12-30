@@ -165,9 +165,13 @@ export function CategoryList() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
       await businessCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
-      toast.success('Kategorie gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Kategorie gelöscht',
+        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
       showUserFriendlyError(error, toast);
