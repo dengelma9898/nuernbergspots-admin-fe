@@ -67,8 +67,22 @@ function JobOfferFormSkeleton() {
               <div className="p-4 sm:p-6 border-b border-secondary">
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {/* Title field */}
+                  <div className="p-4 sm:p-6 space-y-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    {/* Title field */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-12 rounded" />
                   <Skeleton className="h-10 w-full rounded" />
@@ -242,6 +256,7 @@ export function JobOfferForm() {
   const jobCategoryService = useJobCategoryService();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string>('');
@@ -408,7 +423,15 @@ export function JobOfferForm() {
       navigate('/job-offers');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
-      showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-job-offer');
+      const friendlyError = getUserFriendlyError(error, 'save-job-offer');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-job-offer');
+      }
     } finally {
       setIsSaving(false);
     }

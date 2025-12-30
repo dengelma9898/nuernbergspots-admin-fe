@@ -7,7 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';

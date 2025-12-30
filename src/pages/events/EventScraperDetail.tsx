@@ -5,7 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -166,7 +166,15 @@ export const EventScraperDetail: React.FC = () => {
       navigate('/events/scraper');
     } catch (error) {
       console.error('Fehler beim Speichern des Events:', error);
-      showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-event');
+      const friendlyError = getUserFriendlyError(error, 'save-event');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-event');
+      }
     } finally {
       setLoading(false);
     }

@@ -5,7 +5,9 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -65,6 +67,7 @@ export const CreateEvent: React.FC = () => {
   const eventCategoryService = useEventCategoryService();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<EventCategory[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [newEvent, setNewEvent] = useState<NewEvent>({
     title: '',
     description: '',
@@ -152,7 +155,15 @@ export const CreateEvent: React.FC = () => {
       navigate('/events');
     } catch (error) {
       console.error('Fehler beim Erstellen des Events:', error);
-      showUserFriendlyError(error, toast, () => handleSubmit(), 'save-event');
+      const friendlyError = getUserFriendlyError(error, 'save-event');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(), 'save-event');
+      }
     } finally {
       setLoading(false);
     }
@@ -235,6 +246,20 @@ export const CreateEvent: React.FC = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
+                {/* Validierungsfehler */}
+                {validationErrors.length > 0 && (
+                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 {/* Title */}
                 <motion.div
                   className="space-y-2"

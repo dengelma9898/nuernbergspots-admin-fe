@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -268,7 +268,15 @@ export function AdventCalendarForm() {
       navigate('/advent-calendar');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Eintrags:`, error);
-      showUserFriendlyError(error, toast, () => handleSubmit(e), id ? 'save-advent-calendar' : 'save-advent-calendar');
+      const friendlyError = getUserFriendlyError(error, 'save-advent-calendar');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-advent-calendar');
+      }
     } finally {
       setIsSaving(false);
       setIsUploadingImage(false);

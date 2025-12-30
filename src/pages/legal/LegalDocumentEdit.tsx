@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { LegalDocument, LegalDocumentType, LegalDocumentVersion } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
 import { format } from 'date-fns';
@@ -221,7 +221,15 @@ export function LegalDocumentEdit() {
       await loadDocument(type);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      showUserFriendlyError(error, toast, () => handleSave(), 'save-legal-document');
+      const friendlyError = getUserFriendlyError(error, 'save-legal-document');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSave(), 'save-legal-document');
+      }
     } finally {
       setSaving(false);
     }
