@@ -15,7 +15,7 @@ import {
   Instagram,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError, getUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, getUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { Label } from '@/components/ui/label';
@@ -401,7 +401,10 @@ export function JobOfferForm() {
         await jobOfferService.updateImages(jobOffer.id, imageUpload.files);
       }
 
-      toast.success(`Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`);
+      showSuccessMessage(toast, {
+        title: `Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`,
+        description: `"${formData.title}" wurde erfolgreich ${id ? 'aktualisiert' : 'erstellt'}.`,
+      });
       navigate('/job-offers');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);

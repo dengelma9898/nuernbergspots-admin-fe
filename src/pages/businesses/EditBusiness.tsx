@@ -7,7 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -198,7 +198,8 @@ export const EditBusiness: React.FC = () => {
 
       await businessService.updateBusiness(business.id, updateData);
       setBusiness(prev => (prev ? { ...prev, status: value } : null));
-      toast.success('Status aktualisiert', {
+      showSuccessMessage(toast, {
+        title: 'Status aktualisiert',
         description: 'Der Status wurde erfolgreich aktualisiert.',
       });
     } catch (error) {
@@ -404,8 +405,9 @@ export const EditBusiness: React.FC = () => {
         keywordIds: business.keywordIds,
       });
 
-      toast.success('Änderungen gespeichert', {
-        description: 'Alle Änderungen wurden erfolgreich gespeichert.',
+      showSuccessMessage(toast, {
+        title: 'Änderungen gespeichert',
+        description: business ? `"${business.name}" wurde erfolgreich aktualisiert.` : 'Alle Änderungen wurden erfolgreich gespeichert.',
       });
 
       navigate('/businesses');
@@ -774,7 +776,8 @@ export const EditBusiness: React.FC = () => {
                               isPromoted: checked,
                             });
                             setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
-                            toast.success('Highlight-Status aktualisiert', {
+                            showSuccessMessage(toast, {
+                              title: 'Highlight-Status aktualisiert',
                               description: checked
                                 ? 'Der Partner wurde als Highlight markiert.'
                                 : 'Der Highlight-Status wurde entfernt.',

@@ -473,3 +473,45 @@ export function createContextualError(
   
   return baseError;
 }
+
+/**
+ * Optionen für Erfolgsmeldungen
+ */
+export interface SuccessMessageOptions {
+  title: string;
+  description?: string;
+  undoAction?: () => void;
+  nextSteps?: string[];
+}
+
+/**
+ * Zeigt eine verbesserte Erfolgsmeldung als Toast an
+ * Unterstützt Beschreibungen, Rückgängig-Aktionen und nächste Schritte
+ * @param toast - Die Toast-Funktion von sonner
+ * @param options - Optionen für die Erfolgsmeldung
+ */
+export function showSuccessMessage(
+  toast: any,
+  options: SuccessMessageOptions
+): void {
+  const { title, description, undoAction, nextSteps } = options;
+  
+  toast.success(title, {
+    description: description,
+    action: undoAction ? {
+      label: 'Rückgängig',
+      onClick: undoAction,
+    } : undefined,
+    duration: undoAction ? 10000 : 5000, // Länger sichtbar für Undo-Option
+  });
+  
+  // Optional: Zeige nächste Schritte als separaten Toast
+  if (nextSteps && nextSteps.length > 0) {
+    setTimeout(() => {
+      toast.info('Nächste Schritte', {
+        description: nextSteps.join('\n'),
+        duration: 8000,
+      });
+    }, 1000);
+  }
+}

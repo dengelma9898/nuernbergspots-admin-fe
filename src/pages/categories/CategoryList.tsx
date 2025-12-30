@@ -31,7 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -110,7 +110,10 @@ export function CategoryList() {
       });
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie hinzugefügt');
+      showSuccessMessage(toast, {
+        title: 'Kategorie hinzugefügt',
+        description: `"${category.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
       showUserFriendlyError(error, toast);
@@ -150,7 +153,10 @@ export function CategoryList() {
       setNewCategory({ name: '', description: '', iconName: '', keywordIds: [] });
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie aktualisiert');
+      showSuccessMessage(toast, {
+        title: 'Kategorie aktualisiert',
+        description: `"${updatedCategory.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
       showUserFriendlyError(error, toast);
