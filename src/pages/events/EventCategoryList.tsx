@@ -69,6 +69,7 @@ export function EventCategoryList() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -98,9 +99,11 @@ export function EventCategoryList() {
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -127,6 +130,7 @@ export function EventCategoryList() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
@@ -158,9 +162,11 @@ export function EventCategoryList() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory || !newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -200,6 +206,7 @@ export function EventCategoryList() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
@@ -230,6 +237,7 @@ export function EventCategoryList() {
     });
     imageUpload.clearImages();
     setExistingImageUrls([]);
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -329,6 +337,21 @@ export function EventCategoryList() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -339,7 +362,13 @@ export function EventCategoryList() {
                       <Label className="text-foreground">Name</Label>
                       <Input
                         value={newCategory.name}
-                        onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
+                        onChange={e => {
+                          setNewCategory({ ...newCategory, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Kategoriename"
                         className={cn(glassInput)}
                       />

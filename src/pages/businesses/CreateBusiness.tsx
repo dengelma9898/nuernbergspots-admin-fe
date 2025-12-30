@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertCircle } from 'lucide-react';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Background } from '@/components/Background';
@@ -54,6 +55,7 @@ export const CreateBusiness: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<BusinessCategory[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [newBusiness, setNewBusiness] = useState({
     name: '',
@@ -197,11 +199,11 @@ export const CreateBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
-        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
-      });
+      setValidationErrors(['Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     const id = Date.now().toString();
     setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
