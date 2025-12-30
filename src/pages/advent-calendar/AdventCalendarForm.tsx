@@ -80,6 +80,7 @@ export function AdventCalendarForm() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   
   // Zentrale Bildvalidierung mit max 1 MB pro Bild
   const imageUpload = useValidatedImageUpload({
@@ -182,20 +183,26 @@ export function AdventCalendarForm() {
     e.preventDefault();
 
     // Validierung
+    const errors: string[] = [];
+    
     if (!formData.description.trim()) {
-      toast.error('Bitte geben Sie eine Beschreibung ein');
-      return;
+      errors.push('Bitte geben Sie eine Beschreibung ein');
     }
 
     if (formData.number < 1) {
-      toast.error('Das Adventstürchen muss mindestens 1 sein');
-      return;
+      errors.push('Das Adventstürchen muss mindestens 1 sein');
     }
 
     if (formData.linkUrl && formData.linkUrl.trim() && !isValidUrl(formData.linkUrl)) {
-      toast.error('Bitte geben Sie eine gültige URL ein');
+      errors.push('Bitte geben Sie eine gültige URL ein');
+    }
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
       return;
     }
+
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -317,6 +324,21 @@ export function AdventCalendarForm() {
             >
               <Card className={cn(glassCard)}>
                 <CardContent className="p-4 sm:p-6 space-y-6">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   {/* Number */}
                   <div className="space-y-2">
                     <Label htmlFor="number" className="text-foreground">
@@ -363,7 +385,13 @@ export function AdventCalendarForm() {
                     </Label>
                     <MarkdownEditor
                       value={formData.description}
-                      onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+                      onChange={(value) => {
+                        setFormData(prev => ({ ...prev, description: value }));
+                        // Fehler zurücksetzen, wenn Wert geändert wird
+                        if (validationErrors.length > 0) {
+                          setValidationErrors(prev => prev.filter(err => !err.includes('Beschreibung')));
+                        }
+                      }}
                       placeholder="Beschreibung des Adventskalender-Eintrags (Markdown wird unterstützt)"
                       minHeight="min-h-[200px]"
                       required
@@ -384,7 +412,13 @@ export function AdventCalendarForm() {
                         id="linkUrl"
                         type="text"
                         value={formData.linkUrl || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, linkUrl: e.target.value || undefined }))}
+                        onChange={e => {
+                          setFormData(prev => ({ ...prev, linkUrl: e.target.value || undefined }));
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors(prev => prev.filter(err => !err.includes('URL')));
+                          }
+                        }}
                         placeholder="www.example.com oder https://example.com"
                         className={cn(glassInput, 'pl-10')}
                       />

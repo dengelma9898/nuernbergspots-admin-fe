@@ -28,8 +28,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
@@ -66,6 +67,7 @@ export function CategoryList() {
     keywordIds: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,6 +107,7 @@ export function CategoryList() {
         keywordIds: [],
       });
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
@@ -125,9 +128,11 @@ export function CategoryList() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory || !newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const categoryToUpdate = {
@@ -142,6 +147,7 @@ export function CategoryList() {
       setEditingCategory(null);
       setNewCategory({ name: '', description: '', iconName: '', keywordIds: [] });
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
@@ -168,6 +174,7 @@ export function CategoryList() {
       iconName: '',
       keywordIds: [],
     });
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -230,6 +237,21 @@ export function CategoryList() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -240,9 +262,13 @@ export function CategoryList() {
                       <Label className="text-foreground">Name</Label>
                       <Input
                         value={newCategory.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setNewCategory({ ...newCategory, name: e.target.value })
-                        }
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setNewCategory({ ...newCategory, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Kategoriename"
                         className={cn(glassInput)}
                       />
