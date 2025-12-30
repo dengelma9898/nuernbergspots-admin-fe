@@ -417,7 +417,7 @@ export function Analytics() {
       setAnalytics(analytics);
     } catch (error) {
       console.error('Fehler beim Laden der Analytics:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadAnalytics(), 'load-analytics');
     } finally {
       setIsLoading(false);
     }

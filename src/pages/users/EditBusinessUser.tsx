@@ -93,7 +93,7 @@ export function EditBusinessUser() {
       });
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Geschäfts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleAddBusiness(), 'save-business');
     } finally {
       setIsAddingBusiness(false);
       setIsConfirmDialogOpen(false);

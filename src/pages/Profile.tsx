@@ -72,7 +72,7 @@ export function Profile() {
       setCurrentUser(userData);
     } catch (error) {
       console.error('Fehler beim Laden der Benutzerdaten:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadUserData(), 'load-users');
     } finally {
       setIsLoading(false);
     }
