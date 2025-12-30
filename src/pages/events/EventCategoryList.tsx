@@ -30,6 +30,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { showSuccessMessage } from '@/utils/errorUtils';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
 import { useEventCategoryService } from '@/services/eventCategoryService';
@@ -131,7 +132,10 @@ export function EventCategoryList() {
       setExistingImageUrls([]);
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie hinzugefügt');
+      showSuccessMessage(toast, {
+        title: 'Kategorie hinzugefügt',
+        description: `"${category.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
       showUserFriendlyError(error, toast);
@@ -218,9 +222,13 @@ export function EventCategoryList() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
       await eventCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
-      toast.success('Kategorie gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Kategorie gelöscht',
+        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
       showUserFriendlyError(error, toast);
@@ -258,7 +266,10 @@ export function EventCategoryList() {
       );
       setCategories(categories.map(cat => (cat.id === categoryId ? updatedCategory : cat)));
       imageUpload.clearImages();
-      toast.success('Bilder erfolgreich hochgeladen');
+      showSuccessMessage(toast, {
+        title: 'Bilder erfolgreich hochgeladen',
+        description: `${imageUpload.files.length} Bild${imageUpload.files.length > 1 ? 'er' : ''} wurde${imageUpload.files.length > 1 ? 'n' : ''} erfolgreich hochgeladen.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hochladen der Bilder:', error);
       showUserFriendlyError(error, toast);

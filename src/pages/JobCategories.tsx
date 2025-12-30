@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobCategory, JobCategoryCreation } from '@/models/job-category';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -315,9 +315,13 @@ export function JobCategories() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
       await jobCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
-      toast.success('Kategorie gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Kategorie gelöscht',
+        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
       showUserFriendlyError(error, toast);
