@@ -105,7 +105,7 @@ export function AccountManagement() {
       setStats(data);
     } catch (error) {
       console.error('Fehler beim Laden der Statistiken:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadStats(), 'load-users');
     } finally {
       setIsLoading(false);
     }

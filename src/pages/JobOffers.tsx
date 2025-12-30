@@ -215,7 +215,7 @@ export function JobOffers() {
       setJobOffers(fetchedJobOffers);
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadData(), 'load-job-offer');
     } finally {
       setLoading(false);
     }
