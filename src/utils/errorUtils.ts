@@ -131,6 +131,8 @@ function applyContext(error: UserFriendlyError, context?: ErrorContext): UserFri
     'delete-keyword': 'Fehler beim Löschen des Keywords',
     'load-legal-document': 'Fehler beim Laden des Dokuments',
     'save-legal-document': 'Fehler beim Speichern des Dokuments',
+    'load-analytics': 'Fehler beim Laden der Analytics',
+    'login': 'Fehler beim Anmelden',
     'generic': '',
   };
 
