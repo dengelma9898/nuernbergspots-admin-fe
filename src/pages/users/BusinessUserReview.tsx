@@ -33,7 +33,7 @@ export const BusinessUserReview: React.FC = () => {
       setUsers(fetchedUsers.filter(user => user.needsReview));
     } catch (error) {
       console.error('Fehler beim Laden der Benutzer:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadUsers(), 'load-users');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export const BusinessUserReview: React.FC = () => {
       loadUsers();
     } catch (error) {
       console.error('Fehler bei der Verifizierung:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleApprove(userId), 'generic');
     }
   };
 
@@ -67,7 +67,7 @@ export const BusinessUserReview: React.FC = () => {
       loadUsers();
     } catch (error) {
       console.error('Fehler bei der Ablehnung:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleReject(userId), 'generic');
     }
   };
 

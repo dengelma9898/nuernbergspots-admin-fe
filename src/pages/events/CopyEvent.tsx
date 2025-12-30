@@ -223,7 +223,7 @@ export const CopyEvent: React.FC = () => {
       }
     } catch (error) {
       console.error('Fehler beim Laden des Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadEvent(), 'load-event');
       navigate('/events');
     } finally {
       setLoadingEvent(false);
@@ -300,7 +300,7 @@ export const CopyEvent: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -396,7 +396,7 @@ export const CopyEvent: React.FC = () => {
       navigate('/events');
     } catch (error) {
       console.error('Fehler beim Kopieren des Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(), 'save-event');
     } finally {
       setLoading(false);
     }

@@ -50,7 +50,7 @@ export function Login() {
     } catch (error) {
       setHasError(true);
       console.error('Fehler beim Login:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleLogin(), 'login');
       // Reset error state after animation
       setTimeout(() => setHasError(false), 500);
     } finally {

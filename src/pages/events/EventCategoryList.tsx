@@ -275,7 +275,7 @@ export function EventCategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Hochladen der Bilder:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleUploadImages(categoryId), 'upload-image');
     }
   };
 

@@ -41,7 +41,7 @@ export function ContactRequests() {
         }
       } catch (error) {
         console.error('Fehler beim Laden der Kontaktanfragen:', error);
-        showUserFriendlyError(error, toast);
+        showUserFriendlyError(error, toast, () => fetchContactRequests(showSuccessToast), 'load-contact-requests');
       } finally {
         setLoading(false);
         setIsRefreshing(false);

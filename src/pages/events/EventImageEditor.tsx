@@ -193,7 +193,7 @@ export const EventImageEditor: React.FC = () => {
           setIsInitialized(true);
         } catch (error) {
           console.error('Fehler beim Laden des Events:', error);
-          showUserFriendlyError(error, toast);
+          showUserFriendlyError(error, toast, () => loadEvent(), 'load-event');
           navigate('/events');
         }
       };

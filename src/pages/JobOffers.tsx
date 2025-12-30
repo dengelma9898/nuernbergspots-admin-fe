@@ -236,7 +236,7 @@ export function JobOffers() {
       loadData();
     } catch (error) {
       console.error('Fehler beim Löschen des Stellenangebots:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDelete(jobOfferId), 'delete-job-offer');
     }
   };
 

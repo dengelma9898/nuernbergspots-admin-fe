@@ -108,7 +108,7 @@ export const CreateEvent: React.FC = () => {
       }
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -152,7 +152,7 @@ export const CreateEvent: React.FC = () => {
       navigate('/events');
     } catch (error) {
       console.error('Fehler beim Erstellen des Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(), 'save-event');
     } finally {
       setLoading(false);
     }

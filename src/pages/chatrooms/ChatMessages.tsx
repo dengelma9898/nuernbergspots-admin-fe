@@ -62,7 +62,7 @@ export function ChatMessages() {
 
   useEffect(() => {
     if (!chatroomId) {
-      showUserFriendlyError(new Error('Chatroom ID fehlt'), toast);
+      showUserFriendlyError(new Error('Chatroom ID fehlt'), toast, undefined, 'load-chatroom');
       return;
     }
     loadMessages();
@@ -78,7 +78,7 @@ export function ChatMessages() {
       scrollToBottom();
     } catch (error) {
       console.error('Fehler beim Laden der Nachrichten:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadMessages(), 'load-chatroom');
     } finally {
       setIsLoading(false);
     }
@@ -108,7 +108,7 @@ export function ChatMessages() {
       scrollToBottom();
     } catch (error) {
       console.error('Fehler beim Senden der Nachricht:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSendMessage(), 'send-message');
     }
   };
 
@@ -128,7 +128,7 @@ export function ChatMessages() {
       setEditingMessage(null);
     } catch (error) {
       console.error('Fehler beim Bearbeiten der Nachricht:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleEditMessage(messageId, content), 'send-message');
     }
   };
 
@@ -138,7 +138,7 @@ export function ChatMessages() {
       setMessages(prev => prev.filter(msg => msg.id !== messageId));
     } catch (error) {
       console.error('Fehler beim Löschen der Nachricht:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDeleteMessage(messageId), 'send-message');
     }
   };
 
@@ -148,7 +148,7 @@ export function ChatMessages() {
       setMessages(prev => prev.map(msg => (msg.id === messageId ? updatedMessage : msg)));
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Reaktion:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleReaction(messageId, type), 'send-message');
     }
   };
 

@@ -48,7 +48,7 @@ export const BusinessList: React.FC = () => {
       setBusinesses(fetchedBusinesses);
     } catch (error) {
       console.error('Fehler beim Laden der Geschäfte:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadBusinesses(), 'load-business');
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export const BusinessList: React.FC = () => {
       loadBusinesses();
     } catch (error) {
       console.error('Fehler beim Löschen des Geschäfts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDelete(businessId), 'delete-business');
     }
   };
 

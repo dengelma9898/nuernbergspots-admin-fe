@@ -121,7 +121,7 @@ export const EventScraper: React.FC = () => {
       });
     } catch (error) {
       console.error('Fehler beim Scrapen der Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleScrape(), 'load-event');
     } finally {
       setLoading(false);
     }

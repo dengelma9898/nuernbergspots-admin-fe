@@ -122,7 +122,7 @@ export function AccountManagement() {
       });
     } catch (error) {
       console.error('Fehler beim Bereinigen der anonymen Accounts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleCleanup(), 'generic');
     } finally {
       setIsCleaning(false);
     }

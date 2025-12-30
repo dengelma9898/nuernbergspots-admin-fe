@@ -301,7 +301,7 @@ const NewsManagement: React.FC = () => {
       }
     } catch (e) {
       console.error('Fehler beim Laden der News:', e);
-      showUserFriendlyError(e, toast);
+      showUserFriendlyError(e, toast, () => fetchNews(), 'load-news');
       setNews([]);
     } finally {
       setLoading(false);
@@ -350,7 +350,7 @@ const NewsManagement: React.FC = () => {
       }, 100);
     } catch (e) {
       console.error('Fehler beim Senden der Text-News:', e);
-      showUserFriendlyError(e, toast);
+      showUserFriendlyError(e, toast, () => handleSendText(), 'save-news');
     } finally {
       setSending(false);
     }
@@ -380,7 +380,7 @@ const NewsManagement: React.FC = () => {
       }, 100);
     } catch (e) {
       console.error('Fehler beim Senden der Bild-News:', e);
-      showUserFriendlyError(e, toast);
+      showUserFriendlyError(e, toast, () => handleSendImage(), 'save-news');
     } finally {
       setImageSending(false);
     }
@@ -436,7 +436,7 @@ const NewsManagement: React.FC = () => {
       }, 100);
     } catch (e) {
       console.error('Fehler beim Senden der Umfrage:', e);
-      showUserFriendlyError(e, toast);
+      showUserFriendlyError(e, toast, () => handleAddPoll(), 'save-news');
     } finally {
       setPollSending(false);
     }
@@ -473,7 +473,7 @@ const NewsManagement: React.FC = () => {
       await fetchNews();
     } catch (e) {
       console.error('Fehler beim Speichern der Bearbeitung:', e);
-      showUserFriendlyError(e, toast);
+      showUserFriendlyError(e, toast, () => handleSaveEdit(), 'save-news');
     } finally {
       setEditSaving(false);
     }

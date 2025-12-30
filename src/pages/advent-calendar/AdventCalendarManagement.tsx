@@ -163,7 +163,7 @@ export function AdventCalendarManagement() {
       setEntries(sortedEntries);
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadData(), 'load-advent-calendar');
     } finally {
       setLoading(false);
     }
@@ -209,7 +209,7 @@ export function AdventCalendarManagement() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Feature-Status:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleFeatureStatusToggle(newValue), 'save-advent-calendar');
     } finally {
       setIsUpdatingFeatureStatus(false);
     }
@@ -236,7 +236,7 @@ export function AdventCalendarManagement() {
       loadData();
     } catch (error) {
       console.error('Fehler beim Löschen des Eintrags:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDelete(entryId), 'delete-advent-calendar');
     }
   };
 

@@ -113,7 +113,7 @@ export default function MittmachMittwoch() {
       loadPolls();
     } catch (error) {
       console.error('Fehler beim Erstellen der Aktion/Poll:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleCreatePoll(), 'save-event');
     }
   };
 

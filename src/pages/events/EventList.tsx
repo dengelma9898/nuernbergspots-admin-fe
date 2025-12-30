@@ -91,7 +91,7 @@ export const EventList: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadData(), 'load-event');
     } finally {
       setLoading(false);
     }
@@ -124,7 +124,7 @@ export const EventList: React.FC = () => {
       setEventToDelete(null);
     } catch (error) {
       console.error('Fehler beim Löschen des Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => confirmDelete(), 'delete-event');
     } finally {
       setIsDeleting(false);
     }

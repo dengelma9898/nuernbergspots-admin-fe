@@ -76,7 +76,7 @@ export function DowntimeManagement() {
       setIsDowntime(status.isDowntime);
     } catch (error) {
       console.error('Fehler beim Laden des Downtime-Status:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadDowntimeStatus(), 'generic');
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +105,7 @@ export function DowntimeManagement() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Downtime-Status:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleConfirm(), 'generic');
     } finally {
       setIsUpdating(false);
       setPendingValue(null);

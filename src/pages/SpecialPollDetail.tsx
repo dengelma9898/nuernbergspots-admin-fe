@@ -88,7 +88,7 @@ export default function SpecialPollDetail() {
       loadPoll(pollId);
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Antwort:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleAddResponse(), 'save-event');
     } finally {
       setIsSubmitting(false);
     }
@@ -108,7 +108,7 @@ export default function SpecialPollDetail() {
       loadPoll(pollId);
     } catch (error) {
       console.error('Fehler beim Löschen der Antwort:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDeleteResponse(), 'save-event');
     }
   };
 
@@ -124,7 +124,7 @@ export default function SpecialPollDetail() {
       loadPoll(pollId);
     } catch (error) {
       console.error('Fehler beim Ändern des Status:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleStatusChange(newStatus), 'save-event');
     } finally {
       setIsStatusUpdating(false);
     }
