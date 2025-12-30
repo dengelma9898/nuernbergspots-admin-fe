@@ -276,14 +276,15 @@ export function LegalDocumentEdit() {
             variants={fadeInUp}
             className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4">
+            <div className="flex flex-row items-center gap-4">
               <AnimatedButton
                 onClick={() => navigate('/legal')}
                 variant="outline"
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                size="icon"
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Zurück
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück</span>
               </AnimatedButton>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground">

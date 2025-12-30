@@ -340,15 +340,16 @@ export function ChatroomManagement() {
               animate="animate"
               transition={defaultTransition}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+              <div className="flex flex-row items-center justify-between gap-4">
                 <div className="flex flex-col gap-1">
                   <AnimatedButton
                     variant="ghost"
-                    className="w-fit p-0 mb-2 sm:mb-0 cursor-pointer"
+                    size="icon"
+                    className={cn(glassButton, 'rounded-full mb-2 sm:mb-0')}
                     onClick={() => navigate('/dashboard')}
                   >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Zurück zum Dashboard
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Zurück zum Dashboard</span>
                   </AnimatedButton>
                   <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
                     Chatroom Management
@@ -468,19 +469,20 @@ export function ChatroomManagement() {
                     </div>
                     <DialogFooter>
                       <AnimatedButton
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => {
                           setIsCreateDialogOpen(false);
                           createImageUpload.clearImages();
                           setCreateError(null);
                         }}
-                        className={cn(glassButton)}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                       >
                         Abbrechen
                       </AnimatedButton>
                       <AnimatedButton
+                        variant="outline"
                         onClick={handleCreateChatroom}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                        className={cn(glassButton, 'rounded-xl')}
                       >
                         Erstellen
                       </AnimatedButton>
@@ -611,15 +613,16 @@ export function ChatroomManagement() {
                 </div>
                 <DialogFooter>
                   <AnimatedButton
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => setIsEditDialogOpen(false)}
-                    className={cn(glassButton)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                   >
                     Abbrechen
                   </AnimatedButton>
                   <AnimatedButton
+                    variant="outline"
                     onClick={handleEditChatroom}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className={cn(glassButton, 'rounded-xl')}
                   >
                     Speichern
                   </AnimatedButton>

@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, Image as ImageIcon, Upload } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { SelectableBadge } from '@/components/ui/SelectableBadge';
 import {
   Select,
   SelectContent,
@@ -691,11 +691,12 @@ export const EditBusiness: React.FC = () => {
             <div className="flex items-center gap-3">
               <AnimatedButton
                 variant="ghost"
+                size="icon"
                 onClick={() => navigate('/businesses')}
-                className={cn(glassButton)}
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="h-5 w-5 mr-2" />
-                Zurück zur Übersicht
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
               </AnimatedButton>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                 Partner bearbeiten
@@ -843,16 +844,13 @@ export const EditBusiness: React.FC = () => {
                     <Label className="text-foreground">Kategorien (max. 3)</Label>
                     <div className="flex flex-wrap gap-2">
                       {categories.map(category => (
-                        <Badge
+                        <SelectableBadge
                           key={category.id}
-                          variant={
-                            business?.categoryIds.includes(category.id) ? 'default' : 'outline'
-                          }
-                          className="cursor-pointer transition-all duration-300 hover:scale-105"
+                          isSelected={business?.categoryIds.includes(category.id) ?? false}
                           onClick={() => toggleCategory(category.id)}
                         >
                           {category.name}
-                        </Badge>
+                        </SelectableBadge>
                       ))}
                     </div>
                     <p className="text-sm text-muted-foreground">
@@ -865,16 +863,13 @@ export const EditBusiness: React.FC = () => {
                       <Label className="text-foreground">Keywords</Label>
                       <div className="flex flex-wrap gap-2">
                         {keywords.map(keyword => (
-                          <Badge
+                          <SelectableBadge
                             key={keyword.id}
-                            variant={
-                              business?.keywordIds.includes(keyword.id) ? 'default' : 'outline'
-                            }
-                            className="cursor-pointer transition-all duration-300 hover:scale-105"
+                            isSelected={business?.keywordIds.includes(keyword.id) ?? false}
                             onClick={() => toggleKeyword(keyword.id)}
                           >
                             {keyword.name}
-                          </Badge>
+                          </SelectableBadge>
                         ))}
                       </div>
                       <p className="text-sm text-muted-foreground">
@@ -1082,16 +1077,13 @@ export const EditBusiness: React.FC = () => {
                           <Label className="text-foreground">Gültig an</Label>
                           <div className="flex flex-wrap gap-2">
                             {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                              <Badge
+                              <SelectableBadge
                                 key={day}
-                                variant={
-                                  slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
-                                }
-                                className="cursor-pointer transition-all duration-300 hover:scale-105"
+                                isSelected={slot.days.includes(day as WeekdayKey)}
                                 onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
                               >
                                 {dayName}
-                              </Badge>
+                              </SelectableBadge>
                             ))}
                           </div>
                         </div>
@@ -1126,16 +1118,13 @@ export const EditBusiness: React.FC = () => {
                         <Label className="text-foreground">Gültig an</Label>
                         <div className="flex flex-wrap gap-2">
                           {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                            <Badge
+                            <SelectableBadge
                               key={day}
-                              variant={
-                                newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'
-                              }
-                              className="cursor-pointer transition-all duration-300 hover:scale-105"
+                              isSelected={newTimeSlot.days.includes(day as WeekdayKey)}
                               onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
                             >
                               {dayName}
-                            </Badge>
+                            </SelectableBadge>
                           ))}
                         </div>
                       </div>
@@ -1257,19 +1246,20 @@ export const EditBusiness: React.FC = () => {
             </motion.div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-secondary">
+            <div className="flex flex-row items-center justify-end gap-4 pt-4 border-t border-secondary">
               <AnimatedButton
-                variant="outline"
+                variant="ghost"
                 onClick={() => navigate('/businesses')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
               >
                 Abbrechen
               </AnimatedButton>
               <LoadingButton
+                variant="outline"
                 onClick={handleUpdateBusiness}
                 isLoading={isSaving}
                 loadingText="Speichert..."
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                className={cn(glassButton, 'flex items-center')}
               >
                 Änderungen speichern
               </LoadingButton>

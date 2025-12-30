@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -39,19 +39,21 @@ export function ContactRequestDetail() {
   const [responseMessage, setResponseMessage] = useState('');
   const contactService = useContactService();
 
-  const fetchContactRequest = useCallback(async () => {
+  const fetchContactRequest = useCallback(async (showSuccessToast = false) => {
     if (!id) return;
     try {
       setIsRefreshing(true);
       const request = await contactService.getContactRequestById(id);
       setContactRequest(request);
-      showSuccessMessage(toast, {
-        title: 'Kontaktanfrage erfolgreich aktualisiert',
-        description: 'Die Kontaktanfrage wurde erfolgreich geladen.',
-      });
+      if (showSuccessToast) {
+        showSuccessMessage(toast, {
+          title: 'Kontaktanfrage erfolgreich aktualisiert',
+          description: 'Die Kontaktanfrage wurde erfolgreich geladen.',
+        });
+      }
     } catch (error) {
       console.error('Fehler beim Laden der Kontaktanfrage:', error);
-      showUserFriendlyError(error, toast, () => fetchContactRequest(), 'load-contact-requests');
+      showUserFriendlyError(error, toast, () => fetchContactRequest(showSuccessToast), 'load-contact-requests');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -66,7 +68,7 @@ export function ContactRequestDetail() {
       setIsSending(true);
       await contactService.respondToContactRequest(id, responseMessage.trim());
       setResponseMessage('');
-      await fetchContactRequest(); // Aktualisiere die Konversation
+      await fetchContactRequest(false); // Aktualisiere die Konversation ohne Toast
       showSuccessMessage(toast, {
         title: 'Antwort erfolgreich gesendet',
         description: 'Deine Antwort wurde erfolgreich an den Benutzer gesendet.',
@@ -79,10 +81,14 @@ export function ContactRequestDetail() {
     }
   };
 
-  // Initiale Ladung der Daten
+  // Initiale Ladung der Daten - nur einmal beim Mount mit useRef um Doppelaufrufe zu verhindern
+  const isInitialMount = React.useRef(true);
   useEffect(() => {
-    fetchContactRequest();
-  }, []); // Leeres Dependency Array für einmalige Ausführung
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      fetchContactRequest(false);
+    }
+  }, [fetchContactRequest]);
 
   const getRequestTypeBadge = (type: ContactRequestType) => {
     const typeConfig = {
@@ -132,12 +138,7 @@ export function ContactRequestDetail() {
   const MessageBubble = ({ message }: { message: ContactMessage }) => {
     const isAdmin = message.isAdminResponse;
     return (
-      <motion.div
-        className={`flex ${isAdmin ? 'justify-end' : 'justify-start'} mb-6`}
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-      >
+      <div className={`flex ${isAdmin ? 'justify-end' : 'justify-start'} mb-6`}>
         <Card
           className={cn(
             glassCard,
@@ -165,7 +166,7 @@ export function ContactRequestDetail() {
             {format(new Date(message.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
           </div>
         </Card>
-      </motion.div>
+      </div>
     );
   };
 
@@ -202,10 +203,13 @@ export function ContactRequestDetail() {
                 Die angeforderte Kontaktanfrage konnte nicht gefunden werden.
               </p>
               <AnimatedButton
+                variant="ghost"
+                size="icon"
                 onClick={() => navigate('/contacts')}
-                className={cn(glassButton)}
+                className={cn(glassButton, 'rounded-full')}
               >
-                Zurück zur Übersicht
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
               </AnimatedButton>
             </Card>
           </div>
@@ -218,119 +222,94 @@ export function ContactRequestDetail() {
     <PageTransition>
       <div className="min-h-screen relative overflow-hidden">
         <Background />
-        <motion.div
-          className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10 min-h-screen flex flex-col"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
+        <div className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10 min-h-screen flex flex-col items-start">
           {/* Hidden compatibility element for tests */}
           <div className="w-full min-h-screen bg-white absolute -z-10 opacity-0 pointer-events-none"></div>
-          <div className="w-full max-w-2xl mx-auto flex flex-col flex-1">
-            {/* Glass Header */}
+          <div className="w-full flex flex-col flex-1">
+            {/* Header */}
             <motion.div
-              className={cn(glassCard, 'mb-6')}
+              className={cn(glassCard, 'p-6 md:p-8 mb-6 w-full')}
               variants={fadeInUp}
               initial="initial"
               animate="animate"
               transition={defaultTransition}
             >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between p-6">
-                <div className="flex items-start gap-4">
-                  <AnimatedButton
-                    onClick={() => navigate('/contacts')}
-                    variant="ghost"
-                    size="icon"
-                    className={cn(glassButton)}
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </AnimatedButton>
-                  <div className="flex-1">
-                    <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-3">
-                      Kontaktanfrage Details
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-3 mb-2">
-                      {getRequestTypeBadge(contactRequest.type)}
-                      {getStatusBadge(contactRequest)}
-                    </div>
-                    <span className="text-sm text-muted-foreground font-medium">
-                      {format(new Date(contactRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
-                    </span>
+              <div className="flex flex-row items-start justify-between gap-4">
+                <AnimatedButton
+                  onClick={() => navigate('/contacts')}
+                  variant="ghost"
+                  size="icon"
+                  className={cn(glassButton, 'rounded-full shrink-0')}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zur Übersicht</span>
+                </AnimatedButton>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                    Kontaktanfrage Details
+                  </h1>
+                  <div className="flex flex-wrap items-center gap-3 mb-1">
+                    {getRequestTypeBadge(contactRequest.type)}
+                    {getStatusBadge(contactRequest)}
                   </div>
+                  <p className="text-sm text-muted-foreground">
+                    {format(new Date(contactRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                  </p>
                 </div>
                 <LoadingButton
-                  onClick={fetchContactRequest}
+                  onClick={() => fetchContactRequest(true)}
                   disabled={isRefreshing}
-                  className={cn(glassButton, 'w-full lg:w-auto')}
+                  size="icon"
+                  className={cn(glassButton, 'shrink-0 rounded-full')}
                 >
-                  <RefreshCcw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  {isRefreshing ? 'Wird aktualisiert...' : 'Aktualisieren'}
+                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="sr-only">Aktualisieren</span>
                 </LoadingButton>
               </div>
             </motion.div>
 
             {/* Konversation */}
-            <motion.div
-              className="flex-1 overflow-y-auto pb-40"
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={{ ...defaultTransition, delay: 0.1 }}
-            >
+            <div className="flex-1 overflow-y-auto pb-40">
               <Card className={cn(glassCard, 'p-6 mb-6')}>
                 <h2 className="text-lg md:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                   <MessageSquare className="h-5 w-5 text-muted-foreground" />
                   Konversation
                 </h2>
-                <motion.div
-                  className="space-y-4"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {contactRequest.messages.map((message, index) => (
-                    <MessageBubble key={index} message={message} />
+                <div className="space-y-4">
+                  {contactRequest.messages.map((message) => (
+                    <MessageBubble key={`${message.createdAt}-${message.message.substring(0, 20)}`} message={message} />
                   ))}
-                </motion.div>
+                </div>
               </Card>
-            </motion.div>
+            </div>
 
-            {/* Floating Glass Antwortfeld */}
-            <motion.form
+            {/* Floating Antwortfeld */}
+            <form
               onSubmit={handleSubmitResponse}
-              className={cn(glassCard, 'fixed bottom-0 left-0 w-full z-30 border-t')}
+              className="fixed bottom-0 left-0 w-full z-30 border-t bg-background/95 backdrop-blur-sm p-4"
               style={{ maxWidth: '100vw' }}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={{ ...defaultTransition, delay: 0.2 }}
             >
-              <div className="max-w-4xl mx-auto w-full p-4">
-                <Card className={cn(glassCard, 'p-4')}>
-                  <div className="flex flex-col gap-3">
-                    <Textarea
-                      placeholder="Ihre Antwort..."
-                      value={responseMessage}
-                      onChange={e => setResponseMessage(e.target.value)}
-                      className={cn(glassInput, 'min-h-[80px] resize-none')}
-                      disabled={isSending}
-                    />
-                    <div className="flex justify-end">
-                      <LoadingButton
-                        type="submit"
-                        disabled={isSending || !responseMessage.trim()}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        <Send className={`mr-2 h-4 w-4 ${isSending ? 'animate-pulse' : ''}`} />
-                        {isSending ? 'Wird gesendet...' : 'Antwort senden'}
-                      </LoadingButton>
-                    </div>
-                  </div>
-                </Card>
+              <div className="max-w-4xl mx-auto w-full flex flex-row gap-3 items-end">
+                <Textarea
+                  placeholder="Ihre Antwort..."
+                  value={responseMessage}
+                  onChange={e => setResponseMessage(e.target.value)}
+                  className={cn(glassInput, 'min-h-[80px] resize-none flex-1')}
+                  disabled={isSending}
+                />
+                <LoadingButton
+                  type="submit"
+                  disabled={isSending || !responseMessage.trim()}
+                  size="icon"
+                  className={cn(glassButton, 'shrink-0 h-[80px] w-[80px]')}
+                >
+                  <Send className={`h-5 w-5 ${isSending ? 'animate-pulse' : ''}`} />
+                  <span className="sr-only">Antwort senden</span>
+                </LoadingButton>
               </div>
-            </motion.form>
+            </form>
           </div>
-        </motion.div>
+        </div>
       </div>
     </PageTransition>
   );

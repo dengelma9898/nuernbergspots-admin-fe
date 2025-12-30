@@ -179,6 +179,98 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   const errorString = errorMessage.toLowerCase();
   const statusCode = extractStatusCode(error);
 
+  // Firebase-Fehler haben höchste Priorität - müssen vor anderen Fehlern geprüft werden
+  if (errorString.includes('firebase') || errorString.includes('auth/')) {
+    // Firebase Quota-Exceeded Fehler
+    if (errorString.includes('quota-exceeded') || errorString.includes('quota exceeded')) {
+      return applyContext({
+        title: 'Service vorübergehend nicht verfügbar',
+        message:
+          'Der Service ist derzeit aufgrund hoher Nutzung nicht verfügbar. Bitte versuche es in ein paar Minuten erneut.',
+        isPersistent: true,
+        actionHint: 'Bitte warte einige Minuten und versuche es dann erneut. Wenn das Problem länger besteht, kontaktiere den Support.',
+        isRetryable: true,
+      }, context);
+    }
+
+    // Firebase Auth-Fehler allgemein
+    if (errorString.includes('auth/')) {
+      // Spezifische Firebase Auth-Fehler
+      if (errorString.includes('auth/user-not-found')) {
+        return applyContext({
+          title: 'Benutzer nicht gefunden',
+          message: 'Der angegebene Benutzer existiert nicht. Bitte überprüfe deine Eingaben.',
+          isPersistent: true,
+          actionHint: 'Überprüfe deine E-Mail-Adresse und versuche es erneut.',
+        }, context);
+      }
+
+      if (errorString.includes('auth/wrong-password') || errorString.includes('auth/invalid-credential')) {
+        return applyContext({
+          title: 'Falsches Passwort',
+          message: 'Das eingegebene Passwort ist nicht korrekt. Bitte versuche es erneut.',
+          isPersistent: true,
+          actionHint: 'Überprüfe dein Passwort. Falls du es vergessen hast, nutze die Passwort-Reset-Funktion.',
+        }, context);
+      }
+
+      if (errorString.includes('auth/email-already-in-use')) {
+        return applyContext({
+          title: 'E-Mail bereits registriert',
+          message: 'Diese E-Mail-Adresse wird bereits verwendet. Bitte verwende eine andere E-Mail-Adresse oder melde dich an.',
+          isPersistent: true,
+          actionHint: 'Verwende eine andere E-Mail-Adresse oder melde dich mit deinem bestehenden Account an.',
+        }, context);
+      }
+
+      if (errorString.includes('auth/weak-password')) {
+        return applyContext({
+          title: 'Passwort zu schwach',
+          message: 'Das Passwort ist zu schwach. Bitte wähle ein sichereres Passwort mit mindestens 6 Zeichen.',
+          isPersistent: true,
+          actionHint: 'Verwende ein Passwort mit mindestens 6 Zeichen, das Buchstaben und Zahlen enthält.',
+        }, context);
+      }
+
+      if (errorString.includes('auth/network-request-failed')) {
+        return applyContext({
+          title: 'Netzwerkfehler',
+          message: 'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
+          isPersistent: true,
+          actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
+          isRetryable: true,
+        }, context);
+      }
+
+      if (errorString.includes('auth/too-many-requests')) {
+        return applyContext({
+          title: 'Zu viele Versuche',
+          message: 'Du hast zu viele Anmeldeversuche unternommen. Bitte warte einige Minuten, bevor du es erneut versuchst.',
+          isPersistent: true,
+          actionHint: 'Warte 5-10 Minuten und versuche es dann erneut.',
+        }, context);
+      }
+
+      // Generischer Firebase Auth-Fehler
+      return applyContext({
+        title: 'Anmeldung fehlgeschlagen',
+        message: 'Bei der Anmeldung ist ein Fehler aufgetreten. Bitte überprüfe deine Eingaben und versuche es erneut.',
+        isPersistent: true,
+        actionHint: 'Überprüfe deine E-Mail-Adresse und dein Passwort. Falls das Problem weiterhin besteht, kontaktiere den Support.',
+        isRetryable: true,
+      }, context);
+    }
+
+    // Generischer Firebase-Fehler (nicht Auth-spezifisch)
+    return applyContext({
+      title: 'Service-Fehler',
+      message: 'Es ist ein Fehler beim Verbinden mit dem Service aufgetreten. Bitte versuche es später erneut.',
+      isPersistent: true,
+      actionHint: 'Bitte versuche es in ein paar Minuten erneut. Wenn das Problem weiterhin besteht, kontaktiere den Support.',
+      isRetryable: true,
+    }, context);
+  }
+
   // Validation-Fehler haben höchste Priorität (werden vor Upload geprüft)
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;

@@ -231,11 +231,12 @@ export const CreateEvent: React.FC = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
               <AnimatedButton
                 variant="ghost"
+                size="icon"
                 onClick={() => navigate('/events')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zur Übersicht
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
               </AnimatedButton>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                 Neues Event erstellen
@@ -616,19 +617,20 @@ export const CreateEvent: React.FC = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-secondary">
+                <div className="flex flex-row items-center justify-end gap-4 pt-6 border-t border-secondary">
                   <AnimatedButton
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => navigate('/events')}
-                    className={cn(glassButton, 'w-full sm:w-auto')}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
                   >
                     Abbrechen
                   </AnimatedButton>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSubmit}
                     isLoading={loading}
                     loadingText="Wird erstellt..."
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                    className={cn(glassButton, 'flex items-center')}
                   >
                     Event erstellen
                   </LoadingButton>

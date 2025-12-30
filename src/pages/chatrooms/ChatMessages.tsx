@@ -207,11 +207,12 @@ export function ChatMessages() {
           >
             <AnimatedButton
               variant="ghost"
+              size="icon"
               onClick={() => navigate('/chatrooms')}
-              className="flex items-center gap-2"
+              className={cn(glassButton, 'rounded-full')}
             >
-              <ArrowLeft className="h-4 w-4" />
-              Zurück zu Chatrooms
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zu Chatrooms</span>
             </AnimatedButton>
           </motion.div>
           <motion.div

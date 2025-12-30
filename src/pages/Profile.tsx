@@ -99,11 +99,12 @@ export function Profile() {
               <div className="flex items-center gap-4">
                 <AnimatedButton
                   variant="ghost"
+                  size="icon"
                   onClick={() => navigate(-1)}
-                  className={cn(glassButton)}
+                  className={cn(glassButton, 'rounded-full')}
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Zurück
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück</span>
                 </AnimatedButton>
                 <h1 className="text-3xl font-bold text-foreground">
                   Mein Profil

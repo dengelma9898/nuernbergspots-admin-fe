@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft, Trash2, AlertCircle } from 'lucide-react';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
+import { SelectableBadge } from '@/components/ui/SelectableBadge';
 import { Switch } from '@/components/ui/switch';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -316,7 +316,7 @@ export const CreateBusiness: React.FC = () => {
       const createdBusiness = await businessService.createBusiness(businessToCreate);
       showSuccessMessage(toast, {
         title: 'Geschäft erstellt',
-        description: `"${formData.name}" wurde erfolgreich erstellt.`,
+        description: `"${newBusiness.name}" wurde erfolgreich erstellt.`,
         nextSteps: [
           'Du kannst jetzt weitere Details hinzufügen',
           'Oder Bilder hochladen'
@@ -356,11 +356,12 @@ export const CreateBusiness: React.FC = () => {
               <div className="flex items-center gap-4">
                 <AnimatedButton
                   variant="ghost"
+                  size="icon"
                   onClick={() => navigate('/businesses')}
-                  className={cn(glassButton)}
+                  className={cn(glassButton, 'rounded-full')}
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Zurück zur Übersicht
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zur Übersicht</span>
                 </AnimatedButton>
                 <h1 className="text-2xl font-bold text-foreground">
                   Neues Geschäft erstellen
@@ -460,14 +461,13 @@ export const CreateBusiness: React.FC = () => {
                 <Label className="text-foreground">Kategorien (max. 3)</Label>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(category => (
-                    <Badge
+                    <SelectableBadge
                       key={category.id}
+                      isSelected={newBusiness.categoryIds.includes(category.id)}
                       onClick={() => toggleCategory(category.id)}
-                      variant={newBusiness.categoryIds.includes(category.id) ? 'default' : 'outline'}
-                      className="cursor-pointer transition-all duration-300 hover:scale-105"
                     >
                       {category.name}
-                    </Badge>
+                    </SelectableBadge>
                   ))}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -487,14 +487,13 @@ export const CreateBusiness: React.FC = () => {
                   <Label className="text-foreground">Keywords</Label>
                   <div className="flex flex-wrap gap-2">
                     {keywords.map(keyword => (
-                      <Badge
+                      <SelectableBadge
                         key={keyword.id}
+                        isSelected={selectedKeywords.includes(keyword.id)}
                         onClick={() => toggleKeyword(keyword.id)}
-                        variant={selectedKeywords.includes(keyword.id) ? 'default' : 'outline'}
-                        className="cursor-pointer transition-all duration-300 hover:scale-105"
                       >
                         {keyword.name}
-                      </Badge>
+                      </SelectableBadge>
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground">
@@ -764,14 +763,13 @@ export const CreateBusiness: React.FC = () => {
                         <Label className="text-foreground">Gültig an</Label>
                         <div className="flex flex-wrap gap-2">
                           {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                            <Badge
+                            <SelectableBadge
                               key={day}
+                              isSelected={slot.days.includes(day as WeekdayKey)}
                               onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
-                              variant={slot.days.includes(day as WeekdayKey) ? 'default' : 'outline'}
-                              className="cursor-pointer transition-all duration-300 hover:scale-105"
                             >
                               {dayName}
-                            </Badge>
+                            </SelectableBadge>
                           ))}
                         </div>
                       </div>
@@ -807,14 +805,13 @@ export const CreateBusiness: React.FC = () => {
                       <Label className="text-foreground">Gültig an</Label>
                       <div className="flex flex-wrap gap-2">
                         {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                          <Badge
+                          <SelectableBadge
                             key={day}
+                            isSelected={newTimeSlot.days.includes(day as WeekdayKey)}
                             onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
-                            variant={newTimeSlot.days.includes(day as WeekdayKey) ? 'default' : 'outline'}
-                            className="cursor-pointer transition-all duration-300 hover:scale-105"
                           >
                             {dayName}
-                          </Badge>
+                          </SelectableBadge>
                         ))}
                       </div>
                     </div>
@@ -830,19 +827,20 @@ export const CreateBusiness: React.FC = () => {
               </motion.div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row justify-end gap-4 pt-4 border-t border-secondary">
+              <div className="flex flex-row items-center justify-end gap-4 pt-4 border-t border-secondary">
                 <AnimatedButton
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => navigate('/businesses')}
-                  className={cn(glassButton, 'w-full sm:w-auto')}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
                 >
                   Abbrechen
                 </AnimatedButton>
                 <LoadingButton
+                  variant="outline"
                   onClick={handleSubmit}
                   isLoading={loading}
                   loadingText="Wird erstellt..."
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                  className={cn(glassButton, 'flex items-center')}
                 >
                   Geschäft erstellen
                 </LoadingButton>

@@ -141,9 +141,14 @@ export default function SpecialPollDetail() {
             animate="animate"
             transition={defaultTransition}
           >
-            <AnimatedButton variant="outline" className="mb-6" onClick={() => navigate('/mittmach-mittwoch')}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Zurück zur Übersicht
+            <AnimatedButton 
+              variant="outline" 
+              size="icon"
+              className={cn(glassButton, 'rounded-full mb-6')} 
+              onClick={() => navigate('/mittmach-mittwoch')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
             </AnimatedButton>
           </motion.div>
           {isLoading ? (

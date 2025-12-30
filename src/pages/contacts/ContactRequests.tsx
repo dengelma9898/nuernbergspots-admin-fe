@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, Clock, CheckCircle2, MessageSquare, RefreshCcw } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Clock, CheckCircle2, MessageSquare, RefreshCcw } from 'lucide-react';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
@@ -147,20 +147,29 @@ export function ContactRequests() {
           initial="initial"
           animate="animate"
         >
-          <div className="space-y-6">
+          <div className="space-y-6 flex flex-col items-start">
             {/* Hidden compatibility container for tests */}
             <div className="max-w-2xl mx-auto hidden"></div>
             <div className="w-full min-h-screen bg-white p-4 md:p-8 absolute -z-10 opacity-0 pointer-events-none"></div>
-            {/* Glass Header */}
+            {/* Header */}
             <motion.div
-              className={cn(glassCard, 'p-6 md:p-8')}
+              className={cn(glassCard, 'p-6 md:p-8 mb-6')}
               variants={fadeInUp}
               initial="initial"
               animate="animate"
               transition={defaultTransition}
             >
-              <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center">
-                <div>
+              <div className="flex flex-row items-start justify-between gap-4">
+                <AnimatedButton
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/')}
+                  className={cn(glassButton, 'rounded-full shrink-0')}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zum Dashboard</span>
+                </AnimatedButton>
+                <div className="flex-1 min-w-0">
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
                     Kontaktanfragen
                   </h1>
@@ -168,23 +177,15 @@ export function ContactRequests() {
                     Verwalten Sie alle eingehenden Kundenanfragen und Nachrichten
                   </p>
                 </div>
-                <div className="flex flex-col gap-3 w-full lg:w-auto sm:flex-row">
-                  <LoadingButton
-                    onClick={() => fetchContactRequests(true)}
-                    disabled={isRefreshing}
-                    className={cn(glassButton, 'w-full sm:w-auto')}
-                  >
-                    <RefreshCcw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    {isRefreshing ? 'Wird aktualisiert...' : 'Aktualisieren'}
-                  </LoadingButton>
-                  <AnimatedButton
-                    onClick={() => navigate('/')}
-                    variant="outline"
-                    className={cn(glassButton, 'w-full sm:w-auto')}
-                  >
-                    Zurück zum Dashboard
-                  </AnimatedButton>
-                </div>
+                <LoadingButton
+                  onClick={() => fetchContactRequests(true)}
+                  disabled={isRefreshing}
+                  size="icon"
+                  className={cn(glassButton, 'shrink-0 rounded-full')}
+                >
+                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="sr-only">Aktualisieren</span>
+                </LoadingButton>
               </div>
             </motion.div>
 

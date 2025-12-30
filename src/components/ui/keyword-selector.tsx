@@ -67,14 +67,13 @@ export function KeywordSelector({ selectedIds = [], onChange, className }: Keywo
     <div className={cn('space-y-2', className)}>
       <div className="flex flex-wrap gap-2">
         {sortedKeywords.map(keyword => (
-          <Badge
+          <SelectableBadge
             key={keyword.id}
-            variant={selectedIds.includes(keyword.id) ? 'default' : 'outline'}
-            className="cursor-pointer hover:bg-accent transition-colors"
+            isSelected={selectedIds.includes(keyword.id)}
             onClick={() => toggleKeyword(keyword.id)}
           >
             {keyword.name}
-          </Badge>
+          </SelectableBadge>
         ))}
       </div>
     </div>
