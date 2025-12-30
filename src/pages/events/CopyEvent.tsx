@@ -389,8 +389,9 @@ export const CopyEvent: React.FC = () => {
         }
       }
 
-      toast.success('Event kopiert', {
-        description: 'Das Event wurde erfolgreich kopiert.',
+      showSuccessMessage(toast, {
+        title: 'Event kopiert',
+        description: `"${newEvent.title}" wurde erfolgreich kopiert.`,
       });
       navigate('/events');
     } catch (error) {

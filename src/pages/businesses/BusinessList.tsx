@@ -88,9 +88,11 @@ export const BusinessList: React.FC = () => {
 
   const handleDelete = async (businessId: string) => {
     try {
+      const businessToDelete = businesses.find(b => b.id === businessId);
       await businessService.deleteBusiness(businessId);
-      toast.success('Geschäft gelöscht', {
-        description: 'Das Geschäft wurde erfolgreich gelöscht.',
+      showSuccessMessage(toast, {
+        title: 'Geschäft gelöscht',
+        description: businessToDelete ? `"${businessToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Geschäft wurde erfolgreich gelöscht.',
       });
       loadBusinesses();
     } catch (error) {

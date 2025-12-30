@@ -144,9 +144,10 @@ export const CreateEvent: React.FC = () => {
       };
       console.log('eventToCreate', eventToCreate);
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
-      await eventService.createEvent(eventToCreate);
-      toast.success('Event erstellt', {
-        description: 'Das Event wurde erfolgreich erstellt.',
+      const createdEvent = await eventService.createEvent(eventToCreate);
+      showSuccessMessage(toast, {
+        title: 'Event erstellt',
+        description: `"${newEvent.title}" wurde erfolgreich erstellt.`,
       });
       navigate('/events');
     } catch (error) {

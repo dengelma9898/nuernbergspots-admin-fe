@@ -229,7 +229,8 @@ export function JobOffers() {
   const handleDelete = async (jobOfferId: string) => {
     try {
       await jobOfferService.deleteJobOffer(jobOfferId);
-      toast.success('Stellenangebot gelöscht', {
+      showSuccessMessage(toast, {
+        title: 'Stellenangebot gelöscht',
         description: 'Das Stellenangebot wurde erfolgreich gelöscht.',
       });
       loadData();

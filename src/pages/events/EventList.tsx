@@ -115,8 +115,9 @@ export const EventList: React.FC = () => {
     try {
       setIsDeleting(true);
       await eventService.deleteEvent(eventToDelete);
-      toast.success('Event gelöscht', {
-        description: 'Das Event wurde erfolgreich gelöscht.',
+      showSuccessMessage(toast, {
+        title: 'Event gelöscht',
+        description: eventToDelete ? `"${eventToDelete.title}" wurde erfolgreich gelöscht.` : 'Das Event wurde erfolgreich gelöscht.',
       });
       loadData();
       setDeleteDialogOpen(false);

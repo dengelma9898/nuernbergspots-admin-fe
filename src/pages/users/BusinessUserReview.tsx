@@ -46,7 +46,8 @@ export const BusinessUserReview: React.FC = () => {
   const handleApprove = async (userId: string) => {
     try {
       await userService.updateBusinessUserReviewStatus(userId, false);
-      toast.success('Benutzer verifiziert', {
+      showSuccessMessage(toast, {
+        title: 'Benutzer verifiziert',
         description: 'Der Benutzer wurde erfolgreich verifiziert.',
       });
       loadUsers();
