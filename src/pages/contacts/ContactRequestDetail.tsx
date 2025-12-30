@@ -47,7 +47,7 @@ export function ContactRequestDetail() {
       toast.success('Kontaktanfrage erfolgreich aktualisiert');
     } catch (error) {
       console.error('Fehler beim Laden der Kontaktanfrage:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => fetchContactRequest());
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -66,7 +66,7 @@ export function ContactRequestDetail() {
       toast.success('Antwort erfolgreich gesendet');
     } catch (error) {
       console.error('Fehler beim Senden der Antwort:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmitResponse(e));
     } finally {
       setIsSending(false);
     }

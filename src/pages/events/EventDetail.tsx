@@ -5,7 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, getUserFriendlyError } from '@/utils/errorUtils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Background } from '@/components/Background';
@@ -57,8 +57,12 @@ export const EventDetail: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden des Events:', error);
-      showUserFriendlyError(error, toast);
-      navigate('/events');
+      showUserFriendlyError(error, toast, () => loadData());
+      // Nur navigieren wenn es kein retryable Fehler ist
+      const friendlyError = getUserFriendlyError(error);
+      if (!friendlyError.isRetryable) {
+        navigate('/events');
+      }
     } finally {
       setLoading(false);
     }

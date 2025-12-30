@@ -15,7 +15,7 @@ import {
   Instagram,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, getUserFriendlyError } from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { Label } from '@/components/ui/label';
@@ -352,8 +352,12 @@ export function JobOfferForm() {
       }
     } catch (error) {
       console.error('Fehler beim Laden des Stellenangebots:', error);
-      showUserFriendlyError(error, toast);
-      navigate('/job-offers');
+      showUserFriendlyError(error, toast, () => loadJobOffer());
+      // Nur navigieren wenn es kein retryable Fehler ist
+      const friendlyError = getUserFriendlyError(error);
+      if (!friendlyError.isRetryable) {
+        navigate('/job-offers');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -401,7 +405,7 @@ export function JobOfferForm() {
       navigate('/job-offers');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(e));
     } finally {
       setIsSaving(false);
     }
