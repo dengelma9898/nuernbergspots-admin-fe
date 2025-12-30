@@ -23,20 +23,18 @@ Diese Komponenten wurden erfolgreich zu `showUserFriendlyError()` migriert:
 
 ## ⚠️ Komponenten, die noch `toast.success()` verwenden
 
-Diese Komponenten sollten zu `showSuccessMessage()` migriert werden:
-
-### Hochpriorität (wichtige Formulare):
-1. **ContactRequestDetail.tsx** - 2 Stellen (`toast.success()`)
-2. **LegalDocumentEdit.tsx** - Verwendet `toast.success()`
-3. **EventScraperDetail.tsx** - Verwendet `toast.success()`
-4. **AdventCalendarParticipants.tsx** - Verwendet `toast.success()`
-5. **UserBlockManagement.tsx** - Verwendet `toast.success()`
-6. **CreateBusiness.tsx** - Verwendet `toast.success()`
-7. **EventCategoryList.tsx** - Verwendet `toast.success()`
-8. **JobCategories.tsx** - Verwendet `toast.success()`
-9. **KeywordList.tsx** - Verwendet `toast.success()`
-10. **AdventCalendarForm.tsx** - Verwendet `toast.success()`
-11. **ChatroomManagement.tsx** - Verwendet `toast.success()`
+### ✅ Hochpriorität (wichtige Formulare) - ABGESCHLOSSEN:
+1. ✅ **ContactRequestDetail.tsx** - Migriert (2 Stellen)
+2. ✅ **LegalDocumentEdit.tsx** - Migriert
+3. ✅ **EventScraperDetail.tsx** - Migriert
+4. ✅ **AdventCalendarParticipants.tsx** - Migriert
+5. ✅ **UserBlockManagement.tsx** - Migriert
+6. ✅ **CreateBusiness.tsx** - Migriert (mit nächsten Schritten)
+7. ✅ **EventCategoryList.tsx** - Migriert (4 Stellen)
+8. ✅ **JobCategories.tsx** - Migriert (4 Stellen)
+9. ✅ **KeywordList.tsx** - Migriert (3 Stellen)
+10. ✅ **AdventCalendarForm.tsx** - Migriert (2 Stellen)
+11. ✅ **ChatroomManagement.tsx** - Migriert (3 Stellen)
 
 ### Mittelpriorität:
 12. **AccountManagement.tsx** - Verwendet `toast.success()`
@@ -101,9 +99,21 @@ Diese Komponenten verwenden bereits `showUserFriendlyError()`, benötigen aber m
 
 ## ✅ Komponenten, die bereits `showSuccessMessage()` verwenden
 
+### Vollständig migriert (14 Komponenten):
 1. ✅ **JobOfferForm.tsx** - Vollständig migriert
 2. ✅ **EditBusiness.tsx** - Vollständig migriert
 3. ✅ **CategoryList.tsx** - Vollständig migriert
+4. ✅ **ContactRequestDetail.tsx** - Vollständig migriert
+5. ✅ **LegalDocumentEdit.tsx** - Vollständig migriert
+6. ✅ **EventScraperDetail.tsx** - Vollständig migriert
+7. ✅ **AdventCalendarParticipants.tsx** - Vollständig migriert
+8. ✅ **UserBlockManagement.tsx** - Vollständig migriert
+9. ✅ **CreateBusiness.tsx** - Vollständig migriert (mit nächsten Schritten)
+10. ✅ **EventCategoryList.tsx** - Vollständig migriert
+11. ✅ **JobCategories.tsx** - Vollständig migriert
+12. ✅ **KeywordList.tsx** - Vollständig migriert
+13. ✅ **AdventCalendarForm.tsx** - Vollständig migriert
+14. ✅ **ChatroomManagement.tsx** - Vollständig migriert
 
 ---
 
@@ -115,7 +125,8 @@ Diese Komponenten verwenden bereits `showUserFriendlyError()`, benötigen aber m
 - ✅ **ABGESCHLOSSEN** - Alle 6 Komponenten migriert
 
 **Phase 2 - Wichtig (toast.success → showSuccessMessage):**
-- 25 Komponenten verwenden noch `toast.success()`
+- ✅ **Hochpriorität ABGESCHLOSSEN** - 11 Komponenten migriert
+- ⚠️ **Mittelpriorität** - 14 Komponenten verwenden noch `toast.success()`
 
 **Phase 3 - Verbesserungen (Kontext + Retry hinzufügen):**
 - 28 Komponenten verwenden bereits `showUserFriendlyError()`, benötigen aber Kontext-Parameter
