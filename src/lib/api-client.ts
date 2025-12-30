@@ -36,9 +36,13 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const errorMessage = await this.extractErrorMessage(response, response.status);
-        const error = new Error(errorMessage);
+        const { message, data } = await this.extractErrorMessage(response, response.status);
+        const error = new Error(message);
         (error as any).status = response.status;
+        // Speichere die vollständige Response-Struktur für Validierungsfehler
+        if (data) {
+          (error as any).response = { data };
+        }
         throw error;
       }
 
@@ -66,9 +70,13 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const errorMessage = await this.extractErrorMessage(response, response.status);
-        const error = new Error(errorMessage);
+        const { message, data } = await this.extractErrorMessage(response, response.status);
+        const error = new Error(message);
         (error as any).status = response.status;
+        // Speichere die vollständige Response-Struktur für Validierungsfehler
+        if (data) {
+          (error as any).response = { data };
+        }
         throw error;
       }
 
@@ -94,9 +102,13 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const errorMessage = await this.extractErrorMessage(response, response.status);
-        const error = new Error(errorMessage);
+        const { message, data } = await this.extractErrorMessage(response, response.status);
+        const error = new Error(message);
         (error as any).status = response.status;
+        // Speichere die vollständige Response-Struktur für Validierungsfehler
+        if (data) {
+          (error as any).response = { data };
+        }
         throw error;
       }
 
@@ -124,9 +136,13 @@ class ApiClient {
       });
 
       if (!response.ok) {
-        const errorMessage = await this.extractErrorMessage(response, response.status);
-        const error = new Error(errorMessage);
+        const { message, data } = await this.extractErrorMessage(response, response.status);
+        const error = new Error(message);
         (error as any).status = response.status;
+        // Speichere die vollständige Response-Struktur für Validierungsfehler
+        if (data) {
+          (error as any).response = { data };
+        }
         throw error;
       }
 
@@ -157,9 +173,13 @@ class ApiClient {
       const response = await fetch(`${this.baseUrl}${endpoint}`, options);
 
       if (!response.ok) {
-        const errorMessage = await this.extractErrorMessage(response, response.status);
-        const error = new Error(errorMessage);
+        const { message, data } = await this.extractErrorMessage(response, response.status);
+        const error = new Error(message);
         (error as any).status = response.status;
+        // Speichere die vollständige Response-Struktur für Validierungsfehler
+        if (data) {
+          (error as any).response = { data };
+        }
         throw error;
       }
 
@@ -179,30 +199,34 @@ class ApiClient {
     }
   }
 
-  private async extractErrorMessage(response: Response, statusCode?: number): Promise<string> {
+  private async extractErrorMessage(response: Response, statusCode?: number): Promise<{ message: string; data?: any }> {
     const status = statusCode || response.status;
     
     try {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
-        const errorData = await response.json();
+        const errorData = await response.clone().json();
         // Unterstütze verschiedene Error-Response-Formate
-        if (errorData.message) {
-          return errorData.message;
+        let message: string;
+        if (Array.isArray(errorData.message)) {
+          message = errorData.message.join(', ');
+        } else if (errorData.message) {
+          message = errorData.message;
+        } else if (errorData.error) {
+          message = errorData.error;
+        } else if (typeof errorData === 'string') {
+          message = errorData;
+        } else {
+          message = `HTTP error! status: ${status}`;
         }
-        if (errorData.error) {
-          return errorData.error;
-        }
-        if (typeof errorData === 'string') {
-          return errorData;
-        }
+        return { message, data: errorData };
       }
     } catch {
       // Wenn das Parsen fehlschlägt, verwende den Standard-Fehlercode
     }
     
     // Füge Status-Code zur Fehlermeldung hinzu für bessere Fehlererkennung
-    return `HTTP error! status: ${status}`;
+    return { message: `HTTP error! status: ${status}` };
   }
 }
 

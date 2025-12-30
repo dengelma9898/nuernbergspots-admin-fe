@@ -226,9 +226,9 @@ export function ChatroomManagement() {
       createImageUpload.clearImages();
       loadChatrooms();
     } catch (error: any) {
-      const friendlyError = getUserFriendlyError(error);
+      const friendlyError = getUserFriendlyError(error, 'save-event');
       setCreateError(friendlyError);
-      showUserFriendlyError(error, toast, () => handleCreateChatroom(), 'save-event');
+      // Kein Toast, da Fehler im Dialog angezeigt wird
     }
   };
 
@@ -282,9 +282,9 @@ export function ChatroomManagement() {
       setOriginalImageUrl(null);
       loadChatrooms();
     } catch (error: any) {
-      const friendlyError = getUserFriendlyError(error);
+      const friendlyError = getUserFriendlyError(error, 'save-event');
       setEditError(friendlyError);
-      showUserFriendlyError(error, toast, () => handleEditChatroom(), 'save-event');
+      // Kein Toast, da Fehler im Dialog angezeigt wird
     }
   };
 

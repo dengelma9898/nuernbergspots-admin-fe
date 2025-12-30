@@ -55,6 +55,12 @@ interface ErrorWithStatus extends Error {
     message: string;
     actionHint?: string;
   };
+  response?: {
+    data?: {
+      message?: string | string[];
+      error?: string;
+    };
+  };
 }
 
 /**
@@ -148,6 +154,73 @@ function applyContext(error: UserFriendlyError, context?: ErrorContext): UserFri
  * @param error - Der Fehler, der konvertiert werden soll
  * @param context - Optional: Der Kontext der Aktion (z.B. 'save-business', 'load-event')
  */
+/**
+ * Extrahiert Validierungsfehler aus API-Response
+ */
+function extractValidationMessages(error: ErrorWithStatus): string[] | null {
+  // Prüfe response.data.message (kann String oder Array sein)
+  if (error.response?.data?.message) {
+    const message = error.response.data.message;
+    if (Array.isArray(message)) {
+      return message;
+    } else if (typeof message === 'string') {
+      return [message];
+    }
+  }
+  
+  // Prüfe auch direktes message-Property im Error
+  if (error.message) {
+    // Wenn die Nachricht wie ein Validierungsfehler aussieht (z.B. "title should not be empty")
+    const message = error.message;
+    if (message.includes('should not') || message.includes('must be') || message.includes('required')) {
+      return [message];
+    }
+  }
+  
+  return null;
+}
+
+/**
+ * Konvertiert Validierungsfehler-Meldungen in benutzerfreundliche deutsche Texte
+ */
+function translateValidationMessage(message: string): string {
+  const lowerMessage = message.toLowerCase();
+  
+  // Titel-Fehler
+  if (lowerMessage.includes('title') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
+    return 'Bitte gib einen Titel ein';
+  }
+  
+  // Beschreibung-Fehler
+  if (lowerMessage.includes('description') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
+    return 'Bitte gib eine Beschreibung ein';
+  }
+  
+  // Name-Fehler
+  if (lowerMessage.includes('name') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
+    return 'Bitte gib einen Namen ein';
+  }
+  
+  // Email-Fehler
+  if (lowerMessage.includes('email')) {
+    if (lowerMessage.includes('invalid') || lowerMessage.includes('format')) {
+      return 'Bitte gib eine gültige E-Mail-Adresse ein';
+    }
+    if (lowerMessage.includes('empty') || lowerMessage.includes('should not')) {
+      return 'Bitte gib eine E-Mail-Adresse ein';
+    }
+  }
+  
+  // Generische Übersetzung
+  if (lowerMessage.includes('should not be empty') || lowerMessage.includes('must not be empty')) {
+    const field = lowerMessage.split(' ')[0]; // Erste Wort ist meist das Feld
+    return `Bitte gib ${field === 'title' ? 'einen Titel' : field === 'description' ? 'eine Beschreibung' : field === 'name' ? 'einen Namen' : 'einen Wert'} ein`;
+  }
+  
+  // Falls keine Übersetzung gefunden, gib die ursprüngliche Nachricht zurück
+  return message;
+}
+
 export function getUserFriendlyError(error: unknown, context?: ErrorContext): UserFriendlyError {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorString = errorMessage.toLowerCase();
@@ -156,6 +229,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   // Validation-Fehler haben höchste Priorität (werden vor Upload geprüft)
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;
+    
+    // 1. Prüfe explizite validationError Property
     if (err.validationError) {
       return applyContext({
         title: err.validationError.title,
@@ -163,6 +238,22 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
         isPersistent: true,
         actionHint: err.validationError.actionHint,
       }, context);
+    }
+    
+    // 2. Prüfe API-Response auf Validierungsfehler (400 mit message Array)
+    if (statusCode === 400) {
+      const validationMessages = extractValidationMessages(err);
+      if (validationMessages && validationMessages.length > 0) {
+        const translatedMessages = validationMessages.map(translateValidationMessage);
+        return applyContext({
+          title: 'Bitte korrigiere die folgenden Fehler',
+          message: translatedMessages.length === 1 
+            ? translatedMessages[0]
+            : translatedMessages.join('\n'),
+          isPersistent: true,
+          actionHint: 'Überprüfe deine Eingaben und versuche es erneut.',
+        }, context);
+      }
     }
   }
 
@@ -417,14 +508,21 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
  * @param toast - Die Toast-Funktion von sonner
  * @param retryAction - Optional: Funktion, die beim Retry aufgerufen wird
  * @param context - Optional: Der Kontext der Aktion (z.B. 'save-business', 'load-event')
+ * @param skipToast - Optional: Wenn true, wird kein Toast angezeigt (z.B. wenn Fehler im Dialog angezeigt wird)
  */
 export function showUserFriendlyError(
   error: unknown,
   toast: any,
   retryAction?: () => void,
-  context?: ErrorContext
+  context?: ErrorContext,
+  skipToast?: boolean
 ) {
   const friendlyError = getUserFriendlyError(error, context);
+  
+  // Wenn skipToast true ist, zeige keinen Toast (Fehler wird z.B. im Dialog angezeigt)
+  if (skipToast) {
+    return;
+  }
   
   // Wenn Retry möglich ist und eine Retry-Aktion übergeben wurde
   if (friendlyError.isRetryable && retryAction) {
