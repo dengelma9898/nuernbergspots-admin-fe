@@ -8,6 +8,7 @@ export interface UserFriendlyError {
   message: string;
   isPersistent: boolean;
   actionHint?: string;
+  isRetryable?: boolean;
 }
 
 interface ErrorWithStatus extends Error {
@@ -104,6 +105,7 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
         'Der Server hat gerade technische Probleme. Das liegt nicht an dir - bitte versuche es in ein paar Minuten nochmal.',
       isPersistent: true,
       actionHint: 'Wenn das Problem länger besteht, kontaktiere bitte den Support.',
+      isRetryable: true,
     };
   }
 
@@ -193,6 +195,7 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
         'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
       isPersistent: true,
       actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
+      isRetryable: true,
     };
   }
 
@@ -208,6 +211,7 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
         'Die Anfrage hat zu lange gedauert. Die Datei könnte zu groß sein oder deine Verbindung ist langsam.',
       isPersistent: true,
       actionHint: 'Versuche eine kleinere Datei hochzuladen oder versuche es später erneut.',
+      isRetryable: true,
     };
   }
 
@@ -318,21 +322,36 @@ export function getUserFriendlyError(error: unknown): UserFriendlyError {
 
 /**
  * Zeigt eine benutzerfreundliche Fehlermeldung als Toast an
+ * @param error - Der Fehler, der angezeigt werden soll
+ * @param toast - Die Toast-Funktion von sonner
+ * @param retryAction - Optional: Funktion, die beim Retry aufgerufen wird
  */
-export function showUserFriendlyError(error: unknown, toast: any) {
+export function showUserFriendlyError(error: unknown, toast: any, retryAction?: () => void) {
   const friendlyError = getUserFriendlyError(error);
   
-  toast.error(friendlyError.message, {
-    title: friendlyError.title,
-    duration: friendlyError.isPersistent ? Infinity : 5000,
-    description: friendlyError.actionHint,
-    action: friendlyError.isPersistent
-      ? {
-          label: 'Schließen',
-          onClick: () => {},
-        }
-      : undefined,
-  });
+  // Wenn Retry möglich ist und eine Retry-Aktion übergeben wurde
+  if (friendlyError.isRetryable && retryAction) {
+    toast.error(friendlyError.title, {
+      description: friendlyError.message,
+      duration: 10000, // Länger sichtbar für Retry-Option
+      action: {
+        label: 'Erneut versuchen',
+        onClick: retryAction,
+      },
+    });
+  } else {
+    // Standard-Verhalten
+    toast.error(friendlyError.title, {
+      description: friendlyError.message,
+      duration: friendlyError.isPersistent ? Infinity : 5000,
+      action: friendlyError.actionHint
+        ? {
+            label: 'Verstanden',
+            onClick: () => {},
+          }
+        : undefined,
+    });
+  }
 }
 
 /**
