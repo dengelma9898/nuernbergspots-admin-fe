@@ -300,9 +300,14 @@ export const CreateBusiness: React.FC = () => {
       };
 
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
-      await businessService.createBusiness(businessToCreate);
-      toast.success('Geschäft erstellt', {
-        description: 'Das Geschäft wurde erfolgreich erstellt.',
+      const createdBusiness = await businessService.createBusiness(businessToCreate);
+      showSuccessMessage(toast, {
+        title: 'Geschäft erstellt',
+        description: `"${formData.name}" wurde erfolgreich erstellt.`,
+        nextSteps: [
+          'Du kannst jetzt weitere Details hinzufügen',
+          'Oder Bilder hochladen'
+        ]
       });
       navigate('/businesses');
     } catch (error) {

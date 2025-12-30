@@ -206,11 +206,14 @@ export function LegalDocumentEdit() {
         content: currentContent,
       });
       
-      toast.success(
-        document 
-          ? 'Dokument erfolgreich gespeichert. Neue Version erstellt.'
-          : 'Dokument erfolgreich erstellt.'
-      );
+      showSuccessMessage(toast, {
+        title: document 
+          ? 'Dokument erfolgreich gespeichert'
+          : 'Dokument erfolgreich erstellt',
+        description: document 
+          ? 'Eine neue Version des Dokuments wurde erfolgreich erstellt.'
+          : 'Das Dokument wurde erfolgreich erstellt.',
+      });
       
       // Dokument neu laden
       await loadDocument(type);
