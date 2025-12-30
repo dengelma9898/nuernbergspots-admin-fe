@@ -194,6 +194,8 @@ export function LegalDocumentEdit() {
     
     setValidationErrors([]);
 
+    // Prüfe ob sich der Inhalt geändert hat (nur wenn Dokument existiert)
+    if (document) {
       if (currentContent.trim() === document.currentVersion.content.trim()) {
         toast.info('Keine Änderungen zum Speichern');
         return;
