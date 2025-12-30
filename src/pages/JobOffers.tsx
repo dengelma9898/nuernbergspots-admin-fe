@@ -29,7 +29,7 @@ import {
   Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobOffer } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { format } from 'date-fns';

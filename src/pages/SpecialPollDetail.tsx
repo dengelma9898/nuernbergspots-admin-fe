@@ -80,7 +80,10 @@ export default function SpecialPollDetail() {
     setIsSubmitting(true);
     try {
       await specialPollService.addResponse(pollId, responseText.trim());
-      toast.success('Antwort wurde hinzugefügt.');
+      showSuccessMessage(toast, {
+        title: 'Antwort wurde hinzugefügt',
+        description: 'Die Antwort wurde erfolgreich hinzugefügt.',
+      });
       setResponseText('');
       loadPoll(pollId);
     } catch (error) {
@@ -96,7 +99,10 @@ export default function SpecialPollDetail() {
     try {
       const updatedResponses = poll.responses.filter(r => r !== responseToDelete);
       await specialPollService.updateResponses(pollId, updatedResponses);
-      toast.success('Antwort wurde gelöscht.');
+      showSuccessMessage(toast, {
+        title: 'Antwort wurde gelöscht',
+        description: 'Die Antwort wurde erfolgreich gelöscht.',
+      });
       setDeleteDialogOpen(false);
       setResponseToDelete(null);
       loadPoll(pollId);
@@ -111,7 +117,10 @@ export default function SpecialPollDetail() {
     setIsStatusUpdating(true);
     try {
       await specialPollService.updateSpecialPollStatus(pollId, { status: newStatus });
-      toast.success('Status wurde aktualisiert.');
+      showSuccessMessage(toast, {
+        title: 'Status wurde aktualisiert',
+        description: `Der Status wurde erfolgreich auf "${newStatus}" geändert.`,
+      });
       loadPoll(pollId);
     } catch (error) {
       console.error('Fehler beim Ändern des Status:', error);

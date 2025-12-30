@@ -24,7 +24,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -87,9 +87,10 @@ export function EditBusinessUser() {
       const updatedUser = await businessUserService.getBusinessUser(businessUser.id);
       setBusinessUser(updatedUser);
 
-      toast.success(
-        `${selectedBusiness.name} wurde erfolgreich zu ${businessUser.email} hinzugefügt.`
-      );
+      showSuccessMessage(toast, {
+        title: 'Geschäft hinzugefügt',
+        description: `"${selectedBusiness.name}" wurde erfolgreich zu ${businessUser.email} hinzugefügt.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Geschäfts:', error);
       showUserFriendlyError(error, toast);

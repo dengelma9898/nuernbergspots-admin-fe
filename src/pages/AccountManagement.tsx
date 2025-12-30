@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Trash2, Users, Clock, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
+import { showSuccessMessage } from '@/utils/errorUtils';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { useAccountManagementService } from '@/services/accountManagementService';
 import {
@@ -115,7 +116,10 @@ export function AccountManagement() {
       setIsCleaning(true);
       await accountManagementService.cleanupAnonymousAccounts();
       await loadStats();
-      toast.success('Anonyme Accounts erfolgreich bereinigt');
+      showSuccessMessage(toast, {
+        title: 'Anonyme Accounts erfolgreich bereinigt',
+        description: 'Die anonymen Accounts wurden erfolgreich bereinigt.',
+      });
     } catch (error) {
       console.error('Fehler beim Bereinigen der anonymen Accounts:', error);
       showUserFriendlyError(error, toast);

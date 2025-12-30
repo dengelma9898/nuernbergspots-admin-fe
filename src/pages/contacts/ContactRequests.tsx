@@ -9,7 +9,7 @@ import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -34,7 +34,10 @@ export function ContactRequests() {
         const requests = await contactService.getContactRequests();
         setContactRequests(requests);
         if (showSuccessToast) {
-          toast.success('Kontaktanfragen erfolgreich aktualisiert');
+          showSuccessMessage(toast, {
+            title: 'Kontaktanfragen erfolgreich aktualisiert',
+            description: 'Die Kontaktanfragen wurden erfolgreich aktualisiert.',
+          });
         }
       } catch (error) {
         console.error('Fehler beim Laden der Kontaktanfragen:', error);

@@ -11,7 +11,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Business, BusinessStatus } from '@/models/business';
 import { useBusinessService } from '@/services/businessService';
 import { useNavigate, useSearchParams } from 'react-router-dom';

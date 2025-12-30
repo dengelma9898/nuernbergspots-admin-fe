@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Mail, Building2, CheckCircle2, XCircle, ArrowLeft, Tag, Store } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { BusinessUser } from '@/models/users';
 import { useUserService } from '@/services/userService';
 import { useNavigate } from 'react-router-dom';
@@ -59,7 +59,8 @@ export const BusinessUserReview: React.FC = () => {
   const handleReject = async (userId: string) => {
     try {
       await userService.updateBusinessUserReviewStatus(userId, false);
-      toast.success('Benutzer abgelehnt', {
+      showSuccessMessage(toast, {
+        title: 'Benutzer abgelehnt',
         description: 'Der Benutzer wurde erfolgreich abgelehnt.',
       });
       loadUsers();

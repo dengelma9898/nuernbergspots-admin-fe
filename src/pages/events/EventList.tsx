@@ -38,7 +38,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
@@ -403,9 +403,9 @@ export const EventList: React.FC = () => {
                           onDelete={handleDelete}
                           onCopy={(id) => {
                             navigate(`/events/${id}/copy`);
-                            toast.success('Event wird kopiert', {
+                            showSuccessMessage(toast, {
+                              title: 'Event wird kopiert',
                               description: 'Sie werden zur Kopier-Seite weitergeleitet.',
-                              icon: '✓',
                             });
                           }}
                           index={monthIndex * 10 + eventIndex}
