@@ -180,10 +180,12 @@ export const CreateBusiness: React.FC = () => {
         };
       } else {
         if (prev.categoryIds.length >= 3) {
-          toast.error('Maximale Anzahl an Kategorien erreicht', {
-            description: 'Sie können maximal 3 Kategorien auswählen.',
-          });
+          setValidationErrors(['Sie können maximal 3 Kategorien auswählen.']);
           return prev;
+        }
+        // Fehler zurücksetzen, wenn Kategorie hinzugefügt wird
+        if (validationErrors.length > 0) {
+          setValidationErrors([]);
         }
         return {
           ...prev,

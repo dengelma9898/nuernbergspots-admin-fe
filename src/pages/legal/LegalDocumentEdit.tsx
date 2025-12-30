@@ -19,8 +19,10 @@ import {
   Clock,
   FileText,
   History,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { LegalDocument, LegalDocumentType, LegalDocumentVersion } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
@@ -104,6 +106,7 @@ export function LegalDocumentEdit() {
   const [viewingVersion, setViewingVersion] = useState<LegalDocumentVersion | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (type && isValidType(type)) {
@@ -171,17 +174,25 @@ export function LegalDocumentEdit() {
     if (!type) return;
 
     // Prüfe ob Inhalt vorhanden ist
+    const errors: string[] = [];
+    
     if (!currentContent.trim()) {
-      toast.error('Bitte gib einen Inhalt ein');
-      return;
+      errors.push('Bitte gib einen Inhalt ein');
     }
 
     // Wenn Dokument existiert, prüfe ob sich der Inhalt geändert hat
     if (document) {
       if (viewingVersion) {
-        toast.error('Du kannst nur die aktuelle Version bearbeiten');
-        return;
+        errors.push('Du kannst nur die aktuelle Version bearbeiten');
       }
+    }
+    
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    
+    setValidationErrors([]);
 
       if (currentContent.trim() === document.currentVersion.content.trim()) {
         toast.info('Keine Änderungen zum Speichern');
