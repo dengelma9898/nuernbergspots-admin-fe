@@ -57,9 +57,9 @@ export const EventDetail: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden des Events:', error);
-      showUserFriendlyError(error, toast, () => loadData());
+      showUserFriendlyError(error, toast, () => loadData(), 'load-event');
       // Nur navigieren wenn es kein retryable Fehler ist
-      const friendlyError = getUserFriendlyError(error);
+      const friendlyError = getUserFriendlyError(error, 'load-event');
       if (!friendlyError.isRetryable) {
         navigate('/events');
       }

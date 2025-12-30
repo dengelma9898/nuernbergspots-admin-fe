@@ -352,9 +352,9 @@ export function JobOfferForm() {
       }
     } catch (error) {
       console.error('Fehler beim Laden des Stellenangebots:', error);
-      showUserFriendlyError(error, toast, () => loadJobOffer());
+      showUserFriendlyError(error, toast, () => loadJobOffer(), 'load-job-offer');
       // Nur navigieren wenn es kein retryable Fehler ist
-      const friendlyError = getUserFriendlyError(error);
+      const friendlyError = getUserFriendlyError(error, 'load-job-offer');
       if (!friendlyError.isRetryable) {
         navigate('/job-offers');
       }
@@ -405,7 +405,7 @@ export function JobOfferForm() {
       navigate('/job-offers');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
-      showUserFriendlyError(error, toast, () => handleSubmit(e));
+      showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-job-offer');
     } finally {
       setIsSaving(false);
     }
