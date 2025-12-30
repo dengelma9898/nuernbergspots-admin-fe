@@ -524,11 +524,12 @@ export function JobOfferForm() {
               <div className="flex items-center gap-3">
                 <AnimatedButton
                   variant="ghost"
+                  size="icon"
                   onClick={() => navigate('/job-offers')}
-                  className="rounded-xl px-3 py-2"
+                  className={cn(glassButton, 'rounded-full')}
                 >
-                  <ArrowLeft className="h-5 w-5 mr-2" />
-                  Zurück zur Übersicht
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zur Übersicht</span>
                 </AnimatedButton>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   {id ? 'Stellenangebot bearbeiten' : 'Neues Stellenangebot'}
@@ -751,14 +752,12 @@ export function JobOfferForm() {
                   <div className="p-4 sm:p-6 space-y-4">
                     <div className="space-y-2">
                       <Label className="text-foreground">Adresse</Label>
-                      <div className="[&_input]:backdrop-blur-2xl [&_input]:bg-white/10 [&_input]:border-white/20 [&_input]:text-white [&_input]:placeholder:text-white/50">
-                        <LocationSearch
-                          value={searchValue}
-                          onChange={handleLocationSelect}
-                          placeholder="Adresse suchen..."
-                          debounce={1000}
-                        />
-                      </div>
+                      <LocationSearch
+                        value={searchValue}
+                        onChange={handleLocationSelect}
+                        placeholder="Adresse suchen..."
+                        debounce={1000}
+                      />
                       {formData.location.address && (
                         <div className="text-sm text-muted-foreground">
                           Ausgewählte Adresse: {formData.location.address}
@@ -1144,22 +1143,23 @@ export function JobOfferForm() {
 
             {/* Action Buttons */}
             <motion.div
-              className="mt-6 flex flex-col sm:flex-row justify-end gap-4"
+              className="mt-6 flex flex-row items-center justify-end gap-4"
               variants={fadeInUp}
             >
               <AnimatedButton
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={() => navigate('/job-offers')}
                 disabled={isSaving}
-                className={cn(glassButton)}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
               >
                 Abbrechen
               </AnimatedButton>
               <LoadingButton
                 type="submit"
+                variant="outline"
                 disabled={isSaving}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                className={cn(glassButton, 'flex items-center')}
               >
                 {isSaving ? (
                   <>
@@ -1167,7 +1167,7 @@ export function JobOfferForm() {
                   </>
                 ) : (
                   <>
-                    <Check className="mr-2 h-4 w-4" />
+                    <Check className="h-4 w-4" />
                     {id ? 'Speichern' : 'Erstellen'}
                   </>
                 )}

@@ -449,7 +449,7 @@ export function Analytics() {
               animate="animate"
               transition={defaultTransition}
             >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex flex-row items-center justify-between gap-4">
                 <div className="space-y-1">
                   <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                     Analytics Dashboard
@@ -470,11 +470,12 @@ export function Analytics() {
                   </LoadingButton>
                   <AnimatedButton
                     variant="outline"
+                    size="icon"
                     onClick={() => navigate('/dashboard')}
-                    className={cn(glassButton)}
+                    className={cn(glassButton, 'rounded-full')}
                   >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Zurück
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Zurück</span>
                   </AnimatedButton>
                 </div>
               </div>

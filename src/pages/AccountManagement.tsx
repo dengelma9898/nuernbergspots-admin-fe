@@ -131,7 +131,7 @@ export function AccountManagement() {
   const pageContent = (
     <div className="container mx-auto max-w-full p-4 sm:p-6 lg:p-8 px-4 sm:px-6 lg:px-8 overflow-x-hidden relative z-10">
       <motion.div
-        className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 mb-6"
+        className="flex flex-row items-center gap-4 mb-6"
         variants={fadeInUp}
         initial="initial"
         animate="animate"
@@ -139,11 +139,12 @@ export function AccountManagement() {
       >
         <AnimatedButton
           variant="ghost"
+          size="icon"
           onClick={() => navigate('/dashboard')}
-          className={cn(glassButton)}
+          className={cn(glassButton, 'rounded-full')}
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Zurück zum Dashboard
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Zurück zum Dashboard</span>
         </AnimatedButton>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">Account-Management</h1>
       </motion.div>

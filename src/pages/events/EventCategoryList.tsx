@@ -312,11 +312,12 @@ export function EventCategoryList() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <AnimatedButton
                   variant="outline"
+                  size="icon"
                   onClick={() => navigate('/dashboard')}
-                  className={cn(glassButton, 'w-full sm:w-auto')}
+                  className={cn(glassButton, 'rounded-full')}
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Zurück zum Dashboard
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zum Dashboard</span>
                 </AnimatedButton>
                 <div>
                   <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
@@ -508,21 +509,21 @@ export function EventCategoryList() {
                   </div>
                   <DialogFooter>
                     <AnimatedButton
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => setIsDialogOpen(false)}
                       disabled={isSaving}
-                      className={cn(glassButton, 'w-full sm:w-auto')}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
                     >
-                      <X className="mr-2 h-4 w-4" />
                       Abbrechen
                     </AnimatedButton>
                     <LoadingButton
+                      variant="outline"
                       onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
                       isLoading={isSaving}
                       loadingText={editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                      className={cn(glassButton)}
                     >
-                      <Check className="mr-2 h-4 w-4" />
+                      <Check className="h-4 w-4" />
                       {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
                     </LoadingButton>
                   </DialogFooter>

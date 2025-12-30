@@ -284,11 +284,12 @@ export const EventList: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
               <AnimatedButton
                 variant="ghost"
+                size="icon"
                 onClick={() => navigate('/dashboard')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zum Dashboard
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
               </AnimatedButton>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                 Events

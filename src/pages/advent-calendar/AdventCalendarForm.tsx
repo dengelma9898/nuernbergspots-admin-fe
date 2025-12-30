@@ -320,14 +320,15 @@ export function AdventCalendarForm() {
             >
               <Card className={cn(glassCard)}>
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex flex-row items-center gap-4">
                     <AnimatedButton
                       variant="ghost"
+                      size="icon"
                       onClick={() => navigate('/advent-calendar')}
-                      className={cn(glassButton, 'w-full sm:w-auto')}
+                      className={cn(glassButton, 'rounded-full')}
                     >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Zurück
+                      <ArrowLeft className="h-5 w-5" />
+                      <span className="sr-only">Zurück</span>
                     </AnimatedButton>
                     <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
                       {id ? 'Adventskalender-Eintrag bearbeiten' : 'Neuen Adventskalender-Eintrag erstellen'}

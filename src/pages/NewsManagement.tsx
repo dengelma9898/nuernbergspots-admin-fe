@@ -497,16 +497,17 @@ const NewsManagement: React.FC = () => {
             animate="animate"
             transition={defaultTransition}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-2 sm:gap-4">
                 <AnimatedButton
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate('/dashboard')}
                   title="Zurück zum Dashboard"
-                  className={cn(glassButton, 'rounded-xl')}
+                  className={cn(glassButton, 'rounded-full')}
                 >
                   <ArrowLeft className="w-5 h-5" />
+                  <span className="sr-only">Zurück zum Dashboard</span>
                 </AnimatedButton>
                 <h1 className="text-xl md:text-2xl font-bold text-foreground">
                   News Management
@@ -717,19 +718,20 @@ const NewsManagement: React.FC = () => {
                   <DialogClose asChild>
                     <AnimatedButton
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       disabled={imageSending}
-                      className={cn(glassButton)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                     >
                       Abbrechen
                     </AnimatedButton>
                   </DialogClose>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSendImageNews}
                     disabled={imageSending || !imageContent.trim() || imageFiles.length === 0}
                     isLoading={imageSending}
                     loadingText="Wird gesendet..."
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className={cn(glassButton, 'rounded-xl')}
                   >
                     Senden
                   </LoadingButton>
@@ -824,21 +826,22 @@ const NewsManagement: React.FC = () => {
                   <DialogClose asChild>
                     <AnimatedButton
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       disabled={pollSending}
-                      className={cn(glassButton)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                     >
                       Abbrechen
                     </AnimatedButton>
                   </DialogClose>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSendPoll}
                     disabled={
                       pollSending || !pollQuestion.trim() || pollOptions.some(opt => !opt.trim())
                     }
                     isLoading={pollSending}
                     loadingText="Wird erstellt..."
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className={cn(glassButton, 'rounded-xl')}
                   >
                     Umfrage erstellen
                   </LoadingButton>
@@ -864,19 +867,20 @@ const NewsManagement: React.FC = () => {
                   <DialogClose asChild>
                     <AnimatedButton
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       disabled={editSaving}
-                      className={cn(glassButton)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                     >
                       Abbrechen
                     </AnimatedButton>
                   </DialogClose>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSaveEdit}
                     disabled={editSaving || !editTextContent.trim()}
                     isLoading={editSaving}
                     loadingText="Wird gespeichert..."
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className={cn(glassButton, 'rounded-xl')}
                   >
                     Speichern
                   </LoadingButton>
@@ -944,19 +948,20 @@ const NewsManagement: React.FC = () => {
                   <DialogClose asChild>
                     <AnimatedButton
                       type="button"
-                      variant="outline"
+                      variant="ghost"
                       disabled={editSaving}
-                      className={cn(glassButton)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                     >
                       Abbrechen
                     </AnimatedButton>
                   </DialogClose>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSaveEdit}
                     disabled={editSaving || !editImageContent.trim()}
                     isLoading={editSaving}
                     loadingText="Wird gespeichert..."
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className={cn(glassButton, 'rounded-xl')}
                   >
                     Speichern
                   </LoadingButton>

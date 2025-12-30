@@ -198,14 +198,15 @@ export const EventScraperDetail: React.FC = () => {
             animate="animate"
             transition={defaultTransition}
           >
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex flex-row items-center gap-4">
               <AnimatedButton
                 variant="ghost"
+                size="icon"
                 onClick={() => navigate('/events/scraper')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zur Übersicht
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
               </AnimatedButton>
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                 Event bearbeiten
@@ -503,19 +504,20 @@ export const EventScraperDetail: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-8 pt-4 border-t border-secondary">
+                <div className="flex flex-row items-center justify-end gap-4 mt-8 pt-4 border-t border-secondary">
                   <AnimatedButton
-                    variant="outline"
+                    variant="ghost"
                     onClick={() => navigate('/events/scraper')}
-                    className={cn(glassButton, 'w-full sm:w-auto')}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
                   >
                     Abbrechen
                   </AnimatedButton>
                   <LoadingButton
+                    variant="outline"
                     onClick={handleSave}
                     isLoading={loading}
                     loadingText="Wird gespeichert..."
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                    className={cn(glassButton, 'flex items-center')}
                   >
                     Event speichern
                   </LoadingButton>

@@ -210,23 +210,22 @@ export function CategoryList() {
             animate="animate"
             transition={defaultTransition}
           >
-            {/* Back Button */}
-            <div className="mb-4">
-              <AnimatedButton
-                variant="ghost"
-                onClick={() => navigate('/dashboard')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück zum Dashboard
-              </AnimatedButton>
-            </div>
-
             {/* Header und Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                Kategorien verwalten
-              </h1>
+            <div className="flex flex-row items-center justify-between gap-4">
+              <div className="flex flex-row items-center gap-4">
+                <AnimatedButton
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/dashboard')}
+                  className={cn(glassButton, 'rounded-full')}
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zum Dashboard</span>
+                </AnimatedButton>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                  Kategorien verwalten
+                </h1>
+              </div>
               <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
                 <DialogTrigger asChild>
                   <AnimatedButton
@@ -335,19 +334,19 @@ export function CategoryList() {
                   </div>
                   <DialogFooter>
                     <AnimatedButton
-                      variant="outline"
+                      variant="ghost"
                       onClick={() => setIsDialogOpen(false)}
-                      className={cn(glassButton)}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
                     >
-                      <X className="mr-2 h-4 w-4" />
                       Abbrechen
                     </AnimatedButton>
                     <LoadingButton
+                      variant="outline"
                       onClick={editingCategory ? handleUpdateCategory : handleAddCategory}
                       isLoading={false}
-                      className="bg-primary text-primary-foreground hover:bg-primary/90"
+                      className={cn(glassButton)}
                     >
-                      <Check className="mr-2 h-4 w-4" />
+                      <Check className="h-4 w-4" />
                       {editingCategory ? 'Aktualisieren' : 'Hinzufügen'}
                     </LoadingButton>
                   </DialogFooter>

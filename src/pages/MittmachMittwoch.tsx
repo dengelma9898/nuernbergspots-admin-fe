@@ -4,7 +4,7 @@ import { SpecialPoll, SpecialPollStatus } from '@/models/specialPoll';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus } from 'lucide-react';
+import { Plus, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -144,10 +144,12 @@ export default function MittmachMittwoch() {
               {/* Navigation Button - Full width on mobile */}
               <AnimatedButton
                 variant="outline"
+                size="icon"
                 onClick={() => navigate('/dashboard')}
-                className="w-full md:w-auto md:self-start"
+                className={cn(glassButton, 'rounded-full')}
               >
-                Zurück zum Dashboard
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
               </AnimatedButton>
 
               {/* Controls Row - Stack on mobile, side by side on larger screens */}

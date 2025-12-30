@@ -163,14 +163,15 @@ export function AdventCalendarParticipants() {
           >
             <Card className={cn(glassCard, 'mb-6')}>
               <CardHeader>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div className="flex flex-row items-center gap-4">
                   <AnimatedButton
                     variant="ghost"
+                    size="icon"
                     onClick={() => navigate('/advent-calendar')}
-                    className={cn(glassButton, 'w-full sm:w-auto')}
+                    className={cn(glassButton, 'rounded-full')}
                   >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Zurück zur Übersicht
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Zurück zur Übersicht</span>
                   </AnimatedButton>
                   <div className="flex-1">
                     <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">

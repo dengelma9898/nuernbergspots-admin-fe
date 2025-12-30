@@ -95,6 +95,7 @@ export function LoadingButton({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={defaultTransition}
+              className="flex items-center justify-center gap-2 w-full h-full"
             >
               {children}
             </motion.div>

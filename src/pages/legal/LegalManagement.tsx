@@ -161,15 +161,16 @@ export function LegalManagement() {
           >
             <motion.div
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4"
+              className="flex flex-row items-center gap-4"
             >
               <AnimatedButton
                 onClick={() => navigate('/dashboard')}
                 variant="outline"
-                className={cn(glassButton, 'w-full sm:w-auto')}
+                size="icon"
+                className={cn(glassButton, 'rounded-full')}
               >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Zurück
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück</span>
               </AnimatedButton>
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground">

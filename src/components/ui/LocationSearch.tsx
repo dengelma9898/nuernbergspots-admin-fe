@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, MapPin, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { glassInput } from '@/lib/glassmorphism';
 import { useApi } from '@/lib/api';
 import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { Button } from './button';
@@ -168,7 +169,7 @@ export function LocationSearch({
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder={placeholder}
-          className="w-full pr-10"
+          className={cn(glassInput, 'w-full pr-10')}
           onFocus={() => {
             if (suggestions.length > 0 && !isTyping) {
               setShowSuggestions(true);
@@ -180,34 +181,35 @@ export function LocationSearch({
             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           </div>
         )}
-      </div>
 
-      {/* Vorschläge */}
-      {showSuggestions && suggestions.length > 0 && (
-        <Card className="absolute z-10 w-full mt-1 max-h-64 overflow-auto">
-          <CardContent className="p-1">
-            <ul className="space-y-1">
-              {suggestions.map(location => (
-                <li
-                  key={location.id}
-                  className={cn(
-                    'px-2 py-1.5 text-sm rounded-md cursor-pointer flex items-center',
-                    'hover:bg-muted'
-                  )}
-                  onClick={() => {
-                    onChange(location);
-                    setShowSuggestions(false);
-                    prevQueryRef.current = location.address.label;
-                  }}
-                >
-                  <MapPin className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
-                  <span className="truncate">{location.address.label}</span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      )}
+        {/* Vorschläge */}
+        {showSuggestions && suggestions.length > 0 && (
+          <Card className="absolute z-10 w-full top-full mt-0 max-h-64 overflow-auto shadow-lg border-t-0 rounded-t-none py-0 gap-0">
+            <CardContent className="py-1 px-0">
+              <ul className="space-y-0">
+                {suggestions.map((location, index) => (
+                  <li
+                    key={location.id}
+                    className={cn(
+                      'px-3 py-2 text-sm cursor-pointer flex items-center',
+                      'hover:bg-muted transition-colors',
+                      index < suggestions.length - 1 && 'border-b border-secondary/20'
+                    )}
+                    onClick={() => {
+                      onChange(location);
+                      setShowSuggestions(false);
+                      prevQueryRef.current = location.address.label;
+                    }}
+                  >
+                    <MapPin className="mr-2 h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="truncate">{location.address.label}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Ausgewählte Adresse */}
       {value && (
