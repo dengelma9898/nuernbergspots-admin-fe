@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -70,7 +70,11 @@ function JobOfferFormSkeleton() {
                   <div className="p-4 sm:p-6 space-y-4">
                     {/* Validierungsfehler */}
                     {validationErrors.length > 0 && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert 
+                        ref={validationErrorsRef}
+                        variant="destructive" 
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                         <AlertDescription className="mt-2">
@@ -257,6 +261,7 @@ export function JobOfferForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string>('');
@@ -307,6 +312,18 @@ export function JobOfferForm() {
       loadJobOffer();
     }
   }, [id]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   useEffect(() => {
     if (formData.location.address) {

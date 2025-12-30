@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BusinessStatus } from '@/models/business';
 import { BusinessCategory } from '@/models/business-category';
@@ -57,6 +57,7 @@ export const CreateBusiness: React.FC = () => {
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   const [newBusiness, setNewBusiness] = useState({
     name: '',
     description: '',
@@ -105,6 +106,18 @@ export const CreateBusiness: React.FC = () => {
       setKeywords([]);
     }
   }, [newBusiness.categoryIds]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   const loadCategories = async () => {
     try {
@@ -372,7 +385,11 @@ export const CreateBusiness: React.FC = () => {
                 <CardContent className="space-y-8">
                   {/* Validierungsfehler */}
                   {validationErrors.length > 0 && (
-                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                       <AlertDescription className="mt-2">

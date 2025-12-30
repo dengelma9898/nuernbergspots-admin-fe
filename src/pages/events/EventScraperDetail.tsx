@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
@@ -57,6 +57,7 @@ export const EventScraperDetail: React.FC = () => {
   const [event, setEvent] = useState<Event>(location.state?.event);
   const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!event) {
@@ -226,7 +227,11 @@ export const EventScraperDetail: React.FC = () => {
               <CardContent className="space-y-6">
                 {/* Validierungsfehler */}
                 {validationErrors.length > 0 && (
-                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                  <Alert 
+                    ref={validationErrorsRef}
+                    variant="destructive" 
+                    className={cn(glassCard, 'border-destructive/50')}
+                  >
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                     <AlertDescription className="mt-2">

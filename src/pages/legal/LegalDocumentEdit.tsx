@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
@@ -116,6 +116,18 @@ export function LegalDocumentEdit() {
       navigate('/legal');
     }
   }, [type]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   const isValidType = (t: string): t is LegalDocumentType => {
     return ['impressum', 'datenschutz', 'agb'].includes(t);
@@ -392,7 +404,11 @@ export function LegalDocumentEdit() {
             
             {/* Validierungsfehler */}
             {validationErrors.length > 0 && (
-              <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50 mb-6')}>
+              <Alert 
+                ref={validationErrorsRef}
+                variant="destructive" 
+                className={cn(glassCard, 'border-destructive/50 mb-6')}
+              >
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                 <AlertDescription className="mt-2">

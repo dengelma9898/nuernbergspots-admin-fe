@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
 import { BusinessCategory } from '@/models/business-category';
@@ -102,6 +102,18 @@ export const EditBusiness: React.FC = () => {
       loadCategories();
     }
   }, [id]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   useEffect(() => {
     if (business?.categoryIds && business.categoryIds.length > 0) {
@@ -1012,7 +1024,11 @@ export const EditBusiness: React.FC = () => {
                 <CardContent className="space-y-6">
                   {/* Validierungsfehler */}
                   {validationErrors.length > 0 && (
-                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                       <AlertDescription className="mt-2">

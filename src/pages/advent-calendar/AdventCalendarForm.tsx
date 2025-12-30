@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
@@ -81,6 +81,7 @@ export function AdventCalendarForm() {
   const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   
   // Zentrale Bildvalidierung mit max 1 MB pro Bild
   const imageUpload = useValidatedImageUpload({
@@ -131,6 +132,18 @@ export function AdventCalendarForm() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     imageUpload.handleFileChange(e);
@@ -336,7 +349,11 @@ export function AdventCalendarForm() {
                 <CardContent className="p-4 sm:p-6 space-y-6">
                   {/* Validierungsfehler */}
                   {validationErrors.length > 0 && (
-                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                       <AlertDescription className="mt-2">
