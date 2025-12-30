@@ -84,7 +84,8 @@ export default function SpecialPollDetail() {
       setResponseText('');
       loadPoll(pollId);
     } catch (error) {
-      toast.error('Antwort konnte nicht hinzugefügt werden.');
+      console.error('Fehler beim Hinzufügen der Antwort:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +101,8 @@ export default function SpecialPollDetail() {
       setResponseToDelete(null);
       loadPoll(pollId);
     } catch (error) {
-      toast.error('Antwort konnte nicht gelöscht werden.');
+      console.error('Fehler beim Löschen der Antwort:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
@@ -112,7 +114,8 @@ export default function SpecialPollDetail() {
       toast.success('Status wurde aktualisiert.');
       loadPoll(pollId);
     } catch (error) {
-      toast.error('Status konnte nicht geändert werden.');
+      console.error('Fehler beim Ändern des Status:', error);
+      showUserFriendlyError(error, toast);
     } finally {
       setIsStatusUpdating(false);
     }

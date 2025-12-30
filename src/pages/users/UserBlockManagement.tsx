@@ -103,7 +103,7 @@ export function UserBlockManagement() {
     
     if (!customerId) {
       console.error('User object:', selectedUser);
-      toast.error('Customer-ID nicht gefunden. Der User kann nicht blockiert werden.');
+      showUserFriendlyError(new Error('Customer-ID nicht gefunden. Der User kann nicht blockiert werden.'), toast, undefined, 'block-user');
       return;
     }
 

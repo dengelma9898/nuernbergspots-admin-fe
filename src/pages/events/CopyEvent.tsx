@@ -344,9 +344,7 @@ export const CopyEvent: React.FC = () => {
 
       // Validiere Location-Daten vor dem Speichern
       if (!newEvent.address || !newEvent.address.trim() || newEvent.latitude === 0 || newEvent.longitude === 0) {
-        toast.error('Adresse erforderlich', {
-          description: 'Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.',
-        });
+        showUserFriendlyError(new Error('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.'), toast, undefined, 'save-event');
         setLoading(false);
         return;
       }

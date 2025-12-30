@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import {
   Select,
   SelectContent,
@@ -108,7 +109,8 @@ export default function MittmachMittwoch() {
       setNewPollTitle('');
       loadPolls();
     } catch (error) {
-      toast.error('Aktion/Poll konnte nicht erstellt werden.');
+      console.error('Fehler beim Erstellen der Aktion/Poll:', error);
+      showUserFriendlyError(error, toast);
     }
   };
 
