@@ -29,7 +29,7 @@ import {
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
 import { useNavigate } from 'react-router-dom';
@@ -87,7 +87,10 @@ export function KeywordList() {
       setNewKeyword({ name: '', description: '' });
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Keyword hinzugefügt');
+      showSuccessMessage(toast, {
+        title: 'Keyword hinzugefügt',
+        description: `"${keyword.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Keywords:', error);
       showUserFriendlyError(error, toast);
@@ -121,7 +124,10 @@ export function KeywordList() {
       setNewKeyword({ name: '', description: '' });
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Keyword aktualisiert');
+      showSuccessMessage(toast, {
+        title: 'Keyword aktualisiert',
+        description: `"${updatedKeyword.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Keywords:', error);
       showUserFriendlyError(error, toast);
@@ -130,9 +136,13 @@ export function KeywordList() {
 
   const handleDeleteKeyword = async (keywordId: string) => {
     try {
+      const keywordToDelete = keywords.find(kw => kw.id === keywordId);
       await keywordService.deleteKeyword(keywordId);
       setKeywords(keywords.filter(kw => kw.id !== keywordId));
-      toast.success('Keyword gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Keyword gelöscht',
+        description: keywordToDelete ? `"${keywordToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Keyword wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
       console.error('Fehler beim Löschen des Keywords:', error);
       showUserFriendlyError(error, toast);

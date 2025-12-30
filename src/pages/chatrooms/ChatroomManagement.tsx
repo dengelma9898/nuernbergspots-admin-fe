@@ -46,7 +46,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getUserFriendlyError, showUserFriendlyError, type UserFriendlyError } from '@/utils/errorUtils';
+import { getUserFriendlyError, showUserFriendlyError, showSuccessMessage, type UserFriendlyError } from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
 import { Background } from '@/components/Background';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
@@ -211,7 +211,10 @@ export function ChatroomManagement() {
         }
       }
 
-      toast.success('Chatroom wurde erfolgreich erstellt.');
+      showSuccessMessage(toast, {
+        title: 'Chatroom wurde erfolgreich erstellt',
+        description: `"${newChatroom.title}" wurde erfolgreich erstellt.`,
+      });
       setIsCreateDialogOpen(false);
       setCreateError(null);
       setNewChatroom({
@@ -268,7 +271,10 @@ export function ChatroomManagement() {
       // Führe das Update in einem Request aus
       await chatroomService.updateChatroom(selectedChatroom.id, updateData);
 
-      toast.success('Chatroom wurde erfolgreich aktualisiert.');
+      showSuccessMessage(toast, {
+        title: 'Chatroom wurde erfolgreich aktualisiert',
+        description: `"${selectedChatroom.title}" wurde erfolgreich aktualisiert.`,
+      });
       setIsEditDialogOpen(false);
       setEditError(null);
       setSelectedChatroom(null);
@@ -286,8 +292,12 @@ export function ChatroomManagement() {
     if (!selectedChatroom) return;
 
     try {
+      const chatroomTitle = selectedChatroom.title;
       await chatroomService.deleteChatroom(selectedChatroom.id);
-      toast.success('Chatroom wurde erfolgreich gelöscht.');
+      showSuccessMessage(toast, {
+        title: 'Chatroom wurde erfolgreich gelöscht',
+        description: `"${chatroomTitle}" wurde erfolgreich gelöscht.`,
+      });
       setIsDeleteDialogOpen(false);
       setSelectedChatroom(null);
       loadChatrooms();

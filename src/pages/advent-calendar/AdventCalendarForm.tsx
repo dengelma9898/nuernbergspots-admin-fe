@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -240,8 +240,9 @@ export function AdventCalendarForm() {
         // Reset delete flag
         setShouldDeleteImage(false);
 
-        toast.success('Eintrag aktualisiert', {
-          description: 'Der Adventskalender-Eintrag wurde erfolgreich aktualisiert.',
+        showSuccessMessage(toast, {
+          title: 'Eintrag aktualisiert',
+          description: `Eintrag #${formData.number} wurde erfolgreich aktualisiert.`,
         });
       } else {
         // Create
@@ -258,8 +259,9 @@ export function AdventCalendarForm() {
           await adventCalendarService.uploadImage(entryId, imageUpload.files[0]);
         }
 
-        toast.success('Eintrag erstellt', {
-          description: 'Der Adventskalender-Eintrag wurde erfolgreich erstellt.',
+        showSuccessMessage(toast, {
+          title: 'Eintrag erstellt',
+          description: `Eintrag #${formData.number} wurde erfolgreich erstellt.`,
         });
       }
 
