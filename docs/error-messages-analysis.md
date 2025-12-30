@@ -240,9 +240,13 @@ toast.error(`Nachricht konnte nicht gesendet werden: ${error.message}`);
 ## Nächste Schritte
 
 1. ✅ Feature Branch erstellt: `feature/improve-error-messages`
-2. ⏳ Analyse abgeschlossen
-3. ⏳ Implementierung der Verbesserungen
-4. ⏳ Tests schreiben
+2. ✅ Analyse abgeschlossen
+3. ✅ Implementierung der Verbesserungen
+   - ✅ Phase 1: Alle `toast.error()` → `showUserFriendlyError()` migriert
+   - ✅ Phase 2: Alle `toast.success()` → `showSuccessMessage()` migriert
+   - ✅ Phase 3: Alle Kontext-Parameter hinzugefügt
+   - ✅ Retry-Mechanismus implementiert
+4. ⏳ Tests schreiben (optional)
 5. ⏳ Code Review
 6. ⏳ Merge in main
 
