@@ -147,12 +147,12 @@ export function ChatroomManagement() {
         setChatrooms(data);
       } else {
         console.error('Ungültiges Datenformat beim Laden der Chatrooms:', data);
-        showUserFriendlyError(new Error('Ungültiges Datenformat'), toast);
+        showUserFriendlyError(new Error('Ungültiges Datenformat'), toast, () => loadChatrooms(), 'load-chatroom');
         setChatrooms([]);
       }
     } catch (error) {
       console.error('Fehler beim Laden der Chatrooms:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadChatrooms(), 'load-chatroom');
       setChatrooms([]);
     } finally {
       setIsLoading(false);
@@ -206,7 +206,7 @@ export function ChatroomManagement() {
         } catch (imageError: any) {
           const friendlyError = getUserFriendlyError(imageError);
           setCreateError(friendlyError);
-          showUserFriendlyError(imageError, toast);
+          showUserFriendlyError(imageError, toast, undefined, 'upload-image');
           return;
         }
       }
@@ -228,7 +228,7 @@ export function ChatroomManagement() {
     } catch (error: any) {
       const friendlyError = getUserFriendlyError(error);
       setCreateError(friendlyError);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleCreateChatroom(), 'save-event');
     }
   };
 
@@ -258,7 +258,7 @@ export function ChatroomManagement() {
         } catch (imageError: any) {
           const friendlyError = getUserFriendlyError(imageError);
           setEditError(friendlyError);
-          showUserFriendlyError(imageError, toast);
+          showUserFriendlyError(imageError, toast, undefined, 'upload-image');
           return;
         }
       }
@@ -284,7 +284,7 @@ export function ChatroomManagement() {
     } catch (error: any) {
       const friendlyError = getUserFriendlyError(error);
       setEditError(friendlyError);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleEditChatroom(), 'save-event');
     }
   };
 
@@ -303,7 +303,7 @@ export function ChatroomManagement() {
       loadChatrooms();
     } catch (error) {
       console.error('Fehler beim Löschen des Chatrooms:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleDeleteChatroom(), 'delete-event');
     }
   };
 

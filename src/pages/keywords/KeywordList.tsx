@@ -64,7 +64,7 @@ export function KeywordList() {
       setKeywords(data);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadKeywords(), 'load-keywords');
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +93,7 @@ export function KeywordList() {
       });
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleAddKeyword(), 'save-keyword');
     }
   };
 
@@ -130,7 +130,7 @@ export function KeywordList() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleUpdateKeyword(), 'save-keyword');
     }
   };
 
@@ -145,7 +145,7 @@ export function KeywordList() {
       });
     } catch (error) {
       console.error('Fehler beim Löschen des Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'delete-keyword');
     }
   };
 

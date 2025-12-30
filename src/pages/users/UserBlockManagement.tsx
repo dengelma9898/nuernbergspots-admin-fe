@@ -58,7 +58,7 @@ export function UserBlockManagement() {
       setFilteredUsers(allUsers);
     } catch (error) {
       console.error('Fehler beim Laden der User:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadUsers(), 'load-users');
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +129,7 @@ export function UserBlockManagement() {
       await loadUsers();
     } catch (error) {
       console.error('Fehler beim Blockieren/Entsperren:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleBlockConfirm(), isBlocking ? 'block-user' : 'unblock-user');
     } finally {
       setIsBlocking(false);
     }

@@ -166,7 +166,7 @@ export const EventScraperDetail: React.FC = () => {
       navigate('/events/scraper');
     } catch (error) {
       console.error('Fehler beim Speichern des Events:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-event');
     } finally {
       setLoading(false);
     }

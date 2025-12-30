@@ -112,7 +112,7 @@ export function LegalDocumentEdit() {
     if (type && isValidType(type)) {
       loadDocument(type);
     } else {
-      showUserFriendlyError(new Error('Ungültiger Dokumenttyp'), toast);
+      showUserFriendlyError(new Error('Ungültiger Dokumenttyp'), toast, undefined, 'load-legal-document');
       navigate('/legal');
     }
   }, [type]);
@@ -219,7 +219,7 @@ export function LegalDocumentEdit() {
       await loadDocument(type);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSave(), 'save-legal-document');
     } finally {
       setSaving(false);
     }

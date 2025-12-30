@@ -118,7 +118,7 @@ export function AdventCalendarForm() {
       }
     } catch (error) {
       console.error('Fehler beim Laden des Eintrags:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadEntry(), 'load-advent-calendar');
       navigate('/advent-calendar');
     } finally {
       setIsLoading(false);
@@ -268,7 +268,7 @@ export function AdventCalendarForm() {
       navigate('/advent-calendar');
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Eintrags:`, error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(e), id ? 'save-advent-calendar' : 'save-advent-calendar');
     } finally {
       setIsSaving(false);
       setIsUploadingImage(false);

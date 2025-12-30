@@ -112,7 +112,7 @@ export const CreateBusiness: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -136,7 +136,7 @@ export const CreateBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadKeywordsForCategories(categoryIds), 'load-categories');
     }
   };
 
@@ -312,7 +312,7 @@ export const CreateBusiness: React.FC = () => {
       navigate('/businesses');
     } catch (error) {
       console.error('Fehler beim Erstellen des Geschäfts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSubmit(), 'save-business');
     } finally {
       setLoading(false);
     }

@@ -151,7 +151,7 @@ export const EditBusiness: React.FC = () => {
       setExistingBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
       console.error('Fehler beim Laden des Geschäfts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadBusiness(), 'load-business');
       navigate('/businesses');
     } finally {
       setLoading(false);
@@ -164,7 +164,7 @@ export const EditBusiness: React.FC = () => {
       setCategories(fetchedCategories);
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -184,7 +184,7 @@ export const EditBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadKeywordsForCategories(business?.categoryIds || []), 'load-categories');
     }
   };
 
@@ -204,7 +204,7 @@ export const EditBusiness: React.FC = () => {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Status:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleStatusChange(value), 'save-business');
     }
   };
 
@@ -413,7 +413,7 @@ export const EditBusiness: React.FC = () => {
       navigate('/businesses');
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Geschäfts:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSave(), 'save-business');
     } finally {
       setIsSaving(false);
     }
@@ -784,7 +784,7 @@ export const EditBusiness: React.FC = () => {
                             });
                           } catch (error) {
                             console.error('Fehler beim Aktualisieren des Highlight-Status:', error);
-                            showUserFriendlyError(error, toast);
+                            showUserFriendlyError(error, toast, undefined, 'save-business');
                           }
                         }}
                       />

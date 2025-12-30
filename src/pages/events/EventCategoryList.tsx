@@ -92,7 +92,7 @@ export function EventCategoryList() {
       setCategories(data);
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +138,7 @@ export function EventCategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleAddCategory(), 'save-category');
     } finally {
       setIsSaving(false);
     }
@@ -217,7 +217,7 @@ export function EventCategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleUpdateCategory(), 'save-category');
     } finally {
       setIsSaving(false);
     }

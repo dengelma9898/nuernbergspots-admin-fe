@@ -81,7 +81,7 @@ export function CategoryList() {
       setCategories(data);
     } catch (error) {
       console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'load-categories');
     } finally {
       setIsLoading(false);
     }
@@ -116,7 +116,7 @@ export function CategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'save-category');
     }
   };
 
@@ -159,7 +159,7 @@ export function CategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'save-category');
     }
   };
 
@@ -174,7 +174,7 @@ export function CategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'delete-category');
     }
   };
 

@@ -65,7 +65,7 @@ export function AdventCalendarParticipants() {
       setEntry(data);
     } catch (error) {
       console.error('Fehler beim Laden des Eintrags:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => loadEntry(), 'load-advent-calendar');
       navigate('/advent-calendar');
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ export function AdventCalendarParticipants() {
       loadEntry();
     } catch (error) {
       console.error('Fehler beim Hinzufügen des Gewinners:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, () => handleSelectWinner(userId), 'save-advent-calendar');
     } finally {
       setIsSelectingWinner(false);
     }
