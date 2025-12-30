@@ -161,6 +161,7 @@ export function JobCategories() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   
   // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
@@ -190,9 +191,11 @@ export function JobCategories() {
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -222,6 +225,7 @@ export function JobCategories() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie hinzugefügt');
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
@@ -253,9 +257,11 @@ export function JobCategories() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory || !newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -297,6 +303,7 @@ export function JobCategories() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
+      setValidationErrors([]);
       toast.success('Kategorie aktualisiert');
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
@@ -328,6 +335,7 @@ export function JobCategories() {
     });
     imageUpload.clearImages();
     setExistingImageUrls([]);
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -424,11 +432,32 @@ export function JobCategories() {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">Name</label>
                       <Input
                         value={newCategory.name}
-                        onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
+                        onChange={e => {
+                          setNewCategory({ ...newCategory, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Kategoriename"
                         className={cn(glassInput)}
                       />
