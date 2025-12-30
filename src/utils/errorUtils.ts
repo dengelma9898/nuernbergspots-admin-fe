@@ -35,6 +35,8 @@ export type ErrorContext =
   | 'delete-keyword'
   | 'load-legal-document'
   | 'save-legal-document'
+  | 'load-analytics'
+  | 'login'
   | 'generic';
 
 export interface UserFriendlyError {
