@@ -16,6 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showSuccessMessage } from '@/utils/errorUtils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
@@ -76,7 +77,8 @@ export function AdventCalendarParticipants() {
     try {
       setIsSelectingWinner(true);
       await adventCalendarService.addWinner(id, { userId });
-      toast.success('Gewinner hinzugefügt', {
+      showSuccessMessage(toast, {
+        title: 'Gewinner hinzugefügt',
         description: 'Der Gewinner wurde erfolgreich ausgewählt.',
       });
       loadEntry();

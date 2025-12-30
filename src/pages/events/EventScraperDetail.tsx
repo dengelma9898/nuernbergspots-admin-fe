@@ -5,7 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -159,7 +159,10 @@ export const EventScraperDetail: React.FC = () => {
       };
 
       await eventService.createEvent(payload);
-      toast.success('Event erfolgreich erstellt');
+      showSuccessMessage(toast, {
+        title: 'Event erfolgreich erstellt',
+        description: `"${editedEvent.title}" wurde erfolgreich erstellt.`,
+      });
       navigate('/events/scraper');
     } catch (error) {
       console.error('Fehler beim Speichern des Events:', error);

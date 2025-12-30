@@ -35,7 +35,7 @@ import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { showUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 
 export function UserBlockManagement() {
   const navigate = useNavigate();
@@ -116,11 +116,12 @@ export function UserBlockManagement() {
         blockReason: isBlocking ? blockReason : undefined,
       });
 
-      toast.success(
-        isBlocking
-          ? `User ${selectedUser.email} wurde erfolgreich blockiert`
-          : `User ${selectedUser.email} wurde erfolgreich entsperrt`
-      );
+      showSuccessMessage(toast, {
+        title: isBlocking
+          ? 'User erfolgreich blockiert'
+          : 'User erfolgreich entsperrt',
+        description: `${selectedUser.email} wurde erfolgreich ${isBlocking ? 'blockiert' : 'entsperrt'}.`,
+      });
 
       setIsBlockDialogOpen(false);
       setSelectedUser(null);
