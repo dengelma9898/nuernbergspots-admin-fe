@@ -56,7 +56,6 @@ export const EventScraperDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [event, setEvent] = useState<Event>(location.state?.event);
   const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
-  const [categoryError, setCategoryError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   React.useEffect(() => {
@@ -121,20 +120,24 @@ export const EventScraperDetail: React.FC = () => {
   const handleSave = async () => {
     try {
       setLoading(true);
-      setCategoryError(null);
+      setValidationErrors([]); // Clear previous errors
+
+      const errors: string[] = [];
+
       // Kategorie prüfen
       if (!editedEvent.categoryId) {
-        setCategoryError('Bitte wählen Sie eine Kategorie aus.');
-        toast.error('Bitte wählen Sie eine Kategorie aus.');
-        setLoading(false);
-        return;
+        errors.push('Bitte wählen Sie eine Kategorie aus.');
       }
 
       // Location prüfen
       const lat = editedEvent.location?.latitude;
       const lng = editedEvent.location?.longitude;
       if (!lat || !lng || lat === 0 || lng === 0) {
-        toast.error('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.');
+        errors.push('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.');
+      }
+
+      if (errors.length > 0) {
+        setValidationErrors(errors);
         setLoading(false);
         return;
       }
@@ -370,9 +373,6 @@ export const EventScraperDetail: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {categoryError && (
-                    <p className="text-sm text-destructive font-semibold">{categoryError}</p>
-                  )}
                 </div>
 
                 <div className="space-y-2">

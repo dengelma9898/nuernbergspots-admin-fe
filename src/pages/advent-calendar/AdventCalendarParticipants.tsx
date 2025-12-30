@@ -13,8 +13,10 @@ import {
   Trophy,
   Users,
   Shuffle,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
@@ -46,6 +48,7 @@ export function AdventCalendarParticipants() {
   const [entry, setEntry] = useState<AdventCalendarEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSelectingWinner, setIsSelectingWinner] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -95,11 +98,11 @@ export function AdventCalendarParticipants() {
     );
 
     if (availableParticipants.length === 0) {
-      toast.error('Keine verfügbaren Teilnehmer', {
-        description: 'Es gibt keine Teilnehmer, die noch nicht Gewinner sind.',
-      });
+      setValidationErrors(['Es gibt keine Teilnehmer, die noch nicht Gewinner sind.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     // Zufälligen Teilnehmer auswählen
     const randomIndex = Math.floor(Math.random() * availableParticipants.length);

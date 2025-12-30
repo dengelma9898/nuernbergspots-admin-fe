@@ -112,7 +112,7 @@ export function LegalDocumentEdit() {
     if (type && isValidType(type)) {
       loadDocument(type);
     } else {
-      toast.error('Ungültiger Dokumenttyp');
+      showUserFriendlyError(new Error('Ungültiger Dokumenttyp'), toast);
       navigate('/legal');
     }
   }, [type]);

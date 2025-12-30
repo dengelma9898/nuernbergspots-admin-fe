@@ -89,9 +89,11 @@ export function CategoryList() {
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const categoryToSave = {
