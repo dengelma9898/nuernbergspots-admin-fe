@@ -226,7 +226,10 @@ export function JobCategories() {
       setExistingImageUrls([]);
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie hinzugefügt');
+      showSuccessMessage(toast, {
+        title: 'Kategorie hinzugefügt',
+        description: `"${category.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
       showUserFriendlyError(error, toast);
@@ -304,7 +307,10 @@ export function JobCategories() {
       setExistingImageUrls([]);
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie aktualisiert');
+      showSuccessMessage(toast, {
+        title: 'Kategorie aktualisiert',
+        description: `"${updatedCategory.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
       showUserFriendlyError(error, toast);
@@ -370,7 +376,10 @@ export function JobCategories() {
           fallbackImages: updatedUrls,
         }));
 
-        toast.success('Bild erfolgreich entfernt');
+        showSuccessMessage(toast, {
+          title: 'Bild erfolgreich entfernt',
+          description: 'Das Bild wurde erfolgreich aus der Kategorie entfernt.',
+        });
       } catch (error) {
         console.error('Fehler beim Entfernen des Bildes:', error);
         showUserFriendlyError(error, toast);

@@ -211,7 +211,10 @@ export function EventCategoryList() {
       setExistingImageUrls([]);
       setIsDialogOpen(false);
       setValidationErrors([]);
-      toast.success('Kategorie aktualisiert');
+      showSuccessMessage(toast, {
+        title: 'Kategorie aktualisiert',
+        description: `"${updatedCategory.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
       showUserFriendlyError(error, toast);
