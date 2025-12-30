@@ -12,6 +12,7 @@ import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
 import { Event } from '@/models/events';
 import { useEventService } from '@/services/eventService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { ScraperEventCard } from '@/components/events/ScraperEventCard';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
@@ -114,9 +115,13 @@ export const EventScraper: React.FC = () => {
 
       const events = await eventService.scrapeEventsFromEventFinder(params);
       setFoundEvents(events);
-      toast.success(`${events.length} Events gefunden`);
+      showSuccessMessage(toast, {
+        title: 'Events gefunden',
+        description: `${events.length} Event${events.length !== 1 ? 's' : ''} wurde${events.length !== 1 ? 'n' : ''} erfolgreich gefunden.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Scrapen der Events');
+      console.error('Fehler beim Scrapen der Events:', error);
+      showUserFriendlyError(error, toast, () => handleScrape(), 'load-event');
     } finally {
       setLoading(false);
     }
@@ -125,7 +130,10 @@ export const EventScraper: React.FC = () => {
   const handleClearEvents = () => {
     setFoundEvents([]);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
-    toast.success('Alle Events wurden gelöscht');
+    showSuccessMessage(toast, {
+      title: 'Events gelöscht',
+      description: 'Alle gefundenen Events wurden erfolgreich gelöscht.',
+    });
   };
 
   const handleWeekChange = (direction: 'prev' | 'next') => {

@@ -38,6 +38,7 @@ import {
   Copy,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
@@ -89,10 +90,8 @@ export const EventList: React.FC = () => {
       setEvents(fetchedEvents);
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Daten', {
-        description:
-          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Daten:', error);
+      showUserFriendlyError(error, toast, () => loadData(), 'load-event');
     } finally {
       setLoading(false);
     }
@@ -116,17 +115,16 @@ export const EventList: React.FC = () => {
     try {
       setIsDeleting(true);
       await eventService.deleteEvent(eventToDelete);
-      toast.success('Event gelöscht', {
-        description: 'Das Event wurde erfolgreich gelöscht.',
+      showSuccessMessage(toast, {
+        title: 'Event gelöscht',
+        description: eventToDelete ? `"${eventToDelete.title}" wurde erfolgreich gelöscht.` : 'Das Event wurde erfolgreich gelöscht.',
       });
       loadData();
       setDeleteDialogOpen(false);
       setEventToDelete(null);
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Das Event konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Events:', error);
+      showUserFriendlyError(error, toast, () => confirmDelete(), 'delete-event');
     } finally {
       setIsDeleting(false);
     }
@@ -406,9 +404,9 @@ export const EventList: React.FC = () => {
                           onDelete={handleDelete}
                           onCopy={(id) => {
                             navigate(`/events/${id}/copy`);
-                            toast.success('Event wird kopiert', {
+                            showSuccessMessage(toast, {
+                              title: 'Event wird kopiert',
                               description: 'Sie werden zur Kopier-Seite weitergeleitet.',
-                              icon: '✓',
                             });
                           }}
                           index={monthIndex * 10 + eventIndex}

@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Event, DailyTimeSlot } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -64,6 +67,8 @@ export const CreateEvent: React.FC = () => {
   const eventCategoryService = useEventCategoryService();
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<EventCategory[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   const [newEvent, setNewEvent] = useState<NewEvent>({
     title: '',
     description: '',
@@ -95,6 +100,18 @@ export const CreateEvent: React.FC = () => {
     loadCategories();
   }, []);
 
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
+
   const loadCategories = async () => {
     try {
       const fetchedCategories = await eventCategoryService.getCategories();
@@ -106,10 +123,8 @@ export const CreateEvent: React.FC = () => {
         }));
       }
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description:
-          'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -145,15 +160,23 @@ export const CreateEvent: React.FC = () => {
       };
       console.log('eventToCreate', eventToCreate);
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
-      await eventService.createEvent(eventToCreate);
-      toast.success('Event erstellt', {
-        description: 'Das Event wurde erfolgreich erstellt.',
+      const createdEvent = await eventService.createEvent(eventToCreate);
+      showSuccessMessage(toast, {
+        title: 'Event erstellt',
+        description: `"${newEvent.title}" wurde erfolgreich erstellt.`,
       });
       navigate('/events');
     } catch (error) {
-      toast.error('Fehler beim Erstellen', {
-        description: 'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
-      });
+      console.error('Fehler beim Erstellen des Events:', error);
+      const friendlyError = getUserFriendlyError(error, 'save-event');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(), 'save-event');
+      }
     } finally {
       setLoading(false);
     }
@@ -236,6 +259,24 @@ export const CreateEvent: React.FC = () => {
               </CardHeader>
 
               <CardContent className="space-y-6">
+                {/* Validierungsfehler */}
+                {validationErrors.length > 0 && (
+                  <Alert 
+                    ref={validationErrorsRef}
+                    variant="destructive" 
+                    className={cn(glassCard, 'border-destructive/50')}
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
                 {/* Title */}
                 <motion.div
                   className="space-y-2"

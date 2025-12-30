@@ -16,6 +16,8 @@ import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { showSuccessMessage } from '@/utils/errorUtils';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Textarea } from '@/components/ui/textarea';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -43,10 +45,13 @@ export function ContactRequestDetail() {
       setIsRefreshing(true);
       const request = await contactService.getContactRequestById(id);
       setContactRequest(request);
-      toast.success('Kontaktanfrage erfolgreich aktualisiert');
+      showSuccessMessage(toast, {
+        title: 'Kontaktanfrage erfolgreich aktualisiert',
+        description: 'Die Kontaktanfrage wurde erfolgreich geladen.',
+      });
     } catch (error) {
       console.error('Fehler beim Laden der Kontaktanfrage:', error);
-      toast.error('Fehler beim Laden der Kontaktanfrage');
+      showUserFriendlyError(error, toast, () => fetchContactRequest(), 'load-contact-requests');
     } finally {
       setLoading(false);
       setIsRefreshing(false);
@@ -62,10 +67,13 @@ export function ContactRequestDetail() {
       await contactService.respondToContactRequest(id, responseMessage.trim());
       setResponseMessage('');
       await fetchContactRequest(); // Aktualisiere die Konversation
-      toast.success('Antwort erfolgreich gesendet');
+      showSuccessMessage(toast, {
+        title: 'Antwort erfolgreich gesendet',
+        description: 'Deine Antwort wurde erfolgreich an den Benutzer gesendet.',
+      });
     } catch (error) {
       console.error('Fehler beim Senden der Antwort:', error);
-      toast.error('Fehler beim Senden der Antwort');
+      showUserFriendlyError(error, toast, () => handleSubmitResponse(e), 'respond-contact-request');
     } finally {
       setIsSending(false);
     }

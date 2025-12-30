@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import {
   Select,
   SelectContent,
@@ -102,13 +103,17 @@ export default function MittmachMittwoch() {
   const handleCreatePoll = async () => {
     if (!newPollTitle.trim()) return;
     try {
-      await specialPollService.createSpecialPoll({ title: newPollTitle.trim() });
-      toast.success('Aktion/Poll wurde erfolgreich erstellt.');
+      const createdPoll = await specialPollService.createSpecialPoll({ title: newPollTitle.trim() });
+      showSuccessMessage(toast, {
+        title: 'Aktion/Poll wurde erfolgreich erstellt',
+        description: `"${newPollTitle.trim()}" wurde erfolgreich erstellt.`,
+      });
       setIsCreateDialogOpen(false);
       setNewPollTitle('');
       loadPolls();
     } catch (error) {
-      toast.error('Aktion/Poll konnte nicht erstellt werden.');
+      console.error('Fehler beim Erstellen der Aktion/Poll:', error);
+      showUserFriendlyError(error, toast, () => handleCreatePoll(), 'save-event');
     }
   };
 

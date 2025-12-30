@@ -28,8 +28,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -65,6 +67,7 @@ export function CategoryList() {
     keywordIds: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -77,8 +80,8 @@ export function CategoryList() {
       const data = await businessCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
       console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, undefined, 'load-categories');
     } finally {
       setIsLoading(false);
     }
@@ -86,9 +89,11 @@ export function CategoryList() {
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const categoryToSave = {
@@ -104,10 +109,14 @@ export function CategoryList() {
         keywordIds: [],
       });
       setIsDialogOpen(false);
-      toast.success('Kategorie hinzugefügt');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Kategorie hinzugefügt',
+        description: `"${category.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+      showUserFriendlyError(error, toast, undefined, 'save-category');
     }
   };
 
@@ -124,9 +133,11 @@ export function CategoryList() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory || !newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const categoryToUpdate = {
@@ -141,21 +152,29 @@ export function CategoryList() {
       setEditingCategory(null);
       setNewCategory({ name: '', description: '', iconName: '', keywordIds: [] });
       setIsDialogOpen(false);
-      toast.success('Kategorie aktualisiert');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Kategorie aktualisiert',
+        description: `"${updatedCategory.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+      showUserFriendlyError(error, toast, undefined, 'save-category');
     }
   };
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
       await businessCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
-      toast.success('Kategorie gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Kategorie gelöscht',
+        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
-      toast.error('Fehler beim Löschen der Kategorie');
       console.error('Fehler beim Löschen der Kategorie:', error);
+      showUserFriendlyError(error, toast, undefined, 'delete-category');
     }
   };
 
@@ -167,6 +186,7 @@ export function CategoryList() {
       iconName: '',
       keywordIds: [],
     });
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -229,6 +249,21 @@ export function CategoryList() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -239,9 +274,13 @@ export function CategoryList() {
                       <Label className="text-foreground">Name</Label>
                       <Input
                         value={newCategory.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          setNewCategory({ ...newCategory, name: e.target.value })
-                        }
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                          setNewCategory({ ...newCategory, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Kategoriename"
                         className={cn(glassInput)}
                       />

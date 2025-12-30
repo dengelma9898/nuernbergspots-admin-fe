@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Background } from '@/components/Background';
@@ -48,9 +49,8 @@ export function Login() {
       navigate('/dashboard');
     } catch (error) {
       setHasError(true);
-      toast.error('Fehler beim Login', {
-        description: 'Bitte überprüfen Sie Ihre Anmeldedaten.',
-      });
+      console.error('Fehler beim Login:', error);
+      showUserFriendlyError(error, toast, () => handleLogin(), 'login');
       // Reset error state after animation
       setTimeout(() => setHasError(false), 500);
     } finally {

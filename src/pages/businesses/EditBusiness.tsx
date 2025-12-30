@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Business, BusinessStatus, NuernbergspotsReview } from '@/models/business';
 import { BusinessCategory } from '@/models/business-category';
@@ -7,6 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -102,6 +103,18 @@ export const EditBusiness: React.FC = () => {
     }
   }, [id]);
 
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
+
   useEffect(() => {
     if (business?.categoryIds && business.categoryIds.length > 0) {
       loadKeywordsForCategories(business.categoryIds);
@@ -149,9 +162,8 @@ export const EditBusiness: React.FC = () => {
       setExistingReviewImages(review.reviewImageUrls || []);
       setExistingBusinessImages(fetchedBusiness.imageUrls || []);
     } catch (error) {
-      toast.error('Fehler beim Laden des Geschäfts', {
-        description: 'Das Geschäft konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Geschäfts:', error);
+      showUserFriendlyError(error, toast, () => loadBusiness(), 'load-business');
       navigate('/businesses');
     } finally {
       setLoading(false);
@@ -163,9 +175,8 @@ export const EditBusiness: React.FC = () => {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description: 'Die Kategorien konnten nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -185,9 +196,7 @@ export const EditBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error('Fehler beim Laden der Keywords', {
-        description: 'Die Keywords konnten nicht geladen werden.',
-      });
+      showUserFriendlyError(error, toast, () => loadKeywordsForCategories(business?.categoryIds || []), 'load-categories');
     }
   };
 
@@ -201,13 +210,13 @@ export const EditBusiness: React.FC = () => {
 
       await businessService.updateBusiness(business.id, updateData);
       setBusiness(prev => (prev ? { ...prev, status: value } : null));
-      toast.success('Status aktualisiert', {
+      showSuccessMessage(toast, {
+        title: 'Status aktualisiert',
         description: 'Der Status wurde erfolgreich aktualisiert.',
       });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Status', {
-        description: 'Der Status konnte nicht aktualisiert werden.',
-      });
+      console.error('Fehler beim Aktualisieren des Status:', error);
+      showUserFriendlyError(error, toast, () => handleStatusChange(value), 'save-business');
     }
   };
 
@@ -258,11 +267,11 @@ export const EditBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
-        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
-      });
+      setValidationErrors(['Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     const id = Date.now().toString();
     setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
@@ -320,13 +329,15 @@ export const EditBusiness: React.FC = () => {
             }
           : null
       );
-    } else {
-      if (business.categoryIds.length >= 3) {
-        toast.error('Maximale Anzahl an Kategorien erreicht', {
-          description: 'Sie können maximal 3 Kategorien auswählen.',
-        });
-        return;
-      }
+      } else {
+        if (business.categoryIds.length >= 3) {
+          setValidationErrors(['Sie können maximal 3 Kategorien auswählen.']);
+          return;
+        }
+        // Fehler zurücksetzen, wenn Kategorie hinzugefügt wird
+        if (validationErrors.length > 0) {
+          setValidationErrors([]);
+        }
       setBusiness(prev =>
         prev
           ? {
@@ -406,15 +417,23 @@ export const EditBusiness: React.FC = () => {
         keywordIds: business.keywordIds,
       });
 
-      toast.success('Änderungen gespeichert', {
-        description: 'Alle Änderungen wurden erfolgreich gespeichert.',
+      showSuccessMessage(toast, {
+        title: 'Änderungen gespeichert',
+        description: business ? `"${business.name}" wurde erfolgreich aktualisiert.` : 'Alle Änderungen wurden erfolgreich gespeichert.',
       });
 
       navigate('/businesses');
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren', {
-        description: 'Die Änderungen konnten nicht gespeichert werden.',
-      });
+      console.error('Fehler beim Aktualisieren des Geschäfts:', error);
+      const friendlyError = getUserFriendlyError(error, 'save-business');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSave(), 'save-business');
+      }
     } finally {
       setIsSaving(false);
     }
@@ -777,15 +796,15 @@ export const EditBusiness: React.FC = () => {
                               isPromoted: checked,
                             });
                             setBusiness(prev => (prev ? { ...prev, isPromoted: checked } : null));
-                            toast.success('Highlight-Status aktualisiert', {
+                            showSuccessMessage(toast, {
+                              title: 'Highlight-Status aktualisiert',
                               description: checked
                                 ? 'Der Partner wurde als Highlight markiert.'
                                 : 'Der Highlight-Status wurde entfernt.',
                             });
                           } catch (error) {
-                            toast.error('Fehler beim Aktualisieren', {
-                              description: 'Der Highlight-Status konnte nicht aktualisiert werden.',
-                            });
+                            console.error('Fehler beim Aktualisieren des Highlight-Status:', error);
+                            showUserFriendlyError(error, toast, undefined, 'save-business');
                           }
                         }}
                       />
@@ -1003,6 +1022,25 @@ export const EditBusiness: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="space-y-4">
                     {timeSlots.map(slot => (
                       <div

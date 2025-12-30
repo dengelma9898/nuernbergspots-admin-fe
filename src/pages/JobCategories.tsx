@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobCategory, JobCategoryCreation } from '@/models/job-category';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -160,6 +161,7 @@ export function JobCategories() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   
   // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
@@ -180,8 +182,8 @@ export function JobCategories() {
       const data = await jobCategoryService.getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
       console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     } finally {
       setIsLoading(false);
     }
@@ -189,9 +191,11 @@ export function JobCategories() {
 
   const handleAddCategory = async () => {
     if (!newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -221,10 +225,14 @@ export function JobCategories() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
-      toast.success('Kategorie hinzugefügt');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Kategorie hinzugefügt',
+        description: `"${category.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen der Kategorie');
       console.error('Fehler beim Hinzufügen der Kategorie:', error);
+      showUserFriendlyError(error, toast, () => handleAddCategory(), 'save-category');
     } finally {
       setIsSaving(false);
     }
@@ -252,9 +260,11 @@ export function JobCategories() {
 
   const handleUpdateCategory = async () => {
     if (!editingCategory || !newCategory.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -296,10 +306,14 @@ export function JobCategories() {
       imageUpload.clearImages();
       setExistingImageUrls([]);
       setIsDialogOpen(false);
-      toast.success('Kategorie aktualisiert');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Kategorie aktualisiert',
+        description: `"${updatedCategory.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren der Kategorie');
       console.error('Fehler beim Aktualisieren der Kategorie:', error);
+      showUserFriendlyError(error, toast, () => handleUpdateCategory(), 'save-category');
     } finally {
       setIsSaving(false);
     }
@@ -307,12 +321,16 @@ export function JobCategories() {
 
   const handleDeleteCategory = async (categoryId: string) => {
     try {
+      const categoryToDelete = categories.find(cat => cat.id === categoryId);
       await jobCategoryService.deleteCategory(categoryId);
       setCategories(categories.filter(cat => cat.id !== categoryId));
-      toast.success('Kategorie gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Kategorie gelöscht',
+        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
-      toast.error('Fehler beim Löschen der Kategorie');
       console.error('Fehler beim Löschen der Kategorie:', error);
+      showUserFriendlyError(error, toast, undefined, 'delete-category');
     }
   };
 
@@ -327,6 +345,7 @@ export function JobCategories() {
     });
     imageUpload.clearImages();
     setExistingImageUrls([]);
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -357,10 +376,13 @@ export function JobCategories() {
           fallbackImages: updatedUrls,
         }));
 
-        toast.success('Bild erfolgreich entfernt');
+        showSuccessMessage(toast, {
+          title: 'Bild erfolgreich entfernt',
+          description: 'Das Bild wurde erfolgreich aus der Kategorie entfernt.',
+        });
       } catch (error) {
         console.error('Fehler beim Entfernen des Bildes:', error);
-        toast.error('Fehler beim Entfernen des Bildes');
+        showUserFriendlyError(error, toast, undefined, 'upload-image');
       }
     } else {
       // Wenn wir ein neu ausgewähltes Bild entfernen
@@ -423,11 +445,32 @@ export function JobCategories() {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">Name</label>
                       <Input
                         value={newCategory.name}
-                        onChange={e => setNewCategory({ ...newCategory, name: e.target.value })}
+                        onChange={e => {
+                          setNewCategory({ ...newCategory, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Kategoriename"
                         className={cn(glassInput)}
                       />

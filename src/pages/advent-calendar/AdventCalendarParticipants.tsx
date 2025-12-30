@@ -13,8 +13,12 @@ import {
   Trophy,
   Users,
   Shuffle,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showSuccessMessage } from '@/utils/errorUtils';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -45,6 +49,7 @@ export function AdventCalendarParticipants() {
   const [entry, setEntry] = useState<AdventCalendarEntry | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSelectingWinner, setIsSelectingWinner] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (id) {
@@ -59,9 +64,8 @@ export function AdventCalendarParticipants() {
       const data = await adventCalendarService.getById(id);
       setEntry(data);
     } catch (error) {
-      toast.error('Fehler beim Laden des Eintrags', {
-        description: 'Der Eintrag konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Eintrags:', error);
+      showUserFriendlyError(error, toast, () => loadEntry(), 'load-advent-calendar');
       navigate('/advent-calendar');
     } finally {
       setLoading(false);
@@ -73,15 +77,14 @@ export function AdventCalendarParticipants() {
     try {
       setIsSelectingWinner(true);
       await adventCalendarService.addWinner(id, { userId });
-      toast.success('Gewinner hinzugefügt', {
+      showSuccessMessage(toast, {
+        title: 'Gewinner hinzugefügt',
         description: 'Der Gewinner wurde erfolgreich ausgewählt.',
       });
       loadEntry();
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen des Gewinners', {
-        description: 'Der Gewinner konnte nicht hinzugefügt werden.',
-      });
       console.error('Fehler beim Hinzufügen des Gewinners:', error);
+      showUserFriendlyError(error, toast, () => handleSelectWinner(userId), 'save-advent-calendar');
     } finally {
       setIsSelectingWinner(false);
     }
@@ -97,11 +100,11 @@ export function AdventCalendarParticipants() {
     );
 
     if (availableParticipants.length === 0) {
-      toast.error('Keine verfügbaren Teilnehmer', {
-        description: 'Es gibt keine Teilnehmer, die noch nicht Gewinner sind.',
-      });
+      setValidationErrors(['Es gibt keine Teilnehmer, die noch nicht Gewinner sind.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     // Zufälligen Teilnehmer auswählen
     const randomIndex = Math.floor(Math.random() * availableParticipants.length);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BusinessStatus } from '@/models/business';
 import { BusinessCategory } from '@/models/business-category';
@@ -7,12 +7,14 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, Trash2 } from 'lucide-react';
+import { ArrowLeft, Trash2, AlertCircle } from 'lucide-react';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Background } from '@/components/Background';
@@ -53,7 +55,9 @@ export const CreateBusiness: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<BusinessCategory[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   const [newBusiness, setNewBusiness] = useState({
     name: '',
     description: '',
@@ -103,14 +107,25 @@ export const CreateBusiness: React.FC = () => {
     }
   }, [newBusiness.categoryIds]);
 
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
+
   const loadCategories = async () => {
     try {
       const fetchedCategories = await categoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien', {
-        description: 'Die Kategorien konnten nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -134,9 +149,7 @@ export const CreateBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      toast.error('Fehler beim Laden der Keywords', {
-        description: 'Die Keywords konnten nicht geladen werden.',
-      });
+      showUserFriendlyError(error, toast, () => loadKeywordsForCategories(categoryIds), 'load-categories');
     }
   };
 
@@ -180,10 +193,12 @@ export const CreateBusiness: React.FC = () => {
         };
       } else {
         if (prev.categoryIds.length >= 3) {
-          toast.error('Maximale Anzahl an Kategorien erreicht', {
-            description: 'Sie können maximal 3 Kategorien auswählen.',
-          });
+          setValidationErrors(['Sie können maximal 3 Kategorien auswählen.']);
           return prev;
+        }
+        // Fehler zurücksetzen, wenn Kategorie hinzugefügt wird
+        if (validationErrors.length > 0) {
+          setValidationErrors([]);
         }
         return {
           ...prev,
@@ -199,11 +214,11 @@ export const CreateBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
-        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
-      });
+      setValidationErrors(['Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     const id = Date.now().toString();
     setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
@@ -298,17 +313,27 @@ export const CreateBusiness: React.FC = () => {
       };
 
       // @ts-ignore - Wir wissen, dass das Format jetzt korrekt ist
-      await businessService.createBusiness(businessToCreate);
-      toast.success('Geschäft erstellt', {
-        description: 'Das Geschäft wurde erfolgreich erstellt.',
+      const createdBusiness = await businessService.createBusiness(businessToCreate);
+      showSuccessMessage(toast, {
+        title: 'Geschäft erstellt',
+        description: `"${formData.name}" wurde erfolgreich erstellt.`,
+        nextSteps: [
+          'Du kannst jetzt weitere Details hinzufügen',
+          'Oder Bilder hochladen'
+        ]
       });
       navigate('/businesses');
     } catch (error) {
-      console.error('Error creating business:', error);
-      toast.error('Fehler beim Erstellen des Geschäfts', {
-        description:
-          'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Erstellen des Geschäfts:', error);
+      const friendlyError = getUserFriendlyError(error, 'save-business');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie im Dialog
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(), 'save-business');
+      }
     } finally {
       setLoading(false);
     }
@@ -358,6 +383,25 @@ export const CreateBusiness: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   {/* Business Name */}
                   <motion.div
                     className={cn(glassCard, 'p-4 space-y-3')}

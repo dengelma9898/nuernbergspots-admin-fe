@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,6 +80,8 @@ export function AdventCalendarForm() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [shouldDeleteImage, setShouldDeleteImage] = useState(false);
   const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   
   // Zentrale Bildvalidierung mit max 1 MB pro Bild
   const imageUpload = useValidatedImageUpload({
@@ -115,9 +118,8 @@ export function AdventCalendarForm() {
         setShouldDeleteImage(false);
       }
     } catch (error) {
-      toast.error('Fehler beim Laden des Eintrags', {
-        description: 'Der Eintrag konnte nicht geladen werden.',
-      });
+      console.error('Fehler beim Laden des Eintrags:', error);
+      showUserFriendlyError(error, toast, () => loadEntry(), 'load-advent-calendar');
       navigate('/advent-calendar');
     } finally {
       setIsLoading(false);
@@ -130,6 +132,18 @@ export function AdventCalendarForm() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     imageUpload.handleFileChange(e);
@@ -182,20 +196,26 @@ export function AdventCalendarForm() {
     e.preventDefault();
 
     // Validierung
+    const errors: string[] = [];
+    
     if (!formData.description.trim()) {
-      toast.error('Bitte geben Sie eine Beschreibung ein');
-      return;
+      errors.push('Bitte geben Sie eine Beschreibung ein');
     }
 
     if (formData.number < 1) {
-      toast.error('Das Adventstürchen muss mindestens 1 sein');
-      return;
+      errors.push('Das Adventstürchen muss mindestens 1 sein');
     }
 
     if (formData.linkUrl && formData.linkUrl.trim() && !isValidUrl(formData.linkUrl)) {
-      toast.error('Bitte geben Sie eine gültige URL ein');
+      errors.push('Bitte geben Sie eine gültige URL ein');
+    }
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
       return;
     }
+
+    setValidationErrors([]);
 
     try {
       setIsSaving(true);
@@ -233,8 +253,9 @@ export function AdventCalendarForm() {
         // Reset delete flag
         setShouldDeleteImage(false);
 
-        toast.success('Eintrag aktualisiert', {
-          description: 'Der Adventskalender-Eintrag wurde erfolgreich aktualisiert.',
+        showSuccessMessage(toast, {
+          title: 'Eintrag aktualisiert',
+          description: `Eintrag #${formData.number} wurde erfolgreich aktualisiert.`,
         });
       } else {
         // Create
@@ -251,18 +272,24 @@ export function AdventCalendarForm() {
           await adventCalendarService.uploadImage(entryId, imageUpload.files[0]);
         }
 
-        toast.success('Eintrag erstellt', {
-          description: 'Der Adventskalender-Eintrag wurde erfolgreich erstellt.',
+        showSuccessMessage(toast, {
+          title: 'Eintrag erstellt',
+          description: `Eintrag #${formData.number} wurde erfolgreich erstellt.`,
         });
       }
 
       navigate('/advent-calendar');
     } catch (error) {
-      console.error('Error saving entry:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unbekannter Fehler';
-      toast.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'}`, {
-        description: errorMessage || 'Der Eintrag konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.',
-      });
+      console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Eintrags:`, error);
+      const friendlyError = getUserFriendlyError(error, 'save-advent-calendar');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-advent-calendar');
+      }
     } finally {
       setIsSaving(false);
       setIsUploadingImage(false);
@@ -320,6 +347,25 @@ export function AdventCalendarForm() {
             >
               <Card className={cn(glassCard)}>
                 <CardContent className="p-4 sm:p-6 space-y-6">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   {/* Number */}
                   <div className="space-y-2">
                     <Label htmlFor="number" className="text-foreground">
@@ -366,7 +412,13 @@ export function AdventCalendarForm() {
                     </Label>
                     <MarkdownEditor
                       value={formData.description}
-                      onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
+                      onChange={(value) => {
+                        setFormData(prev => ({ ...prev, description: value }));
+                        // Fehler zurücksetzen, wenn Wert geändert wird
+                        if (validationErrors.length > 0) {
+                          setValidationErrors(prev => prev.filter(err => !err.includes('Beschreibung')));
+                        }
+                      }}
                       placeholder="Beschreibung des Adventskalender-Eintrags (Markdown wird unterstützt)"
                       minHeight="min-h-[200px]"
                       required
@@ -387,7 +439,13 @@ export function AdventCalendarForm() {
                         id="linkUrl"
                         type="text"
                         value={formData.linkUrl || ''}
-                        onChange={e => setFormData(prev => ({ ...prev, linkUrl: e.target.value || undefined }))}
+                        onChange={e => {
+                          setFormData(prev => ({ ...prev, linkUrl: e.target.value || undefined }));
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors(prev => prev.filter(err => !err.includes('URL')));
+                          }
+                        }}
                         placeholder="www.example.com oder https://example.com"
                         className={cn(glassInput, 'pl-10')}
                       />

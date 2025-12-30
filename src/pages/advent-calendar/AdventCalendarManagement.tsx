@@ -23,6 +23,7 @@ import {
   Users,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { AdventCalendarEntry } from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { useUserService } from '@/services/userService';
@@ -161,10 +162,8 @@ export function AdventCalendarManagement() {
       const sortedEntries = fetchedEntries.sort((a, b) => a.number - b.number);
       setEntries(sortedEntries);
     } catch (error) {
-      toast.error('Fehler beim Laden der Daten', {
-        description:
-          'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Daten:', error);
+      showUserFriendlyError(error, toast, () => loadData(), 'load-advent-calendar');
     } finally {
       setLoading(false);
     }
@@ -200,16 +199,17 @@ export function AdventCalendarManagement() {
       setIsUpdatingFeatureStatus(true);
       const status = await adventCalendarService.setFeatureStatus(newValue);
       setFeatureStatus(status.isFeatureActive);
-      toast.success(
-        status.isFeatureActive
+      showSuccessMessage(toast, {
+        title: status.isFeatureActive
           ? 'Adventskalender-Feature wurde aktiviert'
-          : 'Adventskalender-Feature wurde deaktiviert'
-      );
-    } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Feature-Status', {
-        description: 'Der Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.',
+          : 'Adventskalender-Feature wurde deaktiviert',
+        description: status.isFeatureActive
+          ? 'Der Adventskalender ist jetzt für Benutzer sichtbar.'
+          : 'Der Adventskalender wurde für Benutzer ausgeblendet.',
       });
+    } catch (error) {
       console.error('Fehler beim Aktualisieren des Feature-Status:', error);
+      showUserFriendlyError(error, toast, () => handleFeatureStatusToggle(newValue), 'save-advent-calendar');
     } finally {
       setIsUpdatingFeatureStatus(false);
     }
@@ -229,15 +229,14 @@ export function AdventCalendarManagement() {
 
     try {
       await adventCalendarService.delete(entryId);
-      toast.success('Eintrag gelöscht', {
+      showSuccessMessage(toast, {
+        title: 'Eintrag gelöscht',
         description: 'Der Adventskalender-Eintrag wurde erfolgreich gelöscht.',
       });
       loadData();
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Der Eintrag konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Eintrags:', error);
+      showUserFriendlyError(error, toast, () => handleDelete(entryId), 'delete-advent-calendar');
     }
   };
 

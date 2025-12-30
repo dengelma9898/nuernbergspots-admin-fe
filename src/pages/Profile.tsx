@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { User, Calendar, MapPin, Store, Heart, History, Settings, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -71,7 +72,7 @@ export function Profile() {
       setCurrentUser(userData);
     } catch (error) {
       console.error('Fehler beim Laden der Benutzerdaten:', error);
-      toast.error('Die Benutzerdaten konnten nicht geladen werden.');
+      showUserFriendlyError(error, toast, () => loadUserData(), 'load-users');
     } finally {
       setIsLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Card,
@@ -19,8 +19,11 @@ import {
   Clock,
   FileText,
   History,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { LegalDocument, LegalDocumentType, LegalDocumentVersion } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
 import { format } from 'date-fns';
@@ -103,15 +106,28 @@ export function LegalDocumentEdit() {
   const [viewingVersion, setViewingVersion] = useState<LegalDocumentVersion | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     if (type && isValidType(type)) {
       loadDocument(type);
     } else {
-      toast.error('Ungültiger Dokumenttyp');
+      showUserFriendlyError(new Error('Ungültiger Dokumenttyp'), toast, undefined, 'load-legal-document');
       navigate('/legal');
     }
   }, [type]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   const isValidType = (t: string): t is LegalDocumentType => {
     return ['impressum', 'datenschutz', 'agb'].includes(t);
@@ -170,18 +186,28 @@ export function LegalDocumentEdit() {
     if (!type) return;
 
     // Prüfe ob Inhalt vorhanden ist
+    const errors: string[] = [];
+    
     if (!currentContent.trim()) {
-      toast.error('Bitte gib einen Inhalt ein');
-      return;
+      errors.push('Bitte gib einen Inhalt ein');
     }
 
     // Wenn Dokument existiert, prüfe ob sich der Inhalt geändert hat
     if (document) {
       if (viewingVersion) {
-        toast.error('Du kannst nur die aktuelle Version bearbeiten');
-        return;
+        errors.push('Du kannst nur die aktuelle Version bearbeiten');
       }
+    }
+    
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+    
+    setValidationErrors([]);
 
+    // Prüfe ob sich der Inhalt geändert hat (nur wenn Dokument existiert)
+    if (document) {
       if (currentContent.trim() === document.currentVersion.content.trim()) {
         toast.info('Keine Änderungen zum Speichern');
         return;
@@ -194,17 +220,28 @@ export function LegalDocumentEdit() {
         content: currentContent,
       });
       
-      toast.success(
-        document 
-          ? 'Dokument erfolgreich gespeichert. Neue Version erstellt.'
-          : 'Dokument erfolgreich erstellt.'
-      );
+      showSuccessMessage(toast, {
+        title: document 
+          ? 'Dokument erfolgreich gespeichert'
+          : 'Dokument erfolgreich erstellt',
+        description: document 
+          ? 'Eine neue Version des Dokuments wurde erfolgreich erstellt.'
+          : 'Das Dokument wurde erfolgreich erstellt.',
+      });
       
       // Dokument neu laden
       await loadDocument(type);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
-      toast.error('Fehler beim Speichern des Dokuments');
+      const friendlyError = getUserFriendlyError(error, 'save-legal-document');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSave(), 'save-legal-document');
+      }
     } finally {
       setSaving(false);
     }
@@ -364,11 +401,36 @@ export function LegalDocumentEdit() {
                 </p>
               )}
             </div>
+            
+            {/* Validierungsfehler */}
+            {validationErrors.length > 0 && (
+              <Alert 
+                ref={validationErrorsRef}
+                variant="destructive" 
+                className={cn(glassCard, 'border-destructive/50 mb-6')}
+              >
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                <AlertDescription className="mt-2">
+                  <ul className="list-disc list-inside space-y-1">
+                    {validationErrors.map((error, index) => (
+                      <li key={index}>{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <div className="mb-6">
               <MarkdownEditor
                 value={currentContent}
-                onChange={setCurrentContent}
+                onChange={(value) => {
+                  setCurrentContent(value);
+                  // Fehler zurücksetzen, wenn Wert geändert wird
+                  if (validationErrors.length > 0) {
+                    setValidationErrors([]);
+                  }
+                }}
                 placeholder="Markdown-Text eingeben..."
                 minHeight="min-h-[500px]"
                 required

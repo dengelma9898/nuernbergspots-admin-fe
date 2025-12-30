@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Business, BusinessStatus } from '@/models/business';
 import { useBusinessService } from '@/services/businessService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -46,10 +47,8 @@ export const BusinessList: React.FC = () => {
       const fetchedBusinesses = await businessService.getBusinesses();
       setBusinesses(fetchedBusinesses);
     } catch (error) {
-      toast.error('Fehler beim Laden der Geschäfte', {
-        description:
-          'Die Geschäfte konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Laden der Geschäfte:', error);
+      showUserFriendlyError(error, toast, () => loadBusinesses(), 'load-business');
     } finally {
       setLoading(false);
     }
@@ -80,26 +79,25 @@ export const BusinessList: React.FC = () => {
         const fetchedCategories = await categoryService.getCategories();
         setCategories(fetchedCategories);
       } catch (error) {
-        toast.error('Fehler beim Laden der Kategorien', {
-          description: 'Die Kategorien konnten nicht geladen werden.',
-        });
-      }
-    };
+        console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => handleDelete(businessId), 'delete-business');
+    }
+  };
     loadCategories();
   }, []);
 
   const handleDelete = async (businessId: string) => {
     try {
+      const businessToDelete = businesses.find(b => b.id === businessId);
       await businessService.deleteBusiness(businessId);
-      toast.success('Geschäft gelöscht', {
-        description: 'Das Geschäft wurde erfolgreich gelöscht.',
+      showSuccessMessage(toast, {
+        title: 'Geschäft gelöscht',
+        description: businessToDelete ? `"${businessToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Geschäft wurde erfolgreich gelöscht.',
       });
       loadBusinesses();
     } catch (error) {
-      toast.error('Fehler beim Löschen', {
-        description:
-          'Das Geschäft konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-      });
+      console.error('Fehler beim Löschen des Geschäfts:', error);
+      showUserFriendlyError(error, toast, () => handleDelete(businessId), 'delete-business');
     }
   };
 

@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { getIconComponent } from '@/utils/iconUtils';
@@ -54,7 +56,8 @@ export const EventScraperDetail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [event, setEvent] = useState<Event>(location.state?.event);
   const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
-  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!event) {
@@ -86,7 +89,8 @@ export const EventScraperDetail: React.FC = () => {
       const fetchedCategories = await eventCategoryService.getCategories();
       setCategories(fetchedCategories);
     } catch (error) {
-      toast.error('Fehler beim Laden der Kategorien');
+      console.error('Fehler beim Laden der Kategorien:', error);
+      showUserFriendlyError(error, toast, () => loadCategories(), 'load-categories');
     }
   };
 
@@ -108,25 +112,33 @@ export const EventScraperDetail: React.FC = () => {
         longitude: location.position.lng,
       },
     }));
+    // Fehler zurücksetzen, wenn Location geändert wird
+    if (validationErrors.length > 0) {
+      setValidationErrors([]);
+    }
   };
 
   const handleSave = async () => {
     try {
       setLoading(true);
-      setCategoryError(null);
+      setValidationErrors([]); // Clear previous errors
+
+      const errors: string[] = [];
+
       // Kategorie prüfen
       if (!editedEvent.categoryId) {
-        setCategoryError('Bitte wählen Sie eine Kategorie aus.');
-        toast.error('Bitte wählen Sie eine Kategorie aus.');
-        setLoading(false);
-        return;
+        errors.push('Bitte wählen Sie eine Kategorie aus.');
       }
 
       // Location prüfen
       const lat = editedEvent.location?.latitude;
       const lng = editedEvent.location?.longitude;
       if (!lat || !lng || lat === 0 || lng === 0) {
-        toast.error('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.');
+        errors.push('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.');
+      }
+
+      if (errors.length > 0) {
+        setValidationErrors(errors);
         setLoading(false);
         return;
       }
@@ -148,10 +160,22 @@ export const EventScraperDetail: React.FC = () => {
       };
 
       await eventService.createEvent(payload);
-      toast.success('Event erfolgreich erstellt');
+      showSuccessMessage(toast, {
+        title: 'Event erfolgreich erstellt',
+        description: `"${editedEvent.title}" wurde erfolgreich erstellt.`,
+      });
       navigate('/events/scraper');
     } catch (error) {
-      toast.error('Fehler beim Speichern des Events');
+      console.error('Fehler beim Speichern des Events:', error);
+      const friendlyError = getUserFriendlyError(error, 'save-event');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-event');
+      }
     } finally {
       setLoading(false);
     }
@@ -201,6 +225,25 @@ export const EventScraperDetail: React.FC = () => {
                 <CardTitle className="text-foreground">Event Informationen</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Validierungsfehler */}
+                {validationErrors.length > 0 && (
+                  <Alert 
+                    ref={validationErrorsRef}
+                    variant="destructive" 
+                    className={cn(glassCard, 'border-destructive/50')}
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
+                
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-foreground">
                     Titel
@@ -346,9 +389,6 @@ export const EventScraperDetail: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {categoryError && (
-                    <p className="text-sm text-destructive font-semibold">{categoryError}</p>
-                  )}
                 </div>
 
                 <div className="space-y-2">

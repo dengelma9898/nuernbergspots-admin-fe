@@ -26,8 +26,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft } from 'lucide-react';
+import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +51,7 @@ export function KeywordList() {
   const [editingKeyword, setEditingKeyword] = useState<Keyword | null>(null);
   const [newKeyword, setNewKeyword] = useState({ name: '', description: '' });
   const [isLoading, setIsLoading] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     loadKeywords();
@@ -60,8 +63,8 @@ export function KeywordList() {
       const data = await keywordService.getKeywords();
       setKeywords(data);
     } catch (error) {
-      toast.error('Fehler beim Laden der Keywords');
       console.error('Fehler beim Laden der Keywords:', error);
+      showUserFriendlyError(error, toast, () => loadKeywords(), 'load-keywords');
     } finally {
       setIsLoading(false);
     }
@@ -69,9 +72,11 @@ export function KeywordList() {
 
   const handleAddKeyword = async () => {
     if (!newKeyword.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const keyword = await keywordService.createKeyword({
@@ -81,10 +86,14 @@ export function KeywordList() {
       setKeywords([...keywords, keyword]);
       setNewKeyword({ name: '', description: '' });
       setIsDialogOpen(false);
-      toast.success('Keyword hinzugefügt');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Keyword hinzugefügt',
+        description: `"${keyword.name}" wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Hinzufügen des Keywords');
       console.error('Fehler beim Hinzufügen des Keywords:', error);
+      showUserFriendlyError(error, toast, () => handleAddKeyword(), 'save-keyword');
     }
   };
 
@@ -99,9 +108,11 @@ export function KeywordList() {
 
   const handleUpdateKeyword = async () => {
     if (!editingKeyword || !newKeyword.name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
+      setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
+    
+    setValidationErrors([]);
 
     try {
       const updatedKeyword = await keywordService.updateKeyword(editingKeyword.id, {
@@ -112,27 +123,36 @@ export function KeywordList() {
       setEditingKeyword(null);
       setNewKeyword({ name: '', description: '' });
       setIsDialogOpen(false);
-      toast.success('Keyword aktualisiert');
+      setValidationErrors([]);
+      showSuccessMessage(toast, {
+        title: 'Keyword aktualisiert',
+        description: `"${updatedKeyword.name}" wurde erfolgreich aktualisiert.`,
+      });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Keywords');
       console.error('Fehler beim Aktualisieren des Keywords:', error);
+      showUserFriendlyError(error, toast, () => handleUpdateKeyword(), 'save-keyword');
     }
   };
 
   const handleDeleteKeyword = async (keywordId: string) => {
     try {
+      const keywordToDelete = keywords.find(kw => kw.id === keywordId);
       await keywordService.deleteKeyword(keywordId);
       setKeywords(keywords.filter(kw => kw.id !== keywordId));
-      toast.success('Keyword gelöscht');
+      showSuccessMessage(toast, {
+        title: 'Keyword gelöscht',
+        description: keywordToDelete ? `"${keywordToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Keyword wurde erfolgreich gelöscht.',
+      });
     } catch (error) {
-      toast.error('Fehler beim Löschen des Keywords');
       console.error('Fehler beim Löschen des Keywords:', error);
+      showUserFriendlyError(error, toast, undefined, 'delete-keyword');
     }
   };
 
   const resetModalState = () => {
     setEditingKeyword(null);
     setNewKeyword({ name: '', description: '' });
+    setValidationErrors([]);
   };
 
   const handleDialogChange = (open: boolean) => {
@@ -195,6 +215,21 @@ export function KeywordList() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -205,7 +240,13 @@ export function KeywordList() {
                       <Label className="text-foreground">Name</Label>
                       <Input
                         value={newKeyword.name}
-                        onChange={e => setNewKeyword({ ...newKeyword, name: e.target.value })}
+                        onChange={e => {
+                          setNewKeyword({ ...newKeyword, name: e.target.value });
+                          // Fehler zurücksetzen, wenn Wert geändert wird
+                          if (validationErrors.length > 0) {
+                            setValidationErrors([]);
+                          }
+                        }}
                         placeholder="Keyword Name"
                         className={cn(glassInput)}
                       />

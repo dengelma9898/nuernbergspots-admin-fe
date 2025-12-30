@@ -4,6 +4,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { useDowntimeService } from '@/services/downtimeService';
 import {
   AlertDialog,
@@ -74,7 +75,8 @@ export function DowntimeManagement() {
       const status = await downtimeService.getDowntimeStatus();
       setIsDowntime(status.isDowntime);
     } catch (error) {
-      toast.error('Fehler beim Laden des Downtime-Status');
+      console.error('Fehler beim Laden des Downtime-Status:', error);
+      showUserFriendlyError(error, toast, () => loadDowntimeStatus(), 'generic');
     } finally {
       setIsLoading(false);
     }
@@ -93,13 +95,17 @@ export function DowntimeManagement() {
       setIsDialogOpen(false);
       const status = await downtimeService.setDowntimeStatus(pendingValue);
       setIsDowntime(status.isDowntime);
-      toast.success(
-        status.isDowntime
+      showSuccessMessage(toast, {
+        title: status.isDowntime
           ? 'Downtime wurde aktiviert'
-          : 'Downtime wurde deaktiviert'
-      );
+          : 'Downtime wurde deaktiviert',
+        description: status.isDowntime
+          ? 'Die Wartungsseite ist jetzt aktiv.'
+          : 'Die Wartungsseite wurde deaktiviert.',
+      });
     } catch (error) {
-      toast.error('Fehler beim Aktualisieren des Downtime-Status');
+      console.error('Fehler beim Aktualisieren des Downtime-Status:', error);
+      showUserFriendlyError(error, toast, () => handleConfirm(), 'generic');
     } finally {
       setIsUpdating(false);
       setPendingValue(null);

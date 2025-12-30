@@ -19,6 +19,7 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError } from '@/utils/errorUtils';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PricingCalculator } from '@/components/PricingCalculator';
@@ -416,7 +417,7 @@ export function Analytics() {
       setAnalytics(analytics);
     } catch (error) {
       console.error('Fehler beim Laden der Analytics:', error);
-      toast.error('Die Analytics konnten nicht geladen werden.');
+      showUserFriendlyError(error, toast, () => loadAnalytics(), 'load-analytics');
     } finally {
       setIsLoading(false);
     }

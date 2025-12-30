@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import {
   Instagram,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { showUserFriendlyError, getUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { Label } from '@/components/ui/label';
@@ -66,8 +67,26 @@ function JobOfferFormSkeleton() {
               <div className="p-4 sm:p-6 border-b border-secondary">
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {/* Title field */}
+                  <div className="p-4 sm:p-6 space-y-4">
+                    {/* Validierungsfehler */}
+                    {validationErrors.length > 0 && (
+                      <Alert 
+                        ref={validationErrorsRef}
+                        variant="destructive" 
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                        <AlertDescription className="mt-2">
+                          <ul className="list-disc list-inside space-y-1">
+                            {validationErrors.map((error, index) => (
+                              <li key={index}>{error}</li>
+                            ))}
+                          </ul>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    {/* Title field */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-12 rounded" />
                   <Skeleton className="h-10 w-full rounded" />
@@ -241,6 +260,8 @@ export function JobOfferForm() {
   const jobCategoryService = useJobCategoryService();
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string>('');
@@ -291,6 +312,18 @@ export function JobOfferForm() {
       loadJobOffer();
     }
   }, [id]);
+
+  // Scroll zu Validierungsfehlern, wenn sie angezeigt werden
+  useEffect(() => {
+    if (validationErrors.length > 0 && validationErrorsRef.current) {
+      setTimeout(() => {
+        validationErrorsRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100); // Kleine Verzögerung, damit das Element gerendert ist
+    }
+  }, [validationErrors]);
 
   useEffect(() => {
     if (formData.location.address) {
@@ -350,8 +383,13 @@ export function JobOfferForm() {
         setCompanyLogoPreview(jobOffer.companyLogo);
       }
     } catch (error) {
-      toast.error('Fehler beim Laden des Stellenangebots');
-      navigate('/job-offers');
+      console.error('Fehler beim Laden des Stellenangebots:', error);
+      showUserFriendlyError(error, toast, () => loadJobOffer(), 'load-job-offer');
+      // Nur navigieren wenn es kein retryable Fehler ist
+      const friendlyError = getUserFriendlyError(error, 'load-job-offer');
+      if (!friendlyError.isRetryable) {
+        navigate('/job-offers');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -395,10 +433,22 @@ export function JobOfferForm() {
         await jobOfferService.updateImages(jobOffer.id, imageUpload.files);
       }
 
-      toast.success(`Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`);
+      showSuccessMessage(toast, {
+        title: `Stellenangebot ${id ? 'aktualisiert' : 'erstellt'}`,
+        description: `"${formData.title}" wurde erfolgreich ${id ? 'aktualisiert' : 'erstellt'}.`,
+      });
       navigate('/job-offers');
     } catch (error) {
-      toast.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots`);
+      console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
+      const friendlyError = getUserFriendlyError(error, 'save-job-offer');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-job-offer');
+      }
     } finally {
       setIsSaving(false);
     }
