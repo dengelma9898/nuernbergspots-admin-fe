@@ -355,6 +355,21 @@ export const CreateBusiness: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   {/* Business Name */}
                   <motion.div
                     className={cn(glassCard, 'p-4 space-y-3')}

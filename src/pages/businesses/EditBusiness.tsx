@@ -254,11 +254,11 @@ export const EditBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      toast.error('Bitte wählen Sie mindestens einen Tag aus', {
-        description: 'Ein Zeitraum muss für mindestens einen Tag gelten.',
-      });
+      setValidationErrors(['Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.']);
       return;
     }
+    
+    setValidationErrors([]);
 
     const id = Date.now().toString();
     setTimeSlots(prev => [...prev, { ...newTimeSlot, id }]);
@@ -316,13 +316,15 @@ export const EditBusiness: React.FC = () => {
             }
           : null
       );
-    } else {
-      if (business.categoryIds.length >= 3) {
-        toast.error('Maximale Anzahl an Kategorien erreicht', {
-          description: 'Sie können maximal 3 Kategorien auswählen.',
-        });
-        return;
-      }
+      } else {
+        if (business.categoryIds.length >= 3) {
+          setValidationErrors(['Sie können maximal 3 Kategorien auswählen.']);
+          return;
+        }
+        // Fehler zurücksetzen, wenn Kategorie hinzugefügt wird
+        if (validationErrors.length > 0) {
+          setValidationErrors([]);
+        }
       setBusiness(prev =>
         prev
           ? {
@@ -997,6 +999,21 @@ export const EditBusiness: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  
                   <div className="space-y-4">
                     {timeSlots.map(slot => (
                       <div
