@@ -234,7 +234,7 @@ export function EventCategoryList() {
       });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
-      showUserFriendlyError(error, toast);
+      showUserFriendlyError(error, toast, undefined, 'delete-category');
     }
   };
 
