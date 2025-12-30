@@ -45,6 +45,7 @@ export interface UserFriendlyError {
   isPersistent: boolean;
   actionHint?: string;
   isRetryable?: boolean;
+  validationMessages?: string[]; // Originale Validierungsfehler aus der API-Response
 }
 
 interface ErrorWithStatus extends Error {
@@ -154,10 +155,12 @@ function applyContext(error: UserFriendlyError, context?: ErrorContext): UserFri
  * @param error - Der Fehler, der konvertiert werden soll
  * @param context - Optional: Der Kontext der Aktion (z.B. 'save-business', 'load-event')
  */
+
 /**
- * Extrahiert Validierungsfehler aus API-Response
+ * Extrahiert Validierungsfehler-Meldungen aus der API-Response
+ * Gibt die originalen Nachrichten zurück (ohne Übersetzung)
  */
-function extractValidationMessages(error: ErrorWithStatus): string[] | null {
+function extractValidationMessagesAsArray(error: ErrorWithStatus): string[] | null {
   // Prüfe response.data.message (kann String oder Array sein)
   if (error.response?.data?.message) {
     const message = error.response.data.message;
@@ -168,57 +171,7 @@ function extractValidationMessages(error: ErrorWithStatus): string[] | null {
     }
   }
   
-  // Prüfe auch direktes message-Property im Error
-  if (error.message) {
-    // Wenn die Nachricht wie ein Validierungsfehler aussieht (z.B. "title should not be empty")
-    const message = error.message;
-    if (message.includes('should not') || message.includes('must be') || message.includes('required')) {
-      return [message];
-    }
-  }
-  
   return null;
-}
-
-/**
- * Konvertiert Validierungsfehler-Meldungen in benutzerfreundliche deutsche Texte
- */
-function translateValidationMessage(message: string): string {
-  const lowerMessage = message.toLowerCase();
-  
-  // Titel-Fehler
-  if (lowerMessage.includes('title') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
-    return 'Bitte gib einen Titel ein';
-  }
-  
-  // Beschreibung-Fehler
-  if (lowerMessage.includes('description') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
-    return 'Bitte gib eine Beschreibung ein';
-  }
-  
-  // Name-Fehler
-  if (lowerMessage.includes('name') && (lowerMessage.includes('empty') || lowerMessage.includes('should not'))) {
-    return 'Bitte gib einen Namen ein';
-  }
-  
-  // Email-Fehler
-  if (lowerMessage.includes('email')) {
-    if (lowerMessage.includes('invalid') || lowerMessage.includes('format')) {
-      return 'Bitte gib eine gültige E-Mail-Adresse ein';
-    }
-    if (lowerMessage.includes('empty') || lowerMessage.includes('should not')) {
-      return 'Bitte gib eine E-Mail-Adresse ein';
-    }
-  }
-  
-  // Generische Übersetzung
-  if (lowerMessage.includes('should not be empty') || lowerMessage.includes('must not be empty')) {
-    const field = lowerMessage.split(' ')[0]; // Erste Wort ist meist das Feld
-    return `Bitte gib ${field === 'title' ? 'einen Titel' : field === 'description' ? 'eine Beschreibung' : field === 'name' ? 'einen Namen' : 'einen Wert'} ein`;
-  }
-  
-  // Falls keine Übersetzung gefunden, gib die ursprüngliche Nachricht zurück
-  return message;
 }
 
 export function getUserFriendlyError(error: unknown, context?: ErrorContext): UserFriendlyError {
@@ -242,16 +195,15 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
     
     // 2. Prüfe API-Response auf Validierungsfehler (400 mit message Array)
     if (statusCode === 400) {
-      const validationMessages = extractValidationMessages(err);
+      const validationMessages = extractValidationMessagesAsArray(err);
       if (validationMessages && validationMessages.length > 0) {
-        const translatedMessages = validationMessages.map(translateValidationMessage);
+        // Verwende die originalen Nachrichten aus der API-Response
         return applyContext({
           title: 'Bitte korrigiere die folgenden Fehler',
-          message: translatedMessages.length === 1 
-            ? translatedMessages[0]
-            : translatedMessages.join('\n'),
+          message: validationMessages.join('\n'),
           isPersistent: true,
           actionHint: 'Überprüfe deine Eingaben und versuche es erneut.',
+          validationMessages: validationMessages,
         }, context);
       }
     }

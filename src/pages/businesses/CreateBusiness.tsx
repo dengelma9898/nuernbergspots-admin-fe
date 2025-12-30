@@ -312,7 +312,15 @@ export const CreateBusiness: React.FC = () => {
       navigate('/businesses');
     } catch (error) {
       console.error('Fehler beim Erstellen des Geschäfts:', error);
-      showUserFriendlyError(error, toast, () => handleSubmit(), 'save-business');
+      const friendlyError = getUserFriendlyError(error, 'save-business');
+      
+      // Wenn Validierungsfehler vorhanden sind, zeige sie im Dialog
+      if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
+        setValidationErrors(friendlyError.validationMessages);
+      } else {
+        // Für andere Fehler zeige Toast
+        showUserFriendlyError(error, toast, () => handleSubmit(), 'save-business');
+      }
     } finally {
       setLoading(false);
     }
