@@ -144,6 +144,7 @@ const NewsBubble: React.FC<{
     <motion.div
       variants={fadeInUp}
       whileHover={{ scale: 1.02 }}
+      className="px-1"
     >
       <Card className={cn(glassCard, 'w-full !py-2')}>
         <CardContent className="p-3 md:p-4">
@@ -586,7 +587,7 @@ const NewsManagement: React.FC = () => {
             {/* News Feed */}
             <div
               ref={feedRef}
-              className="flex-1 flex flex-col gap-4 overflow-y-auto pb-32 px-2"
+              className="flex-1 flex flex-col gap-4 overflow-y-auto overflow-x-visible pb-32 px-4"
               style={{ scrollBehavior: 'smooth', minHeight: 0 }}
             >
               {loading ? (
