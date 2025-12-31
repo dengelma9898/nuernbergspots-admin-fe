@@ -174,6 +174,58 @@ describe('Chat Message Service', () => {
     });
   });
 
+  describe('adminUpdateMessage', () => {
+    it('should update any message as admin', async () => {
+      const updateData = { content: 'Admin updated message content' };
+      const updatedMessage = {
+        id: '1',
+        senderId: 'user1',
+        senderName: 'John Doe',
+        content: 'Admin updated message content',
+        reactions: [],
+        createdAt: '2024-01-01T10:00:00Z',
+        updatedAt: '2024-01-01T10:05:00Z',
+        editedAt: '2024-01-01T10:05:00Z',
+      };
+      mockApi.patch.mockResolvedValue({ data: updatedMessage });
+
+      const result = await chatMessageService.adminUpdateMessage('chatroom1', 'message1', updateData);
+
+      expect(mockApi.patch).toHaveBeenCalledWith(
+        '/chatrooms/chatroom1/messages/message1/admin',
+        updateData
+      );
+      expect(result).toEqual(updatedMessage);
+    });
+
+    it('should handle admin update errors', async () => {
+      const updateData = { content: 'Updated content' };
+      mockApi.patch.mockRejectedValue(new Error('Admin update failed'));
+
+      await expect(
+        chatMessageService.adminUpdateMessage('chatroom1', 'message1', updateData)
+      ).rejects.toThrow('Admin update failed');
+    });
+  });
+
+  describe('adminDeleteMessage', () => {
+    it('should delete any message as admin', async () => {
+      mockApi.delete.mockResolvedValue(undefined);
+
+      await chatMessageService.adminDeleteMessage('chatroom1', 'message1');
+
+      expect(mockApi.delete).toHaveBeenCalledWith('/chatrooms/chatroom1/messages/message1/admin');
+    });
+
+    it('should handle admin delete errors', async () => {
+      mockApi.delete.mockRejectedValue(new Error('Admin delete failed'));
+
+      await expect(chatMessageService.adminDeleteMessage('chatroom1', 'message1')).rejects.toThrow(
+        'Admin delete failed'
+      );
+    });
+  });
+
   describe('addReaction', () => {
     it('should add a reaction to a message', async () => {
       const reactionData = { type: ReactionType.LIKE };

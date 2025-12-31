@@ -24,6 +24,7 @@ export interface ChatMessage {
   createdAt: string;
   updatedAt: string;
   editedAt?: string;
+  editedByAdmin?: boolean;
 }
 
 export interface CreateMessageDto {
@@ -73,6 +74,22 @@ export function useChatMessageService() {
 
     deleteMessage: async (chatroomId: string, messageId: string): Promise<void> => {
       await api.delete(`${endpoints.chatroomMessages(chatroomId)}/${messageId}`);
+    },
+
+    adminUpdateMessage: async (
+      chatroomId: string,
+      messageId: string,
+      data: UpdateMessageDto
+    ): Promise<ChatMessage> => {
+      const response = await api.patch<ApiResponse<ChatMessage>>(
+        `${endpoints.chatroomMessages(chatroomId)}/${messageId}/admin`,
+        data
+      );
+      return unwrapData(response);
+    },
+
+    adminDeleteMessage: async (chatroomId: string, messageId: string): Promise<void> => {
+      await api.delete(`${endpoints.chatroomMessages(chatroomId)}/${messageId}/admin`);
     },
 
     addReaction: async (
