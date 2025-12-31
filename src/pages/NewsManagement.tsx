@@ -30,6 +30,16 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Background } from '@/components/Background';
@@ -125,18 +135,19 @@ const MonthHeader: React.FC<{ label: string }> = ({ label }) => {
   );
 };
 
-const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }> = ({
-  item,
-  onEdit,
-}) => {
+const NewsBubble: React.FC<{
+  item: NewsItem;
+  onEdit: (item: NewsItem) => void;
+  onDelete: (item: NewsItem) => void;
+}> = ({ item, onEdit, onDelete }) => {
   return (
     <motion.div
       variants={fadeInUp}
       whileHover={{ scale: 1.02 }}
     >
-      <Card className={cn(glassCard, 'w-full')}>
-        <CardContent className="p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4">
+      <Card className={cn(glassCard, 'w-full !py-2')}>
+        <CardContent className="p-3 md:p-4">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
               {item.authorImageUrl ? (
                 <img
@@ -151,16 +162,44 @@ const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }>
                 {item.authorName || 'Unbekannt'}
               </span>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
               {(item.type === 'text' || item.type === 'image') && (
+                <>
+                  <AnimatedButton
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEdit(item)}
+                    className={cn(glassButton, 'h-8 w-8')}
+                    title="Bearbeiten"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </AnimatedButton>
+                  <AnimatedButton
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onDelete(item)}
+                    className={cn(
+                      glassButton,
+                      'h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10 border-destructive/20'
+                    )}
+                    title="Löschen"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </AnimatedButton>
+                </>
+              )}
+              {item.type === 'poll' && (
                 <AnimatedButton
                   variant="outline"
-                  size="sm"
-                  onClick={() => onEdit(item)}
-                  className={cn(glassButton, 'flex items-center gap-2')}
+                  size="icon"
+                  onClick={() => onDelete(item)}
+                  className={cn(
+                    glassButton,
+                    'h-8 w-8 text-destructive hover:text-destructive/90 hover:bg-destructive/10 border-destructive/20'
+                  )}
+                  title="Löschen"
                 >
-                  <Edit className="w-4 h-4" />
-                  <span>Bearbeiten</span>
+                  <Trash2 className="w-4 h-4" />
                 </AnimatedButton>
               )}
               <span className="text-xs text-muted-foreground">
@@ -171,14 +210,14 @@ const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }>
 
         {/* Content */}
         {item.type === 'text' && (
-          <div className="text-base leading-relaxed py-2 text-foreground">
+          <div className="text-base leading-relaxed text-foreground">
             {(item as TextNewsItem).content}
           </div>
         )}
 
         {item.type === 'image' && (
           <div>
-            <div className="flex gap-3 py-2 flex-wrap">
+            <div className="flex gap-3 flex-wrap">
               {(item as ImageNewsItem).imageUrls.map((url, idx) => (
                 <img
                   key={url}
@@ -188,15 +227,17 @@ const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }>
                 />
               ))}
             </div>
-            <div className="text-base leading-relaxed py-1 text-foreground">
-              {(item as ImageNewsItem).content}
-            </div>
+            {(item as ImageNewsItem).content && (
+              <div className="text-base leading-relaxed mt-2 text-foreground">
+                {(item as ImageNewsItem).content}
+              </div>
+            )}
           </div>
         )}
 
         {item.type === 'poll' && (
-          <div className="py-2">
-            <div className="font-medium mb-3 flex items-center gap-2 text-foreground">
+          <div>
+            <div className="font-medium mb-2 flex items-center gap-2 text-foreground">
               <BarChart2 className="w-4 h-4 text-muted-foreground" />
               {(item as PollNewsItem).question}
             </div>
@@ -223,7 +264,7 @@ const NewsBubble: React.FC<{ item: NewsItem; onEdit: (item: NewsItem) => void }>
 
         {/* Reactions */}
         {item.reactions && item.reactions.length > 0 && (
-          <div className="flex gap-2 mt-4 flex-wrap">
+          <div className="flex gap-2 mt-3 flex-wrap">
             {Array.from(new Set(item.reactions.map(r => r.type))).map(type => (
               <Badge
                 key={type}
@@ -282,6 +323,8 @@ const NewsManagement: React.FC = () => {
   const [editImageContent, setEditImageContent] = useState('');
   const [editImageUrls, setEditImageUrls] = useState<string[]>([]);
   const [editSaving, setEditSaving] = useState(false);
+  const [deletingItem, setDeletingItem] = useState<NewsItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const feedRef = useRef<HTMLDivElement>(null);
 
   const fetchNews = async () => {
@@ -483,6 +526,22 @@ const NewsManagement: React.FC = () => {
     setEditImageUrls(prev => prev.filter(url => url !== imageUrl));
   };
 
+  const handleDelete = async () => {
+    if (!deletingItem) return;
+    setDeleting(true);
+    try {
+      await newsService.delete(deletingItem.id);
+      setDeletingItem(null);
+      await fetchNews();
+      toast.success('News erfolgreich gelöscht');
+    } catch (e) {
+      console.error('Fehler beim Löschen der News:', e);
+      showUserFriendlyError(e, toast, () => handleDelete(), 'delete-news');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <PageTransition>
       <div className="min-h-screen relative overflow-hidden">
@@ -568,7 +627,12 @@ const NewsManagement: React.FC = () => {
                     <div key={group.label} className="space-y-4">
                       <MonthHeader label={group.label} />
                       {group.items.map((item) => (
-                        <NewsBubble key={item.id} item={item} onEdit={handleEdit} />
+                        <NewsBubble
+                          key={item.id}
+                          item={item}
+                          onEdit={handleEdit}
+                          onDelete={setDeletingItem}
+                        />
                       ))}
                     </div>
                   ))}
@@ -968,6 +1032,37 @@ const NewsManagement: React.FC = () => {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={!!deletingItem} onOpenChange={(open) => !open && setDeletingItem(null)}>
+              <AlertDialogContent className={cn(glassCard)}>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="text-foreground">
+                    News löschen?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-foreground/80">
+                    Möchten Sie diese News wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel
+                    disabled={deleting}
+                    className={cn(glassButton, 'rounded-xl')}
+                  >
+                    Abbrechen
+                  </AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className={cn(
+                      'bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl',
+                      deleting && 'opacity-50 cursor-not-allowed'
+                    )}
+                  >
+                    {deleting ? 'Wird gelöscht...' : 'Löschen'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </PageTransition>

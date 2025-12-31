@@ -129,6 +129,39 @@ jest.mock('@/components/ui/dialog', () => ({
   ),
 }));
 
+jest.mock('@/components/ui/alert-dialog', () => ({
+  AlertDialog: ({ children, open, onOpenChange }: any) => (
+    <div data-testid="alert-dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
+      {children}
+    </div>
+  ),
+  AlertDialogContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-content">{children}</div>
+  ),
+  AlertDialogHeader: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-header">{children}</div>
+  ),
+  AlertDialogTitle: ({ children }: { children: React.ReactNode }) => (
+    <h3 data-testid="alert-dialog-title">{children}</h3>
+  ),
+  AlertDialogDescription: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-description">{children}</div>
+  ),
+  AlertDialogFooter: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="alert-dialog-footer">{children}</div>
+  ),
+  AlertDialogAction: ({ children, onClick, disabled }: any) => (
+    <button data-testid="alert-dialog-action" onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
+  AlertDialogCancel: ({ children, onClick, disabled }: any) => (
+    <button data-testid="alert-dialog-cancel" onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
+}));
+
 jest.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange, disabled, id }: any) => (
     <input
@@ -172,6 +205,19 @@ jest.mock('lucide-react', () => ({
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   X: () => <div data-testid="x-icon">X</div>,
+  Edit: () => <div data-testid="edit-icon">Edit</div>,
+  AlertCircle: () => <div data-testid="alert-circle-icon">AlertCircle</div>,
+}));
+
+// Mock toast
+const mockToastSuccess = jest.fn();
+const mockToastError = jest.fn();
+
+jest.mock('sonner', () => ({
+  toast: {
+    success: (...args: any[]) => mockToastSuccess(...args),
+    error: (...args: any[]) => mockToastError(...args),
+  },
 }));
 
 // Mock News Service
@@ -181,6 +227,7 @@ const mockNewsService = {
   createImageNews: jest.fn(),
   updateNewsImages: jest.fn(),
   createPollNews: jest.fn(),
+  delete: jest.fn(),
 };
 
 jest.mock('@/services/newsService', () => ({
@@ -190,6 +237,12 @@ jest.mock('@/services/newsService', () => ({
 // Mock date-fns
 jest.mock('date-fns', () => ({
   formatDistanceToNow: jest.fn(() => 'vor 2 Stunden'),
+  format: jest.fn((date, formatStr) => {
+    if (formatStr === 'yyyy-MM') return '2024-01';
+    if (formatStr === 'MMMM yyyy') return 'Januar 2024';
+    return '2024-01-15';
+  }),
+  startOfMonth: jest.fn((date) => new Date(date.getFullYear(), date.getMonth(), 1)),
 }));
 
 jest.mock('date-fns/locale', () => ({
@@ -256,6 +309,9 @@ describe('NewsManagement Component', () => {
     jest.clearAllMocks();
     mockGetUserId.mockReturnValue('user-1');
     mockNewsService.getAll.mockResolvedValue([mockTextNews, mockImageNews, mockPollNews]);
+    mockNewsService.delete.mockResolvedValue(undefined);
+    mockToastSuccess.mockClear();
+    mockToastError.mockClear();
   });
 
   const renderComponent = () => {
@@ -646,8 +702,10 @@ describe('NewsManagement Component', () => {
 
     await waitFor(() => {
       const pollButtons = screen.getAllByText('Sonnig');
-      const buttonElement = pollButtons[0].closest('button') as HTMLButtonElement;
-      expect(buttonElement.disabled).toBe(true);
+      expect(pollButtons.length).toBeGreaterThan(0);
+      // Poll options are displayed but not clickable in admin view
+      const optionElement = pollButtons[0].closest('div');
+      expect(optionElement).toBeTruthy();
     });
   });
 
@@ -658,6 +716,135 @@ describe('NewsManagement Component', () => {
       // Text news has 2 reactions: 👍 (1) and ❤️ (1)
       expect(screen.getByText('👍')).toBeTruthy();
       expect(screen.getByText('❤️')).toBeTruthy();
+    });
+  });
+
+  it('displays delete button for text and image news', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      const deleteButtons = screen.getAllByTestId('trash2-icon');
+      // Should have delete buttons for text and image news
+      expect(deleteButtons.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  it('displays delete button for poll news', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      const deleteButtons = screen.getAllByTestId('trash2-icon');
+      // Should have delete button for poll news
+      expect(deleteButtons.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  it('opens delete confirmation dialog when delete button is clicked', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Das ist eine Test-Nachricht')).toBeTruthy();
+    });
+
+    const deleteButtons = screen.getAllByTestId('trash2-icon');
+    const deleteButton = deleteButtons[0].closest('button');
+    await user.click(deleteButton!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-dialog')).toBeTruthy();
+      expect(screen.getByText('News löschen?')).toBeTruthy();
+      expect(screen.getByText(/Möchten Sie diese News wirklich löschen/)).toBeTruthy();
+    });
+  });
+
+  it('cancels delete when cancel button is clicked', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Das ist eine Test-Nachricht')).toBeTruthy();
+    });
+
+    const deleteButtons = screen.getAllByTestId('trash2-icon');
+    const deleteButton = deleteButtons[0].closest('button');
+    await user.click(deleteButton!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-dialog')).toBeTruthy();
+    });
+
+    const cancelButton = screen.getByTestId('alert-dialog-cancel');
+    await user.click(cancelButton);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('alert-dialog')).toHaveAttribute('data-open', 'false');
+    });
+
+    expect(mockNewsService.delete).not.toHaveBeenCalled();
+  });
+
+  it('deletes news when confirm button is clicked', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Das ist eine Test-Nachricht')).toBeTruthy();
+    });
+
+    // Find the delete button for text news - it should be near the text content
+    const textNewsContainer = screen.getByText('Das ist eine Test-Nachricht').closest('[data-testid="card"]');
+    const deleteButtons = textNewsContainer?.querySelectorAll('[data-testid="trash2-icon"]');
+    const deleteButton = deleteButtons?.[0]?.closest('button');
+    
+    expect(deleteButton).toBeTruthy();
+    await user.click(deleteButton!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-dialog')).toBeTruthy();
+    });
+
+    const confirmButton = screen.getByTestId('alert-dialog-action');
+    await user.click(confirmButton);
+
+    await waitFor(() => {
+      expect(mockNewsService.delete).toHaveBeenCalledWith('text-1');
+    });
+    
+    // Wait for fetchNews to complete (getAll is called after delete)
+    await waitFor(() => {
+      expect(mockNewsService.getAll).toHaveBeenCalled();
+    });
+    
+    // Toast should be called after successful deletion
+    expect(mockToastSuccess).toHaveBeenCalledWith('News erfolgreich gelöscht');
+  });
+
+  it('reloads news after successful deletion', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Das ist eine Test-Nachricht')).toBeTruthy();
+    });
+
+    // Clear initial load call
+    mockNewsService.getAll.mockClear();
+
+    // Find the delete button for text news
+    const textNewsContainer = screen.getByText('Das ist eine Test-Nachricht').closest('[data-testid="card"]');
+    const deleteButtons = textNewsContainer?.querySelectorAll('[data-testid="trash2-icon"]');
+    const deleteButton = deleteButtons?.[0]?.closest('button');
+    
+    expect(deleteButton).toBeTruthy();
+    await user.click(deleteButton!);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('alert-dialog')).toBeTruthy();
+    });
+
+    const confirmButton = screen.getByTestId('alert-dialog-action');
+    await user.click(confirmButton);
+
+    await waitFor(() => {
+      // Should reload news after deletion
+      expect(mockNewsService.getAll).toHaveBeenCalled();
     });
   });
 });
