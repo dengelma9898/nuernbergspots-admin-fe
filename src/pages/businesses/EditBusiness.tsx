@@ -95,6 +95,8 @@ export const EditBusiness: React.FC = () => {
   const [categories, setCategories] = useState<BusinessCategory[]>([]);
   const [keywords, setKeywords] = useState<Keyword[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const validationErrorsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (id) {
@@ -777,7 +779,7 @@ export const EditBusiness: React.FC = () => {
                         value={business.status}
                         onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className={cn(glassInput, 'w-full cursor-pointer hover:bg-secondary/5')}>
                           <SelectValue placeholder="Status auswählen" />
                         </SelectTrigger>
                         <SelectContent>

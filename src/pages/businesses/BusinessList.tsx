@@ -80,26 +80,11 @@ export const BusinessList: React.FC = () => {
         setCategories(fetchedCategories);
       } catch (error) {
         console.error('Fehler beim Laden der Kategorien:', error);
-      showUserFriendlyError(error, toast, () => handleDelete(businessId), 'delete-business');
-    }
-  };
+      }
+    };
     loadCategories();
   }, []);
 
-  const handleDelete = async (businessId: string) => {
-    try {
-      const businessToDelete = businesses.find(b => b.id === businessId);
-      await businessService.deleteBusiness(businessId);
-      showSuccessMessage(toast, {
-        title: 'Geschäft gelöscht',
-        description: businessToDelete ? `"${businessToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Geschäft wurde erfolgreich gelöscht.',
-      });
-      loadBusinesses();
-    } catch (error) {
-      console.error('Fehler beim Löschen des Geschäfts:', error);
-      showUserFriendlyError(error, toast, () => handleDelete(businessId), 'delete-business');
-    }
-  };
 
   const handleEditClick = (business: Business) => {
     navigate(`/businesses/${business.id}/edit`);
@@ -305,7 +290,6 @@ export const BusinessList: React.FC = () => {
                       business={business}
                       categoryNames={getCategoryNames(business.categoryIds)}
                       onEdit={handleEditClick}
-                      onDelete={handleDelete}
                       index={index}
                     />
                   ))}
@@ -326,7 +310,6 @@ export const BusinessList: React.FC = () => {
                       business={business}
                       categoryNames={getCategoryNames(business.categoryIds)}
                       onEdit={handleEditClick}
-                      onDelete={handleDelete}
                       index={index}
                     />
                   ))}
@@ -347,7 +330,6 @@ export const BusinessList: React.FC = () => {
                       business={business}
                       categoryNames={getCategoryNames(business.categoryIds)}
                       onEdit={handleEditClick}
-                      onDelete={handleDelete}
                       index={index}
                     />
                   ))}

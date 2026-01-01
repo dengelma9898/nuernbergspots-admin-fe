@@ -28,7 +28,6 @@ interface BusinessCardProps {
   business: Business;
   categoryNames: string;
   onEdit: (business: Business) => void;
-  onDelete: (id: string) => void;
   index?: number;
 }
 
@@ -80,7 +79,6 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   business,
   categoryNames,
   onEdit,
-  onDelete,
   index = 0,
 }) => {
   const status = getStatusBadge(business.status);
@@ -159,7 +157,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
                 href={business.contact.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:text-primary/80 transition-colors hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors hover:underline"
               >
                 Website besuchen
               </a>
@@ -196,20 +194,12 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           <div className="flex gap-2">
             <AnimatedButton
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => onEdit(business)}
-              className={cn(glassButton, 'text-xs')}
+              className={cn(glassButton)}
             >
-              <Pencil className="mr-1 h-3 w-3" />
-              Bearbeiten
-            </AnimatedButton>
-            <AnimatedButton
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete(business.id)}
-              className="text-xs"
-            >
-              Löschen
+              <Pencil className="h-4 w-4" />
+              <span className="sr-only">Bearbeiten</span>
             </AnimatedButton>
           </div>
         </div>
