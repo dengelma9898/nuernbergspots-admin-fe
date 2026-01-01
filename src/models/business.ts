@@ -15,6 +15,7 @@ export interface Business {
   id: string;
   name: string;
   description: string;
+  benefit?: string;
   categoryIds: string[];
   address: {
     street: string;

@@ -34,7 +34,18 @@ import { glassCard, glassButton, glassInput } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
+import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const WEEKDAYS = {
   Montag: 'Montag',
@@ -97,6 +108,8 @@ export const EditBusiness: React.FC = () => {
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const validationErrorsRef = useRef<HTMLDivElement>(null);
+  const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -131,6 +144,33 @@ export const EditBusiness: React.FC = () => {
       const fetchedBusiness = await businessService.getBusiness(businessId);
       setBusiness(fetchedBusiness);
       setSelectedKeywords(fetchedBusiness.keywordIds);
+
+      // Setze LocationSearch-Wert für Adresse
+      if (fetchedBusiness.address) {
+        const locationResult: LocationResult = {
+          id: `${fetchedBusiness.address.latitude}-${fetchedBusiness.address.longitude}`,
+          title: `${fetchedBusiness.address.street} ${fetchedBusiness.address.houseNumber}`,
+          resultType: 'address',
+          position: {
+            lat: fetchedBusiness.address.latitude,
+            lng: fetchedBusiness.address.longitude,
+          },
+          address: {
+            label: `${fetchedBusiness.address.street} ${fetchedBusiness.address.houseNumber}, ${fetchedBusiness.address.postalCode} ${fetchedBusiness.address.city}`,
+            countryCode: 'DE',
+            countryName: 'Deutschland',
+            stateCode: 'BY',
+            state: 'Bayern',
+            county: '',
+            city: fetchedBusiness.address.city,
+            district: '',
+            street: fetchedBusiness.address.street,
+            postalCode: fetchedBusiness.address.postalCode,
+            houseNumber: fetchedBusiness.address.houseNumber,
+          },
+        };
+        setSearchValue(locationResult);
+      }
 
       // Konvertiere detailedOpeningHours in TimeSlots
       if (fetchedBusiness.detailedOpeningHours) {
@@ -366,8 +406,36 @@ export const EditBusiness: React.FC = () => {
     );
   };
 
-  const handleUpdateBusiness = async () => {
+  const handleLocationSelect = (location: LocationResult | null) => {
+    if (!location || !business) return;
+
+    setBusiness(prev =>
+      prev
+        ? {
+            ...prev,
+            address: {
+              ...prev.address,
+              street: location.address.street,
+              houseNumber: location.address.houseNumber,
+              postalCode: location.address.postalCode,
+              city: location.address.city,
+              latitude: location.position.lat,
+              longitude: location.position.lng,
+            },
+          }
+        : null
+    );
+    setSearchValue(location);
+  };
+
+  const handleSaveClick = () => {
+    setIsConfirmDialogOpen(true);
+  };
+
+  const handleConfirmSave = async () => {
     if (!business) return;
+
+    setIsConfirmDialogOpen(false);
 
     try {
       setIsSaving(true);
@@ -413,7 +481,22 @@ export const EditBusiness: React.FC = () => {
         });
       });
 
+      // Bereinige die Kontaktdaten - leere Strings werden zu undefined
+      const cleanedContact = {
+        email: business.contact.email || undefined,
+        phoneNumber: business.contact.phoneNumber || undefined,
+        website: business.contact.website || undefined,
+        instagram: business.contact.instagram || undefined,
+        facebook: business.contact.facebook || undefined,
+        tiktok: business.contact.tiktok || undefined,
+      };
+
       await businessService.updateBusiness(business.id, {
+        name: business.name,
+        description: business.description,
+        benefit: business.benefit || undefined,
+        address: business.address,
+        contact: cleanedContact,
         detailedOpeningHours: formattedDetailedOpeningHours,
         categoryIds: business.categoryIds,
         keywordIds: business.keywordIds,
@@ -725,31 +808,256 @@ export const EditBusiness: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert 
+                      ref={validationErrorsRef}
+                      variant="destructive" 
+                      className={cn(glassCard, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium mb-2 text-foreground">Name</h3>
-                      <p className="text-sm text-muted-foreground">{business.name}</p>
-                    </div>
-                    <div>
-                      <h3 className="font-medium mb-2 text-foreground">Kategorie</h3>
-                      <div className="flex-grow">
-                        <p className="text-sm text-muted-foreground">
-                          Kategorie-IDs: {business.categoryIds.join(', ')}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-medium mb-2 text-foreground">Adresse</h3>
+                    {/* Name */}
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-foreground">
+                        Name des Geschäfts
+                      </Label>
+                      <Input
+                        id="name"
+                        value={business.name}
+                        onChange={e =>
+                          setBusiness(prev =>
+                            prev ? { ...prev, name: e.target.value } : null
+                          )
+                        }
+                        placeholder="z.B. Café Sonnenschein"
+                        className={cn(glassInput)}
+                      />
                       <p className="text-sm text-muted-foreground">
-                        {business.address.street} {business.address.houseNumber},{' '}
-                        {business.address.postalCode} {business.address.city}
+                        Der offizielle Name des Geschäfts, wie er angezeigt werden soll.
                       </p>
                     </div>
-                    <div>
-                      <h3 className="font-medium mb-2 text-foreground">Kontakt</h3>
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        {business.contact.email && <p>{business.contact.email}</p>}
-                        {business.contact.phoneNumber && <p>{business.contact.phoneNumber}</p>}
+
+                    {/* Beschreibung */}
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-foreground">
+                        Beschreibung
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={business.description}
+                        onChange={e =>
+                          setBusiness(prev =>
+                            prev ? { ...prev, description: e.target.value } : null
+                          )
+                        }
+                        placeholder="Beschreiben Sie das Geschäft im Detail..."
+                        className={cn(glassInput, 'min-h-[100px]')}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie
+                        Angebot, Besonderheiten oder Geschichte.
+                      </p>
+                    </div>
+
+                    {/* Benefit */}
+                    <div className="space-y-2">
+                      <Label htmlFor="benefit" className="text-foreground">
+                        Benefit für Nutzer
+                      </Label>
+                      <Input
+                        id="benefit"
+                        value={business.benefit || ''}
+                        onChange={e => {
+                          const value = e.target.value.slice(0, 100);
+                          setBusiness(prev =>
+                            prev ? { ...prev, benefit: value } : null
+                          );
+                        }}
+                        placeholder="z.B. 10% Rabatt auf alle Getränke"
+                        maxLength={100}
+                        className={cn(glassInput)}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Beschreiben Sie kurz (max. 100 Zeichen), welchen Vorteil Nutzer in diesem Geschäft
+                        erhalten.
+                        <span className="ml-2 text-xs">
+                          {(business.benefit || '').length}/100 Zeichen
+                        </span>
+                      </p>
+                    </div>
+
+                    {/* Adresse */}
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Adresse</Label>
+                      <LocationSearch
+                        value={searchValue}
+                        onChange={handleLocationSelect}
+                        placeholder="Adresse suchen..."
+                        debounce={1000}
+                      />
+                      {business.address && (
+                        <div className="text-sm text-muted-foreground mt-2">
+                          Aktuelle Adresse: {business.address.street} {business.address.houseNumber},{' '}
+                          {business.address.postalCode} {business.address.city}
+                        </div>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        Suchen Sie die Adresse. Die Koordinaten werden automatisch ermittelt.
+                      </p>
+                    </div>
+
+                    {/* Kontaktinformationen */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-medium text-foreground">
+                        Kontaktinformationen
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Diese Informationen sind optional und können später vom Geschäftsinhaber ergänzt
+                        werden.
+                      </p>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="email" className="text-foreground">
+                            E-Mail (optional)
+                          </Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={business.contact.email || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, email: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="kontakt@beispiel.de"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="phone" className="text-foreground">
+                            Telefon (optional)
+                          </Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={business.contact.phoneNumber || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, phoneNumber: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="+49 123 456789"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="website" className="text-foreground">
+                            Website (optional)
+                          </Label>
+                          <Input
+                            id="website"
+                            type="url"
+                            value={business.contact.website || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, website: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="https://www.beispiel.de"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="instagram" className="text-foreground">
+                            Instagram (optional)
+                          </Label>
+                          <Input
+                            id="instagram"
+                            value={business.contact.instagram || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, instagram: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="@beispiel"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="facebook" className="text-foreground">
+                            Facebook (optional)
+                          </Label>
+                          <Input
+                            id="facebook"
+                            value={business.contact.facebook || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, facebook: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="beispiel"
+                            className={cn(glassInput)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="tiktok" className="text-foreground">
+                            TikTok (optional)
+                          </Label>
+                          <Input
+                            id="tiktok"
+                            value={business.contact.tiktok || ''}
+                            onChange={e =>
+                              setBusiness(prev =>
+                                prev
+                                  ? {
+                                      ...prev,
+                                      contact: { ...prev.contact, tiktok: e.target.value },
+                                    }
+                                  : null
+                              )
+                            }
+                            placeholder="@beispiel"
+                            className={cn(glassInput)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -773,8 +1081,8 @@ export const EditBusiness: React.FC = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <div>
-                      <h3 className="font-medium mb-2 text-foreground">Status</h3>
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Status</Label>
                       <Select
                         value={business.status}
                         onValueChange={(value: BusinessStatus) => handleStatusChange(value)}
@@ -789,7 +1097,7 @@ export const EditBusiness: React.FC = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 pt-2">
                       <Switch
                         id="isPromoted"
                         checked={business.isPromoted}
@@ -1258,7 +1566,7 @@ export const EditBusiness: React.FC = () => {
               </AnimatedButton>
               <LoadingButton
                 variant="outline"
-                onClick={handleUpdateBusiness}
+                onClick={handleSaveClick}
                 isLoading={isSaving}
                 loadingText="Speichert..."
                 className={cn(glassButton, 'flex items-center')}
@@ -1270,6 +1578,50 @@ export const EditBusiness: React.FC = () => {
         </div>
       </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent className={cn(glassCard)}>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <AlertTriangle className="h-6 w-6 text-yellow-600 dark:text-yellow-400 shrink-0" />
+              <AlertDialogTitle className="text-foreground">
+                Änderungen speichern
+              </AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="text-muted-foreground space-y-2">
+              <p>
+                Bevor du die Änderungen speicherst, möchten wir dich kurz daran erinnern:
+              </p>
+              <ul className="list-disc list-inside space-y-1 ml-2">
+                <li>Der Partner erhält <strong>keine automatische Benachrichtigung</strong> über die Änderungen.</li>
+                <li>Bitte <strong>kontaktiere den Partner</strong> persönlich, um ihn über die Aktualisierungen zu informieren.</li>
+                <li>So kann der Partner die Änderungen auch in seinem System entsprechend aktualisieren.</li>
+              </ul>
+              <p className="mt-3 font-medium text-foreground">
+                Möchtest du die Änderungen jetzt speichern?
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setIsConfirmDialogOpen(false)}
+              className={cn(glassButton)}
+            >
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmSave}
+              className={cn(
+                glassButton,
+                'bg-primary hover:bg-primary/90 text-primary-foreground'
+              )}
+            >
+              Änderungen speichern
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PageTransition>
   );
 };
