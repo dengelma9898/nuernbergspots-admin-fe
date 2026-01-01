@@ -141,6 +141,43 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ placeholder }: any) => <></>,
 }));
 
+jest.mock('@/components/ui/LocationSearch', () => ({
+  LocationSearch: ({ value, onChange, placeholder }: any) => (
+    <div data-testid="location-search">
+      <input
+        data-testid="location-search-input"
+        value={value?.address?.label || ''}
+        onChange={e => {
+          // Mock location selection
+          if (e.target.value.length > 3) {
+            onChange({
+              id: 'location-1',
+              title: e.target.value,
+              resultType: 'address',
+              position: { lat: 49.4521, lng: 11.0767 },
+              address: {
+                label: e.target.value,
+                street: 'Hauptstraße',
+                houseNumber: '1',
+                postalCode: '90402',
+                city: 'Nürnberg',
+                countryCode: 'DE',
+                countryName: 'Deutschland',
+                stateCode: 'BY',
+                state: 'Bayern',
+                county: '',
+                district: '',
+              },
+            });
+          }
+        }}
+        placeholder={placeholder}
+      />
+    </div>
+  ),
+  LocationResult: {},
+}));
+
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
@@ -203,6 +240,7 @@ const mockBusiness: Business = {
   id: 'business-1',
   name: 'Restaurant Alpha',
   description: 'Ein gemütliches Restaurant im Herzen der Stadt',
+  benefit: '10% Rabatt auf alle Getränke',
   categoryIds: ['cat-1'],
   address: {
     street: 'Hauptstraße',
@@ -216,6 +254,9 @@ const mockBusiness: Business = {
     email: 'info@restaurant-alpha.de',
     phoneNumber: '+49 911 123456',
     website: 'https://restaurant-alpha.de',
+    instagram: '@restaurantalpha',
+    facebook: 'restaurantalpha',
+    tiktok: '@restaurantalpha',
   },
   openingHours: {},
   detailedOpeningHours: {
@@ -396,39 +437,132 @@ describe('EditBusiness Component', () => {
   });
 
   describe('Basic Information Display', () => {
-    it('sollte Business-Namen anzeigen', async () => {
+    it('sollte Business-Namen editierbar anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
         expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
+        const nameInput = screen.getByLabelText('Name des Geschäfts') as HTMLInputElement;
+        expect(nameInput).toBeInTheDocument();
+        expect(nameInput.value).toBe('Restaurant Alpha');
       });
     });
 
-    it('sollte Adresse anzeigen', async () => {
+    it('sollte Business-Namen bearbeiten können', async () => {
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
-        expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        expect(screen.getByText('Hauptstraße 1, 90402 Nürnberg')).toBeInTheDocument();
+        const nameInput = screen.getByLabelText('Name des Geschäfts') as HTMLInputElement;
+        fireEvent.change(nameInput, { target: { value: 'Restaurant Beta' } });
+        expect(nameInput.value).toBe('Restaurant Beta');
       });
     });
 
-    it('sollte Kontaktdaten anzeigen', async () => {
+    it('sollte Beschreibung editierbar anzeigen', async () => {
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
-        expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        expect(screen.getByText('info@restaurant-alpha.de')).toBeInTheDocument();
-        expect(screen.getByText('+49 911 123456')).toBeInTheDocument();
+        const descriptionTextarea = screen.getByLabelText('Beschreibung') as HTMLTextAreaElement;
+        expect(descriptionTextarea).toBeInTheDocument();
+        expect(descriptionTextarea.value).toBe('Ein gemütliches Restaurant im Herzen der Stadt');
       });
     });
 
-    it('sollte Kategorie-IDs anzeigen', async () => {
+    it('sollte Beschreibung bearbeiten können', async () => {
       renderWithRouter(<EditBusiness />);
 
       await waitFor(() => {
-        expect(screen.getByText('Restaurant Alpha')).toBeInTheDocument();
-        expect(screen.getByText('Kategorie-IDs: cat-1')).toBeInTheDocument();
+        const descriptionTextarea = screen.getByLabelText('Beschreibung') as HTMLTextAreaElement;
+        fireEvent.change(descriptionTextarea, { target: { value: 'Neue Beschreibung' } });
+        expect(descriptionTextarea.value).toBe('Neue Beschreibung');
+      });
+    });
+
+    it('sollte Benefit editierbar anzeigen', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const benefitInput = screen.getByLabelText('Benefit für Nutzer') as HTMLInputElement;
+        expect(benefitInput).toBeInTheDocument();
+        expect(benefitInput.value).toBe('10% Rabatt auf alle Getränke');
+      });
+    });
+
+    it('sollte Benefit bearbeiten können', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const benefitInput = screen.getByLabelText('Benefit für Nutzer') as HTMLInputElement;
+        fireEvent.change(benefitInput, { target: { value: '15% Rabatt' } });
+        expect(benefitInput.value).toBe('15% Rabatt');
+      });
+    });
+
+    it('sollte Benefit auf 100 Zeichen begrenzen', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const benefitInput = screen.getByLabelText('Benefit für Nutzer') as HTMLInputElement;
+        const longText = 'a'.repeat(150);
+        fireEvent.change(benefitInput, { target: { value: longText } });
+        expect(benefitInput.value.length).toBe(100);
+      });
+    });
+
+    it('sollte Adresse mit LocationSearch editierbar anzeigen', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('location-search')).toBeInTheDocument();
+        const locationInput = screen.getByTestId('location-search-input') as HTMLInputElement;
+        expect(locationInput.value).toContain('Hauptstraße');
+      });
+    });
+
+    it('sollte Adresse bearbeiten können', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const locationInput = screen.getByTestId('location-search-input') as HTMLInputElement;
+        fireEvent.change(locationInput, { target: { value: 'Neue Straße 5' } });
+        // LocationSearch sollte onChange aufrufen
+        expect(locationInput.value).toBeTruthy();
+      });
+    });
+
+    it('sollte alle Kontaktfelder editierbar anzeigen', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const emailInput = screen.getByLabelText('E-Mail (optional)') as HTMLInputElement;
+        const phoneInput = screen.getByLabelText('Telefon (optional)') as HTMLInputElement;
+        const websiteInput = screen.getByLabelText('Website (optional)') as HTMLInputElement;
+        const instagramInput = screen.getByLabelText('Instagram (optional)') as HTMLInputElement;
+        const facebookInput = screen.getByLabelText('Facebook (optional)') as HTMLInputElement;
+        const tiktokInput = screen.getByLabelText('TikTok (optional)') as HTMLInputElement;
+
+        expect(emailInput).toBeInTheDocument();
+        expect(emailInput.value).toBe('info@restaurant-alpha.de');
+        expect(phoneInput).toBeInTheDocument();
+        expect(phoneInput.value).toBe('+49 911 123456');
+        expect(websiteInput).toBeInTheDocument();
+        expect(websiteInput.value).toBe('https://restaurant-alpha.de');
+        expect(instagramInput).toBeInTheDocument();
+        expect(instagramInput.value).toBe('@restaurantalpha');
+        expect(facebookInput).toBeInTheDocument();
+        expect(facebookInput.value).toBe('restaurantalpha');
+        expect(tiktokInput).toBeInTheDocument();
+        expect(tiktokInput.value).toBe('@restaurantalpha');
+      });
+    });
+
+    it('sollte Kontaktfelder bearbeiten können', async () => {
+      renderWithRouter(<EditBusiness />);
+
+      await waitFor(() => {
+        const emailInput = screen.getByLabelText('E-Mail (optional)') as HTMLInputElement;
+        fireEvent.change(emailInput, { target: { value: 'neu@restaurant.de' } });
+        expect(emailInput.value).toBe('neu@restaurant.de');
       });
     });
   });
@@ -878,6 +1012,20 @@ describe('EditBusiness Component', () => {
         expect(mockBusinessService.updateBusiness).toHaveBeenCalledWith(
           'business-1',
           expect.objectContaining({
+            name: 'Restaurant Alpha',
+            description: 'Ein gemütliches Restaurant im Herzen der Stadt',
+            benefit: '10% Rabatt auf alle Getränke',
+            address: expect.objectContaining({
+              street: 'Hauptstraße',
+              houseNumber: '1',
+              postalCode: '90402',
+              city: 'Nürnberg',
+            }),
+            contact: expect.objectContaining({
+              email: 'info@restaurant-alpha.de',
+              phoneNumber: '+49 911 123456',
+              website: 'https://restaurant-alpha.de',
+            }),
             categoryIds: ['cat-1'],
             keywordIds: ['keyword-1'],
           })
