@@ -144,11 +144,13 @@ export function Dashboard() {
   const [pendingApprovals, setPendingApprovals] = useState<number>(0);
   const [usersInReview, setUsersInReview] = useState<number>(0);
   const [openContactRequests, setOpenContactRequests] = useState<number>(0);
+  const [totalUsers, setTotalUsers] = useState<number>(0);
 
   // Loading states for each card
   const [pendingApprovalsLoading, setPendingApprovalsLoading] = useState<boolean>(true);
   const [usersInReviewLoading, setUsersInReviewLoading] = useState<boolean>(true);
   const [contactRequestsLoading, setContactRequestsLoading] = useState<boolean>(true);
+  const [totalUsersLoading, setTotalUsersLoading] = useState<boolean>(true);
 
   const userService = useUserService();
   const businessService = useBusinessService();
@@ -200,14 +202,27 @@ export function Dashboard() {
     }
   }, [contactService]);
 
+  const fetchTotalUsers = useCallback(async () => {
+    try {
+      setTotalUsersLoading(true);
+      const allUsers = await userService.getAllUsers();
+      setTotalUsers(allUsers.length);
+    } catch (error) {
+      console.error('Fehler beim Laden der User-Anzahl:', error);
+    } finally {
+      setTotalUsersLoading(false);
+    }
+  }, [userService]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
       fetchPendingApprovals();
       fetchUsersInReview();
       fetchOpenContactRequests();
+      fetchTotalUsers();
     }
-  }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests]);
+  }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests, fetchTotalUsers]);
 
   return (
     <PageTransition>
@@ -248,6 +263,11 @@ export function Dashboard() {
                       {pendingApprovals + usersInReview + openContactRequests > 10
                         ? 'Da wartet eine Menge Arbeit auf dich! 💪'
                         : 'Es gibt ein bisschen was zu tun für dich 😊'}
+                    </span>
+                  )}
+                  {totalUsers > 0 && (
+                    <span className="block mt-2 text-muted-foreground">
+                      {totalUsers} registrierte Benutzer im System 👥
                     </span>
                   )}
                 </motion.div>
@@ -433,6 +453,57 @@ export function Dashboard() {
                       {openContactRequests === 1
                         ? 'Neue Kontaktanfrage wartet auf Bearbeitung'
                         : `${openContactRequests} neue Kontaktanfragen warten auf Bearbeitung`}
+                    </div>
+                  </CardContent>
+                </AnimatedCard>
+              )}
+
+              {/* Total Users Card */}
+              {totalUsersLoading ? (
+                <DashboardCardSkeleton icon={Users} titleText="User-Verwaltung 👥" />
+              ) : (
+                <AnimatedCard
+                  index={3}
+                  className={cn(glassCardHover, 'p-4')}
+                >
+                  <CardContent className="p-0">
+                    {/* Header with icon and title in one line */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <Users className="h-5 w-5 text-foreground" />
+                      <span className="text-sm sm:text-base font-semibold text-foreground">
+                        User-Verwaltung 👥
+                      </span>
+                    </div>
+
+                    {/* Main content with improved layout */}
+                    <div className="flex items-center justify-between gap-4">
+                      {/* Number and emoji in compact layout */}
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl sm:text-3xl font-bold text-foreground">
+                          {totalUsers}
+                        </div>
+                        <div className="text-xl sm:text-2xl">
+                          👥
+                        </div>
+                      </div>
+
+                      {/* Action button - always visible */}
+                      <AnimatedButton
+                        onClick={() => navigate('/users')}
+                        size="sm"
+                        className={cn(glassButton, 'shrink-0')}
+                      >
+                        <span className="hidden sm:inline">Anzeigen</span>
+                        <span className="sm:hidden">Anzeigen</span>
+                        <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      </AnimatedButton>
+                    </div>
+
+                    {/* Description text - more compact */}
+                    <div className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      {totalUsers === 1
+                        ? 'Registrierter Benutzer im System'
+                        : `${totalUsers} registrierte Benutzer im System`}
                     </div>
                   </CardContent>
                 </AnimatedCard>
@@ -631,34 +702,41 @@ export function Dashboard() {
               initial="initial"
               animate="animate"
             >
-                <NavigationCard
-                  icon={BarChart}
-                  title="Analytics Dashboard"
-                  description="Detaillierte Einblicke in die Performance deiner Partner"
-                  href="/analytics"
-                  index={0}
-                />
-                <NavigationCard
-                  icon={Users}
-                  title="Account-Management"
-                  description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
-                  href="/account-management"
-                  index={1}
-                />
-                <NavigationCard
-                  icon={Shield}
-                  title="User Blockierung"
-                  description="User blockieren oder entsperren bei Verstößen gegen AGBs"
-                  href="/users/block-management"
-                  index={2}
-                />
-                <NavigationCard
-                  icon={Power}
-                  title="Downtime-Verwaltung"
-                  description="Wartungsmodus aktivieren oder deaktivieren"
-                  href="/downtime-management"
-                  index={3}
-                />
+              <NavigationCard
+                icon={BarChart}
+                title="Analytics Dashboard"
+                description="Detaillierte Einblicke in die Performance deiner Partner"
+                href="/analytics"
+                index={0}
+              />
+              <NavigationCard
+                icon={Users}
+                title="User-Verwaltung"
+                description="Übersicht aller registrierten Benutzer und Statistiken"
+                href="/users"
+                index={1}
+              />
+              <NavigationCard
+                icon={Users}
+                title="Account-Management"
+                description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
+                href="/account-management"
+                index={2}
+              />
+              <NavigationCard
+                icon={Shield}
+                title="User Blockierung"
+                description="User blockieren oder entsperren bei Verstößen gegen AGBs"
+                href="/users/block-management"
+                index={3}
+              />
+              <NavigationCard
+                icon={Power}
+                title="Downtime-Verwaltung"
+                description="Wartungsmodus aktivieren oder deaktivieren"
+                href="/downtime-management"
+                index={4}
+              />
             </motion.div>
           </motion.div>
 

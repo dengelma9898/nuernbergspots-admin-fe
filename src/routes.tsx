@@ -22,6 +22,7 @@ import { Analytics } from './pages/Analytics';
 import { BusinessUserList } from './pages/users/BusinessUserList';
 import { EditBusinessUser } from './pages/users/EditBusinessUser';
 import { UserBlockManagement } from './pages/users/UserBlockManagement';
+import { UserManagement } from './pages/users/UserManagement';
 import { EditBusiness } from './pages/businesses/EditBusiness';
 import NewsManagement from './pages/NewsManagement';
 import { JobOffers } from '@/pages/JobOffers';
@@ -62,6 +63,7 @@ export function AppRoutes() {
         <Route path="/create-event" element={<CreateEvent />} />
         <Route path="/create-business" element={<CreateBusiness />} />
         <Route path="/users/business/review" element={<BusinessUserReview />} />
+        <Route path="/users" element={<UserManagement />} />
         <Route path="/business-users" element={<BusinessUserList />} />
         <Route path="/business-users/:id/edit" element={<EditBusinessUser />} />
         <Route path="/users/block-management" element={<UserBlockManagement />} />
