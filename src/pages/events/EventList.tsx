@@ -36,6 +36,9 @@ import {
   StarOff,
   Plus,
   Copy,
+  CheckSquare,
+  Square,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -76,6 +79,9 @@ export const EventList: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [timeFilter, setTimeFilter] = useState<string>('all');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
+  // State für den Auswahlmodus
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
   const navigate = useNavigate();
@@ -188,10 +194,46 @@ export const EventList: React.FC = () => {
     return groupedEventsByMonth[b].date.getTime() - groupedEventsByMonth[a].date.getTime();
   });
 
+  // Auswahlmodus Funktionen
+  const toggleSelectionMode = () => {
+    if (isSelectionMode) {
+      // Auswahlmodus beenden und Auswahl zurücksetzen
+      setIsSelectionMode(false);
+      setSelectedEventIds(new Set());
+    } else {
+      // Auswahlmodus aktivieren
+      setIsSelectionMode(true);
+    }
+  };
+
+  const toggleEventSelection = (eventId: string) => {
+    setSelectedEventIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllVisibleEvents = () => {
+    setSelectedEventIds(new Set(filteredEvents.map(e => e.id)));
+  };
+
+  const deselectAllEvents = () => {
+    setSelectedEventIds(new Set());
+  };
+
   const handleGenerateImage = () => {
+    const eventsForImage = isSelectionMode 
+      ? filteredEvents.filter(e => selectedEventIds.has(e.id))
+      : filteredEvents;
+
     navigate('/events/image-editor', {
       state: {
-        events: filteredEvents,
+        events: eventsForImage,
         categoryName:
           categoryFilter !== 'all'
             ? categories.find(cat => cat.id === categoryFilter)?.name || ''
@@ -200,6 +242,10 @@ export const EventList: React.FC = () => {
               : '',
       },
     });
+
+    // Auswahlmodus beenden nach Navigation
+    setIsSelectionMode(false);
+    setSelectedEventIds(new Set());
   };
 
   if (loading) {
@@ -295,31 +341,90 @@ export const EventList: React.FC = () => {
                 Events
               </h1>
               <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
-                <AnimatedButton
-                  variant="outline"
-                  onClick={handleGenerateImage}
-                  className={cn(glassButton, 'w-full sm:w-auto gap-2')}
-                >
-                  <ImageIcon className="h-4 w-4" />
-                  Bild generieren
-                </AnimatedButton>
-                <AnimatedButton
-                  variant="outline"
-                  onClick={() => navigate('/events/scraper')}
-                  className={cn(glassButton, 'w-full sm:w-auto gap-2')}
-                >
-                  <Search className="h-4 w-4" />
-                  Events suchen
-                </AnimatedButton>
-                <AnimatedButton
-                  onClick={() => navigate('/create-event')}
-                  className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Event hinzufügen
-                </AnimatedButton>
+                {isSelectionMode ? (
+                  <>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={selectAllVisibleEvents}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <CheckSquare className="h-4 w-4" />
+                      Alle auswählen
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={deselectAllEvents}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <Square className="h-4 w-4" />
+                      Auswahl aufheben
+                    </AnimatedButton>
+                    <AnimatedButton
+                      onClick={handleGenerateImage}
+                      disabled={selectedEventIds.size === 0}
+                      className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                      Bild generieren ({selectedEventIds.size})
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={toggleSelectionMode}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <X className="h-4 w-4" />
+                      Abbrechen
+                    </AnimatedButton>
+                  </>
+                ) : (
+                  <>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={toggleSelectionMode}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                      Bild generieren
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
+                      onClick={() => navigate('/events/scraper')}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <Search className="h-4 w-4" />
+                      Events suchen
+                    </AnimatedButton>
+                    <AnimatedButton
+                      onClick={() => navigate('/create-event')}
+                      className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Event hinzufügen
+                    </AnimatedButton>
+                  </>
+                )}
               </div>
             </div>
+
+            {/* Auswahlmodus Banner */}
+            {isSelectionMode && (
+              <motion.div 
+                className="mb-4 p-4 rounded-xl bg-primary/20 border border-primary/40 backdrop-blur-sm"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <div className="flex items-center gap-3 text-foreground">
+                  <CheckSquare className="h-5 w-5 text-primary" />
+                  <span className="font-medium">
+                    Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus
+                  </span>
+                  <span className="ml-auto text-sm opacity-80">
+                    {selectedEventIds.size} von {filteredEvents.length} ausgewählt
+                  </span>
+                </div>
+              </motion.div>
+            )}
 
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row gap-2 md:gap-4">
@@ -411,6 +516,9 @@ export const EventList: React.FC = () => {
                             });
                           }}
                           index={monthIndex * 10 + eventIndex}
+                          isSelectionMode={isSelectionMode}
+                          isSelected={selectedEventIds.has(event.id)}
+                          onToggleSelection={toggleEventSelection}
                         />
                       ))}
                     </div>
@@ -484,6 +592,10 @@ interface EventCardProps {
   onEdit?: () => void;
   showDeleteButton?: boolean;
   index?: number;
+  // Auswahlmodus Props
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (id: string) => void;
 }
 
 export const EventCard: React.FC<EventCardProps> = ({
@@ -495,8 +607,17 @@ export const EventCard: React.FC<EventCardProps> = ({
   onEdit,
   showDeleteButton = false,
   index = 0,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection,
 }) => {
   const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (isSelectionMode && onToggleSelection) {
+      onToggleSelection(event.id);
+    }
+  };
 
   const formatDate = (date: string) => {
     try {
@@ -590,8 +711,31 @@ export const EventCard: React.FC<EventCardProps> = ({
   return (
     <AnimatedCard
       index={index}
-      className={cn(glassCard, 'flex flex-col')}
+      className={cn(
+        glassCard, 
+        'flex flex-col relative',
+        isSelectionMode && 'cursor-pointer transition-all duration-300',
+        isSelectionMode && isSelected && 'ring-4 ring-primary ring-offset-2 ring-offset-background'
+      )}
+      onClick={isSelectionMode ? handleCardClick : undefined}
     >
+      {/* Auswahlmodus Checkbox-Overlay */}
+      {isSelectionMode && (
+        <div 
+          className={cn(
+            'absolute top-4 left-4 z-20 rounded-lg p-2 transition-all duration-300',
+            isSelected 
+              ? 'bg-primary text-primary-foreground' 
+              : 'bg-white/80 text-foreground backdrop-blur-sm'
+          )}
+        >
+          {isSelected ? (
+            <CheckSquare className="h-6 w-6" />
+          ) : (
+            <Square className="h-6 w-6" />
+          )}
+        </div>
+      )}
       {event.titleImageUrl ? (
         <div className="relative h-48 w-full">
           <img
@@ -730,29 +874,64 @@ export const EventCard: React.FC<EventCardProps> = ({
       </CardContent>
       <CardFooter className="flex justify-between items-center">
         <div className="text-xs text-muted-foreground">Erstellt am {formatDate(event.createdAt)}</div>
-        <div className="flex gap-2">
-          {isPreview ? (
-            <>
-              <AnimatedButton
-                variant="outline"
-                size="sm"
-                onClick={onEdit}
-                className={cn(glassButton)}
-              >
-                Bearbeiten
-              </AnimatedButton>
-              {onCopy && (
+        {isSelectionMode ? (
+          <div className="text-sm text-muted-foreground italic">
+            {isSelected ? 'Ausgewählt' : 'Klicken zum Auswählen'}
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            {isPreview ? (
+              <>
                 <AnimatedButton
                   variant="outline"
                   size="sm"
-                  onClick={() => onCopy(event.id)}
+                  onClick={onEdit}
                   className={cn(glassButton)}
-                  title="Event kopieren"
                 >
-                  <Copy className="h-4 w-4" />
+                  Bearbeiten
                 </AnimatedButton>
-              )}
-              {showDeleteButton && (
+                {onCopy && (
+                  <AnimatedButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCopy(event.id)}
+                    className={cn(glassButton)}
+                    title="Event kopieren"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </AnimatedButton>
+                )}
+                {showDeleteButton && (
+                  <AnimatedButton
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => onDelete(event.id)}
+                  >
+                    Löschen
+                  </AnimatedButton>
+                )}
+              </>
+            ) : (
+              <>
+                <AnimatedButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/events/${event.id}`)}
+                  className={cn(glassButton)}
+                >
+                  Bearbeiten
+                </AnimatedButton>
+                {onCopy && (
+                  <AnimatedButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCopy(event.id)}
+                    className={cn(glassButton)}
+                    title="Event kopieren"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </AnimatedButton>
+                )}
                 <AnimatedButton
                   variant="destructive"
                   size="sm"
@@ -760,39 +939,10 @@ export const EventCard: React.FC<EventCardProps> = ({
                 >
                   Löschen
                 </AnimatedButton>
-              )}
-            </>
-          ) : (
-            <>
-              <AnimatedButton
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/events/${event.id}`)}
-                className={cn(glassButton)}
-              >
-                Bearbeiten
-              </AnimatedButton>
-              {onCopy && (
-                <AnimatedButton
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onCopy(event.id)}
-                  className={cn(glassButton)}
-                  title="Event kopieren"
-                >
-                  <Copy className="h-4 w-4" />
-                </AnimatedButton>
-              )}
-              <AnimatedButton
-                variant="destructive"
-                size="sm"
-                onClick={() => onDelete(event.id)}
-              >
-                Löschen
-              </AnimatedButton>
-            </>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        )}
       </CardFooter>
     </AnimatedCard>
   );

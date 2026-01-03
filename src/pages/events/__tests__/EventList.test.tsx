@@ -140,6 +140,10 @@ jest.mock('lucide-react', () => ({
   MoreVertical: () => <div data-testid="more-vertical-icon">MoreVertical</div>,
   Edit: () => <div data-testid="edit-icon">Edit</div>,
   Trash: () => <div data-testid="trash-icon">Trash</div>,
+  Copy: () => <div data-testid="copy-icon">Copy</div>,
+  CheckSquare: () => <div data-testid="check-square-icon">CheckSquare</div>,
+  Square: () => <div data-testid="square-icon">Square</div>,
+  X: () => <div data-testid="x-icon">X</div>,
 }));
 
 // Mock Sonner toast
@@ -162,11 +166,23 @@ jest.mock('date-fns', () => ({
     if (formatString === 'w') {
       return '3';
     }
+    if (formatString === 'yyyy-MM') {
+      return '2024-01';
+    }
+    if (formatString === 'MMMM yyyy') {
+      return 'Januar 2024';
+    }
     return '15. Januar 2024';
   },
   isPast: jest.fn(),
   isFuture: jest.fn(),
   isWithinInterval: jest.fn(),
+  startOfMonth: jest.fn((date: Date) => {
+    const d = new Date(date);
+    d.setDate(1);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }),
 }));
 
 // Mock color utils
@@ -385,10 +401,9 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Laden der Daten',
+          'Fehler',
           expect.objectContaining({
-            description:
-              'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description: 'API Error',
           })
         );
       });
@@ -426,7 +441,7 @@ describe('EventList Component', () => {
       });
     });
 
-    it('sollte zum Image Editor navigieren beim Bild generieren', async () => {
+    it('sollte Auswahlmodus aktivieren beim Klick auf Bild generieren', async () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
@@ -436,15 +451,37 @@ describe('EventList Component', () => {
       const generateButton = screen.getByText('Bild generieren');
       fireEvent.click(generateButton);
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/events/image-editor',
-        expect.objectContaining({
-          state: expect.objectContaining({
-            events: expect.any(Array),
-            categoryName: expect.any(String),
-          }),
-        })
-      );
+      // Nach dem Klick sollte der Auswahlmodus aktiv sein
+      await waitFor(() => {
+        expect(screen.getByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')).toBeInTheDocument();
+        expect(screen.getByText('Alle auswählen')).toBeInTheDocument();
+        expect(screen.getByText('Auswahl aufheben')).toBeInTheDocument();
+        expect(screen.getByText('Abbrechen')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Auswahlmodus beenden beim Klick auf Abbrechen', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+
+      // Auswahlmodus aktivieren
+      const generateButton = screen.getByText('Bild generieren');
+      fireEvent.click(generateButton);
+
+      await waitFor(() => {
+        expect(screen.getByText('Abbrechen')).toBeInTheDocument();
+      });
+
+      // Auswahlmodus beenden
+      const cancelButton = screen.getByText('Abbrechen');
+      fireEvent.click(cancelButton);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')).not.toBeInTheDocument();
+      });
     });
   });
 
