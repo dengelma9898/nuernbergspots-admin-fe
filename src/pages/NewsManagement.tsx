@@ -301,7 +301,7 @@ const NewsManagement: React.FC = () => {
   const [imageContent, setImageContent] = useState('');
   const [imageSending, setImageSending] = useState(false);
   
-  // Zentrale Bildvalidierung mit max 1 MB pro Bild
+  // Zentrale Bildvalidierung mit max 5 MB pro Bild
   const {
     files: imageFiles,
     previewUrls: imagePreviews,
@@ -312,7 +312,7 @@ const NewsManagement: React.FC = () => {
     clearImages: clearImageFiles,
   } = useValidatedImageUpload({
     maxImages: MAX_IMAGES,
-    maxSizeMB: 1, // Max 1 MB pro Bild
+    maxSizeMB: 5, // Max 5 MB pro Bild
   });
   const [pollQuestion, setPollQuestion] = useState('');
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
