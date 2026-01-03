@@ -68,24 +68,6 @@ function JobOfferFormSkeleton() {
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
                   <div className="p-4 sm:p-6 space-y-4">
-                    {/* Validierungsfehler */}
-                    {validationErrors.length > 0 && (
-                      <Alert 
-                        ref={validationErrorsRef}
-                        variant="destructive" 
-                        className={cn(glassCard, 'border-destructive/50')}
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                        <AlertDescription className="mt-2">
-                          <ul className="list-disc list-inside space-y-1">
-                            {validationErrors.map((error, index) => (
-                              <li key={index}>{error}</li>
-                            ))}
-                          </ul>
-                        </AlertDescription>
-                      </Alert>
-                    )}
                     {/* Title field */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-12 rounded" />

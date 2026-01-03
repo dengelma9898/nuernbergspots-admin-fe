@@ -275,7 +275,14 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.createJobOffer).toHaveBeenCalled();
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Stellenangebot erstellt');
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith(
+          'Stellenangebot erstellt',
+          expect.objectContaining({
+            description: expect.stringContaining('Test Job'),
+          })
+        );
+      });
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
 
@@ -315,7 +322,12 @@ describe('JobOfferForm', () => {
       }
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Fehler beim Erstellen des Stellenangebots');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.stringContaining('Fehler beim Speichern'),
+          expect.objectContaining({
+            description: expect.any(String),
+          })
+        );
       });
     });
   });
@@ -341,7 +353,12 @@ describe('JobOfferForm', () => {
       renderWithRouter(<JobOfferForm />);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden des Stellenangebots');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({
+            description: expect.any(String),
+          })
+        );
       });
 
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
@@ -371,7 +388,14 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.updateJobOffer).toHaveBeenCalled();
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Stellenangebot aktualisiert');
+      await waitFor(() => {
+        expect(toast.success).toHaveBeenCalledWith(
+          'Stellenangebot aktualisiert',
+          expect.objectContaining({
+            description: expect.stringContaining('Frontend Developer'),
+          })
+        );
+      });
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
   });
