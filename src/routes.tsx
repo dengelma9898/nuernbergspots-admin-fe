@@ -39,6 +39,7 @@ import { AdventCalendarForm } from './pages/advent-calendar/AdventCalendarForm';
 import { AdventCalendarParticipants } from './pages/advent-calendar/AdventCalendarParticipants';
 import { LegalManagement } from './pages/legal/LegalManagement';
 import { LegalDocumentEdit } from './pages/legal/LegalDocumentEdit';
+import { DirectChats } from './pages/community/DirectChats';
 
 export function AppRoutes() {
   return (
@@ -89,6 +90,7 @@ export function AppRoutes() {
         <Route path="/advent-calendar/:id/participants" element={<AdventCalendarParticipants />} />
         <Route path="/legal" element={<LegalManagement />} />
         <Route path="/legal/:type/edit" element={<LegalDocumentEdit />} />
+        <Route path="/direct-chats" element={<DirectChats />} />
       </Route>
 
       {/* Fallback */}

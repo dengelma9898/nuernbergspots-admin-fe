@@ -55,6 +55,7 @@ export const endpoints = {
   specialPolls: '/special-polls',
   specialPollById: (id: string) => `/special-polls/${id}`,
   downtime: '/downtime',
+  directChatSettings: '/direct-chats/settings',
 } as const;
 
 // Re-export models

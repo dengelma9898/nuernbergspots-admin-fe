@@ -33,6 +33,7 @@ import {
   Power,
   Shield,
   FileText,
+  MessagesSquare,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -683,6 +684,13 @@ export function Dashboard() {
                   description="Verwalten Sie die Kategorien für Stellenanzeigen"
                   href="/job-categories"
                   index={5}
+                />
+                <NavigationCard
+                  icon={MessagesSquare}
+                  title="Direkte Chats"
+                  description="Direkte Chat-Konversationen zwischen Nutzern verwalten"
+                  href="/direct-chats"
+                  index={6}
                 />
             </motion.div>
           </motion.div>
