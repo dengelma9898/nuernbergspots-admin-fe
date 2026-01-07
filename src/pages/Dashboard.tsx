@@ -33,6 +33,7 @@ import {
   Power,
   Shield,
   FileText,
+  Package,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -736,6 +737,13 @@ export function Dashboard() {
                 description="Wartungsmodus aktivieren oder deaktivieren"
                 href="/downtime-management"
                 index={4}
+              />
+              <NavigationCard
+                icon={Package}
+                title="App-Version-Verwaltung"
+                description="Mindestversion der App setzen und verwalten"
+                href="/app-version-management"
+                index={5}
               />
             </motion.div>
           </motion.div>
