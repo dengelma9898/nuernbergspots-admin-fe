@@ -1,6 +1,5 @@
 import ApiClient from './api-client';
 import { useAuth } from '../contexts/AuthContext';
-import type { UserProfile, BusinessUser, UserType, BusinessHistory, User } from '../models/users';
 import { useMemo } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -55,6 +54,9 @@ export const endpoints = {
   specialPolls: '/special-polls',
   specialPollById: (id: string) => `/special-polls/${id}`,
   downtime: '/downtime',
+  appVersions: {
+    minimumVersion: '/app-versions/admin/minimum-version',
+  },
 } as const;
 
 // Re-export models
