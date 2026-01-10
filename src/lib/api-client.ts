@@ -6,6 +6,8 @@ interface ApiClientConfig {
 class ApiClient {
   private baseUrl: string;
   private getToken: () => Promise<string | null>;
+  private tokenCache: { token: string | null; expiry: number } | null = null;
+  private tokenPromise: Promise<string | null> | null = null;
 
   constructor(config: ApiClientConfig) {
     this.baseUrl = config.baseUrl;
@@ -13,7 +15,42 @@ class ApiClient {
   }
 
   private async getHeaders(contentType?: string): Promise<Headers> {
-    const token = await this.getToken();
+    let token: string | null = null;
+
+    // Prüfe zuerst, ob ein gültiger Token im Cache ist
+    if (this.tokenCache && this.tokenCache.expiry > Date.now()) {
+      token = this.tokenCache.token;
+    } else {
+      // Token-Caching: Wenn mehrere Requests gleichzeitig kommen, teile den gleichen Token-Request
+      // Dies verhindert, dass bei parallelen Requests mehrere Token-Requests gemacht werden
+      if (!this.tokenPromise) {
+        this.tokenPromise = this.getToken();
+        this.tokenPromise
+          .then(newToken => {
+            // Cache den Token für 50 Minuten (Firebase Tokens sind 1 Stunde gültig)
+            if (newToken) {
+              this.tokenCache = {
+                token: newToken,
+                expiry: Date.now() + 50 * 60 * 1000, // 50 Minuten
+              };
+            }
+          })
+          .catch(() => {
+            // Bei Fehler Cache löschen
+            this.tokenCache = null;
+          })
+          .finally(() => {
+            // Reset nach kurzer Zeit, damit neue Requests einen neuen Token-Request starten können
+            // wenn der alte abgeschlossen ist
+            setTimeout(() => {
+              this.tokenPromise = null;
+            }, 100);
+          });
+      }
+
+      token = await this.tokenPromise;
+    }
+
     const headers = new Headers();
 
     if (contentType) {
