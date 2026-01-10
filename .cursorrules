@@ -136,6 +136,46 @@
     "git": {
       "commitMessageFormat": "^(feat|fix|docs|style|refactor|test|chore)(\\(.+\\))?: .+$",
       "branchNaming": "^(feature|bugfix|hotfix|release)/.+$"
+    },
+    "api": {
+      "requestHandling": {
+        "mandatory": true,
+        "description": "Prevent duplicate API requests and optimize token usage",
+        "rules": [
+          "Always add loading guards to prevent multiple simultaneous API requests",
+          "Check if loading state is true before making API calls",
+          "Disable buttons/inputs during API requests to prevent duplicate calls",
+          "Use empty dependency arrays [] in useEffect for one-time data loading (e.g. categories on mount)",
+          "Never include service objects (e.g. eventService, eventCategoryService) in useEffect dependencies - they create new instances on each render",
+          "For user-triggered actions (button clicks), ensure only ONE request is made per action",
+          "Implement request deduplication for parallel requests (e.g. token requests)"
+        ],
+        "examples": {
+          "loadingGuard": "if (loading) return; // Prevent duplicate requests",
+          "useEffectDependencies": "useEffect(() => { loadData(); }, []); // Empty array for one-time load",
+          "buttonDisabled": "disabled={loading || !isValid} // Disable during request",
+          "asyncFunctionGuard": "const performAction = async () => { if (loading) return; setLoading(true); ... }"
+        },
+        "tokenManagement": {
+          "mandatory": true,
+          "description": "Optimize Firebase token requests to prevent QUOTA_EXCEEDED errors",
+          "rules": [
+            "Always use getIdToken() without forceRefresh parameter - Firebase caches tokens automatically",
+            "Never use getIdToken(true) unless explicitly refreshing an expired token",
+            "Implement token caching in ApiClient to deduplicate parallel token requests",
+            "Cache tokens for 50 minutes (Firebase tokens are valid for 1 hour)",
+            "Share the same token Promise across parallel API requests"
+        ]
+      },
+      "errorHandling": {
+        "mandatory": true,
+        "description": "Handle API errors gracefully without causing request loops",
+        "rules": [
+          "Never retry failed requests automatically in useEffect without user interaction",
+          "Use retry callbacks only in error handlers (showUserFriendlyError)",
+          "Prevent infinite retry loops by checking loading state before retrying"
+        ]
+      }
     }
   }
-} 
+}} 

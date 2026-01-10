@@ -56,7 +56,7 @@ export const EventScraper: React.FC = () => {
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
 
-  // Kategorien beim Mount laden
+  // Kategorien beim Mount laden (nur einmal)
   React.useEffect(() => {
     const loadCategories = async () => {
       try {
@@ -68,7 +68,8 @@ export const EventScraper: React.FC = () => {
       }
     };
     loadCategories();
-  }, [eventCategoryService]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Leeres Dependency-Array: Nur einmal beim Mount ausführen
 
   // Events aus localStorage laden
   React.useEffect(() => {
@@ -99,6 +100,11 @@ export const EventScraper: React.FC = () => {
   };
 
   const handleScrape = async () => {
+    // Verhindere mehrfache gleichzeitige Requests
+    if (loading) {
+      return;
+    }
+
     // URL-Validierung
     if (!url.trim()) {
       setUrlError('Bitte geben Sie eine URL ein');
@@ -134,12 +140,18 @@ export const EventScraper: React.FC = () => {
   };
 
   const performScrape = async () => {
+    // Verhindere mehrfache gleichzeitige Requests
+    if (loading) {
+      return;
+    }
+
     try {
       setLoading(true);
       setShowConfirmDialog(false);
       setUrlError('');
 
       // Immer false für useFallback senden
+      // NUR EIN Request: scrapeEventsWithLlm
       const events = await eventService.scrapeEventsWithLlm(url.trim(), false);
       
       // Events validieren und bereinigen: categoryId entfernen, wenn nicht vorhanden

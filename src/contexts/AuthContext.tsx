@@ -54,7 +54,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const getToken = async () => {
     if (user) {
-      const newToken = await user.getIdToken(true);
+      // Verwende getIdToken() ohne Parameter - Firebase cached Tokens automatisch
+      // und gibt den gecachten Token zurück, wenn er noch gültig ist
+      // Nur wenn der Token abgelaufen ist, wird ein neuer angefordert
+      const newToken = await user.getIdToken();
       setToken(newToken);
       return newToken;
     }
