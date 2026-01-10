@@ -154,6 +154,25 @@ export function useEventService() {
     },
 
     /**
+     * LLM-basierte Event-Extraktion von einer URL
+     * @param url - Die URL der Seite, von der Events extrahiert werden sollen
+     * @param useFallback - Ob bei Fehlern auf Puppeteer-Scraper zurückgegriffen werden soll (Standard: true)
+     * @returns Array von extrahierten Events
+     */
+    scrapeEventsWithLlm: async (url: string, useFallback: boolean = true): Promise<Event[]> => {
+      const response = await api.post<ApiResponse<{ events: Event[]; hasMorePages: boolean }>>(
+        '/events/scrape/llm',
+        {
+          url,
+          useFallback,
+        }
+      );
+      const data = unwrapData(response);
+      return data.events;
+    },
+
+    /**
+     * @deprecated Verwende scrapeEventsWithLlm() stattdessen
      * Generischer Endpunkt zum Scrapen von Events
      */
     async scrapeEventsFromEventFinder(params: {
@@ -165,6 +184,50 @@ export function useEventService() {
     }): Promise<Event[]> {
       const query = new URLSearchParams(params as any).toString();
       const response = await api.get<ApiResponse<Event[]>>(`/events/scrape?${query}`);
+      return unwrapData(response);
+    },
+
+    /**
+     * Ruft die monatlichen Kosten für LLM-Extraktion ab
+     * @returns Kosten-Struktur mit costs, total und currency
+     */
+    getLlmScrapingCosts: async (): Promise<{
+      costs: Record<string, number>;
+      total: number;
+      currency: string;
+    }> => {
+      const response = await api.get<
+        ApiResponse<{
+          costs: Record<string, number>;
+          total: number;
+          currency: string;
+        }>
+      >('/events/scrape/llm/costs');
+      return unwrapData(response);
+    },
+
+    /**
+     * Ruft den Token-Verbrauch für LLM-Extraktion ab
+     * @returns Token-Struktur mit usage und totals
+     */
+    getLlmScrapingTokens: async (): Promise<{
+      usage: Record<string, { input: number; output: number }>;
+      totals: {
+        input: number;
+        output: number;
+        total: number;
+      };
+    }> => {
+      const response = await api.get<
+        ApiResponse<{
+          usage: Record<string, { input: number; output: number }>;
+          totals: {
+            input: number;
+            output: number;
+            total: number;
+          };
+        }>
+      >('/events/scrape/llm/tokens');
       return unwrapData(response);
     },
   };
