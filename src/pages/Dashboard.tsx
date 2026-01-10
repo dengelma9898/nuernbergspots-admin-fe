@@ -223,9 +223,8 @@ export function Dashboard() {
   const fetchLlmScrapingCosts = useCallback(async () => {
     try {
       setLlmScrapingCostsLoading(true);
-      const costs = await eventService.getLlmScrapingCosts();
-      const totalCosts = Object.values(costs).reduce((sum, cost) => sum + cost, 0);
-      setLlmScrapingCosts(totalCosts);
+      const costsData = await eventService.getLlmScrapingCosts();
+      setLlmScrapingCosts(costsData.total);
     } catch (error) {
       console.error('Fehler beim Laden der LLM-Scraping-Kosten:', error);
     } finally {

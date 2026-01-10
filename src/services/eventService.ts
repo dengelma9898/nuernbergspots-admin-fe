@@ -189,24 +189,44 @@ export function useEventService() {
 
     /**
      * Ruft die monatlichen Kosten für LLM-Extraktion ab
-     * @returns Kosten pro Modell in USD
+     * @returns Kosten-Struktur mit costs, total und currency
      */
-    getLlmScrapingCosts: async (): Promise<Record<string, number>> => {
-      const response = await api.get<ApiResponse<Record<string, number>>>(
-        '/events/scrape/llm/costs'
-      );
+    getLlmScrapingCosts: async (): Promise<{
+      costs: Record<string, number>;
+      total: number;
+      currency: string;
+    }> => {
+      const response = await api.get<
+        ApiResponse<{
+          costs: Record<string, number>;
+          total: number;
+          currency: string;
+        }>
+      >('/events/scrape/llm/costs');
       return unwrapData(response);
     },
 
     /**
      * Ruft den Token-Verbrauch für LLM-Extraktion ab
-     * @returns Token-Verbrauch pro Modell (input/output)
+     * @returns Token-Struktur mit usage und totals
      */
-    getLlmScrapingTokens: async (): Promise<
-      Record<string, { input: number; output: number }>
-    > => {
+    getLlmScrapingTokens: async (): Promise<{
+      usage: Record<string, { input: number; output: number }>;
+      totals: {
+        input: number;
+        output: number;
+        total: number;
+      };
+    }> => {
       const response = await api.get<
-        ApiResponse<Record<string, { input: number; output: number }>>
+        ApiResponse<{
+          usage: Record<string, { input: number; output: number }>;
+          totals: {
+            input: number;
+            output: number;
+            total: number;
+          };
+        }>
       >('/events/scrape/llm/tokens');
       return unwrapData(response);
     },

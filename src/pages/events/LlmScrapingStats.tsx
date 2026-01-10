@@ -18,8 +18,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 export const LlmScrapingStats: React.FC = () => {
   const navigate = useNavigate();
   const eventService = useEventService();
-  const [costs, setCosts] = useState<Record<string, number>>({});
-  const [tokens, setTokens] = useState<Record<string, { input: number; output: number }>>({});
+  const [costs, setCosts] = useState<{
+    costs: Record<string, number>;
+    total: number;
+    currency: string;
+  }>({ costs: {}, total: 0, currency: 'USD' });
+  const [tokens, setTokens] = useState<{
+    usage: Record<string, { input: number; output: number }>;
+    totals: {
+      input: number;
+      output: number;
+      total: number;
+    };
+  }>({
+    usage: {},
+    totals: { input: 0, output: 0, total: 0 },
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -43,10 +57,10 @@ export const LlmScrapingStats: React.FC = () => {
     }
   };
 
-  const formatCurrency = (value: number): string => {
+  const formatCurrency = (value: number, currency: string = 'USD'): string => {
     return new Intl.NumberFormat('de-DE', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value);
@@ -109,33 +123,35 @@ export const LlmScrapingStats: React.FC = () => {
                       <Skeleton className="h-8 w-full" />
                       <Skeleton className="h-4 w-3/4" />
                     </div>
-                  ) : Object.keys(costs).length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Keine Kosten-Daten verfügbar</p>
-                    </div>
                   ) : (
                     <div className="space-y-4">
-                      {Object.entries(costs).map(([model, cost]) => (
-                        <div
-                          key={model}
-                          className={cn(glassCard, 'p-4 flex items-center justify-between')}
-                        >
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{model}</p>
-                            <p className="text-xs text-muted-foreground">Gesamtkosten</p>
+                      {Object.keys(costs.costs).length > 0 ? (
+                        Object.entries(costs.costs).map(([model, cost]) => (
+                          <div
+                            key={model}
+                            className={cn(glassCard, 'p-4 flex items-center justify-between')}
+                          >
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{model}</p>
+                              <p className="text-xs text-muted-foreground">Gesamtkosten</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-foreground">
+                                {formatCurrency(cost, costs.currency)}
+                              </p>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-foreground">{formatCurrency(cost)}</p>
-                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-sm text-muted-foreground">Keine Modell-Kosten vorhanden</p>
                         </div>
-                      ))}
+                      )}
                       <div className={cn(glassCard, 'p-4 mt-4 border-t border-secondary')}>
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-semibold text-foreground">Gesamt</p>
                           <p className="text-xl font-bold text-foreground">
-                            {formatCurrency(
-                              Object.values(costs).reduce((sum, cost) => sum + cost, 0)
-                            )}
+                            {formatCurrency(costs.total, costs.currency)}
                           </p>
                         </div>
                       </div>
@@ -167,53 +183,57 @@ export const LlmScrapingStats: React.FC = () => {
                       <Skeleton className="h-8 w-full" />
                       <Skeleton className="h-4 w-3/4" />
                     </div>
-                  ) : Object.keys(tokens).length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">Keine Token-Daten verfügbar</p>
-                    </div>
                   ) : (
                     <div className="space-y-4">
-                      {Object.entries(tokens).map(([model, tokenData]) => (
-                        <div key={model} className={cn(glassCard, 'p-4')}>
-                          <p className="text-sm font-medium text-foreground mb-3">{model}</p>
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Input Tokens</span>
-                              <span className="text-sm font-semibold text-foreground">
-                                {formatNumber(tokenData.input)}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">Output Tokens</span>
-                              <span className="text-sm font-semibold text-foreground">
-                                {formatNumber(tokenData.output)}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between pt-2 border-t border-secondary">
-                              <span className="text-xs font-medium text-foreground">Gesamt</span>
-                              <span className="text-sm font-bold text-foreground">
-                                {formatNumber(tokenData.input + tokenData.output)}
-                              </span>
+                      {Object.keys(tokens.usage).length > 0 ? (
+                        Object.entries(tokens.usage).map(([model, tokenData]) => (
+                          <div key={model} className={cn(glassCard, 'p-4')}>
+                            <p className="text-sm font-medium text-foreground mb-3">{model}</p>
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Input Tokens</span>
+                                <span className="text-sm font-semibold text-foreground">
+                                  {formatNumber(tokenData.input)}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Output Tokens</span>
+                                <span className="text-sm font-semibold text-foreground">
+                                  {formatNumber(tokenData.output)}
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-between pt-2 border-t border-secondary">
+                                <span className="text-xs font-medium text-foreground">Gesamt</span>
+                                <span className="text-sm font-bold text-foreground">
+                                  {formatNumber(tokenData.input + tokenData.output)}
+                                </span>
+                              </div>
                             </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-4">
+                          <p className="text-sm text-muted-foreground">Keine Modell-Token-Daten vorhanden</p>
                         </div>
-                      ))}
+                      )}
                       <div className={cn(glassCard, 'p-4 mt-4 border-t border-secondary')}>
                         <div className="space-y-2">
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold text-foreground">Gesamt Input</p>
                             <p className="text-sm font-bold text-foreground">
-                              {formatNumber(
-                                Object.values(tokens).reduce((sum, t) => sum + t.input, 0)
-                              )}
+                              {formatNumber(tokens.totals.input)}
                             </p>
                           </div>
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold text-foreground">Gesamt Output</p>
                             <p className="text-sm font-bold text-foreground">
-                              {formatNumber(
-                                Object.values(tokens).reduce((sum, t) => sum + t.output, 0)
-                              )}
+                              {formatNumber(tokens.totals.output)}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t border-secondary">
+                            <p className="text-sm font-semibold text-foreground">Gesamt</p>
+                            <p className="text-lg font-bold text-foreground">
+                              {formatNumber(tokens.totals.total)}
                             </p>
                           </div>
                         </div>
