@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
 import { useContactService } from '../services/contactService';
+import { useEventService } from '../services/eventService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { Background } from '@/components/Background';
@@ -34,6 +35,7 @@ import {
   Shield,
   FileText,
   Package,
+  DollarSign,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -146,16 +148,19 @@ export function Dashboard() {
   const [usersInReview, setUsersInReview] = useState<number>(0);
   const [openContactRequests, setOpenContactRequests] = useState<number>(0);
   const [totalUsers, setTotalUsers] = useState<number>(0);
+  const [llmScrapingCosts, setLlmScrapingCosts] = useState<number>(0);
 
   // Loading states for each card
   const [pendingApprovalsLoading, setPendingApprovalsLoading] = useState<boolean>(true);
   const [usersInReviewLoading, setUsersInReviewLoading] = useState<boolean>(true);
   const [contactRequestsLoading, setContactRequestsLoading] = useState<boolean>(true);
   const [totalUsersLoading, setTotalUsersLoading] = useState<boolean>(true);
+  const [llmScrapingCostsLoading, setLlmScrapingCostsLoading] = useState<boolean>(true);
 
   const userService = useUserService();
   const businessService = useBusinessService();
   const contactService = useContactService();
+  const eventService = useEventService();
   const isInitialMount = useRef(true);
 
   const handleLogout = async () => {
@@ -215,6 +220,19 @@ export function Dashboard() {
     }
   }, [userService]);
 
+  const fetchLlmScrapingCosts = useCallback(async () => {
+    try {
+      setLlmScrapingCostsLoading(true);
+      const costs = await eventService.getLlmScrapingCosts();
+      const totalCosts = Object.values(costs).reduce((sum, cost) => sum + cost, 0);
+      setLlmScrapingCosts(totalCosts);
+    } catch (error) {
+      console.error('Fehler beim Laden der LLM-Scraping-Kosten:', error);
+    } finally {
+      setLlmScrapingCostsLoading(false);
+    }
+  }, [eventService]);
+
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
@@ -222,8 +240,15 @@ export function Dashboard() {
       fetchUsersInReview();
       fetchOpenContactRequests();
       fetchTotalUsers();
+      fetchLlmScrapingCosts();
     }
-  }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests, fetchTotalUsers]);
+  }, [
+    fetchPendingApprovals,
+    fetchUsersInReview,
+    fetchOpenContactRequests,
+    fetchTotalUsers,
+    fetchLlmScrapingCosts,
+  ]);
 
   return (
     <PageTransition>
@@ -573,6 +598,70 @@ export function Dashboard() {
             transition={{ ...defaultTransition, delay: 0.5 }}
           >
             <h3 className="text-xl font-semibold mb-4 text-foreground">Events</h3>
+            
+            {/* LLM Scraping Costs Card */}
+            <motion.div
+              className="mb-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {llmScrapingCostsLoading ? (
+                <DashboardCardSkeleton icon={DollarSign} titleText="LLM Scraping Kosten 💰" />
+              ) : (
+                <AnimatedCard
+                  index={0}
+                  className={cn(glassCardHover, 'p-4 cursor-pointer')}
+                  onClick={() => navigate('/events/scraper/stats')}
+                >
+                  <CardContent className="p-0">
+                    {/* Header with icon and title in one line */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <DollarSign className="h-5 w-5 text-foreground" />
+                      <span className="text-sm sm:text-base font-semibold text-foreground">
+                        LLM Scraping Kosten 💰
+                      </span>
+                    </div>
+
+                    {/* Main content with improved layout */}
+                    <div className="flex items-center justify-between gap-4">
+                      {/* Number and emoji in compact layout */}
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl sm:text-3xl font-bold text-foreground">
+                          {new Intl.NumberFormat('de-DE', {
+                            style: 'currency',
+                            currency: 'USD',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }).format(llmScrapingCosts)}
+                        </div>
+                        <div className="text-xl sm:text-2xl">💰</div>
+                      </div>
+
+                      {/* Action button - always visible */}
+                      <AnimatedButton
+                        onClick={e => {
+                          e.stopPropagation();
+                          navigate('/events/scraper/stats');
+                        }}
+                        size="sm"
+                        className={cn(glassButton, 'shrink-0')}
+                      >
+                        <span className="hidden sm:inline">Details</span>
+                        <span className="sm:hidden">Details</span>
+                        <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      </AnimatedButton>
+                    </div>
+
+                    {/* Description text - more compact */}
+                    <div className="mt-3 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                      Monatliche Kosten für LLM-basierte Event-Extraktion
+                    </div>
+                  </CardContent>
+                </AnimatedCard>
+              )}
+            </motion.div>
+
             <motion.div
               className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
               variants={staggerContainer}

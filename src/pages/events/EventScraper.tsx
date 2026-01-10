@@ -1,22 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ArrowLeft, Loader2, Trash2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ArrowLeft, Trash2, Info } from 'lucide-react';
 import { Event } from '@/models/events';
 import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
+import { EventCategory } from '@/models/event-category';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { ScraperEventCard } from '@/components/events/ScraperEventCard';
-import { useEventCategoryService } from '@/services/eventCategoryService';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
-import { de } from 'date-fns/locale';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
 import {
   Dialog,
@@ -26,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -36,43 +31,44 @@ import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 
-// Kategorien-Enum und Mapping
-const CATEGORY_OPTIONS = [
-  { value: null, label: 'Alle' },
-  { value: 'konzerte', label: 'Konzerte' },
-  { value: 'theater-kultur', label: 'Theater & Kultur' },
-  { value: 'musicals-shows', label: 'Musicals & Shows' },
-  { value: 'comedy-kabarett', label: 'Comedy & Kabarett' },
-  { value: 'partys', label: 'Partys' },
-  { value: 'sportevents', label: 'Sportevents' },
-  { value: 'ausstellungen', label: 'Ausstellungen' },
-  { value: 'fuehrungen-rundfahrten', label: 'Führungen & Rundfahrten' },
-];
-
-const SCRAPER_TYPES = [
-  { value: 'EVENTFINDER', label: 'EventFinder' },
-  { value: 'CURT', label: 'CURT' },
-  { value: 'RAUSGEGANGEN', label: 'Rausgegangen' },
-  { value: 'parks', label: 'Parks' },
-  { value: 'eventbrite', label: 'Eventbrite' },
-];
-
 const LOCAL_STORAGE_KEY = 'scraperFoundEvents';
 
+/**
+ * Validiert eine URL
+ */
+const isValidUrl = (urlString: string): boolean => {
+  try {
+    const url = new URL(urlString);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
 export const EventScraper: React.FC = () => {
-  const [scraperType, setScraperType] = useState<string>('EVENTFINDER');
+  const [url, setUrl] = useState<string>('');
+  const [urlError, setUrlError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [foundEvents, setFoundEvents] = useState<Event[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [maxResults, setMaxResults] = useState<number>(5);
-  const [selectedWeek, setSelectedWeek] = useState<Date>(new Date());
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [categories, setCategories] = useState<EventCategory[]>([]);
   const navigate = useNavigate();
   const eventService = useEventService();
+  const eventCategoryService = useEventCategoryService();
 
-  // Berechne Start- und Enddatum der ausgewählten Woche
-  const weekStart = startOfWeek(selectedWeek, { weekStartsOn: 1 }); // Montag als Wochenstart
-  const weekEnd = endOfWeek(selectedWeek, { weekStartsOn: 1 }); // Sonntag als Wochenende
+  // Kategorien beim Mount laden
+  React.useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const fetchedCategories = await eventCategoryService.getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error('Fehler beim Laden der Kategorien:', error);
+        // Nicht kritisch, wenn Kategorien nicht geladen werden können
+      }
+    };
+    loadCategories();
+  }, [eventCategoryService]);
 
   // Events aus localStorage laden
   React.useEffect(() => {
@@ -93,7 +89,27 @@ export const EventScraper: React.FC = () => {
     }
   }, [foundEvents]);
 
+  const handleUrlChange = (value: string) => {
+    setUrl(value);
+    if (value && !isValidUrl(value)) {
+      setUrlError('Bitte geben Sie eine gültige URL ein (z.B. https://eventfinder.de/nuernberg)');
+    } else {
+      setUrlError('');
+    }
+  };
+
   const handleScrape = async () => {
+    // URL-Validierung
+    if (!url.trim()) {
+      setUrlError('Bitte geben Sie eine URL ein');
+      return;
+    }
+
+    if (!isValidUrl(url)) {
+      setUrlError('Bitte geben Sie eine gültige URL ein (z.B. https://eventfinder.de/nuernberg)');
+      return;
+    }
+
     if (foundEvents.length > 0) {
       setShowConfirmDialog(true);
       return;
@@ -101,23 +117,38 @@ export const EventScraper: React.FC = () => {
     await performScrape();
   };
 
+  /**
+   * Validiert und bereinigt Events: Entfernt categoryId, wenn sie nicht in den vorhandenen Kategorien existiert
+   */
+  const validateAndCleanEvents = (events: Event[]): Event[] => {
+    const validCategoryIds = new Set(categories.map(cat => cat.id));
+    
+    return events.map(event => {
+      // Wenn categoryId vorhanden ist, aber nicht in den vorhandenen Kategorien existiert, entfernen
+      if (event.categoryId && !validCategoryIds.has(event.categoryId)) {
+        const { categoryId, ...eventWithoutCategory } = event;
+        return { ...eventWithoutCategory, categoryId: undefined };
+      }
+      return event;
+    });
+  };
+
   const performScrape = async () => {
     try {
       setLoading(true);
       setShowConfirmDialog(false);
-      const params = {
-        type: scraperType,
-        category: selectedCategory,
-        startDate: format(weekStart, 'yyyy-MM-dd'),
-        endDate: format(weekEnd, 'yyyy-MM-dd'),
-        maxResults,
-      };
+      setUrlError('');
 
-      const events = await eventService.scrapeEventsFromEventFinder(params);
-      setFoundEvents(events);
+      // Immer false für useFallback senden
+      const events = await eventService.scrapeEventsWithLlm(url.trim(), false);
+      
+      // Events validieren und bereinigen: categoryId entfernen, wenn nicht vorhanden
+      const cleanedEvents = validateAndCleanEvents(events);
+      
+      setFoundEvents(cleanedEvents);
       showSuccessMessage(toast, {
         title: 'Events gefunden',
-        description: `${events.length} Event${events.length !== 1 ? 's' : ''} wurde${events.length !== 1 ? 'n' : ''} erfolgreich gefunden.`,
+        description: `${cleanedEvents.length} Event${cleanedEvents.length !== 1 ? 's' : ''} wurde${cleanedEvents.length !== 1 ? 'n' : ''} erfolgreich gefunden.`,
       });
     } catch (error) {
       console.error('Fehler beim Scrapen der Events:', error);
@@ -134,10 +165,6 @@ export const EventScraper: React.FC = () => {
       title: 'Events gelöscht',
       description: 'Alle gefundenen Events wurden erfolgreich gelöscht.',
     });
-  };
-
-  const handleWeekChange = (direction: 'prev' | 'next') => {
-    setSelectedWeek(prev => (direction === 'prev' ? subWeeks(prev, 1) : addWeeks(prev, 1)));
   };
 
   // Dashboard-Navigation: Cache löschen
@@ -184,97 +211,72 @@ export const EventScraper: React.FC = () => {
               transition={defaultTransition}
             >
               <Card className={cn(glassCard, 'mb-8')}>
-                <div className="p-6">
-                  <h2 className="text-lg sm:text-xl font-bold text-foreground mb-4">
-                    Events importieren
-                  </h2>
-                  <div className="flex flex-col gap-3 md:flex-row md:gap-4 items-stretch md:items-center w-full">
-                    <Select value={scraperType} onValueChange={setScraperType}>
-                      <SelectTrigger className={cn(glassInput, 'w-full md:w-[180px]')}>
-                        <SelectValue placeholder="Scraper auswählen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {SCRAPER_TYPES.map(type => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div className="p-6 space-y-6">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-bold text-foreground mb-2">
+                      Events importieren
+                    </h2>
+                    <Alert className={cn(glassCard, 'border-white/20')}>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription className="text-sm text-muted-foreground">
+                        Das System erkennt automatisch Events auf der angegebenen Seite und extrahiert alle
+                        relevanten Informationen wie Titel, Beschreibung, Termine, Preise und Orte.
+                      </AlertDescription>
+                    </Alert>
+                  </div>
 
-                    <div className="flex flex-row gap-2 items-center justify-between md:justify-start">
-                      <AnimatedButton
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleWeekChange('prev')}
-                        className={cn(glassButton, 'px-2')}
-                      >
-                        ←
-                      </AnimatedButton>
-                      <div className={cn(glassCard, 'text-xs sm:text-sm text-foreground min-w-[120px] sm:min-w-[200px] text-center px-3 py-2')}>
-                        {format(weekStart, 'dd.MM.yyyy', { locale: de })} -{' '}
-                        {format(weekEnd, 'dd.MM.yyyy', { locale: de })}
-                      </div>
-                      <AnimatedButton
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleWeekChange('next')}
-                        className={cn(glassButton, 'px-2')}
-                      >
-                        →
-                      </AnimatedButton>
-                    </div>
-
-                    <Select
-                      value={selectedCategory ?? 'null'}
-                      onValueChange={val => setSelectedCategory(val === 'null' ? null : val)}
-                    >
-                      <SelectTrigger className={cn(glassInput, 'w-full md:w-[200px]')}>
-                        <SelectValue placeholder="Kategorie auswählen (optional)" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORY_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value ?? 'null'} value={opt.value ?? 'null'}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    <div className="flex flex-row gap-2 items-center">
-                      <label htmlFor="maxResults" className="text-xs sm:text-sm text-muted-foreground">
-                        Max. Ergebnisse
-                      </label>
-                      <input
-                        id="maxResults"
-                        type="number"
-                        min={1}
-                        max={10}
-                        value={maxResults}
-                        onChange={e => setMaxResults(Number(e.target.value))}
-                        className={cn(glassInput, 'w-14 sm:w-20 px-2 py-1 text-xs sm:text-sm')}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="url" className="text-foreground">
+                        URL der Event-Seite
+                      </Label>
+                      <Input
+                        id="url"
+                        type="url"
+                        placeholder="https://eventfinder.de/nuernberg"
+                        value={url}
+                        onChange={e => handleUrlChange(e.target.value)}
+                        onBlur={() => {
+                          if (url && !isValidUrl(url)) {
+                            setUrlError('Bitte geben Sie eine gültige URL ein');
+                          }
+                        }}
+                        className={cn(
+                          glassInput,
+                          urlError && 'border-destructive focus-visible:ring-destructive'
+                        )}
+                        disabled={loading}
                       />
+                      {urlError && (
+                        <p className="text-sm text-destructive">{urlError}</p>
+                      )}
+                      <p className="text-xs text-muted-foreground">
+                        Beispiel-URLs: eventfinder.de, curt.de, rausgegangen.de, eventbrite.de
+                      </p>
                     </div>
 
-                    <LoadingButton
-                      onClick={handleScrape}
-                      isLoading={loading}
-                      loadingText="Wird gesucht..."
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 w-full md:w-auto"
-                    >
-                      Events suchen
-                    </LoadingButton>
-
-                    {foundEvents.length > 0 && (
-                      <AnimatedButton
-                        variant="destructive"
-                        onClick={handleClearEvents}
-                        className="w-full md:w-auto"
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <LoadingButton
+                        onClick={handleScrape}
+                        isLoading={loading}
+                        loadingText="Wird gesucht..."
+                        disabled={!url.trim() || !!urlError || loading}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto border-2 border-black dark:border-white"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Alle löschen
-                      </AnimatedButton>
-                    )}
+                        Events suchen
+                      </LoadingButton>
+
+                      {foundEvents.length > 0 && (
+                        <AnimatedButton
+                          variant="destructive"
+                          onClick={handleClearEvents}
+                          className="w-full sm:w-auto"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Alle löschen
+                        </AnimatedButton>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -294,7 +296,7 @@ export const EventScraper: React.FC = () => {
                     Gefundene Events ({foundEvents.length})
                   </h2>
                 </Card>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                <div className="space-y-4">
                   {foundEvents.map(event => {
                     const handleDelete = () => {
                       const updated = foundEvents.filter(e => e.id !== event.id);
@@ -304,16 +306,14 @@ export const EventScraper: React.FC = () => {
                     const handleEdit = () => {
                       navigate(`/events/scraper/${event.id}`, {
                         state: {
-                          event: selectedCategory
-                            ? { ...event, categoryId: selectedCategory }
-                            : event,
+                          event,
                         },
                       });
                     };
                     return (
                       <ScraperEventCard
                         key={event.id}
-                        event={selectedCategory ? { ...event, categoryId: selectedCategory } : event}
+                        event={event}
                         onDelete={handleDelete}
                         onEdit={handleEdit}
                       />

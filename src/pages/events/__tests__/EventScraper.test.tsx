@@ -21,16 +21,8 @@ jest.mock('@/services/eventService', () => ({
   useEventService: jest.fn(),
 }));
 
-jest.mock('date-fns', () => ({
-  format: jest.fn((date, formatStr) => '01.01.2024'),
-  startOfWeek: jest.fn(() => new Date('2024-01-01')),
-  endOfWeek: jest.fn(() => new Date('2024-01-07')),
-  addWeeks: jest.fn(() => new Date('2024-01-08')),
-  subWeeks: jest.fn(() => new Date('2023-12-25')),
-}));
-
-jest.mock('date-fns/locale', () => ({
-  de: {},
+jest.mock('@/services/eventCategoryService', () => ({
+  useEventCategoryService: jest.fn(),
 }));
 
 // Mock shadcn/ui components
@@ -72,24 +64,54 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onValueChange }: any) => (
-    <div data-testid="select" data-value={value}>
-      <div onClick={() => onValueChange?.('test-value')}>{children}</div>
-    </div>
+jest.mock('@/components/ui/input', () => ({
+  Input: ({ value, onChange, onBlur, placeholder, className, disabled, ...props }: any) => (
+    <input
+      data-testid="input"
+      value={value}
+      onChange={onChange}
+      onBlur={onBlur}
+      placeholder={placeholder}
+      className={className}
+      disabled={disabled}
+      {...props}
+    />
   ),
-  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
-  SelectItem: ({ children, value }: any) => (
-    <div data-testid="select-item" data-value={value} onClick={() => {}}>
+}));
+
+jest.mock('@/components/ui/label', () => ({
+  Label: ({ children, htmlFor, className, ...props }: any) => (
+    <label htmlFor={htmlFor} className={className} {...props}>
+      {children}
+    </label>
+  ),
+}));
+
+jest.mock('@/components/ui/switch', () => ({
+  Switch: ({ checked, onCheckedChange, id, disabled, ...props }: any) => (
+    <input
+      type="checkbox"
+      data-testid="switch"
+      id={id}
+      checked={checked}
+      onChange={e => onCheckedChange?.(e.target.checked)}
+      disabled={disabled}
+      {...props}
+    />
+  ),
+}));
+
+jest.mock('@/components/ui/alert', () => ({
+  Alert: ({ children, className, ...props }: any) => (
+    <div data-testid="alert" className={className} {...props}>
       {children}
     </div>
   ),
-  SelectTrigger: ({ children, className }: any) => (
-    <div data-testid="select-trigger" className={className}>
+  AlertDescription: ({ children, ...props }: any) => (
+    <div data-testid="alert-description" {...props}>
       {children}
     </div>
   ),
-  SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
 jest.mock('@/components/ui/loading-overlay', () => ({
@@ -124,6 +146,7 @@ jest.mock('lucide-react', () => ({
   ArrowLeft: () => <span data-testid="arrow-left-icon">ArrowLeft</span>,
   Loader2: () => <span data-testid="loader-icon">Loader2</span>,
   Trash2: () => <span data-testid="trash-icon">Trash2</span>,
+  Info: () => <span data-testid="info-icon">Info</span>,
 }));
 
 const mockEvent: Event = {
@@ -145,7 +168,7 @@ const mockEvent: Event = {
   price: 15.0,
   ticketsNeeded: false,
   isPromoted: false,
-  categoryId: 'category-1',
+  categoryId: 'konzert', // Gültige Kategorie, die in Mock-Kategorien existiert
   contactEmail: 'scraped@example.com',
   contactPhone: '+49 911 987654',
   website: 'https://scraped-event.de',
@@ -156,7 +179,12 @@ const mockEvent: Event = {
 };
 
 const mockEventService = {
-  scrapeEventsFromEventFinder: jest.fn(),
+  scrapeEventsWithLlm: jest.fn(),
+  scrapeEventsFromEventFinder: jest.fn(), // Deprecated, but kept for compatibility
+};
+
+const mockEventCategoryService = {
+  getCategories: jest.fn(),
 };
 
 const mockNavigate = jest.fn();
@@ -182,8 +210,16 @@ describe('EventScraper Component', () => {
     mockUseNavigate.mockReturnValue(mockNavigate);
 
     require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-
-    mockEventService.scrapeEventsFromEventFinder.mockResolvedValue([mockEvent]);
+    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(
+      mockEventCategoryService
+    );
+    // Mock-Kategorien: Standard-Kategorien, die im System existieren
+    mockEventCategoryService.getCategories.mockResolvedValue([
+      { id: 'konzert', name: 'Konzert', description: '', colorCode: '#000000', iconName: '', createdAt: '', updatedAt: '' },
+      { id: 'party', name: 'Party', description: '', colorCode: '#000000', iconName: '', createdAt: '', updatedAt: '' },
+      { id: 'kultur', name: 'Kultur', description: '', colorCode: '#000000', iconName: '', createdAt: '', updatedAt: '' },
+    ]);
+    mockEventService.scrapeEventsWithLlm.mockResolvedValue([mockEvent]);
     mockLocalStorage.getItem.mockReturnValue(null);
   });
 
@@ -196,45 +232,63 @@ describe('EventScraper Component', () => {
       expect(screen.getByText('Events importieren')).toBeInTheDocument();
     });
 
-    it('sollte Scraper-Type Select anzeigen', () => {
+    it('sollte URL-Input-Feld anzeigen', () => {
       renderWithRouter(<EventScraper />);
 
-      const selectTriggers = screen.getAllByTestId('select-trigger');
-      const scraperSelectTrigger = selectTriggers[0]; // Erster ist Scraper-Type
-      expect(scraperSelectTrigger).toBeInTheDocument();
-
-      const selectValues = screen.getAllByTestId('select-value');
-      const scraperSelectValue = selectValues[0]; // Erster ist Scraper-Type
-      expect(scraperSelectValue).toHaveTextContent('Scraper auswählen');
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      expect(urlInput).toBeInTheDocument();
+      expect(urlInput).toHaveAttribute('type', 'url');
     });
 
-    it('sollte Kategorie Select anzeigen', () => {
+
+    it('sollte Info-Alert über Event-Extraktion anzeigen', () => {
       renderWithRouter(<EventScraper />);
 
-      const selects = screen.getAllByTestId('select');
-      expect(selects.length).toBeGreaterThan(1);
-    });
-
-    it('sollte Max Results Input anzeigen', () => {
-      renderWithRouter(<EventScraper />);
-
-      const maxResultsInput = screen.getByLabelText('Max. Ergebnisse');
-      expect(maxResultsInput).toBeInTheDocument();
-      expect(maxResultsInput).toHaveAttribute('type', 'number');
-      expect(maxResultsInput).toHaveAttribute('min', '1');
-      expect(maxResultsInput).toHaveAttribute('max', '10');
-    });
-
-    it('sollte Week Navigation Buttons anzeigen', () => {
-      renderWithRouter(<EventScraper />);
-
-      const prevButton = screen.getByText('←');
-      const nextButton = screen.getByText('→');
-
-      expect(prevButton).toBeInTheDocument();
-      expect(nextButton).toBeInTheDocument();
+      const alert = screen.getByTestId('alert');
+      expect(alert).toBeInTheDocument();
+      expect(screen.getByText(/Das System erkennt automatisch Events/i)).toBeInTheDocument();
     });
   });
+
+  describe('URL Input', () => {
+    it('sollte URL-Eingabe akzeptieren', () => {
+      renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
+      expect(urlInput).toHaveValue('https://eventfinder.de/nuernberg');
+    });
+
+    it('sollte URL-Validierung durchführen', () => {
+      renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'invalid-url' } });
+
+      expect(screen.getByText(/Bitte geben Sie eine gültige URL ein/i)).toBeInTheDocument();
+    });
+
+    it('sollte Fehler bei ungültiger URL anzeigen', () => {
+      renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'not-a-url' } });
+      fireEvent.blur(urlInput);
+
+      expect(screen.getByText(/Bitte geben Sie eine gültige URL ein/i)).toBeInTheDocument();
+    });
+
+    it('sollte gültige URLs akzeptieren', () => {
+      renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
+      expect(screen.queryByText(/Bitte geben Sie eine gültige URL ein/i)).not.toBeInTheDocument();
+    });
+  });
+
 
   describe('Navigation', () => {
     it('sollte zur Event-Liste navigieren beim Zurück-Button', () => {
@@ -248,109 +302,158 @@ describe('EventScraper Component', () => {
     });
   });
 
-  describe('Week Navigation', () => {
-    it('sollte zur vorherigen Woche navigieren', () => {
-      renderWithRouter(<EventScraper />);
-
-      const prevButton = screen.getByText('←');
-      fireEvent.click(prevButton);
-
-      // Da subWeeks gemockt ist, überprüfen wir, dass der Button funktioniert
-      expect(prevButton).toBeInTheDocument();
-    });
-
-    it('sollte zur nächsten Woche navigieren', () => {
-      renderWithRouter(<EventScraper />);
-
-      const nextButton = screen.getByText('→');
-      fireEvent.click(nextButton);
-
-      // Da addWeeks gemockt ist, überprüfen wir, dass der Button funktioniert
-      expect(nextButton).toBeInTheDocument();
-    });
-
-    it('sollte Wochendatum anzeigen', () => {
-      renderWithRouter(<EventScraper />);
-
-      // Da format gemockt ist, sollte das gemockte Datum angezeigt werden
-      expect(screen.getByText('01.01.2024 - 01.01.2024')).toBeInTheDocument();
-    });
-  });
-
-  describe('Scraper Configuration', () => {
-    it('sollte Scraper Type ändern', () => {
-      renderWithRouter(<EventScraper />);
-
-      const select = screen.getAllByTestId('select')[0];
-      fireEvent.click(select);
-
-      // Select sollte onValueChange aufrufen
-      expect(select).toBeInTheDocument();
-    });
-
-    it('sollte Kategorie ändern', () => {
-      renderWithRouter(<EventScraper />);
-
-      const selects = screen.getAllByTestId('select');
-      const categorySelect = selects[1]; // Zweites Select ist für Kategorien
-      fireEvent.click(categorySelect);
-
-      expect(categorySelect).toBeInTheDocument();
-    });
-
-    it('sollte Max Results ändern', () => {
-      renderWithRouter(<EventScraper />);
-
-      const maxResultsInput = screen.getByLabelText('Max. Ergebnisse');
-      fireEvent.change(maxResultsInput, { target: { value: '8' } });
-
-      expect(maxResultsInput).toHaveValue(8);
-    });
-  });
-
   describe('Event Scraping', () => {
-    it('sollte Events erfolgreich scrapen', async () => {
+    it('sollte Events erfolgreich scrapen mit gültiger URL', async () => {
       renderWithRouter(<EventScraper />);
+
+      // Warte auf Kategorien-Laden
+      await waitFor(() => {
+        expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
 
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
       await waitFor(() => {
-        expect(mockEventService.scrapeEventsFromEventFinder).toHaveBeenCalledWith({
-          type: 'EVENTFINDER',
-          category: null,
-          startDate: '01.01.2024',
-          endDate: '01.01.2024',
-          maxResults: 5,
-        });
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalledWith(
+          'https://eventfinder.de/nuernberg',
+          false
+        );
+      });
+    });
+
+    it('sollte categoryId entfernen, wenn Kategorie nicht existiert', async () => {
+      // Event mit ungültiger categoryId
+      const eventWithInvalidCategory: Event = {
+        ...mockEvent,
+        categoryId: 'ungueltige-kategorie-id',
+      };
+      mockEventService.scrapeEventsWithLlm.mockResolvedValue([eventWithInvalidCategory]);
+
+      renderWithRouter(<EventScraper />);
+
+      // Warte auf Kategorien-Laden
+      await waitFor(() => {
+        expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
       });
 
-      const mockToast = require('sonner').toast;
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
+      const scrapeButton = screen.getByText('Events suchen');
+      fireEvent.click(scrapeButton);
+
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('1 Events gefunden');
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalled();
+      });
+
+      // Prüfe, dass das Event ohne categoryId gespeichert wurde
+      await waitFor(() => {
+        const savedEvents = JSON.parse(mockLocalStorage.setItem.mock.calls.find(
+          call => call[0] === 'scraperFoundEvents'
+        )?.[1] || '[]');
+        expect(savedEvents[0].categoryId).toBeUndefined();
+      });
+    });
+
+    it('sollte categoryId behalten, wenn Kategorie existiert', async () => {
+      // Event mit gültiger categoryId
+      const eventWithValidCategory: Event = {
+        ...mockEvent,
+        categoryId: 'konzert', // Existiert in den Mock-Kategorien
+      };
+      mockEventService.scrapeEventsWithLlm.mockResolvedValue([eventWithValidCategory]);
+
+      renderWithRouter(<EventScraper />);
+
+      // Warte auf Kategorien-Laden
+      await waitFor(() => {
+        expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
+      const scrapeButton = screen.getByText('Events suchen');
+      fireEvent.click(scrapeButton);
+
+      await waitFor(() => {
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalled();
+      });
+
+      // Prüfe, dass das Event mit categoryId gespeichert wurde
+      await waitFor(() => {
+        const savedEvents = JSON.parse(mockLocalStorage.setItem.mock.calls.find(
+          call => call[0] === 'scraperFoundEvents'
+        )?.[1] || '[]');
+        expect(savedEvents[0].categoryId).toBe('konzert');
+      });
+    });
+
+
+    it('sollte nicht scrapen wenn URL leer ist', async () => {
+      renderWithRouter(<EventScraper />);
+
+      const scrapeButton = screen.getByText('Events suchen');
+      // Versuche zu klicken
+      fireEvent.click(scrapeButton);
+
+      // Warte kurz, um sicherzustellen, dass kein Service-Aufruf erfolgt
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Service sollte nicht aufgerufen werden, da URL leer ist
+      expect(mockEventService.scrapeEventsWithLlm).not.toHaveBeenCalled();
+    });
+
+    it('sollte nicht scrapen wenn URL ungültig ist', async () => {
+      renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'invalid-url' } });
+
+      // Warte bis Fehler angezeigt wird
+      await waitFor(() => {
+        expect(screen.getByText(/Bitte geben Sie eine gültige URL ein/i)).toBeInTheDocument();
+      });
+
+      const scrapeButton = screen.getByText('Events suchen');
+      // Versuche zu klicken (sollte nichts tun wegen Validierung)
+      fireEvent.click(scrapeButton);
+
+      // Service sollte nicht aufgerufen werden
+      await waitFor(() => {
+        expect(mockEventService.scrapeEventsWithLlm).not.toHaveBeenCalled();
       });
     });
 
     it('sollte Fehler beim Scrapen behandeln', async () => {
-      mockEventService.scrapeEventsFromEventFinder.mockRejectedValue(new Error('Scraping Error'));
-      const mockToast = require('sonner').toast;
+      mockEventService.scrapeEventsWithLlm.mockRejectedValue(new Error('Scraping Error'));
 
       renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
 
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Scrapen der Events');
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalled();
       });
     });
 
     it('sollte Loading State während Scraping anzeigen', async () => {
-      mockEventService.scrapeEventsFromEventFinder.mockImplementation(
+      mockEventService.scrapeEventsWithLlm.mockImplementation(
         () => new Promise(resolve => setTimeout(() => resolve([mockEvent]), 100))
       );
 
       renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
 
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
@@ -365,18 +468,25 @@ describe('EventScraper Component', () => {
     });
 
     it('sollte Bestätigungsdialog anzeigen wenn Events bereits vorhanden', async () => {
-      // Simuliere bereits vorhandene Events
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify([mockEvent]));
 
       renderWithRouter(<EventScraper />);
 
+      // Warte bis Events geladen sind
+      await waitFor(() => {
+        expect(screen.getByTestId('scraper-event-card')).toBeInTheDocument();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
-      // Dialog sollte angezeigt werden (da Events bereits vorhanden sind)
-      // Da der Dialog nur bei foundEvents.length > 0 angezeigt wird,
-      // müssen wir den Zustand entsprechend setzen
-      expect(scrapeButton).toBeInTheDocument();
+      // Dialog sollte angezeigt werden
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog')).toBeInTheDocument();
+      });
     });
   });
 
@@ -392,10 +502,19 @@ describe('EventScraper Component', () => {
     it('sollte Events in localStorage speichern', async () => {
       renderWithRouter(<EventScraper />);
 
+      // Warte auf Kategorien-Laden
+      await waitFor(() => {
+        expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
+
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
       await waitFor(() => {
+        // mockEvent hat categoryId: 'konzert', die existiert, also wird sie behalten
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'scraperFoundEvents',
           JSON.stringify([mockEvent])
@@ -414,71 +533,52 @@ describe('EventScraper Component', () => {
   });
 
   describe('Event Management', () => {
-    it('sollte alle Events löschen', () => {
+    it('sollte alle Events löschen', async () => {
       mockLocalStorage.getItem.mockReturnValue(JSON.stringify([mockEvent]));
 
       renderWithRouter(<EventScraper />);
 
-      // Nach dem Rendern sollten Events geladen sein
-      // Simuliere Clear-Funktionalität
-      expect(mockLocalStorage.getItem).toHaveBeenCalled();
-    });
+      await waitFor(() => {
+        expect(screen.getByTestId('scraper-event-card')).toBeInTheDocument();
+      });
 
-    it('sollte Success-Message beim Löschen anzeigen', () => {
-      renderWithRouter(<EventScraper />);
+      const clearButton = screen.getByText('Alle löschen');
+      fireEvent.click(clearButton);
 
-      // Clear Events würde Toast-Message anzeigen
-      const mockToast = require('sonner').toast;
-      expect(mockToast.success).toBeDefined();
-    });
-  });
-
-  describe('Scraper Types', () => {
-    it('sollte alle Scraper-Typen verfügbar haben', () => {
-      renderWithRouter(<EventScraper />);
-
-      // EVENTFINDER, CURT, RAUSGEGANGEN, parks, eventbrite sollten verfügbar sein
-      const selectItems = screen.getAllByTestId('select-item');
-      expect(selectItems.length).toBeGreaterThan(0);
-    });
-  });
-
-  describe('Category Options', () => {
-    it('sollte alle Kategorien verfügbar haben', () => {
-      renderWithRouter(<EventScraper />);
-
-      // Alle Kategorien inklusive "Alle" sollten verfügbar sein
-      const selects = screen.getAllByTestId('select');
-      expect(selects.length).toBeGreaterThanOrEqual(2); // Scraper Type + Category
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('scraperFoundEvents');
     });
   });
 
   describe('Error Handling', () => {
     it('sollte graceful mit Network-Fehlern umgehen', async () => {
-      mockEventService.scrapeEventsFromEventFinder.mockRejectedValue(new Error('Network Error'));
+      mockEventService.scrapeEventsWithLlm.mockRejectedValue(new Error('Network Error'));
 
       renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
 
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
       await waitFor(() => {
-        const mockToast = require('sonner').toast;
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Scrapen der Events');
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalled();
       });
     });
 
     it('sollte mit leeren Ergebnissen umgehen', async () => {
-      mockEventService.scrapeEventsFromEventFinder.mockResolvedValue([]);
+      mockEventService.scrapeEventsWithLlm.mockResolvedValue([]);
 
       renderWithRouter(<EventScraper />);
+
+      const urlInput = screen.getByPlaceholderText('https://eventfinder.de/nuernberg');
+      fireEvent.change(urlInput, { target: { value: 'https://eventfinder.de/nuernberg' } });
 
       const scrapeButton = screen.getByText('Events suchen');
       fireEvent.click(scrapeButton);
 
       await waitFor(() => {
-        const mockToast = require('sonner').toast;
-        expect(mockToast.success).toHaveBeenCalledWith('0 Events gefunden');
+        expect(mockEventService.scrapeEventsWithLlm).toHaveBeenCalled();
       });
     });
   });

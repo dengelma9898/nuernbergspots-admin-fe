@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useRef } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
@@ -50,22 +50,67 @@ function parseScraperDateTime(scraperDate: string): { date: string; from?: strin
 export const EventScraperDetail: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(false);
-  const [event, setEvent] = useState<Event>(location.state?.event);
-  const [editedEvent, setEditedEvent] = useState<Event>(location.state?.event);
+  const [event, setEvent] = useState<Event | undefined>(location.state?.event as Event | undefined);
+  const [editedEvent, setEditedEvent] = useState<Event>(() => {
+    const initialEvent = location.state?.event as Event | undefined;
+    if (initialEvent) {
+      return {
+        ...initialEvent,
+        price: initialEvent.price,
+        priceString: initialEvent.priceString,
+        categoryId: initialEvent.categoryId,
+      };
+    }
+    return {} as Event;
+  });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const validationErrorsRef = useRef<HTMLDivElement>(null);
 
+  // Event vom Backend laden, wenn ID vorhanden ist
   React.useEffect(() => {
-    if (!event) {
-      navigate('/events/scraper');
-      return;
-    }
+    const loadEventData = async () => {
+      // Wenn Event bereits über State vorhanden ist, verwende es
+      if (location.state?.event) {
+        const stateEvent = location.state.event as Event;
+        setEvent(stateEvent);
+        setEditedEvent({
+          ...stateEvent,
+          price: stateEvent.price,
+          priceString: stateEvent.priceString,
+          categoryId: stateEvent.categoryId,
+        });
+        return;
+      }
+
+      // Wenn ID vorhanden ist, lade Event vom Backend
+      if (id) {
+        try {
+          setLoading(true);
+          const fetchedEvent = await eventService.getEvent(id);
+          setEvent(fetchedEvent);
+          // editedEvent wird im nächsten useEffect aktualisiert
+        } catch (error) {
+          console.error('Fehler beim Laden des Events:', error);
+          showUserFriendlyError(error, toast, () => loadEventData(), 'load-event');
+          navigate('/events/scraper');
+        } finally {
+          setLoading(false);
+        }
+      } else if (!location.state?.event) {
+        // Keine ID und kein State -> zurück zur Übersicht
+        navigate('/events/scraper');
+      }
+    };
+
+    loadEventData();
     loadCategories();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   React.useEffect(() => {
     console.log('event', event);
@@ -76,11 +121,19 @@ export const EventScraperDetail: React.FC = () => {
         const parsed = parseScraperDateTime(event.startDate);
         dailyTimeSlots = [{ date: parsed.date, from: parsed.from, to: '' }];
       }
-      setEditedEvent(prev => ({
-        ...prev,
+      
+      // Alle Event-Daten übernehmen, explizit price, priceString und categoryId setzen
+      const updatedEvent: Event = {
+        ...event,
         dailyTimeSlots,
+        // Explizit alle wichtigen Felder setzen - direkt vom Event übernehmen
+        price: event.price !== undefined && event.price !== null ? event.price : undefined,
+        priceString: event.priceString !== undefined ? event.priceString : undefined,
+        categoryId: event.categoryId !== undefined ? event.categoryId : undefined,
         // startDate als deprecated ignorieren
-      }));
+      };
+      
+      setEditedEvent(updatedEvent);
     }
   }, [event]);
 
@@ -140,6 +193,12 @@ export const EventScraperDetail: React.FC = () => {
       if (errors.length > 0) {
         setValidationErrors(errors);
         setLoading(false);
+        // Scroll zu Validierungsfehlern
+        setTimeout(() => {
+          if (validationErrorsRef.current) {
+            validationErrorsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
         return;
       }
 
@@ -172,9 +231,13 @@ export const EventScraperDetail: React.FC = () => {
       // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
+        // Scroll zu Validierungsfehlern
+        if (validationErrorsRef.current) {
+          validationErrorsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       } else {
         // Für andere Fehler zeige Toast
-        showUserFriendlyError(error, toast, () => handleSubmit(e), 'save-event');
+        showUserFriendlyError(error, toast, () => handleSave(), 'save-event');
       }
     } finally {
       setLoading(false);
@@ -327,11 +390,31 @@ export const EventScraperDetail: React.FC = () => {
                   <Input
                     id="priceString"
                     type="text"
-                    value={editedEvent.priceString || ''}
-                    onChange={e => handleInputChange('priceString', e.target.value || undefined)}
+                    value={
+                      editedEvent.priceString ||
+                      (editedEvent.price !== undefined && editedEvent.price !== null
+                        ? `${editedEvent.price.toFixed(2)} €`
+                        : '')
+                    }
+                    onChange={e => {
+                      const value = e.target.value;
+                      handleInputChange('priceString', value || undefined);
+                      // Wenn ein numerischer Wert eingegeben wird, auch price setzen
+                      const numericValue = parseFloat(value.replace(/[^\d.,]/g, '').replace(',', '.'));
+                      if (!isNaN(numericValue)) {
+                        handleInputChange('price', numericValue);
+                      } else if (!value) {
+                        handleInputChange('price', undefined);
+                      }
+                    }}
                     placeholder="z.B. 15€, Kostenlos, Spende, etc."
                     className={cn(glassInput)}
                   />
+                  {editedEvent.price !== undefined && editedEvent.price !== null && (
+                    <p className="text-xs text-muted-foreground">
+                      Numerischer Wert: {editedEvent.price.toFixed(2)} €
+                    </p>
+                  )}
                 </div>
 
                 <div className={cn(glassCard, 'p-4')}>
@@ -365,17 +448,25 @@ export const EventScraperDetail: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="category" className="text-foreground">
-                    Kategorie
+                    Kategorie <span className="text-destructive">*</span>
                   </Label>
                   <Select
                     value={editedEvent.categoryId || ''}
                     onValueChange={value => {
-                      setCategoryError(null);
                       handleInputChange('categoryId', value);
+                      // Fehler zurücksetzen, wenn Kategorie geändert wird
+                      if (validationErrors.length > 0) {
+                        setValidationErrors([]);
+                      }
                     }}
                   >
-                    <SelectTrigger className={cn(glassInput)}>
-                      <SelectValue placeholder="Kategorie auswählen" />
+                    <SelectTrigger
+                      className={cn(
+                        glassInput,
+                        !editedEvent.categoryId && 'border-destructive focus-visible:ring-destructive'
+                      )}
+                    >
+                      <SelectValue placeholder="Kategorie auswählen (erforderlich)" />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map(category => (
@@ -390,6 +481,11 @@ export const EventScraperDetail: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  {!editedEvent.categoryId && (
+                    <p className="text-sm text-destructive">
+                      Bitte wählen Sie eine Kategorie aus. Dieses Feld ist erforderlich.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
