@@ -40,6 +40,7 @@ export const endpoints = {
 
   // Other endpoints
   businesses: '/businesses',
+  businessEventsSettings: '/businesses/events/settings',
   businessCategories: '/business-categories',
   cities: '/cities',
   events: '/events',

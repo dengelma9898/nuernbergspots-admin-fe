@@ -585,6 +585,13 @@ export function Dashboard() {
                   href="/keywords"
                   index={4}
                 />
+                <NavigationCard
+                  icon={Calendar}
+                  title="Feature Flags verwalten"
+                  description="Feature Flags ein- und ausschalten"
+                  href="/feature-flags"
+                  index={5}
+                />
             </motion.div>
           </motion.div>
 
