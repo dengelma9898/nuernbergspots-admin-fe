@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { format, isSameDay, isWithinInterval, startOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toPng } from 'html-to-image';
 import { Event } from '@/models/events';
@@ -47,38 +47,46 @@ interface DesignSettings {
     backgroundColor: string;
     borderColor: string;
     shadowColor: string;
-    fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
+    fontFamily: 'league-spartan' | 'montserrat' | 'more-sugar' | 'system-ui';
     fontWeight: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
     backgroundTransparent: boolean;
+    showBorder: boolean;
+    showContainer: boolean;
+    rotation: number;
+    textAlign: 'left' | 'center' | 'right';
   };
   content: {
     backgroundColor: string;
-    padding: number;
+    textColor: string;
+    horizontalMargin: number;
+    contentStartMargin: number;
+    contentPadding: number;
     fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
     containerOpacity: number;
+    backgroundType: 'image' | 'color';
+    backgroundImageOpacity: number;
+    backgroundBlendMode: 'normal' | 'multiply' | 'overlay' | 'screen';
+    eventSpacing: number;
+    dateBlockSpacing: number;
   };
   date: {
     fontSize: number;
-    color: string;
-    fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
+    fontFamily: 'league-spartan' | 'montserrat' | 'more-sugar' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
   };
   event: {
     fontSize: number;
-    color: string;
     fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
   };
   time: {
     fontSize: number;
-    color: string;
     fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
   };
   location: {
     fontSize: number;
-    color: string;
     fontFamily: 'league-spartan' | 'montserrat' | 'system-ui';
     fontWeight: 400 | 500 | 600 | 700;
   };
@@ -90,43 +98,51 @@ interface DesignSettings {
 
 const defaultSettings: DesignSettings = {
   title: {
-    fontSize: 36,
+    fontSize: 100,
     color: '#000000',
     backgroundColor: '#FFFFFF',
     borderColor: '#000000',
     shadowColor: '#000000',
-    fontFamily: 'league-spartan',
+    fontFamily: 'more-sugar',
     fontWeight: 700,
     backgroundTransparent: false,
+    showBorder: false,
+    showContainer: false,
+    rotation: -2,
+    textAlign: 'center',
   },
   content: {
-    backgroundColor: '#9B1B1A',
-    padding: 1.5,
+    backgroundColor: '#414141',
+    textColor: '#FFFFFF',
+    horizontalMargin: 2,
+    contentStartMargin: 3,
+    contentPadding: 1,
     fontFamily: 'montserrat',
     fontWeight: 400,
     containerOpacity: 1,
+    backgroundType: 'color',
+    backgroundImageOpacity: 1,
+    backgroundBlendMode: 'normal',
+    eventSpacing: 3.5,
+    dateBlockSpacing: 3.5,
   },
   date: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    fontFamily: 'montserrat',
+    fontSize: 19,
+    fontFamily: 'more-sugar',
     fontWeight: 600,
   },
   event: {
-    fontSize: 14,
-    color: '#FFFFFF',
+    fontSize: 19,
     fontFamily: 'montserrat',
     fontWeight: 500,
   },
   time: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 19,
     fontFamily: 'montserrat',
     fontWeight: 400,
   },
   location: {
-    fontSize: 12,
-    color: 'rgba(255, 255, 255, 0.7)',
+    fontSize: 19,
     fontFamily: 'montserrat',
     fontWeight: 400,
   },
@@ -137,20 +153,6 @@ const defaultSettings: DesignSettings = {
 };
 
 // Hilfsfunktionen für Farbkonvertierung
-const rgbaToHex = (rgba: string): { color: string; opacity: number } => {
-  const rgbaMatch = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
-  if (rgbaMatch) {
-    const r = parseInt(rgbaMatch[1]);
-    const g = parseInt(rgbaMatch[2]);
-    const b = parseInt(rgbaMatch[3]);
-    const a = rgbaMatch[4] ? parseFloat(rgbaMatch[4]) : 1;
-
-    const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
-    return { color: hex, opacity: a };
-  }
-  return { color: '#000000', opacity: 1 };
-};
-
 const hexToRgba = (hex: string, alpha: number): string => {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -170,6 +172,7 @@ export const EventImageEditor: React.FC = () => {
   const categoryService = useEventCategoryService();
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
   const [customTitle, setCustomTitle] = useState<string>('');
+  const [customEventTexts, setCustomEventTexts] = useState<Record<string, string>>({});
   const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
@@ -273,9 +276,20 @@ export const EventImageEditor: React.FC = () => {
   const handleDownload = async () => {
     if (elementRef.current) {
       try {
+        // Warte kurz, damit alle Fonts geladen sind
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Hole die tatsächliche Hintergrundfarbe aus den Settings
+        const backgroundColor = settings.content.backgroundType === 'color'
+          ? settings.content.backgroundColor
+          : 'white';
+
         const dataUrl = await toPng(elementRef.current, {
           quality: 1.0,
-          backgroundColor: 'white',
+          backgroundColor: backgroundColor,
+          width: 1080,
+          height: 1920,
+          pixelRatio: 2,
         });
         const link = document.createElement('a');
         link.download = `${categoryName.toLowerCase()}-events.png`;
@@ -283,6 +297,7 @@ export const EventImageEditor: React.FC = () => {
         link.click();
       } catch (err) {
         console.error('Fehler beim Generieren des Bildes:', err);
+        toast.error('Fehler beim Exportieren des Bildes');
       }
     }
   };
@@ -391,8 +406,8 @@ export const EventImageEditor: React.FC = () => {
                       <Slider
                         value={[settings.title.fontSize]}
                         onValueChange={([value]) => updateSetting('title', 'fontSize', value)}
-                        min={24}
-                        max={72}
+                        min={50}
+                        max={200}
                         step={1}
                         className={cn(glassCard, 'p-2')}
                       />
@@ -405,6 +420,32 @@ export const EventImageEditor: React.FC = () => {
                         value={settings.title.color}
                         onChange={value => updateSetting('title', 'color', value)}
                       />
+                      <p className="text-sm text-muted-foreground">
+                        Textfarbe des Titels
+                      </p>
+                      <div
+                        className="h-12 rounded-lg border-2 border-foreground flex items-center justify-center"
+                        style={{
+                          backgroundColor: settings.title.color,
+                        }}
+                      >
+                        <span
+                          className="text-sm font-medium"
+                          style={{
+                            color:
+                              settings.title.color === '#000000' ||
+                              settings.title.color === '#FFFFFF' ||
+                              parseInt(settings.title.color.slice(1, 3), 16) +
+                                parseInt(settings.title.color.slice(3, 5), 16) +
+                                parseInt(settings.title.color.slice(5, 7), 16) <
+                                400
+                                ? '#FFFFFF'
+                                : '#000000',
+                          }}
+                        >
+                          Beispieltext
+                        </span>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -437,20 +478,32 @@ export const EventImageEditor: React.FC = () => {
                         value={settings.title.fontFamily}
                         onValueChange={value => updateSetting('title', 'fontFamily', value)}
                       >
-                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
                           <SelectValue placeholder="Schriftart wählen" />
                         </SelectTrigger>
-                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="more-sugar"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            More Sugar
+                          </SelectItem>
                           <SelectItem
                             value="league-spartan"
-                            className="text-white hover:bg-white/20"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
                           >
                             League Spartan
                           </SelectItem>
-                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">
+                          <SelectItem
+                            value="montserrat"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
                             Montserrat
                           </SelectItem>
-                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">
+                          <SelectItem
+                            value="system-ui"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
                             System
                           </SelectItem>
                         </SelectContent>
@@ -465,43 +518,43 @@ export const EventImageEditor: React.FC = () => {
                           updateSetting('title', 'fontWeight', parseInt(value))
                         }
                       >
-                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
                           <SelectValue placeholder="Schriftschnitt wählen" />
                         </SelectTrigger>
-                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="100" className="text-white hover:bg-white/20">
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem value="100" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             100
                           </SelectItem>
-                          <SelectItem value="200" className="text-white hover:bg-white/20">
+                          <SelectItem value="200" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             200
                           </SelectItem>
-                          <SelectItem value="300" className="text-white hover:bg-white/20">
+                          <SelectItem value="300" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             300
                           </SelectItem>
-                          <SelectItem value="400" className="text-white hover:bg-white/20">
+                          <SelectItem value="400" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             400
                           </SelectItem>
-                          <SelectItem value="500" className="text-white hover:bg-white/20">
+                          <SelectItem value="500" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             500
                           </SelectItem>
-                          <SelectItem value="600" className="text-white hover:bg-white/20">
+                          <SelectItem value="600" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             600
                           </SelectItem>
-                          <SelectItem value="700" className="text-white hover:bg-white/20">
+                          <SelectItem value="700" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             700
                           </SelectItem>
-                          <SelectItem value="800" className="text-white hover:bg-white/20">
+                          <SelectItem value="800" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             800
                           </SelectItem>
-                          <SelectItem value="900" className="text-white hover:bg-white/20">
+                          <SelectItem value="900" className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent">
                             900
                           </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
-                    <div className="flex items-center gap-2 backdrop-blur-2xl bg-white/5 border border-white/10 rounded-xl p-3">
-                      <Label className="text-white/90 font-medium cursor-pointer">
+                    <div className="flex items-center gap-2 bg-background border-2 border-foreground rounded-xl p-3 dark:bg-card dark:border-foreground">
+                      <Label className="text-foreground font-medium cursor-pointer dark:text-foreground">
                         Hintergrund transparent
                       </Label>
                       <input
@@ -513,86 +566,150 @@ export const EventImageEditor: React.FC = () => {
                         className="ml-auto accent-blue-500"
                       />
                     </div>
+
+                    <div className="flex items-center gap-2 bg-background border-2 border-foreground rounded-xl p-3 dark:bg-card dark:border-foreground">
+                      <Label className="text-foreground font-medium cursor-pointer dark:text-foreground">
+                        Rahmen anzeigen
+                      </Label>
+                      <input
+                        type="checkbox"
+                        checked={settings.title.showBorder}
+                        onChange={e => updateSetting('title', 'showBorder', e.target.checked)}
+                        className="ml-auto accent-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-background border-2 border-foreground rounded-xl p-3 dark:bg-card dark:border-foreground">
+                      <Label className="text-foreground font-medium cursor-pointer dark:text-foreground">
+                        Container anzeigen
+                      </Label>
+                      <input
+                        type="checkbox"
+                        checked={settings.title.showContainer}
+                        onChange={e =>
+                          updateSetting('title', 'showContainer', e.target.checked)
+                        }
+                        className="ml-auto accent-blue-500"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Ausrichtung (Rotation)</Label>
+                      <Slider
+                        value={[settings.title.rotation]}
+                        onValueChange={([value]) => updateSetting('title', 'rotation', value)}
+                        min={-45}
+                        max={45}
+                        step={1}
+                        className={cn(glassCard, 'p-2')}
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        {settings.title.rotation}°
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Textausrichtung</Label>
+                      <Select
+                        value={settings.title.textAlign}
+                        onValueChange={value =>
+                          updateSetting('title', 'textAlign', value as 'left' | 'center' | 'right')
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Textausrichtung wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="left"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Links
+                          </SelectItem>
+                          <SelectItem
+                            value="center"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Zentriert
+                          </SelectItem>
+                          <SelectItem
+                            value="right"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Rechts
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="content" className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Schriftart</Label>
-                      <Select
-                        value={settings.content.fontFamily}
-                        onValueChange={value => updateSetting('content', 'fontFamily', value)}
-                      >
-                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
-                          <SelectValue placeholder="Schriftart wählen" />
-                        </SelectTrigger>
-                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem
-                            value="league-spartan"
-                            className="text-white hover:bg-white/20"
-                          >
-                            League Spartan
-                          </SelectItem>
-                          <SelectItem value="montserrat" className="text-white hover:bg-white/20">
-                            Montserrat
-                          </SelectItem>
-                          <SelectItem value="system-ui" className="text-white hover:bg-white/20">
-                            System
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {settings.content.backgroundType === 'color' && (
+                      <div className="space-y-2">
+                        <Label className="text-foreground">Hintergrundfarbe</Label>
+                        <ColorPicker
+                          value={settings.content.backgroundColor}
+                          onChange={value => {
+                            updateSetting('content', 'backgroundColor', value);
+                          }}
+                        />
+                        <p className="text-sm text-white/70">Vollfächiger Hintergrund</p>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
-                      <Label className="text-foreground">Schriftschnitt</Label>
-                      <Select
-                        value={settings.content.fontWeight.toString()}
-                        onValueChange={value =>
-                          updateSetting('content', 'fontWeight', parseInt(value))
-                        }
-                      >
-                        <SelectTrigger className="backdrop-blur-2xl bg-white/10 border-white/20 text-white hover:bg-white/15 rounded-xl">
-                          <SelectValue placeholder="Schriftschnitt wählen" />
-                        </SelectTrigger>
-                        <SelectContent className="backdrop-blur-3xl bg-white/10 border-white/20">
-                          <SelectItem value="100" className="text-white hover:bg-white/20">
-                            100
-                          </SelectItem>
-                          <SelectItem value="200" className="text-white hover:bg-white/20">
-                            200
-                          </SelectItem>
-                          <SelectItem value="300" className="text-white hover:bg-white/20">
-                            300
-                          </SelectItem>
-                          <SelectItem value="400" className="text-white hover:bg-white/20">
-                            400
-                          </SelectItem>
-                          <SelectItem value="500" className="text-white hover:bg-white/20">
-                            500
-                          </SelectItem>
-                          <SelectItem value="600" className="text-white hover:bg-white/20">
-                            600
-                          </SelectItem>
-                          <SelectItem value="700" className="text-white hover:bg-white/20">
-                            700
-                          </SelectItem>
-                          <SelectItem value="800" className="text-white hover:bg-white/20">
-                            800
-                          </SelectItem>
-                          <SelectItem value="900" className="text-white hover:bg-white/20">
-                            900
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Hintergrundfarbe</Label>
+                      <Label className="text-foreground">Inhaltsfarbe</Label>
                       <ColorPicker
                         value={settings.content.backgroundColor}
                         onChange={value => {
                           updateSetting('content', 'backgroundColor', value);
                         }}
                       />
+                      <p className="text-sm text-muted-foreground">
+                        Hintergrundfarbe des Event-Containers
+                      </p>
+                      <div
+                        className="h-12 rounded-lg border-2 border-foreground"
+                        style={{
+                          backgroundColor: settings.content.backgroundColor,
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Textfarbe des Inhalts</Label>
+                      <ColorPicker
+                        value={settings.content.textColor}
+                        onChange={value => {
+                          updateSetting('content', 'textColor', value);
+                        }}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Textfarbe für alle Event-Texte
+                      </p>
+                      <div
+                        className="h-12 rounded-lg border-2 border-foreground flex items-center justify-center"
+                        style={{
+                          backgroundColor: settings.content.textColor,
+                        }}
+                      >
+                        <span
+                          className="text-sm font-medium"
+                          style={{
+                            color:
+                              settings.content.textColor === '#000000' ||
+                              settings.content.textColor === '#FFFFFF' ||
+                              parseInt(settings.content.textColor.slice(1, 3), 16) +
+                                parseInt(settings.content.textColor.slice(3, 5), 16) +
+                                parseInt(settings.content.textColor.slice(5, 7), 16) <
+                                400
+                                ? '#FFFFFF'
+                                : '#000000',
+                          }}
+                        >
+                          Beispieltext
+                        </span>
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -613,69 +730,434 @@ export const EventImageEditor: React.FC = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground">Innenabstand</Label>
+                      <Label className="text-foreground">Horizontaler Abstand</Label>
                       <Slider
-                        value={[settings.content.padding]}
-                        onValueChange={([value]) => updateSetting('content', 'padding', value)}
+                        value={[settings.content.horizontalMargin]}
+                        onValueChange={([value]) => updateSetting('content', 'horizontalMargin', value)}
                         min={0.5}
+                        max={5}
+                        step={0.1}
+                        className={cn(glassCard, 'p-2')}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Abstand links und rechts vom Rand des Bildes
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Content-Start-Abstand</Label>
+                      <Slider
+                        value={[settings.content.contentStartMargin]}
+                        onValueChange={([value]) => updateSetting('content', 'contentStartMargin', value)}
+                        min={3}
+                        max={8}
+                        step={0.1}
+                        className={cn(glassCard, 'p-2')}
+                      />
+                      <p className="text-sm text-muted-foreground">
+                        Horizontaler Abstand des Contents zum Container-Rand
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Content-Padding</Label>
+                      <Slider
+                        value={[settings.content.contentPadding]}
+                        onValueChange={([value]) => updateSetting('content', 'contentPadding', value)}
+                        min={0}
                         max={3}
                         step={0.1}
                         className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-muted-foreground">{settings.content.padding}rem</div>
+                      <p className="text-sm text-muted-foreground">
+                        Innenabstand des Event-Containers
+                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground">Datum Schriftgröße</Label>
+                      <Label className="text-foreground">Textgröße</Label>
                       <Slider
-                        value={[settings.date.fontSize]}
-                        onValueChange={([value]) => updateSetting('date', 'fontSize', value)}
-                        min={12}
+                        value={[settings.event.fontSize]}
+                        onValueChange={([value]) => {
+                          updateSetting('event', 'fontSize', value);
+                          updateSetting('date', 'fontSize', value);
+                          updateSetting('time', 'fontSize', value);
+                          updateSetting('location', 'fontSize', value);
+                        }}
+                        min={10}
                         max={24}
                         step={1}
                         className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-muted-foreground">{settings.date.fontSize}px</div>
+                      <div className="text-sm text-muted-foreground">{settings.event.fontSize}px</div>
+                      <p className="text-sm text-muted-foreground">
+                        Gilt für alle Texte (Datum, Event, Uhrzeit, Ort)
+                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground">Event Schriftgröße</Label>
+                      <Label className="text-foreground">Datum Schriftart</Label>
+                      <Select
+                        value={settings.date.fontFamily}
+                        onValueChange={value =>
+                          updateSetting('date', 'fontFamily', value as 'league-spartan' | 'montserrat' | 'more-sugar' | 'system-ui')
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Schriftart wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="more-sugar"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            More Sugar
+                          </SelectItem>
+                          <SelectItem
+                            value="league-spartan"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            League Spartan
+                          </SelectItem>
+                          <SelectItem
+                            value="montserrat"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Montserrat
+                          </SelectItem>
+                          <SelectItem
+                            value="system-ui"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            System UI
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Datum Schriftstärke</Label>
+                      <Select
+                        value={settings.date.fontWeight.toString()}
+                        onValueChange={value =>
+                          updateSetting('date', 'fontWeight', parseInt(value) as 400 | 500 | 600 | 700)
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Schriftstärke wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="400"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Normal (400)
+                          </SelectItem>
+                          <SelectItem
+                            value="500"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Medium (500)
+                          </SelectItem>
+                          <SelectItem
+                            value="600"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Semi-Bold (600)
+                          </SelectItem>
+                          <SelectItem
+                            value="700"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Bold (700)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2 bg-background border-2 border-foreground rounded-xl p-3 dark:bg-card dark:border-foreground">
+                      <Label className="text-foreground text-lg font-semibold">Event-Texte</Label>
+                    </div>
+
+                    {groupedEvents.map((group, groupIndex) => (
+                      <div key={groupIndex} className="space-y-3">
+                        <div className="space-y-2">
+                          <Label className="text-foreground font-semibold">
+                            {formatDate(group.date.toISOString()).dayDate}
+                          </Label>
+                          {group.events.map(event => {
+                            const time = event.dailyTimeSlots?.[0]?.from
+                              ? `${event.dailyTimeSlots[0].from} Uhr`
+                              : '';
+                            const eventTitle = formatEventTitle(event);
+                            const location = event.location.address
+                              ? formatAddress(event.location.address)
+                              : '';
+                            const parts: string[] = [];
+                            if (time) parts.push(time);
+                            if (eventTitle) parts.push(eventTitle);
+                            if (location) parts.push(location);
+                            const defaultText = parts.join(' | ');
+
+                            return (
+                              <div key={event.id} className="space-y-1">
+                                <Label htmlFor={`event-${event.id}`} className="text-foreground text-sm">
+                                  {eventTitle || 'Event'}
+                                </Label>
+                                <Input
+                                  id={`event-${event.id}`}
+                                  value={customEventTexts[event.id] ?? defaultText}
+                                  onChange={e => {
+                                    setCustomEventTexts(prev => ({
+                                      ...prev,
+                                      [event.id]: e.target.value,
+                                    }));
+                                  }}
+                                  placeholder={defaultText}
+                                  className={cn(glassInput, 'font-mono text-sm')}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Event Schriftart</Label>
+                      <Select
+                        value={settings.event.fontFamily}
+                        onValueChange={value =>
+                          updateSetting('event', 'fontFamily', value as 'league-spartan' | 'montserrat' | 'system-ui')
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Schriftart wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="montserrat"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Montserrat
+                          </SelectItem>
+                          <SelectItem
+                            value="league-spartan"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            League Spartan
+                          </SelectItem>
+                          <SelectItem
+                            value="system-ui"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            System UI
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Event Schriftstärke</Label>
+                      <Select
+                        value={settings.event.fontWeight.toString()}
+                        onValueChange={value =>
+                          updateSetting('event', 'fontWeight', parseInt(value) as 400 | 500 | 600 | 700)
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Schriftstärke wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="400"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Normal (400)
+                          </SelectItem>
+                          <SelectItem
+                            value="500"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Medium (500)
+                          </SelectItem>
+                          <SelectItem
+                            value="600"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Semi-Bold (600)
+                          </SelectItem>
+                          <SelectItem
+                            value="700"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Bold (700)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Abstand zwischen Datumsblöcken</Label>
                       <Slider
-                        value={[settings.event.fontSize]}
-                        onValueChange={([value]) => updateSetting('event', 'fontSize', value)}
-                        min={10}
-                        max={20}
-                        step={1}
+                        value={[settings.content.dateBlockSpacing]}
+                        onValueChange={([value]) => updateSetting('content', 'dateBlockSpacing', value)}
+                        min={2}
+                        max={8}
+                        step={0.5}
                         className={cn(glassCard, 'p-2')}
                       />
-                      <div className="text-sm text-muted-foreground">{settings.event.fontSize}px</div>
+                      <div className="text-sm text-muted-foreground">
+                        {settings.content.dateBlockSpacing}rem
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Abstand zwischen verschiedenen Tagen
+                      </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-foreground">Hintergrundbild</Label>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBackgroundImageChange}
-                        className="backdrop-blur-2xl bg-white/10 border-white/20 text-white file:text-white file:bg-white/20 file:border-white/20 hover:bg-white/15 focus:bg-white/20 transition-all duration-300 rounded-xl"
+                      <Label className="text-foreground">Abstand zwischen Events</Label>
+                      <Slider
+                        value={[settings.content.eventSpacing]}
+                        onValueChange={([value]) => updateSetting('content', 'eventSpacing', value)}
+                        min={2}
+                        max={8}
+                        step={0.5}
+                        className={cn(glassCard, 'p-2')}
                       />
-                      {backgroundImage && (
-                        <div className={cn(glassCard, 'mt-2 flex items-center gap-4 p-3')}>
-                          <img
-                            src={backgroundImage}
-                            alt="Vorschau"
-                            className="h-16 rounded shadow"
-                          />
-                          <AnimatedButton
-                            variant="outline"
-                            onClick={removeBackgroundImage}
-                            className={cn(glassButton)}
-                          >
-                            Entfernen
-                          </AnimatedButton>
-                        </div>
-                      )}
+                      <div className="text-sm text-muted-foreground">
+                        {settings.content.eventSpacing}rem
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Abstand zwischen Events desselben Tages
+                      </p>
                     </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Hintergrund-Typ</Label>
+                      <Select
+                        value={settings.content.backgroundType}
+                        onValueChange={value =>
+                          updateSetting('content', 'backgroundType', value as 'image' | 'color')
+                        }
+                      >
+                        <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                          <SelectValue placeholder="Hintergrund-Typ wählen" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="color"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Vollfarbe
+                          </SelectItem>
+                          <SelectItem
+                            value="image"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Hintergrundbild
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {settings.content.backgroundType === 'image' && (
+                      <>
+                        <div className="space-y-2">
+                          <Label className="text-foreground">Hintergrundbild</Label>
+                            <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleBackgroundImageChange}
+                            className="bg-background border-2 border-foreground text-foreground file:text-foreground file:bg-accent file:border-foreground file:font-semibold hover:bg-accent hover:border-foreground/80 focus:bg-accent focus:border-foreground/80 transition-all duration-300 rounded-xl dark:bg-card dark:border-foreground dark:text-foreground dark:file:text-foreground dark:file:bg-accent"
+                          />
+                          {backgroundImage && (
+                            <div className={cn(glassCard, 'mt-2 flex items-center gap-4 p-3')}>
+                              <img
+                                src={backgroundImage}
+                                alt="Vorschau"
+                                className="h-16 rounded shadow"
+                              />
+                              <AnimatedButton
+                                variant="outline"
+                                onClick={removeBackgroundImage}
+                                className={cn(
+                                  glassButton,
+                                  'border-2 border-foreground bg-background text-foreground hover:bg-accent hover:border-foreground/80 font-semibold dark:bg-card dark:border-foreground dark:text-foreground'
+                                )}
+                              >
+                                Entfernen
+                              </AnimatedButton>
+                            </div>
+                          )}
+                        </div>
+
+                        {backgroundImage && (
+                          <>
+                            <div className="space-y-2">
+                              <Label className="text-foreground">Bild-Transparenz</Label>
+                              <Slider
+                                value={[Math.round(settings.content.backgroundImageOpacity * 100)]}
+                                onValueChange={([value]) => {
+                                  updateSetting('content', 'backgroundImageOpacity', value / 100);
+                                }}
+                                min={0}
+                                max={100}
+                                step={1}
+                                className={cn(glassCard, 'p-2')}
+                              />
+                              <div className="text-sm text-muted-foreground">
+                                {Math.round(settings.content.backgroundImageOpacity * 100)}%
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-foreground">Blend-Mode</Label>
+                              <Select
+                                value={settings.content.backgroundBlendMode}
+                                onValueChange={value =>
+                                  updateSetting(
+                                    'content',
+                                    'backgroundBlendMode',
+                                    value as 'normal' | 'multiply' | 'overlay' | 'screen'
+                                  )
+                                }
+                              >
+                                <SelectTrigger className="bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 rounded-xl font-medium dark:bg-card dark:border-foreground dark:text-foreground">
+                                  <SelectValue placeholder="Blend-Mode wählen" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border-2 border-foreground text-popover-foreground dark:bg-popover dark:border-foreground dark:text-popover-foreground">
+                          <SelectItem
+                            value="normal"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Normal
+                          </SelectItem>
+                          <SelectItem
+                            value="multiply"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Multiply
+                          </SelectItem>
+                          <SelectItem
+                            value="overlay"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Overlay
+                          </SelectItem>
+                          <SelectItem
+                            value="screen"
+                            className="text-popover-foreground hover:bg-accent focus:bg-accent dark:text-popover-foreground dark:hover:bg-accent dark:focus:bg-accent"
+                          >
+                            Screen
+                          </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="logo" className="space-y-4">
@@ -684,8 +1166,8 @@ export const EventImageEditor: React.FC = () => {
                       <Slider
                         value={[settings.logo.size]}
                         onValueChange={([value]) => updateSetting('logo', 'size', value)}
-                        min={10}
-                        max={40}
+                        min={1}
+                        max={15}
                         step={1}
                         className={cn(glassCard, 'p-2')}
                       />
@@ -721,22 +1203,59 @@ export const EventImageEditor: React.FC = () => {
             transition={defaultTransition}
           >
             <Card className={cn(glassCard, 'p-6 mb-6')}>
-              <div
-                ref={elementRef}
-                className="bg-white p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg max-w-2xl mx-auto relative"
-                style={{
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                  backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundRepeat: 'no-repeat',
-                }}
-              >
-                <div className="space-y-6">
+              <div className="mb-4 p-3 bg-background border-2 border-foreground rounded-xl dark:bg-card dark:border-foreground">
+                <p className="text-sm text-foreground">
+                  <strong>Export-Format:</strong> 1080 × 1920 px
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Die Vorschau wird skaliert angezeigt, damit der gesamte Content sichtbar ist.
+                </p>
+              </div>
+              <div className="overflow-auto max-h-[calc(100vh-300px)] flex justify-center items-start p-4">
+                <div
+                  style={{
+                    transform: 'scale(0.4)',
+                    transformOrigin: 'top center',
+                  }}
+                >
                   <div
-                    className="absolute top-4 left-4 sm:left-8 z-10"
+                    ref={elementRef}
+                    className="rounded-xl shadow-lg relative overflow-hidden"
                     style={{
-                      transform: 'rotate(-2deg) translateY(-40%)',
+                      width: '1080px',
+                      minHeight: '1920px',
+                      fontFamily: 'system-ui, -apple-system, sans-serif',
+                      backgroundColor:
+                        settings.content.backgroundType === 'color'
+                          ? settings.content.backgroundColor
+                          : 'white',
+                      marginLeft: `${settings.content.horizontalMargin}rem`,
+                      marginRight: `${settings.content.horizontalMargin}rem`,
+                      paddingTop: '2rem',
+                      paddingBottom: '2rem',
+                    }}
+                  >
+                {settings.content.backgroundType === 'image' && backgroundImage && (
+                  <>
+                    <div
+                      className="absolute inset-0 rounded-xl"
+                      style={{
+                        backgroundImage: `url(${backgroundImage})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        opacity: settings.content.backgroundImageOpacity,
+                        mixBlendMode: settings.content.backgroundBlendMode,
+                      }}
+                    />
+                  </>
+                )}
+                <div className="relative z-10" style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 'calc(1920px - 4rem)', paddingLeft: `${settings.content.contentStartMargin}rem`, paddingRight: `${settings.content.contentStartMargin}rem` }}>
+                  {/* Titel oben - nicht absolut positioniert */}
+                  <div
+                    className="w-full mb-4"
+                    style={{
+                      textAlign: settings.title.textAlign,
                     }}
                   >
                     <h1
@@ -745,20 +1264,27 @@ export const EventImageEditor: React.FC = () => {
                           ? 'font-league-spartan'
                           : settings.title.fontFamily === 'montserrat'
                             ? 'font-montserrat'
-                            : 'font-sans'
+                            : settings.title.fontFamily === 'more-sugar'
+                              ? 'font-more-sugar'
+                              : 'font-sans'
                       }`}
                       style={{
                         color: settings.title.color,
                         fontSize: `${settings.title.fontSize}px`,
                         backgroundColor: settings.title.backgroundTransparent
                           ? 'transparent'
-                          : settings.title.backgroundColor,
+                          : settings.title.showContainer
+                            ? settings.title.backgroundColor
+                            : 'transparent',
                         borderRadius: '4px',
                         WebkitTextStroke: '2px white',
                         textShadow: '2px 2px 6px rgba(0,0,0,0.3)',
-                        border: `2px solid ${settings.title.borderColor}`,
-                        padding: '0.5rem 1rem',
+                        border: settings.title.showBorder
+                          ? `2px solid ${settings.title.borderColor}`
+                          : 'none',
+                        padding: settings.title.showContainer ? '0.5rem 1rem' : '0',
                         fontWeight: settings.title.fontWeight,
+                        transform: `rotate(${settings.title.rotation}deg)`,
                       }}
                     >
                       {customTitle || categoryName}
@@ -766,159 +1292,142 @@ export const EventImageEditor: React.FC = () => {
                   </div>
 
                   <div
-                    className="space-y-4 rounded-lg overflow-hidden mt-12"
+                    className="rounded-lg overflow-hidden flex-1"
                     style={{
                       backgroundColor: hexToRgba(
                         settings.content.backgroundColor,
                         settings.content.containerOpacity
                       ),
-                      padding: `${settings.content.padding}rem`,
+                      padding: `${settings.content.contentPadding}rem`,
                       paddingBottom: '1rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: `${settings.content.dateBlockSpacing}rem`,
                     }}
                   >
                     {groupedEvents.map((group, groupIndex) => {
                       const { dayDate } = formatDate(group.date.toISOString());
                       return (
-                        <div key={groupIndex} className="space-y-2">
+                        <div key={groupIndex}>
                           <div
                             className={
-                              settings.content.fontFamily === 'league-spartan'
-                                ? 'font-league-spartan'
-                                : settings.content.fontFamily === 'montserrat'
-                                  ? 'font-montserrat'
-                                  : 'font-sans'
+                              settings.date.fontFamily === 'more-sugar'
+                                ? 'font-more-sugar'
+                                : settings.date.fontFamily === 'league-spartan'
+                                  ? 'font-league-spartan'
+                                  : settings.date.fontFamily === 'montserrat'
+                                    ? 'font-montserrat'
+                                    : 'font-sans'
                             }
                             style={{
-                              color: settings.date.color,
+                              color: settings.content.textColor,
                               fontSize: `${settings.date.fontSize}px`,
-                              fontWeight: settings.content.fontWeight,
+                              fontWeight: settings.date.fontWeight,
                             }}
                           >
                             {dayDate}
                           </div>
-                          <div className="space-y-1">
+                          <div
+                            style={{
+                              marginTop: 0,
+                              gap: `${settings.content.eventSpacing}rem`,
+                              display: 'flex',
+                              flexDirection: 'column',
+                            }}
+                          >
                             {group.events.map(event => {
                               const time = event.dailyTimeSlots?.[0]?.from
                                 ? `${event.dailyTimeSlots[0].from} Uhr`
                                 : '';
+                              const eventTitle = formatEventTitle(event);
+                              const location = event.location.address
+                                ? formatAddress(event.location.address)
+                                : '';
+                              const parts: string[] = [];
+                              if (time) parts.push(time);
+                              if (eventTitle) parts.push(eventTitle);
+                              if (location) parts.push(location);
+                              const defaultText = parts.join(' | ');
+                              const displayText = customEventTexts[event.id] ?? defaultText;
+
                               return (
-                                <div key={event.id} className="ml-4">
-                                  <div className="flex items-baseline">
-                                    <span
-                                      className={`inline-block min-w-[70px] ${
-                                        settings.content.fontFamily === 'league-spartan'
+                                <div
+                                  key={event.id}
+                                  className={
+                                    settings.event.fontFamily === 'league-spartan'
+                                      ? 'font-league-spartan'
+                                      : settings.event.fontFamily === 'montserrat'
+                                        ? 'font-montserrat'
+                                        : 'font-sans'
+                                  }
+                                  style={{
+                                    color: settings.content.textColor,
+                                    fontSize: `${settings.event.fontSize}px`,
+                                    fontWeight: settings.event.fontWeight,
+                                  }}
+                                >
+                                  {displayText}
+                                  {(event.socialMedia?.instagram ||
+                                    event.socialMedia?.facebook ||
+                                    event.socialMedia?.tiktok) && (
+                                    <div
+                                      className={`flex items-center gap-2 mt-1 ${
+                                        settings.event.fontFamily === 'league-spartan'
                                           ? 'font-league-spartan'
-                                          : settings.content.fontFamily === 'montserrat'
+                                          : settings.event.fontFamily === 'montserrat'
                                             ? 'font-montserrat'
                                             : 'font-sans'
                                       }`}
                                       style={{
-                                        color: settings.time.color,
-                                        fontSize: `${settings.time.fontSize}px`,
-                                        fontWeight: settings.content.fontWeight,
-                                        visibility: time ? 'visible' : 'hidden',
+                                        color: settings.content.textColor,
+                                        fontSize: `${settings.event.fontSize}px`,
+                                        fontWeight: settings.event.fontWeight,
                                       }}
                                     >
-                                      {time || '00:00 Uhr'}
-                                    </span>
-                                    <div className="flex-1">
-                                      <span
-                                        className={
-                                          settings.content.fontFamily === 'league-spartan'
-                                            ? 'font-league-spartan'
-                                            : settings.content.fontFamily === 'montserrat'
-                                              ? 'font-montserrat'
-                                              : 'font-sans'
-                                        }
-                                        style={{
-                                          color: settings.event.color,
-                                          fontSize: `${settings.event.fontSize}px`,
-                                          fontWeight: settings.content.fontWeight,
-                                        }}
-                                      >
-                                        {formatEventTitle(event)}
-                                      </span>
-                                      {event.location.address && (
-                                        <div
-                                          className={`${
-                                            settings.content.fontFamily === 'league-spartan'
-                                              ? 'font-league-spartan'
-                                              : settings.content.fontFamily === 'montserrat'
-                                                ? 'font-montserrat'
-                                                : 'font-sans'
-                                          }`}
-                                          style={{
-                                            color: settings.location.color,
-                                            fontSize: `${settings.location.fontSize}px`,
-                                            fontWeight: settings.content.fontWeight,
-                                          }}
-                                        >
-                                          {formatAddress(event.location.address)}
+                                      {event.socialMedia?.instagram && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.event.fontSize}
+                                            height={settings.event.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siInstagram.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.instagram}</span>
                                         </div>
                                       )}
-                                      {(event.socialMedia?.instagram ||
-                                        event.socialMedia?.facebook ||
-                                        event.socialMedia?.tiktok) && (
-                                        <div
-                                          className={`flex items-center gap-2 ${
-                                            settings.content.fontFamily === 'league-spartan'
-                                              ? 'font-league-spartan'
-                                              : settings.content.fontFamily === 'montserrat'
-                                                ? 'font-montserrat'
-                                                : 'font-sans'
-                                          }`}
-                                          style={{
-                                            color: settings.location.color,
-                                            fontSize: `${settings.location.fontSize}px`,
-                                            fontWeight: settings.content.fontWeight,
-                                          }}
-                                        >
-                                          {event.socialMedia?.instagram && (
-                                            <div className="flex items-center gap-1">
-                                              <svg
-                                                role="img"
-                                                viewBox="0 0 24 24"
-                                                width={settings.location.fontSize}
-                                                height={settings.location.fontSize}
-                                                fill="currentColor"
-                                              >
-                                                <path d={siInstagram.path} />
-                                              </svg>
-                                              <span>{event.socialMedia.instagram}</span>
-                                            </div>
-                                          )}
-                                          {event.socialMedia?.facebook && (
-                                            <div className="flex items-center gap-1">
-                                              <svg
-                                                role="img"
-                                                viewBox="0 0 24 24"
-                                                width={settings.location.fontSize}
-                                                height={settings.location.fontSize}
-                                                fill="currentColor"
-                                              >
-                                                <path d={siFacebook.path} />
-                                              </svg>
-                                              <span>{event.socialMedia.facebook}</span>
-                                            </div>
-                                          )}
-                                          {event.socialMedia?.tiktok && (
-                                            <div className="flex items-center gap-1">
-                                              <svg
-                                                role="img"
-                                                viewBox="0 0 24 24"
-                                                width={settings.location.fontSize}
-                                                height={settings.location.fontSize}
-                                                fill="currentColor"
-                                              >
-                                                <path d={siTiktok.path} />
-                                              </svg>
-                                              <span>{event.socialMedia.tiktok}</span>
-                                            </div>
-                                          )}
+                                      {event.socialMedia?.facebook && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.event.fontSize}
+                                            height={settings.event.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siFacebook.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.facebook}</span>
+                                        </div>
+                                      )}
+                                      {event.socialMedia?.tiktok && (
+                                        <div className="flex items-center gap-1">
+                                          <svg
+                                            role="img"
+                                            viewBox="0 0 24 24"
+                                            width={settings.event.fontSize}
+                                            height={settings.event.fontSize}
+                                            fill="currentColor"
+                                          >
+                                            <path d={siTiktok.path} />
+                                          </svg>
+                                          <span>{event.socialMedia.tiktok}</span>
                                         </div>
                                       )}
                                     </div>
-                                  </div>
+                                  )}
                                 </div>
                               );
                             })}
@@ -928,7 +1437,7 @@ export const EventImageEditor: React.FC = () => {
                     })}
                   </div>
 
-                  <div className="mt-4 flex justify-center items-center">
+                  <div className="flex justify-center items-center" style={{ marginTop: 'auto', paddingTop: '2rem' }}>
                     <div
                       className="rounded-full bg-black flex items-center justify-center overflow-hidden"
                       style={{
@@ -939,22 +1448,22 @@ export const EventImageEditor: React.FC = () => {
                       <img
                         src={LogoImage}
                         alt="nuernbergspots.com"
-                        style={{
-                          width: `${settings.logo.size - 2}rem`,
-                          height: `${settings.logo.size - 2}rem`,
-                          opacity: settings.logo.opacity,
-                        }}
                       />
                     </div>
                   </div>
                 </div>
+                </div>
+              </div>
               </div>
             </Card>
 
             <div className="flex justify-center">
               <AnimatedButton
                 onClick={handleDownload}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                className={cn(
+                  glassCard,
+                  'bg-background border-2 border-foreground text-foreground hover:bg-accent hover:border-foreground/80 gap-2 dark:bg-card dark:border-foreground dark:text-foreground'
+                )}
               >
                 <Download className="h-4 w-4" />
                 Als Bild herunterladen
