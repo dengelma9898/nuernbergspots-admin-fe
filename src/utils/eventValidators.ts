@@ -17,6 +17,7 @@ export const isEventChanged = (event: Event | null, editedEvent: Partial<Event>)
     'isPromoted',
     'categoryId',
     'dailyTimeSlots',
+    'monthYear',
     'contactEmail',
     'contactPhone',
     'website',

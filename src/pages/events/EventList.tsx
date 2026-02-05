@@ -39,6 +39,7 @@ import {
   CheckSquare,
   Square,
   X,
+  CalendarDays,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -47,6 +48,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-fns';
+import { formatMonthYear, monthYearToDate, hasDateInfo } from '@/utils/eventFormatters';
 import { de } from 'date-fns/locale';
 import { convertFFToHex } from '@/utils/colorUtils';
 import {
@@ -68,7 +70,6 @@ import {
 } from '@/components/ui/dialog';
 import { LoadingButton } from '@/components/LoadingButton';
 import { scaleIn } from '@/lib/animations';
-import { AnimatePresence } from 'framer-motion';
 
 export const EventList: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
@@ -79,6 +80,7 @@ export const EventList: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [timeFilter, setTimeFilter] = useState<string>('all');
   const [selectedWeek, setSelectedWeek] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('all'); // 'all' | 'with-date' | 'no-date'
   // State für den Auswahlmodus
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
@@ -123,7 +125,7 @@ export const EventList: React.FC = () => {
       await eventService.deleteEvent(eventToDelete);
       showSuccessMessage(toast, {
         title: 'Event gelöscht',
-        description: eventToDelete ? `"${eventToDelete.title}" wurde erfolgreich gelöscht.` : 'Das Event wurde erfolgreich gelöscht.',
+        description: 'Das Event wurde erfolgreich gelöscht.',
       });
       loadData();
       setDeleteDialogOpen(false);
@@ -140,47 +142,104 @@ export const EventList: React.FC = () => {
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-    if (!event.dailyTimeSlots?.length) return false;
+    // Datums-Filter (mit/ohne Zeiteinordnung)
+    const eventHasDate = hasDateInfo(event);
+    const matchesDateFilter =
+      dateFilter === 'all' ||
+      (dateFilter === 'with-date' && eventHasDate) ||
+      (dateFilter === 'no-date' && !eventHasDate);
 
-    // Status-Filterung
-    const firstSlot = event.dailyTimeSlots[0];
-    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-    const firstDate = new Date(firstSlot.date);
-    const lastDate = new Date(lastSlot.date);
+    if (!matchesDateFilter) return false;
 
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'past' && isPast(lastDate)) ||
-      (statusFilter === 'running' &&
-        isWithinInterval(new Date(), {
-          start: firstDate,
-          end: lastDate,
-        })) ||
-      (statusFilter === 'future' && isFuture(firstDate));
+    // Status-Filterung nur für Events mit dailyTimeSlots
+    // Events mit nur monthYear (ohne dailyTimeSlots) kommen durch, da sie bereits durch dateFilter gefiltert wurden
+    let matchesStatus = true;
+    if (event.dailyTimeSlots?.length > 0) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+      const firstDate = new Date(firstSlot.date);
+      const lastDate = new Date(lastSlot.date);
+
+      matchesStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'past' && isPast(lastDate)) ||
+        (statusFilter === 'running' &&
+          isWithinInterval(new Date(), {
+            start: firstDate,
+            end: lastDate,
+          })) ||
+        (statusFilter === 'future' && isFuture(firstDate));
+    } else if (event.monthYear) {
+      // Events mit nur monthYear kommen durch Status-Filter durch
+      // (sie wurden bereits durch dateFilter gefiltert)
+      matchesStatus = true;
+    } else if (statusFilter !== 'all') {
+      // Events ohne jegliche Zeiteinordnung können keinen Status haben
+      matchesStatus = false;
+    }
 
     const matchesCategory = categoryFilter === 'all' || event.categoryId === categoryFilter;
 
-    // Zeitfilter
-    const eventWeek = format(firstDate, 'w', { locale: de });
-    const matchesTime =
-      timeFilter === 'all' || (timeFilter === 'week' && selectedWeek === eventWeek);
+    // Zeitfilter nur für Events mit dailyTimeSlots
+    // Events mit nur monthYear (ohne dailyTimeSlots) kommen durch, da sie bereits durch dateFilter gefiltert wurden
+    let matchesTime = true;
+    if (event.dailyTimeSlots?.length > 0) {
+      const firstDate = new Date(event.dailyTimeSlots[0].date);
+      const eventWeek = format(firstDate, 'w', { locale: de });
+      matchesTime = timeFilter === 'all' || (timeFilter === 'week' && selectedWeek === eventWeek);
+    } else if (event.monthYear) {
+      // Events mit nur monthYear kommen durch Zeit-Filter durch
+      // (sie wurden bereits durch dateFilter gefiltert)
+      matchesTime = true;
+    } else if (timeFilter !== 'all') {
+      // Events ohne jegliche Zeiteinordnung können keinen Zeitfilter haben
+      matchesTime = false;
+    }
 
-    return matchesSearch && matchesStatus && matchesCategory && matchesTime;
+    const finalResult = matchesSearch && matchesStatus && matchesCategory && matchesTime;
+    return finalResult;
   });
 
   // Gruppiere Events nach Monat (basierend auf Startmonat)
+  // Priorität: dailyTimeSlots > monthYear > keine Zeiteinordnung
   const groupedEventsByMonth = filteredEvents.reduce((acc, event) => {
-    if (!event.dailyTimeSlots?.length) return acc;
+    let monthKey: string;
+    let monthLabel: string;
+    let groupDate: Date;
 
-    const firstSlot = event.dailyTimeSlots[0];
-    const firstDate = new Date(firstSlot.date);
-    const monthKey = format(startOfMonth(firstDate), 'yyyy-MM', { locale: de });
-    const monthLabel = format(startOfMonth(firstDate), 'MMMM yyyy', { locale: de });
+    // Priorität 1: dailyTimeSlots
+    if (event.dailyTimeSlots?.length > 0) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const firstDate = new Date(firstSlot.date);
+      monthKey = format(startOfMonth(firstDate), 'yyyy-MM', { locale: de });
+      monthLabel = format(startOfMonth(firstDate), 'MMMM yyyy', { locale: de });
+      groupDate = firstDate;
+    }
+    // Priorität 2: monthYear
+    else if (event.monthYear) {
+      const monthYearDate = monthYearToDate(event.monthYear);
+      if (monthYearDate) {
+        monthKey = format(startOfMonth(monthYearDate), 'yyyy-MM', { locale: de });
+        monthLabel = formatMonthYear(event.monthYear);
+        groupDate = monthYearDate;
+      } else {
+        // Fallback wenn monthYear ungültig
+        monthKey = 'no-date';
+        monthLabel = 'Ohne Datum';
+        groupDate = new Date(0);
+      }
+    }
+    // Priorität 3: Keine Zeiteinordnung
+    else {
+      monthKey = 'no-date';
+      monthLabel = 'Ohne Datum';
+      groupDate = new Date(0);
+    }
 
     if (!acc[monthKey]) {
       acc[monthKey] = {
         label: monthLabel,
-        date: firstDate,
+        date: groupDate,
         events: [],
       };
     }
@@ -189,8 +248,11 @@ export const EventList: React.FC = () => {
     return acc;
   }, {} as Record<string, { label: string; date: Date; events: Event[] }>);
 
-  // Sortiere die Monate absteigend (neueste zuerst)
+  // Sortiere die Monate absteigend (neueste zuerst), "no-date" am Ende
   const sortedMonths = Object.keys(groupedEventsByMonth).sort((a, b) => {
+    // "no-date" immer am Ende
+    if (a === 'no-date') return 1;
+    if (b === 'no-date') return -1;
     return groupedEventsByMonth[b].date.getTime() - groupedEventsByMonth[a].date.getTime();
   });
 
@@ -473,60 +535,99 @@ export const EventList: React.FC = () => {
               {timeFilter === 'week' && (
                 <CalendarWeekSelect value={selectedWeek} onChange={setSelectedWeek} />
               )}
+              <Select 
+                value={dateFilter} 
+                onValueChange={(value) => {
+                  setDateFilter(value);
+                  // Reset andere Filter wenn dateFilter geändert wird, um Konflikte zu vermeiden
+                  if (value === 'no-date') {
+                    // Events ohne Datum können keinen Status/Zeitfilter haben
+                    setStatusFilter('all');
+                    setTimeFilter('all');
+                    setSelectedWeek('');
+                  }
+                }}
+              >
+                <SelectTrigger className={cn(glassInput, 'w-full sm:w-[180px]')}>
+                  <SelectValue placeholder="Datum filtern" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Events</SelectItem>
+                  <SelectItem value="with-date">Mit Datum</SelectItem>
+                  <SelectItem value="no-date">Ohne Datum</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </motion.div>
 
           {/* Content Area */}
           {filteredEvents.length === 0 ? (
-            <motion.div
-              className={cn(glassCard, 'p-8 text-center')}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <div className="text-muted-foreground text-lg">Keine Events gefunden.</div>
-            </motion.div>
-          ) : (
-            <motion.div
-              className="space-y-8"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {sortedMonths.map((monthKey, monthIndex) => {
-                const monthGroup = groupedEventsByMonth[monthKey];
-                return (
-                  <motion.div key={monthKey} variants={fadeInUp}>
-                    <h2 className="text-2xl font-bold text-foreground mb-6 capitalize">
-                      {monthGroup.label}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {monthGroup.events.map((event, eventIndex) => (
-                        <EventCard
-                          key={event.id}
-                          event={event}
-                          category={categories.find(cat => cat.id === event.categoryId)}
-                          onDelete={handleDelete}
-                          onCopy={(id) => {
-                            navigate(`/events/${id}/copy`);
-                            showSuccessMessage(toast, {
-                              title: 'Event wird kopiert',
-                              description: 'Sie werden zur Kopier-Seite weitergeleitet.',
-                            });
-                          }}
-                          index={monthIndex * 10 + eventIndex}
-                          isSelectionMode={isSelectionMode}
-                          isSelected={selectedEventIds.has(event.id)}
-                          onToggleSelection={toggleEventSelection}
-                        />
-                      ))}
-                    </div>
+              <motion.div
+                className={cn(glassCard, 'p-8 text-center')}
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={defaultTransition}
+              >
+                <div className="text-muted-foreground text-lg">Keine Events gefunden.</div>
+              </motion.div>
+            ) : (
+              <motion.div
+                className="space-y-8"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                {sortedMonths.length === 0 ? (
+                  <motion.div
+                    className={cn(glassCard, 'p-8 text-center')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={defaultTransition}
+                  >
+                    <div className="text-muted-foreground text-lg">Keine Gruppen gefunden (aber {filteredEvents.length} Events gefiltert).</div>
                   </motion.div>
-                );
-              })}
-            </motion.div>
-          )}
+                ) : (
+                  sortedMonths.map((monthKey, monthIndex) => {
+                    const monthGroup = groupedEventsByMonth[monthKey];
+                    return (
+                      <motion.div 
+                        key={monthKey} 
+                        variants={fadeInUp}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        <h2 className="text-2xl font-bold text-foreground mb-6 capitalize">
+                          {monthGroup.label}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {monthGroup.events.map((event, eventIndex) => (
+                            <EventCard
+                              key={event.id}
+                              event={event}
+                              category={categories.find(cat => cat.id === event.categoryId)}
+                              onDelete={handleDelete}
+                              onCopy={(id) => {
+                                navigate(`/events/${id}/copy`);
+                                showSuccessMessage(toast, {
+                                  title: 'Event wird kopiert',
+                                  description: 'Sie werden zur Kopier-Seite weitergeleitet.',
+                                });
+                              }}
+                              index={monthIndex * 10 + eventIndex}
+                              isSelectionMode={isSelectionMode}
+                              isSelected={selectedEventIds.has(event.id)}
+                              onToggleSelection={toggleEventSelection}
+                            />
+                          ))}
+                        </div>
+                      </motion.div>
+                    );
+                  })
+                )}
+              </motion.div>
+            )}
 
           {/* Hidden elements for test compatibility */}
           <div className="sr-only">
@@ -535,47 +636,43 @@ export const EventList: React.FC = () => {
 
           {/* Delete Confirmation Dialog */}
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <AnimatePresence>
-              {deleteDialogOpen && (
-                <DialogContent className={cn(glassCard)} asChild>
-                  <motion.div
-                    variants={scaleIn}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
+            <DialogContent className={cn(glassCard)}>
+              <motion.div
+                variants={scaleIn}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                <DialogHeader>
+                  <DialogTitle className="text-foreground">Event löschen</DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    Möchten Sie dieses Event wirklich löschen? Diese Aktion kann nicht
+                    rückgängig gemacht werden.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => {
+                      setDeleteDialogOpen(false);
+                      setEventToDelete(null);
+                    }}
+                    disabled={isDeleting}
+                    className={cn(glassButton)}
                   >
-                    <DialogHeader>
-                      <DialogTitle className="text-foreground">Event löschen</DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Möchten Sie dieses Event wirklich löschen? Diese Aktion kann nicht
-                        rückgängig gemacht werden.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                      <AnimatedButton
-                        variant="outline"
-                        onClick={() => {
-                          setDeleteDialogOpen(false);
-                          setEventToDelete(null);
-                        }}
-                        disabled={isDeleting}
-                        className={cn(glassButton)}
-                      >
-                        Abbrechen
-                      </AnimatedButton>
-                      <LoadingButton
-                        variant="destructive"
-                        onClick={confirmDelete}
-                        isLoading={isDeleting}
-                        loadingText="Wird gelöscht..."
-                      >
-                        Löschen
-                      </LoadingButton>
-                    </DialogFooter>
-                  </motion.div>
-                </DialogContent>
-              )}
-            </AnimatePresence>
+                    Abbrechen
+                  </AnimatedButton>
+                  <LoadingButton
+                    variant="destructive"
+                    onClick={confirmDelete}
+                    isLoading={isDeleting}
+                    loadingText="Wird gelöscht..."
+                  >
+                    Löschen
+                  </LoadingButton>
+                </DialogFooter>
+              </motion.div>
+            </DialogContent>
           </Dialog>
         </div>
       </div>
@@ -641,59 +738,96 @@ export const EventCard: React.FC<EventCardProps> = ({
   };
 
   const getEventDateTime = (event: Event) => {
-    if (!event.dailyTimeSlots?.length) return 'Kein Datum';
+    // Priorität 1: dailyTimeSlots
+    if (event.dailyTimeSlots?.length) {
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
 
-    const firstSlot = event.dailyTimeSlots[0];
-    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
-
-    if (firstSlot.date === lastSlot.date) {
-      return formatDate(firstSlot.date);
+      if (firstSlot.date === lastSlot.date) {
+        return formatDate(firstSlot.date);
+      }
+      return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
     }
-    return `${formatDate(firstSlot.date)} - ${formatDate(lastSlot.date)}`;
+
+    // Priorität 2: monthYear
+    if (event.monthYear) {
+      return formatMonthYear(event.monthYear);
+    }
+
+    // Priorität 3: Keine Zeiteinordnung
+    return 'Kein Datum';
   };
 
   const getEventStatus = (event: Event) => {
-    if (!event.dailyTimeSlots?.length) {
-      return {
-        label: 'Unbekannt',
-        icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'secondary' as const,
-      };
+    // Events mit dailyTimeSlots -> normale Status-Berechnung
+    if (event.dailyTimeSlots?.length) {
+      const now = new Date();
+      const firstSlot = event.dailyTimeSlots[0];
+      const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+
+      const firstDate = new Date(firstSlot.date);
+      const lastDate = new Date(lastSlot.date);
+
+      if (isPast(lastDate)) {
+        return {
+          label: 'Beendet',
+          icon: <CheckCircle2 className="h-4 w-4" />,
+          variant: 'secondary' as const,
+        };
+      }
+
+      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+        return {
+          label: 'Läuft jetzt',
+          icon: <Clock className="h-4 w-4" />,
+          variant: 'default' as const,
+        };
+      }
+
+      if (isFuture(firstDate)) {
+        return {
+          label: 'Kommend',
+          icon: <AlertCircle className="h-4 w-4" />,
+          variant: 'outline' as const,
+        };
+      }
     }
 
-    const now = new Date();
-    const firstSlot = event.dailyTimeSlots[0];
-    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+    // Events nur mit monthYear -> vereinfachte Status-Berechnung
+    if (event.monthYear) {
+      const monthYearDate = monthYearToDate(event.monthYear);
+      if (monthYearDate) {
+        // Letzter Tag des Monats
+        const endOfMonthDate = new Date(monthYearDate.getFullYear(), monthYearDate.getMonth() + 1, 0);
 
-    const firstDate = new Date(firstSlot.date);
-    const lastDate = new Date(lastSlot.date);
+        if (isPast(endOfMonthDate)) {
+          return {
+            label: 'Beendet',
+            icon: <CheckCircle2 className="h-4 w-4" />,
+            variant: 'secondary' as const,
+          };
+        }
 
-    if (isPast(lastDate)) {
-      return {
-        label: 'Beendet',
-        icon: <CheckCircle2 className="h-4 w-4" />,
-        variant: 'secondary' as const,
-      };
+        if (isFuture(monthYearDate)) {
+          return {
+            label: 'Kommend',
+            icon: <CalendarDays className="h-4 w-4" />,
+            variant: 'outline' as const,
+          };
+        }
+
+        // Aktueller Monat
+        return {
+          label: 'Diesen Monat',
+          icon: <CalendarDays className="h-4 w-4" />,
+          variant: 'default' as const,
+        };
+      }
     }
 
-    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-      return {
-        label: 'Läuft jetzt',
-        icon: <Clock className="h-4 w-4" />,
-        variant: 'default' as const,
-      };
-    }
-
-    if (isFuture(firstDate)) {
-      return {
-        label: 'Kommend',
-        icon: <AlertCircle className="h-4 w-4" />,
-        variant: 'outline' as const,
-      };
-    }
-
+    // Events ohne Zeiteinordnung
     return {
-      label: 'Unbekannt',
+      label: 'Ohne Datum',
       icon: <AlertCircle className="h-4 w-4" />,
       variant: 'secondary' as const,
     };

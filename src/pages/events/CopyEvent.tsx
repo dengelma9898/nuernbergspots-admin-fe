@@ -10,8 +10,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, X, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { MonthYearPicker } from '@/components/ui/month-year-picker';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { getIconComponent } from '@/utils/iconUtils';
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
@@ -59,6 +66,7 @@ interface NewEvent {
   };
   dailyTimeSlots: DailyTimeSlot[];
   titleImageUrl?: string;
+  monthYear: string | null;
 }
 
 // Hilfsfunktion zum Herunterladen und Konvertieren von Bildern zu Files
@@ -124,6 +132,7 @@ export const CopyEvent: React.FC = () => {
     },
     dailyTimeSlots: [],
     titleImageUrl: undefined,
+    monthYear: null,
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
 
@@ -200,6 +209,7 @@ export const CopyEvent: React.FC = () => {
         },
         dailyTimeSlots: fetchedEvent.dailyTimeSlots.map(slot => ({ ...slot })),
         titleImageUrl: undefined,
+        monthYear: fetchedEvent.monthYear ?? null,
       });
 
       // Setze Location für LocationSearch nur wenn gültig
@@ -653,10 +663,20 @@ export const CopyEvent: React.FC = () => {
                 {/* Daily Time Slots */}
                 {newEvent.dailyTimeSlots.length > 0 && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <Label className="text-foreground">
                         Tägliche Zeitangaben (optional)
                       </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
 
                     <div className="space-y-4">
@@ -686,6 +706,35 @@ export const CopyEvent: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Month/Year (Alternative to daily time slots) */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="monthYear" className="text-foreground">
+                      Monat/Jahr (optional)
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <MonthYearPicker
+                    id="monthYear"
+                    value={newEvent.monthYear}
+                    onChange={value => handleInputChange('monthYear', value || null)}
+                    className={cn(glassInput)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht.
+                    Sobald Start- und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                  </p>
+                </div>
 
                 {/* Location */}
                 <div className="space-y-2">

@@ -7,8 +7,15 @@ import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { MonthYearPicker } from '@/components/ui/month-year-picker';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -59,6 +66,7 @@ interface NewEvent {
     tiktok: string | null;
   };
   dailyTimeSlots: DailyTimeSlot[];
+  monthYear: string | null;
 }
 
 export const CreateEvent: React.FC = () => {
@@ -93,6 +101,7 @@ export const CreateEvent: React.FC = () => {
       tiktok: null,
     },
     dailyTimeSlots: [],
+    monthYear: null,
   });
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
 
@@ -356,10 +365,20 @@ export const CreateEvent: React.FC = () => {
                 {/* Daily Time Slots */}
                 {newEvent.dailyTimeSlots.length > 0 && (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                       <Label className="text-foreground">
                         Tägliche Zeitangaben (optional)
                       </Label>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
 
                     <div className="space-y-4">
@@ -392,6 +411,35 @@ export const CreateEvent: React.FC = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Month/Year (Alternative to daily time slots) */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="monthYear" className="text-foreground">
+                      Monat/Jahr (optional)
+                    </Label>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <MonthYearPicker
+                    id="monthYear"
+                    value={newEvent.monthYear}
+                    onChange={value => handleInputChange('monthYear', value || null)}
+                    className={cn(glassInput)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht.
+                    Sobald Start- und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                  </p>
+                </div>
 
                 {/* Location */}
                 <div className="space-y-2">

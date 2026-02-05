@@ -24,6 +24,13 @@ export interface Event {
   categoryId?: string;
   isPromoted?: boolean;
   dailyTimeSlots: DailyTimeSlot[];
+  /**
+   * Monat und Jahr für Events ohne genaues Datum.
+   * Format: mm.yyyy (z.B. "02.2026")
+   * Kann gleichzeitig mit dailyTimeSlots existieren.
+   * Priorität: dailyTimeSlots > monthYear
+   */
+  monthYear?: string;
   contactEmail?: string;
   contactPhone?: string;
   website?: string;
