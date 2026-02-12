@@ -9,6 +9,7 @@ import { EventImageEditor } from '@/pages/events/EventImageEditor';
 import { EventScraper } from '@/pages/events/EventScraper';
 import { EventScraperDetail } from '@/pages/events/EventScraperDetail';
 import { LlmScrapingStats } from '@/pages/events/LlmScrapingStats';
+import { CsvEventImport } from '@/pages/events/CsvEventImport';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from '@/components/PrivateRoute';
 import { CreateEvent } from '@/pages/events/CreateEvent';
@@ -59,6 +60,7 @@ export function AppRoutes() {
         <Route path="/events/scraper" element={<EventScraper />} />
         <Route path="/events/scraper/:id" element={<EventScraperDetail />} />
         <Route path="/events/scraper/stats" element={<LlmScrapingStats />} />
+        <Route path="/events/import/csv" element={<CsvEventImport />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/events/:id/copy" element={<CopyEvent />} />
         <Route path="/events/image-editor" element={<EventImageEditor />} />

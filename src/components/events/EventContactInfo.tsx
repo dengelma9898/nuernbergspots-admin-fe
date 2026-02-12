@@ -61,13 +61,13 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-2 text-muted-foreground">
+          <div className="space-y-2">
             {event.contactEmail && (
               <div className="flex items-center">
-                <span className="w-24">E-Mail:</span>
+                <span className="w-24 text-muted-foreground">E-Mail:</span>
                 <a
                   href={`mailto:${event.contactEmail}`}
-                  className="text-primary hover:underline"
+                  className="text-foreground hover:underline"
                 >
                   {event.contactEmail}
                 </a>
@@ -75,20 +75,20 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
             )}
             {event.contactPhone && (
               <div className="flex items-center">
-                <span className="w-24">Telefon:</span>
-                <a href={`tel:${event.contactPhone}`} className="text-primary hover:underline">
+                <span className="w-24 text-muted-foreground">Telefon:</span>
+                <a href={`tel:${event.contactPhone}`} className="text-foreground hover:underline">
                   {event.contactPhone}
                 </a>
               </div>
             )}
             {event.website && (
               <div className="flex items-center">
-                <span className="w-24">Website:</span>
+                <span className="w-24 text-muted-foreground">Website:</span>
                 <a
                   href={event.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-foreground hover:underline"
                 >
                   {event.website}
                 </a>
@@ -134,15 +134,15 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-2 text-muted-foreground">
+          <div className="space-y-2">
             {event.socialMedia?.instagram && (
               <div className="flex items-center">
-                <span className="w-24">Instagram:</span>
+                <span className="w-24 text-muted-foreground">Instagram:</span>
                 <a
                   href={`https://instagram.com/${event.socialMedia.instagram.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-foreground hover:underline"
                 >
                   {event.socialMedia.instagram}
                 </a>
@@ -150,7 +150,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
             )}
             {event.socialMedia?.facebook && (
               <div className="flex items-center">
-                <span className="w-24">Facebook:</span>
+                <span className="w-24 text-muted-foreground">Facebook:</span>
                 <a
                   href={
                     event.socialMedia.facebook.startsWith('http')
@@ -159,7 +159,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                   }
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-foreground hover:underline"
                 >
                   {event.socialMedia.facebook}
                 </a>
@@ -167,12 +167,12 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
             )}
             {event.socialMedia?.tiktok && (
               <div className="flex items-center">
-                <span className="w-24">TikTok:</span>
+                <span className="w-24 text-muted-foreground">TikTok:</span>
                 <a
                   href={`https://tiktok.com/@${event.socialMedia.tiktok.replace('@', '')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary hover:underline"
+                  className="text-foreground hover:underline"
                 >
                   {event.socialMedia.tiktok}
                 </a>

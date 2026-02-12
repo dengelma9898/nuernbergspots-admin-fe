@@ -2,6 +2,39 @@ import { Event } from '../models/events';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
+/**
+ * Ergebnis eines CSV-Imports
+ */
+export interface CsvImportResult {
+  totalRows: number;
+  successful: number;
+  failed: number;
+  skipped: number;
+  results: CsvImportRowResult[];
+}
+
+/**
+ * Ergebnis pro CSV-Zeile
+ */
+export interface CsvImportRowResult {
+  rowIndex: number;
+  success: boolean;
+  eventId?: string;
+  skipped?: boolean;
+  duplicateEventId?: string;
+  errors: CsvImportError[];
+}
+
+/**
+ * Fehler pro CSV-Zeile
+ */
+export interface CsvImportError {
+  rowIndex: number;
+  field?: string;
+  message: string;
+  value?: unknown;
+}
+
 export function useEventService() {
   const api = useApi();
 
@@ -229,6 +262,39 @@ export function useEventService() {
         }>
       >('/events/scrape/llm/tokens');
       return unwrapData(response);
+    },
+
+    /**
+     * Importiert Events aus einer CSV-Datei
+     * @param file - Die CSV-Datei (.csv, max. 5 MB)
+     * @returns Import-Ergebnis mit Zusammenfassung und Details pro Zeile
+     */
+    importEventsFromCsv: async (file: File): Promise<CsvImportResult> => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post<CsvImportResult | ApiResponse<CsvImportResult>>(
+        `${endpoints.events}/import/csv`,
+        formData,
+        { isFormData: true }
+      );
+
+      // Prüfe ob Response in data-Wrapper ist und unwrappe falls nötig
+      let result: CsvImportResult;
+      if ((response as any).data && typeof (response as any).data === 'object') {
+        result = unwrapData(response as ApiResponse<CsvImportResult>);
+      } else {
+        result = response as CsvImportResult;
+      }
+
+      // Stelle sicher, dass results immer ein Array ist
+      return {
+        totalRows: result.totalRows || 0,
+        successful: result.successful || 0,
+        failed: result.failed || 0,
+        skipped: result.skipped || 0,
+        results: Array.isArray(result.results) ? result.results : [],
+      };
     },
   };
 }

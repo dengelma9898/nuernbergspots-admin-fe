@@ -40,6 +40,7 @@ import {
   Square,
   X,
   CalendarDays,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -178,7 +179,10 @@ export const EventList: React.FC = () => {
       matchesStatus = false;
     }
 
-    const matchesCategory = categoryFilter === 'all' || event.categoryId === categoryFilter;
+    const matchesCategory =
+      categoryFilter === 'all' ||
+      (categoryFilter === 'no-category' && !event.categoryId) ||
+      (categoryFilter !== 'no-category' && event.categoryId === categoryFilter);
 
     // Zeitfilter nur für Events mit dailyTimeSlots
     // Events mit nur monthYear (ohne dailyTimeSlots) kommen durch, da sie bereits durch dateFilter gefiltert wurden
@@ -450,6 +454,14 @@ export const EventList: React.FC = () => {
                     </AnimatedButton>
                     <AnimatedButton
                       variant="outline"
+                      onClick={() => navigate('/events/import/csv')}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <FileSpreadsheet className="h-4 w-4" />
+                      CSV Import
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
                       onClick={() => navigate('/events/scraper')}
                       className={cn(glassButton, 'w-full sm:w-auto gap-2')}
                     >
@@ -516,6 +528,7 @@ export const EventList: React.FC = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Kategorien</SelectItem>
+                  <SelectItem value="no-category">Ohne Kategorie</SelectItem>
                   {categories.map(category => (
                     <SelectItem key={category.id} value={category.id}>
                       {category.name}

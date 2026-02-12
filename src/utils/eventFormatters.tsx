@@ -156,4 +156,3 @@ export const monthYearToDate = (monthYear: string | undefined | null): Date | nu
 export const hasDateInfo = (event: Event): boolean => {
   return (event.dailyTimeSlots?.length > 0) || !!event.monthYear;
 };
-
