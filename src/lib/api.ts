@@ -54,6 +54,7 @@ export const endpoints = {
   chatroomMessages: (id: string) => `/chatrooms/${id}/messages`,
   specialPolls: '/special-polls',
   specialPollById: (id: string) => `/special-polls/${id}`,
+  easterEggHunt: '/easter-egg-hunt',
   downtime: '/downtime',
   appVersions: {
     minimumVersion: '/app-versions/admin/minimum-version',

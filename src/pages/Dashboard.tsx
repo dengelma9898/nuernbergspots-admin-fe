@@ -760,25 +760,32 @@ export function Dashboard() {
                   index={2}
                 />
                 <NavigationCard
+                  icon={Calendar}
+                  title="Ostereiersuche"
+                  description="Ostereier anlegen, Gewinner auslosen und Statistiken einsehen"
+                  href="/easter-egg-hunt"
+                  index={3}
+                />
+                <NavigationCard
                   icon={MessageCircle}
                   title="Chatrooms"
                   description="Chatrooms erstellen, bearbeiten und moderieren"
                   href="/chatrooms"
-                  index={3}
+                  index={4}
                 />
                 <NavigationCard
                   icon={Briefcase}
                   title="Jobs"
                   description="Stellenangebote erstellen und verwalten"
                   href="/job-offers"
-                  index={4}
+                  index={5}
                 />
                 <NavigationCard
                   icon={Tags}
                   title="Job-Kategorien"
                   description="Verwalten Sie die Kategorien für Stellenanzeigen"
                   href="/job-categories"
-                  index={5}
+                  index={6}
                 />
             </motion.div>
           </motion.div>

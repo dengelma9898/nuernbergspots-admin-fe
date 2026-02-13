@@ -43,6 +43,9 @@ import { LegalManagement } from './pages/legal/LegalManagement';
 import { LegalDocumentEdit } from './pages/legal/LegalDocumentEdit';
 import { AppVersionManagement } from './pages/AppVersionManagement';
 import { FeatureFlagsManagement } from './pages/FeatureFlagsManagement';
+import { EasterEggManagement } from './pages/easter-egg/EasterEggManagement';
+import { EasterEggForm } from './pages/easter-egg/EasterEggForm';
+import { EasterEggDetail } from './pages/easter-egg/EasterEggDetail';
 
 export function AppRoutes() {
   return (
@@ -97,6 +100,10 @@ export function AppRoutes() {
         <Route path="/legal/:type/edit" element={<LegalDocumentEdit />} />
         <Route path="/app-version-management" element={<AppVersionManagement />} />
         <Route path="/feature-flags" element={<FeatureFlagsManagement />} />
+        <Route path="/easter-egg-hunt" element={<EasterEggManagement />} />
+        <Route path="/easter-egg-hunt/new" element={<EasterEggForm />} />
+        <Route path="/easter-egg-hunt/:id/edit" element={<EasterEggForm />} />
+        <Route path="/easter-egg-hunt/:id" element={<EasterEggDetail />} />
       </Route>
 
       {/* Fallback */}
