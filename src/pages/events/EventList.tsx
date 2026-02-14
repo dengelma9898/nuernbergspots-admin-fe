@@ -50,6 +50,7 @@ import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-fns';
 import { formatMonthYear, monthYearToDate, hasDateInfo } from '@/utils/eventFormatters';
+import { matchesCategoryFilter } from '@/utils/eventFilterUtils';
 import { de } from 'date-fns/locale';
 import { convertFFToHex } from '@/utils/colorUtils';
 import {
@@ -179,10 +180,7 @@ export const EventList: React.FC = () => {
       matchesStatus = false;
     }
 
-    const matchesCategory =
-      categoryFilter === 'all' ||
-      (categoryFilter === 'no-category' && !event.categoryId) ||
-      (categoryFilter !== 'no-category' && event.categoryId === categoryFilter);
+    const matchesCategory = matchesCategoryFilter(event, categoryFilter);
 
     // Zeitfilter nur für Events mit dailyTimeSlots
     // Events mit nur monthYear (ohne dailyTimeSlots) kommen durch, da sie bereits durch dateFilter gefiltert wurden
