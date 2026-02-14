@@ -46,6 +46,8 @@ import { FeatureFlagsManagement } from './pages/FeatureFlagsManagement';
 import { EasterEggManagement } from './pages/easter-egg/EasterEggManagement';
 import { EasterEggForm } from './pages/easter-egg/EasterEggForm';
 import { EasterEggDetail } from './pages/easter-egg/EasterEggDetail';
+import { TaxiStandManagement } from './pages/taxi-stands/TaxiStandManagement';
+import { TaxiStandForm } from './pages/taxi-stands/TaxiStandForm';
 
 export function AppRoutes() {
   return (
@@ -104,6 +106,9 @@ export function AppRoutes() {
         <Route path="/easter-egg-hunt/new" element={<EasterEggForm />} />
         <Route path="/easter-egg-hunt/:id/edit" element={<EasterEggForm />} />
         <Route path="/easter-egg-hunt/:id" element={<EasterEggDetail />} />
+        <Route path="/taxi-stands" element={<TaxiStandManagement />} />
+        <Route path="/taxi-stands/new" element={<TaxiStandForm />} />
+        <Route path="/taxi-stands/:id/edit" element={<TaxiStandForm />} />
       </Route>
 
       {/* Fallback */}

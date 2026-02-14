@@ -24,10 +24,11 @@ export interface LocationData {
 interface LocationSelectorProps {
   value: LocationData | null;
   onChange: (location: LocationData | null) => void;
+  defaultTab?: 'partner' | 'search';
 }
 
-export function LocationSelector({ value, onChange }: LocationSelectorProps) {
-  const [tab, setTab] = useState<string>('partner');
+export function LocationSelector({ value, onChange, defaultTab = 'partner' }: LocationSelectorProps) {
+  const [tab, setTab] = useState<string>(defaultTab);
   const [businesses, setBusinesses] = useState<BusinessResponse[]>([]);
   const [loadingBusinesses, setLoadingBusinesses] = useState(false);
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null);

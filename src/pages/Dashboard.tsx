@@ -36,6 +36,7 @@ import {
   FileText,
   Package,
   DollarSign,
+  Car,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -786,6 +787,13 @@ export function Dashboard() {
                   description="Verwalten Sie die Kategorien für Stellenanzeigen"
                   href="/job-categories"
                   index={6}
+                />
+                <NavigationCard
+                  icon={Car}
+                  title="Taxistandorte"
+                  description="Taxistandorte anlegen, bearbeiten und Klick-Statistiken einsehen"
+                  href="/taxi-stands"
+                  index={7}
                 />
             </motion.div>
           </motion.div>
