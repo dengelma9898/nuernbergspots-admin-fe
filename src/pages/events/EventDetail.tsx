@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
@@ -39,6 +39,10 @@ import { EventLocationInfo } from '@/components/events/EventLocationInfo';
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const shouldStartInEditMode =
+    (location.state as { startInEditMode?: boolean } | null)?.startInEditMode === true;
+  const eventListPathWithFilters = `/events${location.search}`;
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
   const [event, setEvent] = useState<Event | null>(null);
@@ -61,7 +65,7 @@ export const EventDetail: React.FC = () => {
       // Nur navigieren wenn es kein retryable Fehler ist
       const friendlyError = getUserFriendlyError(error, 'load-event');
       if (!friendlyError.isRetryable) {
-        navigate('/events');
+        navigate(eventListPathWithFilters);
       }
     } finally {
       setLoading(false);
@@ -82,6 +86,20 @@ export const EventDetail: React.FC = () => {
     event,
     onEventUpdate: loadData,
   });
+
+  useEffect(() => {
+    if (shouldStartInEditMode && event && !eventForm.isEditing) {
+      eventForm.handleEdit();
+      navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+    }
+  }, [
+    shouldStartInEditMode,
+    event,
+    eventForm,
+    location.pathname,
+    location.search,
+    navigate,
+  ]);
 
   // Location Search Value initialisieren
   useEffect(() => {
@@ -114,7 +132,7 @@ export const EventDetail: React.FC = () => {
   // Delete-Handler mit Navigation
   const handleDelete = async () => {
     await eventForm.handleDelete();
-    navigate('/events');
+    navigate(eventListPathWithFilters);
   };
 
   if (loading) {
@@ -355,7 +373,7 @@ export const EventDetail: React.FC = () => {
               <AnimatedButton
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/events')}
+                onClick={() => navigate(eventListPathWithFilters)}
                 className={cn(glassButton, 'rounded-full')}
               >
                 <ArrowLeft className="h-5 w-5" />

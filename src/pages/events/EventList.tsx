@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Card,
   CardHeader,
@@ -41,6 +41,8 @@ import {
   X,
   CalendarDays,
   FileSpreadsheet,
+  Eye,
+  Pencil,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -74,15 +76,25 @@ import { LoadingButton } from '@/components/LoadingButton';
 import { scaleIn } from '@/lib/animations';
 
 export const EventList: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTimeFilter = searchParams.get('time') === 'week' ? 'week' : 'all';
+  const initialStatusFilter = ['all', 'past', 'running', 'future'].includes(searchParams.get('status') || '')
+    ? (searchParams.get('status') as string)
+    : 'all';
+  const initialDateFilter = ['all', 'with-date', 'no-date'].includes(searchParams.get('date') || '')
+    ? (searchParams.get('date') as string)
+    : 'all';
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [timeFilter, setTimeFilter] = useState<string>('all');
-  const [selectedWeek, setSelectedWeek] = useState<string>('');
-  const [dateFilter, setDateFilter] = useState<string>('all'); // 'all' | 'with-date' | 'no-date'
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
+  const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
+  const [categoryFilter, setCategoryFilter] = useState<string>(searchParams.get('category') || 'all');
+  const [timeFilter, setTimeFilter] = useState<string>(initialTimeFilter);
+  const [selectedWeek, setSelectedWeek] = useState<string>(
+    initialTimeFilter === 'week' ? searchParams.get('week') || '' : ''
+  );
+  const [dateFilter, setDateFilter] = useState<string>(initialDateFilter); // 'all' | 'with-date' | 'no-date'
   // State für den Auswahlmodus
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
@@ -110,6 +122,65 @@ export const EventList: React.FC = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (timeFilter !== 'week' && selectedWeek) {
+      setSelectedWeek('');
+    }
+  }, [timeFilter, selectedWeek]);
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams(searchParams);
+
+    if (searchQuery) {
+      nextParams.set('q', searchQuery);
+    } else {
+      nextParams.delete('q');
+    }
+
+    if (statusFilter !== 'all') {
+      nextParams.set('status', statusFilter);
+    } else {
+      nextParams.delete('status');
+    }
+
+    if (categoryFilter !== 'all') {
+      nextParams.set('category', categoryFilter);
+    } else {
+      nextParams.delete('category');
+    }
+
+    if (timeFilter !== 'all') {
+      nextParams.set('time', timeFilter);
+    } else {
+      nextParams.delete('time');
+    }
+
+    if (timeFilter === 'week' && selectedWeek) {
+      nextParams.set('week', selectedWeek);
+    } else {
+      nextParams.delete('week');
+    }
+
+    if (dateFilter !== 'all') {
+      nextParams.set('date', dateFilter);
+    } else {
+      nextParams.delete('date');
+    }
+
+    if (nextParams.toString() !== searchParams.toString()) {
+      setSearchParams(nextParams, { replace: true });
+    }
+  }, [
+    categoryFilter,
+    dateFilter,
+    searchParams,
+    searchQuery,
+    selectedWeek,
+    setSearchParams,
+    statusFilter,
+    timeFilter,
+  ]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
@@ -720,6 +791,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   onToggleSelection,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleCardClick = () => {
     if (isSelectionMode && onToggleSelection) {
@@ -1061,10 +1133,28 @@ export const EventCard: React.FC<EventCardProps> = ({
                 <AnimatedButton
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(`/events/${event.id}`)}
+                  onClick={() => navigate(`/events/${event.id}${location.search}`)}
                   className={cn(glassButton)}
+                  title="Details"
+                  aria-label="Details"
                 >
-                  Bearbeiten
+                  <Eye className="h-4 w-4" />
+                  <span className="sr-only">Details</span>
+                </AnimatedButton>
+                <AnimatedButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    navigate(`/events/${event.id}${location.search}`, {
+                      state: { startInEditMode: true },
+                    })
+                  }
+                  className={cn(glassButton)}
+                  title="Bearbeiten"
+                  aria-label="Bearbeiten"
+                >
+                  <Pencil className="h-4 w-4" />
+                  <span className="sr-only">Bearbeiten</span>
                 </AnimatedButton>
                 {onCopy && (
                   <AnimatedButton

@@ -114,9 +114,7 @@ export const html5ToMonthYear = (html5Month: string | undefined | null): string 
   const [year, month] = parts;
   if (!month || !year || year.length !== 4) return '';
   return `${month.padStart(2, '0')}.${year}`;
-};
-
-/**
+};/**
  * Formatiert monthYear für die Anzeige
  * @param monthYear - Format: mm.yyyy (z.B. "02.2026")
  * @returns Formatierter String (z.B. "Februar 2026")

@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { convertFFToHex } from '@/utils/colorUtils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
-import { Euro, Star } from 'lucide-react';
+import { Euro, Star, Tag } from 'lucide-react';
 
 interface EventInfoCardProps {
   event: Event;
@@ -39,6 +39,8 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
   onSave,
   isEventChanged,
 }) => {
+  const selectedCategory = categories.find(cat => cat.id === event.categoryId);
+
   return (
     <Card className={cn(glassCard)}>
       <CardHeader>
@@ -55,22 +57,23 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
                 Highlight
               </Badge>
             )}
-            {event.categoryId && categories.find(cat => cat.id === event.categoryId) && (
+            {selectedCategory ? (
               <Badge
                 className="text-xs flex items-center border-secondary"
                 style={{
-                  backgroundColor: convertFFToHex(
-                    categories.find(cat => cat.id === event.categoryId)!.colorCode
-                  ),
+                  backgroundColor: convertFFToHex(selectedCategory.colorCode),
                   color: '#fff',
                 }}
               >
                 <span className="mr-1 flex items-center">
-                  {getIconComponent(
-                    categories.find(cat => cat.id === event.categoryId)!.iconName
-                  )}
+                  {getIconComponent(selectedCategory.iconName)}
                 </span>
-                {categories.find(cat => cat.id === event.categoryId)!.name}
+                {selectedCategory.name}
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="text-xs flex items-center border-secondary">
+                <Tag className="mr-1 h-3 w-3" />
+                Unbekannt
               </Badge>
             )}
           </div>
@@ -167,13 +170,16 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
           <Label className="text-foreground">Kategorie</Label>
           {isEditing ? (
             <Select
-              value={editedEvent.categoryId || categories[0]?.id}
-              onValueChange={value => onInputChange('categoryId', value)}
+              value={editedEvent.categoryId || 'unknown'}
+              onValueChange={value =>
+                onInputChange('categoryId', value === 'unknown' ? undefined : value)
+              }
             >
               <SelectTrigger>
                 <SelectValue placeholder="Kategorie auswählen" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="unknown">Unbekannt</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
                     <div className="flex items-center gap-2">
@@ -187,14 +193,15 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               </SelectContent>
             </Select>
           ) : (
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <Badge
+              variant="outline"
+              className="w-fit text-xs flex items-center gap-1 border-secondary text-muted-foreground"
+            >
               <span className="flex items-center">
-                {getIconComponent(
-                  categories.find(cat => cat.id === event.categoryId)?.iconName || ''
-                )}
+                {selectedCategory ? getIconComponent(selectedCategory.iconName) : <Tag className="h-3 w-3" />}
               </span>
-              {categories.find(cat => cat.id === event.categoryId)?.name}
-            </div>
+              {selectedCategory?.name || 'Unbekannt'}
+            </Badge>
           )}
         </div>
 
