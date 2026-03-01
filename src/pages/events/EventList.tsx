@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Card,
@@ -43,6 +43,7 @@ import {
   FileSpreadsheet,
   Eye,
   Pencil,
+  RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -75,18 +76,30 @@ import {
 import { LoadingButton } from '@/components/LoadingButton';
 import { scaleIn } from '@/lib/animations';
 
+interface EventListCacheData {
+  events: Event[];
+  categories: EventCategory[];
+  updatedAt: number;
+}
+
+let eventListCache: EventListCacheData | null = null;
+const shouldUseEventListCache = process.env.NODE_ENV !== 'test';
+
 export const EventList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTimeFilter = searchParams.get('time') === 'week' ? 'week' : 'all';
+  const initialTimeFilter = ['all', 'week', 'month'].includes(searchParams.get('time') || '')
+    ? (searchParams.get('time') as string)
+    : 'all';
   const initialStatusFilter = ['all', 'past', 'running', 'future'].includes(searchParams.get('status') || '')
     ? (searchParams.get('status') as string)
     : 'all';
   const initialDateFilter = ['all', 'with-date', 'no-date'].includes(searchParams.get('date') || '')
     ? (searchParams.get('date') as string)
     : 'all';
-  const [events, setEvents] = useState<Event[]>([]);
-  const [categories, setCategories] = useState<EventCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedData = shouldUseEventListCache ? eventListCache : null;
+  const [events, setEvents] = useState<Event[]>(cachedData?.events ?? []);
+  const [categories, setCategories] = useState<EventCategory[]>(cachedData?.categories ?? []);
+  const [loading, setLoading] = useState(!cachedData);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
   const [categoryFilter, setCategoryFilter] = useState<string>(searchParams.get('category') || 'all');
@@ -94,15 +107,44 @@ export const EventList: React.FC = () => {
   const [selectedWeek, setSelectedWeek] = useState<string>(
     initialTimeFilter === 'week' ? searchParams.get('week') || '' : ''
   );
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    initialTimeFilter === 'month' ? searchParams.get('month') || '' : ''
+  );
   const [dateFilter, setDateFilter] = useState<string>(initialDateFilter); // 'all' | 'with-date' | 'no-date'
   // State für den Auswahlmodus
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
+  const isLoadingRef = useRef(false);
   const eventService = useEventService();
   const eventCategoryService = useEventCategoryService();
   const navigate = useNavigate();
 
-  const loadData = async () => {
+  const updateEventListCache = (nextEvents: Event[], nextCategories: EventCategory[]) => {
+    if (!shouldUseEventListCache) {
+      return;
+    }
+    eventListCache = {
+      events: nextEvents,
+      categories: nextCategories,
+      updatedAt: Date.now(),
+    };
+  };
+
+  const loadData = async (forceRefresh = false): Promise<boolean> => {
+    if (isLoadingRef.current) {
+      return false;
+    }
+    if (loading && !forceRefresh) {
+      return false;
+    }
+    if (!forceRefresh && shouldUseEventListCache && eventListCache) {
+      setEvents(eventListCache.events);
+      setCategories(eventListCache.categories);
+      setLoading(false);
+      return true;
+    }
+
+    isLoadingRef.current = true;
     try {
       setLoading(true);
       const [fetchedEvents, fetchedCategories] = await Promise.all([
@@ -111,23 +153,36 @@ export const EventList: React.FC = () => {
       ]);
       setEvents(fetchedEvents);
       setCategories(fetchedCategories);
+      updateEventListCache(fetchedEvents, fetchedCategories);
+      return true;
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
-      showUserFriendlyError(error, toast, () => loadData(), 'load-event');
+      showUserFriendlyError(error, toast, () => loadData(forceRefresh), 'load-event');
+      return false;
     } finally {
+      isLoadingRef.current = false;
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    if (shouldUseEventListCache && eventListCache) {
+      setEvents(eventListCache.events);
+      setCategories(eventListCache.categories);
+      setLoading(false);
+      return;
+    }
+    loadData(true);
   }, []);
 
   useEffect(() => {
     if (timeFilter !== 'week' && selectedWeek) {
       setSelectedWeek('');
     }
-  }, [timeFilter, selectedWeek]);
+    if (timeFilter !== 'month' && selectedMonth) {
+      setSelectedMonth('');
+    }
+  }, [timeFilter, selectedMonth, selectedWeek]);
 
   useEffect(() => {
     const nextParams = new URLSearchParams(searchParams);
@@ -161,6 +216,11 @@ export const EventList: React.FC = () => {
     } else {
       nextParams.delete('week');
     }
+    if (timeFilter === 'month' && selectedMonth) {
+      nextParams.set('month', selectedMonth);
+    } else {
+      nextParams.delete('month');
+    }
 
     if (dateFilter !== 'all') {
       nextParams.set('date', dateFilter);
@@ -177,6 +237,7 @@ export const EventList: React.FC = () => {
     searchParams,
     searchQuery,
     selectedWeek,
+    selectedMonth,
     setSearchParams,
     statusFilter,
     timeFilter,
@@ -200,7 +261,11 @@ export const EventList: React.FC = () => {
         title: 'Event gelöscht',
         description: 'Das Event wurde erfolgreich gelöscht.',
       });
-      loadData();
+      setEvents(prevEvents => {
+        const nextEvents = prevEvents.filter(event => event.id !== eventToDelete);
+        updateEventListCache(nextEvents, categories);
+        return nextEvents;
+      });
       setDeleteDialogOpen(false);
       setEventToDelete(null);
     } catch (error) {
@@ -210,6 +275,46 @@ export const EventList: React.FC = () => {
       setIsDeleting(false);
     }
   };
+
+  const handleManualRefresh = async () => {
+    if (loading) {
+      return;
+    }
+    const didRefresh = await loadData(true);
+    if (didRefresh) {
+      showSuccessMessage(toast, {
+        title: 'Events aktualisiert',
+        description: 'Die Event-Liste wurde neu geladen.',
+      });
+    }
+  };
+
+  const monthOptions = useMemo(() => {
+    const monthKeys = new Set<string>();
+    for (const event of events) {
+      if (event.dailyTimeSlots?.length) {
+        for (const slot of event.dailyTimeSlots) {
+          monthKeys.add(format(new Date(slot.date), 'yyyy-MM', { locale: de }));
+        }
+      } else if (event.monthYear) {
+        const parsedMonthYearDate = monthYearToDate(event.monthYear);
+        if (parsedMonthYearDate) {
+          monthKeys.add(format(startOfMonth(parsedMonthYearDate), 'yyyy-MM', { locale: de }));
+        }
+      }
+    }
+
+    return Array.from(monthKeys)
+      .sort((a, b) => b.localeCompare(a))
+      .map(monthKey => {
+        const [year, month] = monthKey.split('-');
+        const monthDate = new Date(Number(year), Number(month) - 1, 1);
+        return {
+          key: monthKey,
+          label: format(monthDate, 'MMMM yyyy', { locale: de }),
+        };
+      });
+  }, [events]);
 
 
   const filteredEvents = events.filter(event => {
@@ -266,6 +371,25 @@ export const EventList: React.FC = () => {
           const slotWeek = format(slotDate, 'w', { locale: de });
           return slotDate.getFullYear() === currentYear && slotWeek === selectedWeek;
         });
+      }
+    } else if (timeFilter === 'month') {
+      if (!selectedMonth) {
+        matchesTime = false;
+      } else if (event.dailyTimeSlots?.length) {
+        matchesTime = event.dailyTimeSlots.some(slot => {
+          const slotDate = new Date(slot.date);
+          return format(slotDate, 'yyyy-MM', { locale: de }) === selectedMonth;
+        });
+      } else if (event.monthYear) {
+        const parsedMonthYearDate = monthYearToDate(event.monthYear);
+        if (!parsedMonthYearDate) {
+          matchesTime = false;
+        } else {
+          matchesTime =
+            format(startOfMonth(parsedMonthYearDate), 'yyyy-MM', { locale: de }) === selectedMonth;
+        }
+      } else {
+        matchesTime = false;
       }
     }
 
@@ -523,6 +647,15 @@ export const EventList: React.FC = () => {
                     </AnimatedButton>
                     <AnimatedButton
                       variant="outline"
+                      onClick={handleManualRefresh}
+                      disabled={loading}
+                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                    >
+                      <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+                      Aktualisieren
+                    </AnimatedButton>
+                    <AnimatedButton
+                      variant="outline"
                       onClick={() => navigate('/events/import/csv')}
                       className={cn(glassButton, 'w-full sm:w-auto gap-2')}
                     >
@@ -605,17 +738,47 @@ export const EventList: React.FC = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Select value={timeFilter} onValueChange={setTimeFilter}>
+              <Select
+                value={timeFilter}
+                onValueChange={value => {
+                  setTimeFilter(value);
+                  if (value !== 'week') {
+                    setSelectedWeek('');
+                  }
+                  if (value === 'month') {
+                    if (!selectedMonth && monthOptions.length > 0) {
+                      setSelectedMonth(monthOptions[0].key);
+                    }
+                  } else {
+                    setSelectedMonth('');
+                  }
+                }}
+              >
                 <SelectTrigger className={cn(glassInput, 'w-full sm:w-[180px]')}>
                   <SelectValue placeholder="Zeitraum filtern" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Zeiträume</SelectItem>
                   <SelectItem value="week">Kalenderwoche</SelectItem>
+                  <SelectItem value="month">Monat</SelectItem>
                 </SelectContent>
               </Select>
               {timeFilter === 'week' && (
                 <CalendarWeekSelect value={selectedWeek} onChange={setSelectedWeek} />
+              )}
+              {timeFilter === 'month' && (
+                <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                  <SelectTrigger className={cn(glassInput, 'w-full sm:w-[220px]')}>
+                    <SelectValue placeholder="Monat auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map(monthOption => (
+                      <SelectItem key={monthOption.key} value={monthOption.key}>
+                        {monthOption.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
               <Select 
                 value={dateFilter} 
@@ -627,6 +790,7 @@ export const EventList: React.FC = () => {
                     setStatusFilter('all');
                     setTimeFilter('all');
                     setSelectedWeek('');
+                    setSelectedMonth('');
                   }
                 }}
               >
@@ -924,6 +1088,9 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   const status = getEventStatus(event);
   const fallbackImage = getRandomFallbackImage(category);
+  const hasVisibleImage = Boolean(
+    event.titleImageUrl || (event.imageUrls && event.imageUrls.length > 0) || fallbackImage
+  );
 
   return (
     <AnimatedCard
@@ -931,6 +1098,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       className={cn(
         glassCard, 
         'flex flex-col relative',
+        hasVisibleImage && 'pt-0 overflow-hidden',
         isSelectionMode && 'cursor-pointer transition-all duration-300',
         isSelectionMode && isSelected && 'ring-4 ring-primary ring-offset-2 ring-offset-background'
       )}
@@ -958,7 +1126,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <img
             src={event.titleImageUrl}
             alt={event.title}
-            className="object-cover w-full h-full rounded-t-2xl"
+            className="object-cover w-full h-full"
           />
           {event.imageUrls && event.imageUrls.length > 0 && (
             <div className="absolute bottom-2 left-2 bg-background/90 text-foreground text-xs px-2 py-1 rounded-lg border border-secondary">
@@ -971,7 +1139,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <img
             src={event.imageUrls[0]}
             alt={event.title}
-            className="object-cover w-full h-full rounded-t-2xl"
+            className="object-cover w-full h-full"
           />
           {event.imageUrls.length > 1 && (
             <Badge
@@ -993,7 +1161,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           <img
             src={fallbackImage}
             alt={`${event.title} - Kategoriebild`}
-            className="object-cover w-full h-full rounded-t-2xl opacity-80"
+            className="object-cover w-full h-full opacity-80"
           />
           <Badge
             variant="secondary"
