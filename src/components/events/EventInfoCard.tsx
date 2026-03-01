@@ -73,7 +73,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
             ) : (
               <Badge variant="outline" className="text-xs flex items-center border-secondary">
                 <Tag className="mr-1 h-3 w-3" />
-                Unbekannt
+                Keine Kategorie
               </Badge>
             )}
           </div>
@@ -170,16 +170,13 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
           <Label className="text-foreground">Kategorie</Label>
           {isEditing ? (
             <Select
-              value={editedEvent.categoryId || 'unknown'}
-              onValueChange={value =>
-                onInputChange('categoryId', value === 'unknown' ? undefined : value)
-              }
+              value={editedEvent.categoryId ?? undefined}
+              onValueChange={value => onInputChange('categoryId', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Kategorie auswählen" />
+                <SelectValue placeholder="Keine Kategorie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="unknown">Unbekannt</SelectItem>
                 {categories.map(category => (
                   <SelectItem key={category.id} value={category.id}>
                     <div className="flex items-center gap-2">
@@ -200,7 +197,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               <span className="flex items-center">
                 {selectedCategory ? getIconComponent(selectedCategory.iconName) : <Tag className="h-3 w-3" />}
               </span>
-              {selectedCategory?.name || 'Unbekannt'}
+              {selectedCategory?.name || 'Keine Kategorie'}
             </Badge>
           )}
         </div>

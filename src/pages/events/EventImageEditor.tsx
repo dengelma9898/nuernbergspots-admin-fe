@@ -123,8 +123,8 @@ const defaultSettings: DesignSettings = {
     backgroundType: 'color',
     backgroundImageOpacity: 1,
     backgroundBlendMode: 'normal',
-    eventSpacing: 3.5,
-    dateBlockSpacing: 3.5,
+    eventSpacing: 2,
+    dateBlockSpacing: 2,
   },
   date: {
     fontSize: 19,
@@ -356,9 +356,9 @@ export const EventImageEditor: React.FC = () => {
             </div>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 lg:items-start">
           {/* Linke Spalte - Einstellungen */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6 lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-2">
             <Card className={cn(glassCard)}>
               <CardHeader>
                 <CardTitle className="text-foreground">Design-Einstellungen</CardTitle>
@@ -1002,7 +1002,7 @@ export const EventImageEditor: React.FC = () => {
                       <Slider
                         value={[settings.content.dateBlockSpacing]}
                         onValueChange={([value]) => updateSetting('content', 'dateBlockSpacing', value)}
-                        min={2}
+                        min={0}
                         max={8}
                         step={0.5}
                         className={cn(glassCard, 'p-2')}
@@ -1020,7 +1020,7 @@ export const EventImageEditor: React.FC = () => {
                       <Slider
                         value={[settings.content.eventSpacing]}
                         onValueChange={([value]) => updateSetting('content', 'eventSpacing', value)}
-                        min={2}
+                        min={0}
                         max={8}
                         step={0.5}
                         className={cn(glassCard, 'p-2')}
@@ -1196,7 +1196,7 @@ export const EventImageEditor: React.FC = () => {
 
           {/* Rechte Spalte - Vorschau */}
           <motion.div
-            className="lg:col-span-2"
+            className="lg:col-span-2 lg:sticky lg:top-6 self-start"
             variants={fadeInUp}
             initial="initial"
             animate="animate"

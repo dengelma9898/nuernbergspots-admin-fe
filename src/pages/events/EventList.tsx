@@ -253,20 +253,20 @@ export const EventList: React.FC = () => {
 
     const matchesCategory = matchesCategoryFilter(event, categoryFilter);
 
-    // Zeitfilter nur für Events mit dailyTimeSlots
-    // Events mit nur monthYear (ohne dailyTimeSlots) kommen durch, da sie bereits durch dateFilter gefiltert wurden
+    // Zeitfilter (KW) gilt nur für Events mit konkreten Tagesdaten (dailyTimeSlots)
+    // und nur für das aktuelle Kalenderjahr.
     let matchesTime = true;
-    if (event.dailyTimeSlots?.length > 0) {
-      const firstDate = new Date(event.dailyTimeSlots[0].date);
-      const eventWeek = format(firstDate, 'w', { locale: de });
-      matchesTime = timeFilter === 'all' || (timeFilter === 'week' && selectedWeek === eventWeek);
-    } else if (event.monthYear) {
-      // Events mit nur monthYear kommen durch Zeit-Filter durch
-      // (sie wurden bereits durch dateFilter gefiltert)
-      matchesTime = true;
-    } else if (timeFilter !== 'all') {
-      // Events ohne jegliche Zeiteinordnung können keinen Zeitfilter haben
-      matchesTime = false;
+    if (timeFilter === 'week') {
+      if (!selectedWeek || !event.dailyTimeSlots?.length) {
+        matchesTime = false;
+      } else {
+        const currentYear = new Date().getFullYear();
+        matchesTime = event.dailyTimeSlots.some(slot => {
+          const slotDate = new Date(slot.date);
+          const slotWeek = format(slotDate, 'w', { locale: de });
+          return slotDate.getFullYear() === currentYear && slotWeek === selectedWeek;
+        });
+      }
     }
 
     const finalResult = matchesSearch && matchesStatus && matchesCategory && matchesTime;
