@@ -23,6 +23,7 @@ import {
 
 // Mock für lucide-react Icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   CheckIcon: ({ ...props }) => (
     <svg data-testid="check-icon" {...props}>
       ✓

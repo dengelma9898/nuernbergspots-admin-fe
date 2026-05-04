@@ -31,6 +31,7 @@ jest.mock('../dialog', () => ({
 
 // Mock für lucide-react Icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   SearchIcon: ({ ...props }) => (
     <svg data-testid="search-icon" {...props}>
       🔍

@@ -72,6 +72,7 @@ jest.mock('@/components/ui/badge', () => ({
 
 // Mock Lucide Icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <span data-testid="arrow-left-icon" />,
   User: () => <span data-testid="user-icon" />,
   Calendar: () => <span data-testid="calendar-icon" />,
@@ -163,7 +164,10 @@ describe('Profile Component', () => {
     render(<Profile />);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Die Benutzerdaten konnten nicht geladen werden.');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
   });
 

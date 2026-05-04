@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { ChatroomManagement } from '../ChatroomManagement';
 import { Chatroom } from '@/models/chatroom';
 
@@ -168,7 +169,10 @@ describe('ChatroomManagement', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Chatrooms konnten nicht geladen werden.');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -319,7 +323,7 @@ describe('ChatroomManagement', () => {
         });
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich erstellt.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich erstellt');
     });
 
     it('sollte Fehler bei Chatroom-Erstellung handhaben', async () => {
@@ -338,8 +342,9 @@ describe('ChatroomManagement', () => {
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht erstellt werden.');
+        expect(screen.getByText(/Fehler beim Speichern des Events/)).toBeInTheDocument();
       });
+      expect(toast.error).not.toHaveBeenCalled();
     });
 
     it('sollte Datei-Upload für Chatroom-Bild handhaben', () => {
@@ -411,7 +416,7 @@ describe('ChatroomManagement', () => {
         });
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich aktualisiert.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich aktualisiert');
     });
 
     it('sollte Fehler bei Chatroom-Aktualisierung handhaben', async () => {
@@ -430,8 +435,9 @@ describe('ChatroomManagement', () => {
       fireEvent.click(saveButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht aktualisiert werden.');
+        expect(screen.getByText(/Fehler beim Speichern des Events/)).toBeInTheDocument();
       });
+      expect(toast.error).not.toHaveBeenCalled();
     });
   });
 
@@ -481,7 +487,7 @@ describe('ChatroomManagement', () => {
         expect(mockChatroomService.deleteChatroom).toHaveBeenCalledWith('chatroom-1');
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Chatroom wurde erfolgreich gelöscht.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich gelöscht');
     });
 
     it('sollte Fehler bei Chatroom-Löschung handhaben', async () => {
@@ -500,7 +506,10 @@ describe('ChatroomManagement', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Chatroom konnte nicht gelöscht werden.');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
 

@@ -7,6 +7,7 @@ import { useBusinessService } from '@/services/businessService';
 import { BusinessUser } from '@/services/businessUserService';
 import { Business, BusinessStatus } from '@/models/business';
 import { toast } from 'sonner';
+import { expectToastErrorTitleContains } from '@/test-utils/sonnerAssertions';
 
 // Mock API module
 jest.mock('@/lib/api', () => ({
@@ -481,7 +482,10 @@ describe('EditBusinessUser', () => {
       });
 
       expect(toast.success).toHaveBeenCalledWith(
-        'Shop Gamma wurde erfolgreich zu business@example.com hinzugefügt.'
+        'Geschäft hinzugefügt',
+        expect.objectContaining({
+          description: '"Shop Gamma" wurde erfolgreich zu business@example.com hinzugefügt.',
+        })
       );
     });
 
@@ -498,9 +502,7 @@ describe('EditBusinessUser', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith(
-          'Beim Hinzufügen des Geschäfts ist ein Fehler aufgetreten.'
-        );
+        expectToastErrorTitleContains(toast.error as jest.Mock, 'Fehler beim Speichern des Geschäfts');
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -522,8 +524,10 @@ describe('EditBusinessUser', () => {
       const confirmButton = screen.getByRole('button', { name: /zuweisen/i });
       fireEvent.click(confirmButton);
 
-      expect(screen.getByText('Wird hinzugefügt...')).toBeInTheDocument();
-      expect(confirmButton).toBeDisabled();
+      await waitFor(() => {
+        expect(screen.getByText('Wird hinzugefügt...')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: /wird hinzugefügt/i })).toBeDisabled();
     });
   });
 
@@ -597,15 +601,8 @@ describe('EditBusinessUser', () => {
     });
 
     it('sollte responsive Container-Klassen haben', () => {
-      const container = document.querySelector('.min-h-screen.bg-muted');
-      expect(container).toHaveClass(
-        'min-h-screen',
-        'bg-muted',
-        'px-4',
-        'py-6',
-        'sm:px-8',
-        'overflow-x-hidden'
-      );
+      const container = document.querySelector('.min-h-screen.relative.overflow-hidden');
+      expect(container).toHaveClass('min-h-screen', 'relative', 'overflow-hidden');
     });
 
     it('sollte responsive Header haben', () => {
@@ -616,8 +613,7 @@ describe('EditBusinessUser', () => {
         'gap-2',
         'sm:flex-row',
         'sm:items-center',
-        'sm:gap-4',
-        'mb-8'
+        'sm:gap-4'
       );
     });
   });

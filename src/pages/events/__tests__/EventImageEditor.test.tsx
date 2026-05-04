@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { BrowserRouter, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { EventImageEditor } from '../EventImageEditor';
 import { Event } from '@/models/events';
@@ -164,6 +164,7 @@ jest.mock('@/components/ui/select', () => ({
 
 // Mock Lucide icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Download: () => <span data-testid="download-icon">Download</span>,
   Settings: () => <span data-testid="settings-icon">Settings</span>,
   Palette: () => <span data-testid="palette-icon">Palette</span>,
@@ -329,9 +330,9 @@ describe('EventImageEditor Component', () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Laden des Events',
+          expect.stringContaining('Fehler beim Laden des Events'),
           expect.objectContaining({
-            description: 'Das Event konnte nicht geladen werden.',
+            description: expect.stringContaining('API Error'),
           })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/events');
@@ -371,21 +372,21 @@ describe('EventImageEditor Component', () => {
     it('sollte Schriftgröße-Slider anzeigen', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const fontSizeSliders = screen.getAllByTestId('slider');
-      const fontSizeSlider = fontSizeSliders[0]; // Erster Slider ist für Schriftgröße
+      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
       expect(fontSizeSlider).toBeInTheDocument();
-      expect(fontSizeSlider).toHaveAttribute('min', '24');
-      expect(fontSizeSlider).toHaveAttribute('max', '72');
+      expect(fontSizeSlider).toHaveAttribute('min', '50');
+      expect(fontSizeSlider).toHaveAttribute('max', '200');
     });
 
     it('sollte Schriftgröße ändern', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const fontSizeSliders = screen.getAllByTestId('slider');
-      const fontSizeSlider = fontSizeSliders[0]; // Erster Slider ist für Schriftgröße
-      fireEvent.change(fontSizeSlider, { target: { value: '48' } });
+      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
+      fireEvent.change(fontSizeSlider, { target: { value: '120' } });
 
-      expect(fontSizeSlider).toHaveValue('48');
+      expect(fontSizeSlider).toHaveValue('120');
     });
 
     it('sollte Color Picker für Textfarbe anzeigen', () => {
@@ -425,12 +426,11 @@ describe('EventImageEditor Component', () => {
     it('sollte Title-Settings aktualisieren', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const fontSizeSliders = screen.getAllByTestId('slider');
-      const fontSizeSlider = fontSizeSliders[0]; // Erster Slider ist für Schriftgröße
-      fireEvent.change(fontSizeSlider, { target: { value: '42' } });
+      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
+      fireEvent.change(fontSizeSlider, { target: { value: '88' } });
 
-      // Verify that the slider value has changed
-      expect(fontSizeSlider).toHaveValue('42');
+      expect(fontSizeSlider).toHaveValue('88');
     });
 
     it('sollte Color Settings aktualisieren', () => {

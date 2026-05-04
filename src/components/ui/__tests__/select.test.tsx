@@ -35,6 +35,7 @@ import {
 
 // Mock für lucide-react Icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   CheckIcon: () => <svg data-testid="check-icon">✓</svg>,
   ChevronDownIcon: () => <svg data-testid="chevron-down-icon">↓</svg>,
   ChevronUpIcon: () => <svg data-testid="chevron-up-icon">↑</svg>,

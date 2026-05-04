@@ -25,4 +25,9 @@ dist-ssr
 
 # Environment variables
 .env*
+!.env.e2e.example
 coverage/
+
+# Playwright
+playwright-report/
+test-results/

@@ -419,26 +419,19 @@ describe('BusinessUserList', () => {
       const containers = screen.getAllByText('business@example.com');
       expect(containers).toHaveLength(2); // Mobile + Desktop
       const container = containers[0].closest('.min-h-screen');
-      expect(container).toHaveClass(
-        'min-h-screen',
-        'bg-muted',
-        'px-4',
-        'py-6',
-        'sm:px-8',
-        'overflow-x-hidden'
-      );
+      expect(container).toHaveClass('min-h-screen', 'relative', 'overflow-hidden');
     });
 
     it('sollte responsive Header haben', () => {
-      const header = screen.getByText('Business-User verwalten').closest('.flex');
-      expect(header).toHaveClass(
+      const heading = screen.getByRole('heading', { name: /business-user verwalten/i });
+      const headerRow = heading.parentElement;
+      expect(headerRow).toHaveClass(
         'flex',
         'flex-col',
         'gap-2',
         'sm:flex-row',
         'sm:items-center',
-        'sm:gap-4',
-        'mb-8'
+        'sm:gap-4'
       );
     });
 

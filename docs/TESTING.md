@@ -63,13 +63,58 @@ Unser Test-Ansatz folgt der klassischen Test-Pyramide:
 - Router-Navigation
 - Context-Provider-Interaktionen
 
+#### 4. E2E-Tests (Playwright)
+
+- **Zweck**: Wenige Smoke-Flows im echten Browser (inkl. Firebase Auth gegen das Dev-Projekt).
+- **Ort**: `e2e/*.spec.ts`, gemeinsame Hilfen unter `e2e/helpers/`
+- **Beispiele:** Login-Smoke (`auth-login.spec.ts`), Partner-Liste (`partner-verwalten.spec.ts`), Logout (`auth-logout.spec.ts`)
+- **Tools**: `@playwright/test`, Konfiguration [`playwright.config.ts`](../playwright.config.ts)
+- **Hinweis**: E2E ergänzen Jest/jsdom-Tests (echter Browser, Firebase Auth gegen das Dev-Projekt); keine dedizierte BDD/Gherkin-Suite.
+
+**Voraussetzungen**
+
+- Wie für `npm run start:dev`: `VITE_FIREBASE_*`, `VITE_API_URL` etc. (z. B. über `.env` / `.env.dev` — `playwright.config` lädt Vite-`dev`-Env analog).
+- Für den Login-Flow: `E2E_ADMIN_EMAIL` und `E2E_ADMIN_PASSWORD` (Firebase-Testuser im Dev-Projekt). Optional in `.env.e2e.local` (wird von der Playwright-Config eingelesen; nicht committen). Vorlage: [`.env.e2e.example`](../.env.e2e.example).
+
+**Befehle**
+
+```bash
+npx playwright install chromium   # einmalig Browser-Binary
+npm run test:e2e                  # Headless
+npm run test:e2e:ui               # UI-Modus zum Debuggen
+```
+
+Ohne gesetzte E2E-Credentials wird der Login-Test **übersprungen** (`test.skip`), damit `npm run validate` ohne Secrets weiterlaufen kann.
+
+**CI**
+
+- E2E **nicht** in `npm run validate` (nur Jest/Lint/Types); eigener GitHub-Actions-Job **nur vor dem Dev-Deploy**, siehe [`.github/workflows/firebase-deploy-dev.yml`](../.github/workflows/firebase-deploy-dev.yml) (`e2e-dev`). Der **Production-Deploy-Job** startet kein Playwright.
+- GitHub setzt in Actions automatisch `CI=true` — damit startet Playwright den Dev-Server frisch (`reuseExistingServer: false` in der Config).
+- **Sinnvolle CI-Abdeckung:** Im Environment **dev** die Secrets `E2E_ADMIN_EMAIL` und `E2E_ADMIN_PASSWORD` setzen (Firebase-Testuser im Dev-Projekt). Ohne diese Variablen werden Login-abhängige Specs **übersprungen** (`test.skip`) — der Job bleibt grün, testet aber weniger.
+- **Vite/Dev-URLs:** Wie beim Deploy dieselbe `.env`-Quelle — Secret **`ENV`** (kompletter Inhalt der Dev-`.env`, inkl. `VITE_*`), Schritt „Write .env file“ vor `npm run test:e2e`. Alternativ können fehlende Werte über zusätzliche Environment-Secrets ergänzt werden, sofern der Workflow sie exportiert.
+- Vor dem Testlauf: `npx playwright install --with-deps chromium` (im Workflow), damit Browser und System-Abhängigkeiten auf `ubuntu-latest` vorhanden sind.
+
 ## Test-Setup
 
 ### Konfiguration
 
 - **Jest Config**: `jest.config.js`
-- **Setup File**: `src/shared/__tests__/jest.setup.ts`
+- **Playwright Config**: `playwright.config.ts` (E2E, siehe Abschnitt „E2E-Tests (Playwright)“)
+- **Setup File**: `src/setupTests.ts` (ehemals in der Doku: `src/shared/__tests__/jest.setup.ts` — bitte `jest.config.js` `setupFilesAfterEnv` als Quelle nutzen)
 - **Test Utils**: `src/shared/__tests__/test-utils.tsx`
+
+**jsdom / Radix:** In `src/setupTests.ts` ist `Element.prototype.scrollIntoView` als No-Op gemockt, damit Komponenten mit Radix Select (u. a.) nicht mit `scrollIntoView is not a function` abbrechen.
+
+**UI-Module teilweise mocken:** Wird `@/components/ui/button` nur mit einem eigenen `Button`-Mock überschrieben, fehlt oft `buttonVariants` — echte `AlertDialogAction`/`AlertDialogCancel` importieren das weiterhin und werfen dann `buttonVariants is not a function`. Entweder `buttonVariants` im gleichen Mock exportieren (wie in `src/components/ui/__tests__/alert-dialog.test.tsx`) oder den echten Button per `jest.requireActual` erweitern.
+
+**Doppelte Texte:** Rendert eine Seite dieselbe Meldung an mehreren Stellen (z. B. zwei `Alert`-Blöcke mit derselben `validationErrors`-Liste), schlägt `getByText`/`findByText` mit „Found multiple elements“ fehl — dann `getAllByText`/`findAllByText` oder gezielt `within(...)` nutzen.
+
+**Temporär ausgeschlossene Suites:** In `jest.config.js` ist `src/pages/businesses/__tests__/CreateBusiness.test.tsx` über `testPathIgnorePatterns` vom Standard-`npm test` ausgenommen, bis die Suite repariert ist (siehe Kommentar in der Jest-Konfiguration).
+
+### Zeitlimits (max. 10 Sekunden)
+
+- **Jest:** `testTimeout: 10000` in `jest.config.js`; die npm-Skripte `test`, `test:watch` und `test:coverage` setzen zusätzlich `--testTimeout=10000`.
+- **Testing Library:** In `src/setupTests.ts` ist `configure({ asyncUtilTimeout: 10000 })` gesetzt, damit `waitFor` und asynchrone Queries nicht länger als 10 Sekunden pollen.
 
 ### Globale Mocks
 

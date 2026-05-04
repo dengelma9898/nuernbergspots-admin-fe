@@ -1,4 +1,8 @@
 import '@testing-library/jest-dom';
+import { configure } from '@testing-library/react';
+
+// Obergrenze 10s für waitFor / findBy* (Projektstandard, siehe docs/TESTING.md)
+configure({ asyncUtilTimeout: 10000 });
 
 // Erweitere Jest Matchers mit @testing-library/jest-dom
 declare global {
@@ -20,6 +24,9 @@ declare global {
 
 // Mock fetch global
 global.fetch = jest.fn();
+
+// API-Basis-URL für src/lib/api.ts (process.env, siehe vite.config define)
+process.env.VITE_API_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Mock TextEncoder/TextDecoder for Node.js environment
 if (typeof global.TextEncoder === 'undefined') {
@@ -61,6 +68,9 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// jsdom: Radix Select/ScrollArea etc. rufen scrollIntoView auf (siehe docs/TESTING.md)
+Element.prototype.scrollIntoView = jest.fn();
 
 // Mock React Router
 jest.mock('react-router-dom', () => ({

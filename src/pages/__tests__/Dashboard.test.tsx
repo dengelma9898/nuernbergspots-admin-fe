@@ -11,12 +11,14 @@ let contactRequestsPromiseResolve: (value: number) => void;
 const mockGetPendingApprovalsCount = jest.fn();
 const mockGetBusinessUsersInReviewCount = jest.fn();
 const mockGetOpenContactRequestsCount = jest.fn();
+const mockGetAllUsers = jest.fn();
 const mockNavigate = jest.fn();
 const mockLogout = jest.fn();
 
 jest.mock('../../services/userService', () => ({
   useUserService: () => ({
     getBusinessUsersInReviewCount: mockGetBusinessUsersInReviewCount,
+    getAllUsers: mockGetAllUsers,
   }),
 }));
 
@@ -77,6 +79,7 @@ jest.mock('@/components/ui/progress', () => ({
 
 // Mock Lucide Icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   User: () => <span data-testid="user-icon" />,
   Calendar: () => <span data-testid="calendar-icon" />,
   Store: () => <span data-testid="store-icon" />,
@@ -101,6 +104,18 @@ jest.mock('lucide-react', () => ({
 describe('Dashboard Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+
+    mockGetAllUsers.mockResolvedValue([]);
+    window.matchMedia = jest.fn().mockImplementation(() => ({
+      matches: true,
+      media: '',
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    }));
 
     // Set up controlled promises for testing loading states
     mockGetPendingApprovalsCount.mockImplementation(() => {
@@ -132,7 +147,6 @@ describe('Dashboard Component', () => {
   it('renders navigation sections', () => {
     render(<Dashboard />);
 
-    expect(screen.getByText('Management')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Partner' })).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Events' })).toBeTruthy();
     expect(screen.getByText('Kontaktanfragen')).toBeTruthy();

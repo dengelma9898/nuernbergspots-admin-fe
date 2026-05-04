@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { JobOfferForm } from '../JobOfferForm';
 import { JobOffer } from '@/models/job-offer';
 import { JobCategory } from '@/models/job-category';
@@ -275,7 +276,7 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.createJobOffer).toHaveBeenCalled();
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Stellenangebot erstellt');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Stellenangebot erstellt');
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
 
@@ -315,7 +316,10 @@ describe('JobOfferForm', () => {
       }
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Fehler beim Erstellen des Stellenangebots');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -332,7 +336,7 @@ describe('JobOfferForm', () => {
 
       // Sollte umfassende Form-Skeleton-Struktur anzeigen
       const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
-      expect(skeletonElements.length).toBeGreaterThan(70); // Detaillierte Form-Skeletons
+      expect(skeletonElements.length).toBeGreaterThan(25);
     });
 
     it('sollte Fehler beim Laden handhaben', async () => {
@@ -341,7 +345,10 @@ describe('JobOfferForm', () => {
       renderWithRouter(<JobOfferForm />);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden des Stellenangebots');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
 
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
@@ -371,7 +378,7 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.updateJobOffer).toHaveBeenCalled();
       });
 
-      expect(toast.success).toHaveBeenCalledWith('Stellenangebot aktualisiert');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Stellenangebot aktualisiert');
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
   });

@@ -212,10 +212,10 @@ describe('UserManagement', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('User')).toBeInTheDocument();
-        expect(screen.getByText('Admin')).toBeInTheDocument();
-        expect(screen.getByText('Business')).toBeInTheDocument();
-        expect(screen.getByText('Premium Business')).toBeInTheDocument();
+        expect(screen.getAllByText('User').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Admin').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Business').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Premium Business').length).toBeGreaterThan(0);
       });
     });
   });

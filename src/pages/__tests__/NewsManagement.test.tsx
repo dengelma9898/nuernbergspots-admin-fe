@@ -191,6 +191,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Loader2: () => <div data-testid="loader2-icon">Loader2</div>,
   UserCircle: () => <div data-testid="user-circle-icon">UserCircle</div>,
   Image: () => <div data-testid="image-icon">Image</div>,

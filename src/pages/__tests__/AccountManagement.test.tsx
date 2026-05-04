@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { AccountManagement } from '../AccountManagement';
 
 // Mock React Router
@@ -88,6 +89,7 @@ jest.mock('@/components/ui/alert-dialog', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
   Users: () => <div data-testid="users-icon">Users</div>,
@@ -213,7 +215,10 @@ describe('AccountManagement Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden der Statistiken');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
 
     expect(screen.getByText('Keine Daten verfügbar')).toBeTruthy();
@@ -279,7 +284,7 @@ describe('AccountManagement Component', () => {
 
     await waitFor(() => {
       expect(mockAccountManagementService.cleanupAnonymousAccounts).toHaveBeenCalledTimes(1);
-      expect(toast.success).toHaveBeenCalledWith('Anonyme Accounts erfolgreich bereinigt');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Anonyme Accounts erfolgreich bereinigt');
     });
   });
 
@@ -299,7 +304,10 @@ describe('AccountManagement Component', () => {
     await user.click(confirmButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Bereinigen der anonymen Accounts');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
   });
 

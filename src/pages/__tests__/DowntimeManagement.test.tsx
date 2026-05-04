@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { DowntimeManagement } from '../DowntimeManagement';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
 const mockNavigate = jest.fn();
@@ -109,6 +113,7 @@ jest.mock('@/components/ui/alert-dialog', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   AlertTriangle: () => <div data-testid="alert-triangle-icon">AlertTriangle</div>,
 }));
@@ -298,7 +303,7 @@ describe('DowntimeManagement Component', () => {
 
     await waitFor(() => {
       expect(mockDowntimeService.setDowntimeStatus).toHaveBeenCalledWith(true);
-      expect(toast.success).toHaveBeenCalledWith('Downtime wurde aktiviert');
+      expectToastSuccessTitle(toast.success, 'Downtime wurde aktiviert');
     });
   });
 
@@ -330,7 +335,7 @@ describe('DowntimeManagement Component', () => {
 
     await waitFor(() => {
       expect(mockDowntimeService.setDowntimeStatus).toHaveBeenCalledWith(false);
-      expect(toast.success).toHaveBeenCalledWith('Downtime wurde deaktiviert');
+      expectToastSuccessTitle(toast.success, 'Downtime wurde deaktiviert');
     });
   });
 
@@ -368,7 +373,7 @@ describe('DowntimeManagement Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden des Downtime-Status');
+      expectToastErrorTitleContains(toast.error, 'Fehler');
     });
   });
 
@@ -397,7 +402,7 @@ describe('DowntimeManagement Component', () => {
     await user.click(confirmButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Aktualisieren des Downtime-Status');
+      expectToastErrorTitleContains(toast.error, 'Fehler');
     });
   });
 

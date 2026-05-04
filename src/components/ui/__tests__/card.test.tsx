@@ -38,10 +38,10 @@ describe('Card Components', () => {
         'flex',
         'flex-col',
         'gap-6',
-        'rounded-xl',
+        'rounded-lg',
         'border',
-        'py-6',
-        'shadow-sm'
+        'border-secondary',
+        'py-6'
       );
     });
   });

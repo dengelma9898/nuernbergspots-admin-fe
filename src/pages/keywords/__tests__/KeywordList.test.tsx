@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { KeywordList } from '../KeywordList';
 import { Keyword } from '@/models/keyword';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mocks
 const mockNavigate = jest.fn();
@@ -102,13 +106,15 @@ jest.mock('@/components/ui/table', () => ({
 
 jest.mock('@/components/ui/dialog', () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
-    <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
+    <div data-testid="dialog" data-open={open ? 'true' : 'false'}>
       {children}
     </div>
   ),
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
   DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
+  DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
@@ -135,6 +141,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Lucide icons mock
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -242,7 +249,7 @@ describe('KeywordList Component', () => {
       renderWithRouter(<KeywordList />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Keywords');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Laden der Keywords');
       });
     });
 
@@ -359,7 +366,7 @@ describe('KeywordList Component', () => {
           name: 'Neues Keyword',
           description: 'Test Beschreibung',
         });
-        expect(mockToast.success).toHaveBeenCalledWith('Keyword hinzugefügt');
+        expectToastSuccessTitle(mockToast.success, 'Keyword hinzugefügt');
       });
     });
 
@@ -368,16 +375,23 @@ describe('KeywordList Component', () => {
 
       renderWithRouter(<KeywordList />);
 
-      // Dialog öffnen
+      await waitFor(() => {
+        expect(screen.getAllByText('Pizza')[0]).toBeInTheDocument();
+      });
+
       const newKeywordButton = screen.getByTestId('plus-icon').closest('button');
       fireEvent.click(newKeywordButton!);
 
       await waitFor(() => {
-        const createButton = screen.getByTestId('check-icon').closest('button');
-        fireEvent.click(createButton!);
+        expect(screen.getByTestId('dialog-title')).toHaveTextContent('Neues Keyword');
       });
 
-      expect(mockToast.error).toHaveBeenCalledWith('Bitte geben Sie einen Namen ein');
+      const createButton = screen.getByTestId('check-icon').closest('button');
+      fireEvent.click(createButton!);
+
+      await waitFor(() => {
+        expect(screen.getByText('Bitte geben Sie einen Namen ein')).toBeInTheDocument();
+      });
     });
 
     it('sollte Whitespace trimmen beim Erstellen', async () => {
@@ -434,7 +448,7 @@ describe('KeywordList Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Hinzufügen des Keywords');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern des Keywords');
       });
     });
   });
@@ -489,7 +503,7 @@ describe('KeywordList Component', () => {
           name: 'Updated Pizza',
           description: 'Italienisches Gericht',
         });
-        expect(mockToast.success).toHaveBeenCalledWith('Keyword aktualisiert');
+        expectToastSuccessTitle(mockToast.success, 'Keyword aktualisiert');
       });
     });
 
@@ -511,7 +525,7 @@ describe('KeywordList Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Aktualisieren des Keywords');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern des Keywords');
       });
     });
   });
@@ -539,7 +553,7 @@ describe('KeywordList Component', () => {
 
       await waitFor(() => {
         expect(mockKeywordService.deleteKeyword).toHaveBeenCalledWith('keyword-1');
-        expect(mockToast.success).toHaveBeenCalledWith('Keyword gelöscht');
+        expectToastSuccessTitle(mockToast.success, 'Keyword gelöscht');
       });
     });
 
@@ -556,7 +570,7 @@ describe('KeywordList Component', () => {
       fireEvent.click(deleteItem!);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Löschen des Keywords');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Löschen des Keywords');
       });
     });
   });
@@ -570,8 +584,8 @@ describe('KeywordList Component', () => {
       fireEvent.click(newKeywordButton!);
 
       await waitFor(() => {
-        const cancelButton = screen.getByTestId('x-icon').closest('button');
-        fireEvent.click(cancelButton!);
+        const cancelButton = screen.getByRole('button', { name: /Abbrechen/i });
+        fireEvent.click(cancelButton);
       });
 
       // Dialog sollte geschlossen sein (our mock doesn't actually close it)
@@ -610,7 +624,7 @@ describe('KeywordList Component', () => {
 
       // Find the outermost container div
       const container = document.querySelector('.container.mx-auto');
-      expect(container).toHaveClass('container', 'mx-auto', 'p-4', 'md:p-8', 'max-w-7xl');
+      expect(container).toHaveClass('relative', 'z-10', 'container', 'mx-auto', 'py-6');
     });
 
     it('sollte Desktop-Tabelle rendern', async () => {

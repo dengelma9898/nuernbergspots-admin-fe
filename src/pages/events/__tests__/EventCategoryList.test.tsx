@@ -5,6 +5,10 @@ import { EventCategoryList } from '../EventCategoryList';
 import { useEventCategoryService } from '../../../services/eventCategoryService';
 import { EventCategory } from '../../../models/event-category';
 import '@testing-library/jest-dom';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mock alle externen Dependencies
 jest.mock('../../../lib/api', () => ({
@@ -107,6 +111,8 @@ jest.mock('@/components/ui/dialog', () => ({
   ),
   DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
   DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
+  DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
@@ -141,6 +147,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -286,7 +293,7 @@ describe('EventCategoryList Component', () => {
       renderWithRouter(<EventCategoryList />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Kategorien');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Laden der Kategorien');
       });
     });
 
@@ -385,7 +392,7 @@ describe('EventCategoryList Component', () => {
             iconName: 'test-icon',
           })
         );
-        expect(mockToast.success).toHaveBeenCalledWith('Kategorie hinzugefügt');
+        expectToastSuccessTitle(mockToast.success, 'Kategorie hinzugefügt');
       });
     });
 
@@ -404,7 +411,7 @@ describe('EventCategoryList Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Bitte geben Sie einen Namen ein');
+        expect(screen.getByText('Bitte geben Sie einen Namen ein')).toBeInTheDocument();
       });
     });
 
@@ -427,7 +434,7 @@ describe('EventCategoryList Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Hinzufügen der Kategorie');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern der Kategorie');
       });
     });
   });
@@ -474,7 +481,7 @@ describe('EventCategoryList Component', () => {
 
         await waitFor(() => {
           expect(mockEventCategoryService.updateCategory).toHaveBeenCalled();
-          expect(mockToast.success).toHaveBeenCalledWith('Kategorie aktualisiert');
+          expectToastSuccessTitle(mockToast.success, 'Kategorie aktualisiert');
         });
       }
     });
@@ -496,7 +503,7 @@ describe('EventCategoryList Component', () => {
 
         await waitFor(() => {
           expect(mockEventCategoryService.deleteCategory).toHaveBeenCalledWith('cat-1');
-          expect(mockToast.success).toHaveBeenCalledWith('Kategorie gelöscht');
+          expectToastSuccessTitle(mockToast.success, 'Kategorie gelöscht');
         });
       }
     });
@@ -516,7 +523,7 @@ describe('EventCategoryList Component', () => {
         fireEvent.click(deleteButtons[0]);
 
         await waitFor(() => {
-          expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Löschen der Kategorie');
+          expectToastErrorTitleContains(mockToast.error, 'Fehler beim Löschen der Kategorie');
         });
       }
     });

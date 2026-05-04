@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { JobCategories } from '../JobCategories';
 import { JobCategory } from '@/models/job-category';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
 const mockNavigate = jest.fn();
@@ -85,8 +89,9 @@ jest.mock('@/components/ui/table', () => ({
 }));
 
 jest.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open, onOpenChange }: any) => (
-    <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(!open)}>
+  // Kein onClick auf dem Wrapper: sonst schließt jeder Klick im Dialog (z. B. „Hinzufügen“) den Dialog und bricht Tests.
+  Dialog: ({ children, open }: any) => (
+    <div data-testid="dialog" data-open={open}>
       {children}
     </div>
   ),
@@ -123,6 +128,7 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -374,7 +380,7 @@ describe('JobCategories Component', () => {
           description: 'Test Description',
         })
       );
-      expect(toast.success).toHaveBeenCalledWith('Kategorie hinzugefügt');
+      expectToastSuccessTitle(toast.success, 'Kategorie hinzugefügt');
     });
   });
 
@@ -401,7 +407,7 @@ describe('JobCategories Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Bitte geben Sie einen Namen ein');
+      expect(screen.getByText('Bitte geben Sie einen Namen ein')).toBeInTheDocument();
     });
   });
 
@@ -459,14 +465,13 @@ describe('JobCategories Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      // Since the dialog is in "new category" mode, it would call createCategory
-      // This is a limitation of our mock implementation
-      expect(mockJobCategoryService.createCategory).toHaveBeenCalledWith(
+      expect(mockJobCategoryService.updateCategory).toHaveBeenCalledWith(
+        'cat-1',
         expect.objectContaining({
           name: 'Updated Category',
         })
       );
-      expect(toast.success).toHaveBeenCalledWith('Kategorie hinzugefügt');
+      expectToastSuccessTitle(toast.success, 'Kategorie aktualisiert');
     });
   });
 
@@ -484,7 +489,7 @@ describe('JobCategories Component', () => {
 
     await waitFor(() => {
       expect(mockJobCategoryService.deleteCategory).toHaveBeenCalledWith('cat-1');
-      expect(toast.success).toHaveBeenCalledWith('Kategorie gelöscht');
+      expectToastSuccessTitle(toast.success, 'Kategorie gelöscht');
     });
   });
 
@@ -515,7 +520,7 @@ describe('JobCategories Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Hinzufügen der Kategorie');
+      expectToastErrorTitleContains(toast.error, 'Fehler beim Speichern der Kategorie');
     });
   });
 
@@ -541,7 +546,7 @@ describe('JobCategories Component', () => {
     await user.click(updateButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Aktualisieren der Kategorie');
+      expectToastErrorTitleContains(toast.error, 'Fehler beim Speichern der Kategorie');
     });
   });
 
@@ -560,7 +565,7 @@ describe('JobCategories Component', () => {
     await user.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Löschen der Kategorie');
+      expectToastErrorTitleContains(toast.error, 'Fehler beim Löschen der Kategorie');
     });
   });
 
@@ -571,7 +576,7 @@ describe('JobCategories Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Fehler beim Laden der Kategorien');
+      expectToastErrorTitleContains(toast.error, 'Fehler beim Laden der Kategorien');
     });
   });
 

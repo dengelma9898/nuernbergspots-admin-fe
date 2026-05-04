@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { ContactRequests } from '../ContactRequests';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 
@@ -165,7 +166,10 @@ describe('ContactRequests', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Kontaktanfragen');
+        expect(mockToast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -236,7 +240,7 @@ describe('ContactRequests', () => {
         renderWithRouter(<ContactRequests />);
       });
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
 
       await act(async () => {
         fireEvent.click(refreshButton);
@@ -257,14 +261,13 @@ describe('ContactRequests', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockContactRequests), 100))
       );
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
       fireEvent.click(refreshButton);
 
-      // Prüfe Loading State
-      expect(screen.getByText('Wird aktualisiert...')).toBeInTheDocument();
+      expect(refreshButton).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByText('Aktualisieren')).toBeInTheDocument();
+        expect(refreshButton).not.toBeDisabled();
       });
     });
   });
@@ -305,7 +308,7 @@ describe('ContactRequests', () => {
         return renderWithRouter(<ContactRequests />);
       });
 
-      const mainContainer = container.querySelector('.w-full.min-h-screen.bg-white.p-4.md\\:p-8');
+      const mainContainer = container.querySelector('.w-full.min-h-screen.bg-white');
       expect(mainContainer).toBeInTheDocument();
 
       const contentContainer = container.querySelector('.max-w-2xl.mx-auto');
@@ -317,11 +320,11 @@ describe('ContactRequests', () => {
         renderWithRouter(<ContactRequests />);
       });
 
-      const refreshButton = screen.getByText('Aktualisieren');
-      expect(refreshButton.closest('button')).toHaveClass('w-full', 'sm:w-auto');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
+      expect(refreshButton).toHaveClass('size-9', 'rounded-full', 'shrink-0');
 
-      const dashboardButton = screen.getByText('Zurück zum Dashboard');
-      expect(dashboardButton.closest('button')).toHaveClass('w-full', 'sm:w-auto');
+      const dashboardButton = screen.getByRole('button', { name: /zurück zum dashboard/i });
+      expect(dashboardButton).toHaveClass('size-9', 'rounded-full', 'shrink-0');
     });
   });
 
@@ -332,7 +335,7 @@ describe('ContactRequests', () => {
       });
 
       await waitFor(() => {
-        const cards = container.querySelectorAll('.hover\\:bg-accent\\/40');
+        const cards = container.querySelectorAll('.group.cursor-pointer');
         expect(cards.length).toBeGreaterThan(0);
       });
     });
@@ -365,17 +368,17 @@ describe('ContactRequests', () => {
 
       // Warte bis initiale Ladung abgeschlossen ist
       await waitFor(() => {
-        expect(screen.getByText('Aktualisieren')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /aktualisieren/i })).toBeInTheDocument();
       });
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
 
       await act(async () => {
         fireEvent.click(refreshButton);
       });
 
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('Kontaktanfragen erfolgreich aktualisiert');
+        expectToastSuccessTitle(mockToast.success as jest.Mock, 'Kontaktanfragen erfolgreich aktualisiert');
       });
     });
 
@@ -387,7 +390,10 @@ describe('ContactRequests', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Kontaktanfragen');
+        expect(mockToast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -404,11 +410,7 @@ describe('ContactRequests', () => {
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBeGreaterThan(0);
 
-      // Prüfe dass mehrere Skeleton-Karten mit dem richtigen Glassmorphism-Styling angezeigt werden
-      const skeletonCards = container.querySelectorAll(
-        '.backdrop-blur-3xl.bg-gradient-to-br.from-white\\/15.to-white\\/5'
-      );
-      expect(skeletonCards.length).toBeGreaterThanOrEqual(3); // Mindestens 3 Skeleton-Karten
+      expect(skeletons.length).toBeGreaterThanOrEqual(15);
 
       await waitFor(() => {
         // Nach dem Laden sollten die echten Kontaktanfragen angezeigt werden

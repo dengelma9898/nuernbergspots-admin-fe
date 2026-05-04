@@ -33,6 +33,7 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
+import { showSuccessMessage, showUserFriendlyError } from '@/utils/errorUtils';
 
 export default function SpecialPollDetail() {
   const { pollId } = useParams<{ pollId: string }>();

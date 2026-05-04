@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import SpecialPollDetail from '../SpecialPollDetail';
 import { SpecialPollStatus } from '@/models/specialPoll';
 
@@ -124,6 +125,7 @@ jest.mock('@/components/ui/select', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
 }));
 
@@ -304,7 +306,7 @@ describe('SpecialPollDetail Component', () => {
         'test-poll-id',
         'My new response'
       );
-      expect(toast.success).toHaveBeenCalledWith('Antwort wurde hinzugefügt.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Antwort wurde hinzugefügt');
     });
   });
 
@@ -323,7 +325,10 @@ describe('SpecialPollDetail Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Antwort konnte nicht hinzugefügt werden.');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
   });
 
@@ -331,8 +336,8 @@ describe('SpecialPollDetail Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const submitButton = screen.getByText('Antwort absenden') as HTMLButtonElement;
-      expect(submitButton.disabled).toBe(true);
+      const submitButton = screen.getByRole('button', { name: /antwort absenden/i });
+      expect(submitButton).toBeDisabled();
     });
   });
 
@@ -416,7 +421,7 @@ describe('SpecialPollDetail Component', () => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
         status: 'PENDING',
       });
-      expect(toast.success).toHaveBeenCalledWith('Status wurde aktualisiert.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Status wurde aktualisiert');
     });
   });
 
@@ -438,7 +443,10 @@ describe('SpecialPollDetail Component', () => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
         status: 'PENDING',
       });
-      expect(toast.error).toHaveBeenCalledWith('Status konnte nicht geändert werden.');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
   });
 

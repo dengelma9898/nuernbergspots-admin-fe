@@ -41,6 +41,7 @@ jest.mock('../button', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ChevronLeft: React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => (
     <svg ref={ref} data-testid="chevron-left" {...props}>
       <title>Chevron Left</title>

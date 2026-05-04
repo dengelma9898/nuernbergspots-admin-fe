@@ -1570,6 +1570,7 @@ export const EditBusiness: React.FC = () => {
                 isLoading={isSaving}
                 loadingText="Speichert..."
                 className={cn(glassButton, 'flex items-center')}
+                data-testid="edit-business-open-save-dialog"
               >
                 Änderungen speichern
               </LoadingButton>
@@ -1616,6 +1617,7 @@ export const EditBusiness: React.FC = () => {
                 glassButton,
                 'bg-primary hover:bg-primary/90 text-primary-foreground'
               )}
+              data-testid="edit-business-confirm-save"
             >
               Änderungen speichern
             </AlertDialogAction>

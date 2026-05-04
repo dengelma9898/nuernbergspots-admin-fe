@@ -6,6 +6,7 @@ import { LoadingOverlay } from '../loading-overlay';
 
 // Mock the Calendar icon from lucide-react
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Calendar: React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => (
     <svg ref={ref} data-testid="calendar-icon" className={props.className} {...props}>
       <title>Calendar</title>

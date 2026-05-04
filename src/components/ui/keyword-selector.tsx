@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
+
+import { SelectableBadge } from '@/components/ui/SelectableBadge';
+import { cn } from '@/lib/utils';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
-import { Badge } from './badge';
-import { cn } from '@/lib/utils';
 
 interface KeywordSelectorProps {
   selectedIds?: string[];

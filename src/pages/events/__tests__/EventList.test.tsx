@@ -123,6 +123,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
   Image: () => <div data-testid="image-icon">Image</div>,
   Heart: () => <div data-testid="heart-icon">Heart</div>,
@@ -377,7 +378,7 @@ describe('EventList Component', () => {
       await waitFor(() => {
         expect(screen.getAllByText('Zurück zum Dashboard')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Bild generieren')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Events suchen')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('CSV Import')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Event hinzufügen')[0]).toBeInTheDocument();
       });
     });
@@ -401,9 +402,9 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler',
+          expect.stringContaining('Fehler beim Laden des Events'),
           expect.objectContaining({
-            description: 'API Error',
+            description: expect.stringContaining('API Error'),
           })
         );
       });
@@ -428,16 +429,6 @@ describe('EventList Component', () => {
         const addButton = screen.getAllByText('Event hinzufügen')[0];
         fireEvent.click(addButton);
         expect(mockNavigate).toHaveBeenCalledWith('/create-event');
-      });
-    });
-
-    it('sollte zum Event Scraper navigieren', async () => {
-      renderWithRouter(<EventList />);
-
-      await waitFor(() => {
-        const scraperButton = screen.getAllByText('Events suchen')[0];
-        fireEvent.click(scraperButton);
-        expect(mockNavigate).toHaveBeenCalledWith('/events/scraper');
       });
     });
 
@@ -692,8 +683,10 @@ describe('EventCard Component', () => {
       const editButton = screen.getAllByText('Bearbeiten')[0];
       fireEvent.click(editButton);
 
-      // Überprüfe, dass Navigation zur Event-Detail-Seite aufgerufen wurde
-      expect(mockNavigate).toHaveBeenCalledWith(`/events/${mockEvent.id}`);
+      expect(mockNavigate).toHaveBeenCalledWith(
+        expect.stringContaining(`/events/${mockEvent.id}`),
+        expect.objectContaining({ state: { startInEditMode: true } })
+      );
     });
   });
 

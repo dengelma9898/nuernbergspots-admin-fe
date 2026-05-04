@@ -3,6 +3,10 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { CategoryList } from '../CategoryList';
 import { BusinessCategory, BusinessCategoryCreation } from '@/models/business-category';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mocks
 const mockNavigate = jest.fn();
@@ -116,6 +120,8 @@ jest.mock('@/components/ui/dialog', () => ({
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
   DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
+  DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
@@ -169,6 +175,7 @@ jest.mock('@/components/ui/keyword-selector', () => ({
 
 // Lucide icons mock
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -294,7 +301,7 @@ describe('CategoryList Component', () => {
       renderWithRouter(<CategoryList />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Kategorien');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Laden der Kategorien');
       });
     });
 
@@ -413,7 +420,7 @@ describe('CategoryList Component', () => {
           iconName: 'test_icon', // toSnakeCase applied
           keywordIds: [],
         });
-        expect(mockToast.success).toHaveBeenCalledWith('Kategorie hinzugefügt');
+        expectToastSuccessTitle(mockToast.success, 'Kategorie hinzugefügt');
       });
     });
 
@@ -431,7 +438,7 @@ describe('CategoryList Component', () => {
         fireEvent.click(createButton!);
       });
 
-      expect(mockToast.error).toHaveBeenCalledWith('Bitte geben Sie einen Namen ein');
+      expect(screen.getByText('Bitte geben Sie einen Namen ein')).toBeInTheDocument();
     });
 
     it.skip('sollte Fehler beim Erstellen behandeln (DEAKTIVIERT - Endlosschleife)', async () => {
@@ -453,7 +460,7 @@ describe('CategoryList Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Hinzufügen der Kategorie');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern der Kategorie');
       });
     });
   });
@@ -499,7 +506,7 @@ describe('CategoryList Component', () => {
           iconName: 'restaurant',
           keywordIds: ['keyword-1'],
         });
-        expect(mockToast.success).toHaveBeenCalledWith('Kategorie aktualisiert');
+        expectToastSuccessTitle(mockToast.success, 'Kategorie aktualisiert');
       });
     });
   });
@@ -522,7 +529,7 @@ describe('CategoryList Component', () => {
 
       await waitFor(() => {
         expect(mockBusinessCategoryService.deleteCategory).toHaveBeenCalledWith('category-1');
-        expect(mockToast.success).toHaveBeenCalledWith('Kategorie gelöscht');
+        expectToastSuccessTitle(mockToast.success, 'Kategorie gelöscht');
       });
     });
 
@@ -534,7 +541,7 @@ describe('CategoryList Component', () => {
       fireEvent.click(deleteButtons[0]);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Löschen der Kategorie');
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Löschen der Kategorie');
       });
     });
   });
@@ -609,7 +616,7 @@ describe('CategoryList Component', () => {
 
       // Find the outermost container div
       const container = document.querySelector('.container.mx-auto');
-      expect(container).toHaveClass('container', 'mx-auto', 'p-4', 'md:p-8', 'max-w-7xl');
+      expect(container).toHaveClass('relative', 'z-10', 'container', 'mx-auto', 'py-6');
     });
 
     it('sollte Desktop-Tabelle verstecken auf Mobile', async () => {

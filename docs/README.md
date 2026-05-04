@@ -12,7 +12,7 @@ Das Nürnbergspots Admin Frontend ist eine React-basierte Webanwendung zur Verwa
 - **State Management**: React Context API
 - **Routing**: React Router
 - **HTTP Client**: Axios über custom API layer
-- **Testing**: Jest & React Testing Library
+- **Testing**: Jest & React Testing Library; E2E mit Playwright (siehe [TESTING.md](./TESTING.md))
 - **Authentication**: Firebase Auth
 - **Date Handling**: date-fns
 - **Icons**: Lucide React
@@ -64,12 +64,12 @@ src/
 - **EventList.tsx**: Alle Veranstaltungen
 - **CreateEvent.tsx**: Neue Veranstaltungen erstellen
 - **EventDetail.tsx**: Detailansicht von Veranstaltungen
-- **EventScraper.tsx**: Automatisiertes Event-Scraping
+- **CsvEventImport.tsx**: CSV-Import für Events
 - **Features**:
   - Event-Lifecycle-Management
   - Kategorisierung
   - Bildbearbeitung
-  - Scraper-Integration
+  - CSV-Import
 
 ### 4. Benutzerverwaltung (`src/pages/users/`)
 

@@ -104,6 +104,7 @@ jest.mock('@/components/ui/select', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
   Image: () => <div data-testid="image-icon">Image</div>,
   Briefcase: () => <div data-testid="briefcase-icon">Briefcase</div>,
@@ -492,11 +493,8 @@ describe('JobOffers Component', () => {
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        'Fehler beim Laden der Daten',
-        expect.objectContaining({
-          description:
-            'Die Daten konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-        })
+        expect.stringContaining('Fehler beim Laden des Stellenangebots'),
+        expect.objectContaining({ description: expect.any(String) })
       );
     });
   });
@@ -517,11 +515,8 @@ describe('JobOffers Component', () => {
 
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith(
-        'Fehler beim Löschen',
-        expect.objectContaining({
-          description:
-            'Das Stellenangebot konnte nicht gelöscht werden. Bitte versuchen Sie es später erneut.',
-        })
+        expect.stringContaining('Fehler beim Löschen des Stellenangebots'),
+        expect.objectContaining({ description: expect.any(String) })
       );
     });
   });

@@ -5,6 +5,10 @@ import { CreateBusiness } from '../CreateBusiness';
 import { BusinessCategory } from '@/models/business-category';
 import { Keyword } from '@/models/keyword';
 import { BusinessStatus } from '@/models/business';
+import {
+  expectToastErrorTitleContains,
+  expectToastSuccessTitle,
+} from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
 const mockNavigate = jest.fn();
@@ -127,6 +131,7 @@ jest.mock('@/components/ui/LocationSearch', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Trash2: () => <div data-testid="trash-icon">Trash2</div>,
 }));
@@ -181,7 +186,15 @@ describe('CreateBusiness Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
-    mockKeywordService.getKeyword.mockResolvedValue(mockKeyword);
+    // Pro Keyword-ID ein eigenes Objekt zurückgeben — sonst liefert getKeyword immer dasselbe
+    // Objekt (z. B. zweimal keyword-1) und React meldet doppelte Keys in keywords.map.
+    mockKeywordService.getKeyword.mockImplementation((id: string) => {
+      const embedded = mockBusinessCategory.keywords?.find(k => k.id === id);
+      if (embedded) {
+        return Promise.resolve({ ...embedded });
+      }
+      return Promise.resolve({ ...mockKeyword, id, name: id === mockKeyword.id ? mockKeyword.name : `Keyword ${id}` });
+    });
   });
 
   describe('Component Rendering', () => {
@@ -261,12 +274,7 @@ describe('CreateBusiness Component', () => {
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Laden der Kategorien',
-          expect.objectContaining({
-            description: 'Die Kategorien konnten nicht geladen werden.',
-          })
-        );
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Laden der Kategorien');
       });
     });
   });
@@ -383,12 +391,7 @@ describe('CreateBusiness Component', () => {
         // Versuche 4. Kategorie auszuwählen
         fireEvent.click(screen.getByText('Shop'));
 
-        expect(mockToast.error).toHaveBeenCalledWith(
-          'Maximale Anzahl an Kategorien erreicht',
-          expect.objectContaining({
-            description: 'Sie können maximal 3 Kategorien auswählen.',
-          })
-        );
+        expect(screen.getByText('Sie können maximal 3 Kategorien auswählen.')).toBeInTheDocument();
       });
     });
 
@@ -582,12 +585,7 @@ describe('CreateBusiness Component', () => {
           })
         );
 
-        expect(mockToast.success).toHaveBeenCalledWith(
-          'Geschäft erstellt',
-          expect.objectContaining({
-            description: 'Das Geschäft wurde erfolgreich erstellt.',
-          })
-        );
+        expectToastSuccessTitle(mockToast.success, 'Geschäft erstellt');
 
         expect(mockNavigate).toHaveBeenCalledWith('/businesses');
       });
@@ -609,13 +607,7 @@ describe('CreateBusiness Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Erstellen des Geschäfts',
-          expect.objectContaining({
-            description:
-              'Das Geschäft konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.',
-          })
-        );
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern des Geschäfts');
       });
     });
 

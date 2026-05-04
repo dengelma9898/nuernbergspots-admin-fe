@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import MittmachMittwoch from '../MittmachMittwoch';
 import { SpecialPollStatus } from '@/models/specialPoll';
 
@@ -122,6 +123,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
 }));
 
@@ -324,7 +326,7 @@ describe('MittmachMittwoch Component', () => {
       expect(mockSpecialPollService.createSpecialPoll).toHaveBeenCalledWith({
         title: 'New Test Poll',
       });
-      expect(toast.success).toHaveBeenCalledWith('Aktion/Poll wurde erfolgreich erstellt.');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Aktion/Poll wurde erfolgreich erstellt');
     });
   });
 
@@ -345,7 +347,10 @@ describe('MittmachMittwoch Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith('Aktion/Poll konnte nicht erstellt werden.');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
   });
 

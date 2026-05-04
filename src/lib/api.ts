@@ -2,7 +2,8 @@ import ApiClient from './api-client';
 import { useAuth } from '../contexts/AuthContext';
 import { useMemo } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+/** Jest nutzt process.env (setupTests); Vite setzt process.env.VITE_API_URL per define in vite.config.ts. */
+const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3000';
 
 export function useApi() {
   const { getToken } = useAuth();

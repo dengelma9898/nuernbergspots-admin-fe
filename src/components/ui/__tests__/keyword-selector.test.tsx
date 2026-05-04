@@ -122,7 +122,7 @@ describe('KeywordSelector Component', () => {
         expect(badges).toHaveLength(4);
 
         badges.forEach(badge => {
-          expect(badge).toHaveClass('cursor-pointer', 'hover:bg-accent', 'transition-colors');
+          expect(badge).toHaveClass('cursor-pointer', 'transition-all', 'duration-200');
         });
       });
     });

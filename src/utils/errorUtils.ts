@@ -526,11 +526,14 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
       !errorMessage.includes('failed') &&
       !errorMessage.includes('undefined')
     ) {
-      return {
-        title: 'Fehler',
-        message: errorMessage,
-        isPersistent: true,
-      };
+      return applyContext(
+        {
+          title: 'Fehler',
+          message: errorMessage,
+          isPersistent: true,
+        },
+        context
+      );
     }
   }
 

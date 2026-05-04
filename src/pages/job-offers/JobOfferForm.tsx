@@ -10,10 +10,9 @@ import {
   ImagePlus,
   Check,
   Link as LinkIcon,
-  Linkedin,
-  Facebook,
-  Instagram,
+  AlertCircle,
 } from 'lucide-react';
+import { siFacebook, siInstagram } from 'simple-icons';
 import { toast } from 'sonner';
 import { showUserFriendlyError, getUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
@@ -43,7 +42,19 @@ import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+function BrandIcon({ path, className }: { path: string; className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={cn('shrink-0', className)}
+      aria-hidden
+      width={16}
+      height={16}
+    >
+      <path fill="currentColor" d={path} />
+    </svg>
+  );
+}
 
 function JobOfferFormSkeleton() {
   return (
@@ -68,24 +79,6 @@ function JobOfferFormSkeleton() {
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
                   <div className="p-4 sm:p-6 space-y-4">
-                    {/* Validierungsfehler */}
-                    {validationErrors.length > 0 && (
-                      <Alert 
-                        ref={validationErrorsRef}
-                        variant="destructive" 
-                        className={cn(glassCard, 'border-destructive/50')}
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                        <AlertDescription className="mt-2">
-                          <ul className="list-disc list-inside space-y-1">
-                            {validationErrors.map((error, index) => (
-                              <li key={index}>{error}</li>
-                            ))}
-                          </ul>
-                        </AlertDescription>
-                      </Alert>
-                    )}
                     {/* Title field */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-12 rounded" />
@@ -971,7 +964,7 @@ export function JobOfferForm() {
                         LinkedIn
                       </Label>
                       <div className="flex gap-2">
-                        <Linkedin className="h-4 w-4 mt-2 text-muted-foreground" />
+                        <LinkIcon className="h-4 w-4 mt-2 shrink-0 text-muted-foreground" />
                         <Input
                           id="linkedin"
                           type="url"
@@ -1019,7 +1012,7 @@ export function JobOfferForm() {
                         Instagram
                       </Label>
                       <div className="flex gap-2">
-                        <Instagram className="h-4 w-4 mt-2 text-muted-foreground" />
+                        <BrandIcon path={siInstagram.path} className="mt-2 text-muted-foreground" />
                         <Input
                           id="instagram"
                           type="url"
@@ -1043,7 +1036,7 @@ export function JobOfferForm() {
                         Facebook
                       </Label>
                       <div className="flex gap-2">
-                        <Facebook className="h-4 w-4 mt-2 text-muted-foreground" />
+                        <BrandIcon path={siFacebook.path} className="mt-2 text-muted-foreground" />
                         <Input
                           id="facebook"
                           type="url"

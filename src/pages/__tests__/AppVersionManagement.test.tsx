@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { AppVersionManagement } from '../AppVersionManagement';
 
 // Mock React Router
@@ -74,6 +75,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Info: () => <div data-testid="info-icon">Info</div>,
   Save: () => <div data-testid="save-icon">Save</div>,
@@ -93,7 +95,9 @@ jest.mock('@/utils/errorUtils', () => ({
     toast.error(`Fehler beim ${key}`);
   }),
   showSuccessMessage: jest.fn((toast, options) => {
-    toast.success(options.title);
+    toast.success(options.title, {
+      description: options.description,
+    });
   }),
 }));
 
@@ -101,6 +105,8 @@ jest.mock('@/utils/errorUtils', () => ({
 const mockAppVersionService = {
   getMinimumVersion: jest.fn(),
   setMinimumVersion: jest.fn(),
+  getAllChangelogs: jest.fn().mockResolvedValue([]),
+  getChangelogByVersion: jest.fn().mockResolvedValue(null),
 };
 
 jest.mock('@/services/appVersionService', () => ({
@@ -119,6 +125,8 @@ describe('AppVersionManagement Component', () => {
       createdAt: '2024-01-15T10:30:00.000Z',
       updatedAt: '2024-01-20T14:45:00.000Z',
     });
+    mockAppVersionService.getAllChangelogs.mockResolvedValue([]);
+    mockAppVersionService.getChangelogByVersion.mockResolvedValue(null);
   });
 
   const renderComponent = () => {
@@ -284,7 +292,7 @@ describe('AppVersionManagement Component', () => {
       expect(mockAppVersionService.setMinimumVersion).toHaveBeenCalledWith({
         minimumVersion: '2.0.0',
       });
-      expect(toast.success).toHaveBeenCalledWith('Mindestversion aktualisiert');
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Mindestversion aktualisiert');
     });
   });
 
@@ -361,7 +369,7 @@ describe('AppVersionManagement Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const submitButton = screen.getByText('Version speichern');
+      const submitButton = screen.getByText('Version speichern').closest('button');
       expect(submitButton).toBeTruthy();
       expect(submitButton).toBeDisabled();
     });

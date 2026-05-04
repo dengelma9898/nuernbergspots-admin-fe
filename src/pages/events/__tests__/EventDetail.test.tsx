@@ -165,6 +165,7 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock Lucide icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   MapPin: () => <span data-testid="map-pin-icon">MapPin</span>,
   Calendar: () => <span data-testid="calendar-icon">Calendar</span>,
   Heart: () => <span data-testid="heart-icon">Heart</span>,
@@ -318,10 +319,9 @@ describe('EventDetail Component', () => {
 
       await waitFor(() => {
         expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Laden des Events',
+          expect.stringContaining('Fehler beim Laden des Events'),
           expect.objectContaining({
-            description:
-              'Das Event konnte nicht geladen werden. Bitte versuchen Sie es später erneut.',
+            description: expect.stringContaining('API Error'),
           })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/events');

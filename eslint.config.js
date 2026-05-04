@@ -26,7 +26,8 @@ export default tseslint.config(
       '**/*.test.tsx',
       '**/*.spec.ts',
       '**/*.spec.tsx',
-      '**/__tests__/**'
+      '**/__tests__/**',
+      'e2e/**'
     ] 
   },
   {

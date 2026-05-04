@@ -18,6 +18,7 @@ import {
 
 // Mock für lucide-react
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   XIcon: () => <svg data-testid="x-icon">X</svg>,
 }));
 
@@ -323,10 +324,10 @@ describe('Dialog Components', () => {
       expect(footer).toHaveAttribute('data-slot', 'dialog-footer');
       expect(footer).toHaveClass(
         'flex',
-        'flex-col-reverse',
-        'gap-2',
-        'sm:flex-row',
-        'sm:justify-end'
+        'flex-row',
+        'items-center',
+        'justify-end',
+        'gap-3'
       );
     });
 

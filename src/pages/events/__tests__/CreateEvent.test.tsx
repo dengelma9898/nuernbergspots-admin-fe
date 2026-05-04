@@ -6,6 +6,7 @@ import { useEventService } from '../../../services/eventService';
 import { useEventCategoryService } from '../../../services/eventCategoryService';
 import { EventCategory } from '../../../models/event-category';
 import '@testing-library/jest-dom';
+import { expectToastErrorTitleContains } from '@/test-utils/sonnerAssertions';
 
 // Mock alle externen Dependencies
 jest.mock('../../../lib/api', () => ({
@@ -153,6 +154,7 @@ jest.mock('@/components/ui/LocationSearch', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   Trash2: () => <div data-testid="trash-icon">Trash2</div>,
@@ -239,7 +241,7 @@ describe('CreateEvent Component', () => {
         expect(screen.getByText('Startdatum')).toBeInTheDocument();
         expect(screen.getByText('Enddatum')).toBeInTheDocument();
         expect(screen.getByText('Adresse')).toBeInTheDocument();
-        expect(screen.getByText('Preis (in €)')).toBeInTheDocument();
+        expect(screen.getByText('Preis')).toBeInTheDocument();
         expect(screen.getByText('Kategorie')).toBeInTheDocument();
       });
     });
@@ -282,13 +284,16 @@ describe('CreateEvent Component', () => {
       await waitFor(() => {
         expect(mockEventCategoryService.getCategories).toHaveBeenCalledTimes(1);
       });
+      await waitFor(() => {
+        expect(screen.getByTestId('select')).toHaveAttribute('data-value', 'cat-1');
+      });
     });
 
     it('sollte erste Kategorie als Standard setzen', async () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        expect(mockEventCategoryService.getCategories).toHaveBeenCalled();
+        expect(screen.getByTestId('select')).toHaveAttribute('data-value', 'cat-1');
       });
     });
 
@@ -299,13 +304,7 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Laden der Kategorien',
-          expect.objectContaining({
-            description:
-              'Die Kategorien konnten nicht geladen werden. Bitte versuchen Sie es später erneut.',
-          })
-        );
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Laden der Kategorien');
       });
     });
   });
@@ -315,40 +314,44 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const titleInput = document.getElementById('title') as HTMLInputElement;
-        fireEvent.change(titleInput, { target: { value: 'Mein neues Event' } });
-        expect(titleInput).toHaveValue('Mein neues Event');
+        expect(document.getElementById('title')).toBeTruthy();
       });
+      const titleInput = document.getElementById('title') as HTMLInputElement;
+      fireEvent.change(titleInput, { target: { value: 'Mein neues Event' } });
+      expect(titleInput).toHaveValue('Mein neues Event');
     });
 
     it('sollte Beschreibung korrekt verwalten', async () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const descriptionTextarea = document.getElementById('description') as HTMLTextAreaElement;
-        fireEvent.change(descriptionTextarea, { target: { value: 'Event Beschreibung' } });
-        expect(descriptionTextarea).toHaveValue('Event Beschreibung');
+        expect(document.getElementById('description')).toBeTruthy();
       });
+      const descriptionTextarea = document.getElementById('description') as HTMLTextAreaElement;
+      fireEvent.change(descriptionTextarea, { target: { value: 'Event Beschreibung' } });
+      expect(descriptionTextarea).toHaveValue('Event Beschreibung');
     });
 
     it('sollte Preis-Input korrekt verwalten', async () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const priceInput = document.getElementById('price') as HTMLInputElement;
-        fireEvent.change(priceInput, { target: { value: '25.50' } });
-        expect(priceInput).toHaveValue(25.5);
+        expect(document.getElementById('priceString')).toBeTruthy();
       });
+      const priceInput = document.getElementById('priceString') as HTMLInputElement;
+      fireEvent.change(priceInput, { target: { value: '25.50' } });
+      expect(priceInput).toHaveValue('25.50');
     });
 
     it('sollte Tickets Switch korrekt verwalten', async () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const ticketsSwitch = document.getElementById('ticketsNeeded') as HTMLInputElement;
-        fireEvent.change(ticketsSwitch, { target: { checked: true } });
-        expect(ticketsSwitch).toBeChecked();
+        expect(document.getElementById('ticketsNeeded')).toBeTruthy();
       });
+      const ticketsSwitch = document.getElementById('ticketsNeeded') as HTMLInputElement;
+      fireEvent.change(ticketsSwitch, { target: { checked: true } });
+      expect(ticketsSwitch).toBeChecked();
     });
   });
 
@@ -365,10 +368,9 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const locationSearch = screen.getByTestId('location-search');
-        fireEvent.click(locationSearch);
-        // Die Mock-Location sollte gesetzt werden
+        expect(screen.getByTestId('location-search')).toBeInTheDocument();
       });
+      fireEvent.click(screen.getByTestId('location-search'));
     });
   });
 
@@ -386,10 +388,10 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const cancelButton = screen.getByText('Abbrechen');
-        fireEvent.click(cancelButton);
-        expect(mockNavigate).toHaveBeenCalledWith('/events');
+        expect(screen.getByText('Abbrechen')).toBeInTheDocument();
       });
+      fireEvent.click(screen.getByText('Abbrechen'));
+      expect(mockNavigate).toHaveBeenCalledWith('/events');
     });
   });
 
@@ -399,16 +401,16 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const submitButton = screen.getByText('Event erstellen');
-        fireEvent.click(submitButton);
+        expect(screen.getByText('Event erstellen')).toBeInTheDocument();
       });
+      fireEvent.click(screen.getByText('Event erstellen'));
 
       await waitFor(() => {
         expect(mockEventService.createEvent).toHaveBeenCalled();
         expect(mockToast.success).toHaveBeenCalledWith(
           'Event erstellt',
           expect.objectContaining({
-            description: 'Das Event wurde erfolgreich erstellt.',
+            description: expect.stringContaining('erstellt'),
           })
         );
         expect(mockNavigate).toHaveBeenCalledWith('/events');
@@ -422,18 +424,12 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const submitButton = screen.getByText('Event erstellen');
-        fireEvent.click(submitButton);
+        expect(screen.getByText('Event erstellen')).toBeInTheDocument();
       });
+      fireEvent.click(screen.getByText('Event erstellen'));
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith(
-          'Fehler beim Erstellen',
-          expect.objectContaining({
-            description:
-              'Das Event konnte nicht erstellt werden. Bitte überprüfen Sie Ihre Eingaben.',
-          })
-        );
+        expectToastErrorTitleContains(mockToast.error, 'Fehler beim Speichern des Events');
       });
     });
 
@@ -449,16 +445,18 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const submitButton = screen.getByText('Event erstellen');
-        fireEvent.click(submitButton);
+        expect(screen.getByText('Event erstellen')).toBeInTheDocument();
       });
+      fireEvent.click(screen.getByText('Event erstellen'));
 
       await waitFor(() => {
         expect(screen.getByText('Wird erstellt...')).toBeInTheDocument();
       });
 
-      // Resolve the promise
       resolveCreate({ id: 'new-event' });
+      await waitFor(() => {
+        expect(screen.queryByText('Wird erstellt...')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -467,14 +465,14 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        const startDateInput = document.getElementById('startDate') as HTMLInputElement;
-        fireEvent.change(startDateInput, { target: { value: '2024-01-15' } });
-
-        const endDateInput = document.getElementById('endDate') as HTMLInputElement;
-        fireEvent.change(endDateInput, { target: { value: '2024-01-16' } });
+        expect(document.getElementById('startDate')).toBeTruthy();
+        expect(document.getElementById('endDate')).toBeTruthy();
       });
+      const startDateInput = document.getElementById('startDate') as HTMLInputElement;
+      fireEvent.change(startDateInput, { target: { value: '2024-01-15' } });
+      const endDateInput = document.getElementById('endDate') as HTMLInputElement;
+      fireEvent.change(endDateInput, { target: { value: '2024-01-16' } });
 
-      // Überprüfe, dass Zeitfenster-Sektion erscheint
       await waitFor(() => {
         expect(screen.getByText('Tägliche Zeitangaben (optional)')).toBeInTheDocument();
       });
@@ -522,10 +520,10 @@ describe('CreateEvent Component', () => {
       renderWithRouter(<CreateEvent />);
 
       await waitFor(() => {
-        // Überprüfe, dass Formular mit leeren/Standard-Werten initialisiert ist
-        const titleInput = document.getElementById('title') as HTMLInputElement;
-        expect(titleInput).toHaveValue('');
+        expect(document.getElementById('title')).toBeTruthy();
       });
+      const titleInput = document.getElementById('title') as HTMLInputElement;
+      expect(titleInput).toHaveValue('');
     });
   });
 });

@@ -103,6 +103,7 @@ jest.mock('@/components/ui/select', () => ({
 
 // Mock Lucide React icons
 jest.mock('lucide-react', () => ({
+  ...jest.requireActual('lucide-react'),
   Store: () => <div data-testid="store-icon">Store</div>,
   TrendingUp: () => <div data-testid="trending-up-icon">TrendingUp</div>,
   TrendingDown: () => <div data-testid="trending-down-icon">TrendingDown</div>,
@@ -284,9 +285,7 @@ describe('Analytics Component', () => {
 
       renderWithRouter(<Analytics />);
 
-      // Test für glassmorphism loading states statt Skeleton-Komponenten
-      const loadingElements = document.querySelectorAll('.animate-pulse');
-      expect(loadingElements.length).toBeGreaterThan(0);
+      expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0);
     });
 
     it('sollte den Aktualisieren-Button während des Ladens deaktivieren', async () => {
@@ -340,7 +339,10 @@ describe('Analytics Component', () => {
       renderWithRouter(<Analytics />);
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Die Analytics konnten nicht geladen werden.');
+        expect(mockToast.error).toHaveBeenCalledWith(
+          expect.stringContaining('Fehler beim Laden der Analytics'),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -625,7 +627,7 @@ describe('Analytics Component', () => {
     it('sollte responsive Button-Container haben', () => {
       renderWithRouter(<Analytics />);
 
-      const buttonContainer = screen.getByText('Aktualisieren').closest('div')?.parentElement;
+      const buttonContainer = screen.getByText('Aktualisieren').closest('.flex.flex-col');
       expect(buttonContainer).toHaveClass('flex', 'flex-col', 'sm:flex-row');
     });
   });
@@ -635,15 +637,11 @@ describe('Analytics Component', () => {
       renderWithRouter(<Analytics />);
 
       await waitFor(() => {
-        // Test für glassmorphism progress bars statt Progress-Komponenten
-        const progressElements = document.querySelectorAll(
-          '.bg-gradient-to-r.from-green-400.to-blue-500'
-        );
-        expect(progressElements.length).toBeGreaterThan(0);
-        // Der erste Progress-Balken sollte einen style-width haben
-        const firstProgress = progressElements[0] as HTMLElement;
-        expect(firstProgress.style.width).toBeTruthy();
+        expect(screen.getAllByText('Gesamtscans')[0]).toBeInTheDocument();
       });
+      const bar = document.querySelector('.bg-primary.h-full') as HTMLElement | null;
+      expect(bar).toBeTruthy();
+      expect(bar?.style.width).toBeTruthy();
     });
   });
 
@@ -703,9 +701,7 @@ describe('Analytics Component', () => {
 
       renderWithRouter(<Analytics />);
 
-      // Test für glassmorphism loading states statt Skeleton-Komponenten
-      const loadingElements = document.querySelectorAll('.animate-pulse');
-      expect(loadingElements.length).toBeGreaterThan(0);
+      expect(screen.getAllByTestId('skeleton').length).toBeGreaterThan(0);
     });
   });
 

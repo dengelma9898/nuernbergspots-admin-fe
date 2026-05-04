@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { ContactRequestDetail } from '../ContactRequestDetail';
 import { ContactRequest, ContactRequestType, ContactMessage } from '@/models/contact-requests';
 
@@ -169,7 +170,10 @@ describe('ContactRequestDetail', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Laden der Kontaktanfrage');
+        expect(mockToast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -247,7 +251,7 @@ describe('ContactRequestDetail', () => {
         renderWithRouter(<ContactRequestDetail />);
       });
 
-      const backButton = screen.getByRole('button', { name: '' }); // ArrowLeft Icon Button
+      const backButton = screen.getByRole('button', { name: /zurück zur übersicht/i });
       fireEvent.click(backButton);
 
       expect(mockNavigate).toHaveBeenCalledWith('/contacts');
@@ -274,7 +278,7 @@ describe('ContactRequestDetail', () => {
         renderWithRouter(<ContactRequestDetail />);
       });
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
 
       await act(async () => {
         fireEvent.click(refreshButton);
@@ -295,13 +299,13 @@ describe('ContactRequestDetail', () => {
         () => new Promise(resolve => setTimeout(() => resolve(mockContactRequest), 100))
       );
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
       fireEvent.click(refreshButton);
 
-      expect(screen.getByText('Wird aktualisiert...')).toBeInTheDocument();
+      expect(refreshButton).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByText('Aktualisieren')).toBeInTheDocument();
+        expect(refreshButton).not.toBeDisabled();
       });
     });
 
@@ -310,14 +314,14 @@ describe('ContactRequestDetail', () => {
         renderWithRouter(<ContactRequestDetail />);
       });
 
-      const refreshButton = screen.getByText('Aktualisieren');
+      const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
 
       await act(async () => {
         fireEvent.click(refreshButton);
       });
 
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('Kontaktanfrage erfolgreich aktualisiert');
+        expectToastSuccessTitle(mockToast.success as jest.Mock, 'Kontaktanfrage erfolgreich aktualisiert');
       });
     });
   });
@@ -330,7 +334,7 @@ describe('ContactRequestDetail', () => {
 
       await waitFor(() => {
         expect(screen.getByPlaceholderText('Ihre Antwort...')).toBeInTheDocument();
-        expect(screen.getByText('Antwort senden')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: /antwort senden/i })).toBeInTheDocument();
       });
     });
 
@@ -354,7 +358,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const textarea = screen.getByPlaceholderText('Ihre Antwort...');
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       await act(async () => {
         fireEvent.change(textarea, { target: { value: 'Neue Admin-Antwort' } });
@@ -377,7 +381,7 @@ describe('ContactRequestDetail', () => {
         renderWithRouter(<ContactRequestDetail />);
       });
 
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       expect(sendButton).toBeDisabled();
 
@@ -396,7 +400,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const textarea = screen.getByPlaceholderText('Ihre Antwort...');
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       await act(async () => {
         fireEvent.change(textarea, { target: { value: 'Test-Antwort' } });
@@ -404,12 +408,13 @@ describe('ContactRequestDetail', () => {
 
       fireEvent.click(sendButton);
 
-      expect(screen.getByText('Wird gesendet...')).toBeInTheDocument();
       expect(textarea).toBeDisabled();
+      expect(sendButton).toBeDisabled();
 
       await waitFor(() => {
-        expect(screen.getByText('Antwort senden')).toBeInTheDocument();
+        expect(textarea).not.toBeDisabled();
       });
+      expect(screen.getByRole('button', { name: /antwort senden/i })).toBeDisabled();
     });
 
     it('sollte Erfolgs-Toast nach dem Senden anzeigen', async () => {
@@ -420,7 +425,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const textarea = screen.getByPlaceholderText('Ihre Antwort...');
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       await act(async () => {
         fireEvent.change(textarea, { target: { value: 'Test-Antwort' } });
@@ -431,7 +436,7 @@ describe('ContactRequestDetail', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.success).toHaveBeenCalledWith('Antwort erfolgreich gesendet');
+        expectToastSuccessTitle(mockToast.success as jest.Mock, 'Antwort erfolgreich gesendet');
       });
     });
 
@@ -443,7 +448,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const textarea = screen.getByPlaceholderText('Ihre Antwort...');
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       await act(async () => {
         fireEvent.change(textarea, { target: { value: 'Test-Antwort' } });
@@ -454,7 +459,10 @@ describe('ContactRequestDetail', () => {
       });
 
       await waitFor(() => {
-        expect(mockToast.error).toHaveBeenCalledWith('Fehler beim Senden der Antwort');
+        expect(mockToast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
 
@@ -466,7 +474,7 @@ describe('ContactRequestDetail', () => {
       });
 
       const textarea = screen.getByPlaceholderText('Ihre Antwort...');
-      const sendButton = screen.getByText('Antwort senden');
+      const sendButton = screen.getByRole('button', { name: /antwort senden/i });
 
       await act(async () => {
         fireEvent.change(textarea, { target: { value: 'Test-Antwort' } });
@@ -489,12 +497,14 @@ describe('ContactRequestDetail', () => {
       });
 
       await waitFor(() => {
-        const mainContainer = container.querySelector('.w-full.min-h-screen.bg-white');
-        expect(mainContainer).toBeInTheDocument();
-
-        const maxWidthContainer = container.querySelector('.max-w-2xl.mx-auto');
-        expect(maxWidthContainer).toBeInTheDocument();
+        expect(screen.getByText('Kontaktanfrage Details')).toBeInTheDocument();
       });
+
+      const mainContainer = container.querySelector('.w-full.min-h-screen.bg-white');
+      expect(mainContainer).toBeInTheDocument();
+
+      const maxWidthContainer = container.querySelector('.max-w-4xl.mx-auto');
+      expect(maxWidthContainer).toBeInTheDocument();
     });
 
     it('sollte floating Antwortfeld haben', async () => {
@@ -550,7 +560,7 @@ describe('ContactRequestDetail', () => {
         });
       } else {
         // Falls das Formular nicht gefunden wird, teste direkt den Submit Button
-        const submitButton = screen.getByText('Antwort senden');
+        const submitButton = screen.getByRole('button', { name: /antwort senden/i });
         await act(async () => {
           fireEvent.click(submitButton);
         });

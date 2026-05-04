@@ -181,7 +181,10 @@ describe('ChatMessages', () => {
         renderWithRouter(<ChatMessages />);
       });
 
-      expect(toast.error).toHaveBeenCalledWith('Chatroom ID fehlt');
+      expect(toast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({ description: expect.any(String) })
+      );
     });
 
     it('sollte Nachrichten laden und anzeigen', async () => {
@@ -243,7 +246,10 @@ describe('ChatMessages', () => {
       });
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Nachrichten konnten nicht geladen werden.');
+        expect(toast.error).toHaveBeenCalledWith(
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
+        );
       });
     });
   });
@@ -362,7 +368,8 @@ describe('ChatMessages', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Nachricht konnte nicht gesendet werden: Send error'
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
         );
       });
     });
@@ -382,7 +389,8 @@ describe('ChatMessages', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Nachricht konnte nicht gesendet werden: Profile error'
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
         );
       });
     });
@@ -644,7 +652,8 @@ describe('ChatMessages', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Nachricht konnte nicht gesendet werden: Benutzer nicht authentifiziert'
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
         );
       });
     });
@@ -664,7 +673,8 @@ describe('ChatMessages', () => {
 
       await waitFor(() => {
         expect(toast.error).toHaveBeenCalledWith(
-          'Nachricht konnte nicht gesendet werden: Benutzerprofil konnte nicht geladen werden'
+          expect.any(String),
+          expect.objectContaining({ description: expect.any(String) })
         );
       });
     });

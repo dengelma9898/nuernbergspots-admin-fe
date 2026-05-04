@@ -663,14 +663,6 @@ export const EventList: React.FC = () => {
                       CSV Import
                     </AnimatedButton>
                     <AnimatedButton
-                      variant="outline"
-                      onClick={() => navigate('/events/scraper')}
-                      className={cn(glassButton, 'w-full sm:w-auto gap-2')}
-                    >
-                      <Search className="h-4 w-4" />
-                      Events suchen
-                    </AnimatedButton>
-                    <AnimatedButton
                       onClick={() => navigate('/create-event')}
                       className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
                     >
