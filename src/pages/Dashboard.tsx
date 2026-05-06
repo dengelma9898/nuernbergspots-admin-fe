@@ -35,6 +35,8 @@ import {
   FileText,
   Package,
   Car,
+  MapPin,
+  Sparkles,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -713,6 +715,38 @@ export function Dashboard() {
                   href="/taxi-stands"
                   index={7}
                 />
+            </motion.div>
+          </motion.div>
+
+          {/* Kuratierte Spots */}
+          <motion.div
+            className="mt-8 space-y-4"
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.72 }}
+          >
+            <h3 className="text-xl font-semibold mb-4 text-foreground">Kuratierte Inhalte</h3>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              <NavigationCard
+                icon={MapPin}
+                title="Kuratierte Spots"
+                description="Spots anlegen, bearbeiten, freigeben und Medien hochladen (eigene API)"
+                href="/curated-spots"
+                index={0}
+              />
+              <NavigationCard
+                icon={Sparkles}
+                title="Spot-Keywords"
+                description="Vokabular für Spot-Tags (getrennt von Partner-Keywords)"
+                href="/spot-keywords"
+                index={1}
+              />
             </motion.div>
           </motion.div>
 

@@ -60,6 +60,20 @@ export const endpoints = {
   appVersions: {
     minimumVersion: '/app-versions/admin/minimum-version',
   },
+  curatedSpots: '/curated-spots',
+  curatedSpotsAdmin: '/curated-spots/admin',
+  curatedSpotAdminById: (id: string) => `/curated-spots/admin/${id}`,
+  curatedSpotImages: (id: string) => `/curated-spots/${id}/images`,
+  curatedSpotVideo: (id: string) => `/curated-spots/${id}/video`,
+  spotKeywords: '/spot-keywords',
+  spotKeywordById: (id: string) => `/spot-keywords/${encodeURIComponent(id)}`,
+  spotKeywordsSuggest: (q: string, limit?: number) => {
+    const params = new URLSearchParams({ q });
+    if (limit != null) {
+      params.set('limit', String(limit));
+    }
+    return `/spot-keywords/suggest?${params.toString()}`;
+  },
 } as const;
 
 // Re-export models

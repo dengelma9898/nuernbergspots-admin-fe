@@ -45,6 +45,9 @@ import { EasterEggForm } from './pages/easter-egg/EasterEggForm';
 import { EasterEggDetail } from './pages/easter-egg/EasterEggDetail';
 import { TaxiStandManagement } from './pages/taxi-stands/TaxiStandManagement';
 import { TaxiStandForm } from './pages/taxi-stands/TaxiStandForm';
+import { CuratedSpotList } from '@/pages/curated-spots/CuratedSpotList';
+import { CuratedSpotForm } from '@/pages/curated-spots/CuratedSpotForm';
+import { SpotKeywordManagement } from '@/pages/spot-keywords/SpotKeywordManagement';
 
 export function AppRoutes() {
   return (
@@ -103,6 +106,10 @@ export function AppRoutes() {
         <Route path="/taxi-stands" element={<TaxiStandManagement />} />
         <Route path="/taxi-stands/new" element={<TaxiStandForm />} />
         <Route path="/taxi-stands/:id/edit" element={<TaxiStandForm />} />
+        <Route path="/curated-spots" element={<CuratedSpotList />} />
+        <Route path="/curated-spots/new" element={<CuratedSpotForm />} />
+        <Route path="/curated-spots/:id/edit" element={<CuratedSpotForm />} />
+        <Route path="/spot-keywords" element={<SpotKeywordManagement />} />
       </Route>
 
       {/* Fallback */}

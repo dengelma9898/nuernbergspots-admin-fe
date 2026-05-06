@@ -151,6 +151,7 @@ describe('Dashboard Component', () => {
     expect(screen.getByRole('heading', { name: 'Events' })).toBeTruthy();
     expect(screen.getByText('Kontaktanfragen')).toBeTruthy();
     expect(screen.getByText('Community')).toBeTruthy();
+    expect(screen.getByRole('heading', { name: 'Kuratierte Inhalte' })).toBeTruthy();
     expect(screen.getByText('Analytics und Sonstiges')).toBeTruthy();
   });
 
@@ -160,6 +161,8 @@ describe('Dashboard Component', () => {
     expect(screen.getByText('Partner verwalten')).toBeTruthy();
     expect(screen.getByText('Business User verwalten')).toBeTruthy();
     expect(screen.getByText('Events verwalten')).toBeTruthy();
+    expect(screen.getByText('Kuratierte Spots')).toBeTruthy();
+    expect(screen.getByText('Spot-Keywords')).toBeTruthy();
     expect(screen.getByText('Analytics Dashboard')).toBeTruthy();
   });
 
