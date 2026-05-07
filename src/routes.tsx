@@ -47,6 +47,7 @@ import { TaxiStandManagement } from './pages/taxi-stands/TaxiStandManagement';
 import { TaxiStandForm } from './pages/taxi-stands/TaxiStandForm';
 import { CuratedSpotList } from '@/pages/curated-spots/CuratedSpotList';
 import { CuratedSpotForm } from '@/pages/curated-spots/CuratedSpotForm';
+import { CuratedSpotsUserRatingsSettingsPage } from '@/pages/curated-spots/CuratedSpotsUserRatingsSettingsPage';
 import { SpotKeywordManagement } from '@/pages/spot-keywords/SpotKeywordManagement';
 
 export function AppRoutes() {
@@ -107,6 +108,7 @@ export function AppRoutes() {
         <Route path="/taxi-stands/new" element={<TaxiStandForm />} />
         <Route path="/taxi-stands/:id/edit" element={<TaxiStandForm />} />
         <Route path="/curated-spots" element={<CuratedSpotList />} />
+        <Route path="/curated-spots/settings" element={<CuratedSpotsUserRatingsSettingsPage />} />
         <Route path="/curated-spots/new" element={<CuratedSpotForm />} />
         <Route path="/curated-spots/:id/edit" element={<CuratedSpotForm />} />
         <Route path="/spot-keywords" element={<SpotKeywordManagement />} />

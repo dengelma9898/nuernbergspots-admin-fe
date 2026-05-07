@@ -21,6 +21,11 @@ export interface CuratedSpot {
   createdAt: string;
   updatedAt: string;
   createdByUserId: string | null;
+  /** Redaktionsbewertung 1–5; null bis zur ersten Vergabe (siehe Backend-Doku). */
+  adminRating?: number | null;
+  adminRatedAt?: string | null;
+  userRatingAverage?: number | null;
+  userRatingCount?: number;
 }
 
 export interface CreateCuratedSpotDto {
@@ -32,6 +37,8 @@ export interface CreateCuratedSpotDto {
   videoUrl?: string | null;
   instagramUrl?: string | null;
   status?: CuratedSpotStatus;
+  /** Optional bei Anlage; nur Ganzzahl 1–5. */
+  adminRating?: number;
 }
 
 export type PatchCuratedSpotDto = Partial<{
@@ -43,4 +50,13 @@ export type PatchCuratedSpotDto = Partial<{
   videoUrl: string | null;
   instagramUrl: string | null;
   status: CuratedSpotStatus;
+  adminRating: number;
 }>;
+
+/** Toggle: Endnutzer dürfen Spot-Bewertungen abgeben (GET/PATCH gleicher Pfad). */
+export interface CuratedSpotsUserRatingsSettings {
+  id: 'curated_spots_user_ratings_settings';
+  isEnabled: boolean;
+  updatedAt: string;
+  updatedBy?: string;
+}

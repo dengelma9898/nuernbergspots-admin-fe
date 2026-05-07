@@ -5,6 +5,7 @@ import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
+import { AdminRatingStars } from '@/components/curated-spots/AdminRatingStars';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -39,7 +40,7 @@ import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, ImagePlus, MapPin, Trash2, Video, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, ImagePlus, MapPin, Star, Trash2, Video, X } from 'lucide-react';
 
 type Chip = { kind: 'id'; id: string; label: string } | { kind: 'new'; label: string };
 
@@ -97,6 +98,18 @@ function isAddressComplete(a: BusinessAddress): boolean {
   );
 }
 
+function formatAdminRatedAt(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  try {
+    return new Intl.DateTimeFormat('de-DE', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
 export function CuratedSpotForm() {
   const { id: spotId } = useParams<{ id: string }>();
   const isEdit = Boolean(spotId);
@@ -146,6 +159,12 @@ export function CuratedSpotForm() {
 
   const [address, setAddress] = useState<BusinessAddress>(() => emptyAddress());
   const [searchValue, setSearchValue] = useState<LocationResult | null>(null);
+
+  /** Nach dem Laden aus GET admin; null = noch nicht vergeben (Bearbeiten). */
+  const [adminRatingCommitted, setAdminRatingCommitted] = useState<number | null>(null);
+  const [adminRatedAtCommitted, setAdminRatedAtCommitted] = useState<string | null>(null);
+  /** Auswahl vor dem ersten Speichern (Neuanlage oder noch ohne committed Rating). */
+  const [adminRatingDraft, setAdminRatingDraft] = useState<number | null>(null);
 
   const isAdminOrSuperAdmin =
     userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
@@ -198,6 +217,14 @@ export function CuratedSpotForm() {
         })
       );
       setChips(resolvedChips);
+
+      const ar =
+        spot.adminRating != null && spot.adminRating >= 1 && spot.adminRating <= 5
+          ? spot.adminRating
+          : null;
+      setAdminRatingCommitted(ar);
+      setAdminRatedAtCommitted(spot.adminRatedAt ?? null);
+      setAdminRatingDraft(null);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Fehler beim Laden des Spots:', error);
@@ -351,6 +378,11 @@ export function CuratedSpotForm() {
           videoUrl: videoUrl.trim() || undefined,
           instagramUrl: instagramUrl.trim() || undefined,
           status,
+          ...(adminRatingDraft != null &&
+          adminRatingDraft >= 1 &&
+          adminRatingDraft <= 5
+            ? { adminRating: adminRatingDraft }
+            : {}),
         });
 
         let spot = created;
@@ -382,6 +414,14 @@ export function CuratedSpotForm() {
       };
       if (newKeywordNames.length > 0) {
         patchBody.newKeywordNames = newKeywordNames;
+      }
+      if (
+        adminRatingCommitted == null &&
+        adminRatingDraft != null &&
+        adminRatingDraft >= 1 &&
+        adminRatingDraft <= 5
+      ) {
+        patchBody.adminRating = adminRatingDraft;
       }
 
       let updated = await curatedSpotServiceRef.current.patch(spotId, patchBody);
@@ -512,6 +552,56 @@ export function CuratedSpotForm() {
                       minHeight="min-h-[220px]"
                     />
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className={cn(glassCard)}>
+                <CardHeader>
+                  <CardTitle className="text-foreground flex items-center gap-2">
+                    <Star className="h-5 w-5 shrink-0" />
+                    Redaktionsbewertung
+                  </CardTitle>
+                  <CardDescription>
+                    Einmalig vergebbar (1–5 Sterne); nach Speichern nicht mehr änderbar — siehe Backend-Doku
+                    curated-spots-ratings-web-integration.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {isEdit && adminRatingCommitted != null ? (
+                    <>
+                      <AdminRatingStars value={adminRatingCommitted} readOnly />
+                      {formatAdminRatedAt(adminRatedAtCommitted) && (
+                        <p className="text-sm text-muted-foreground">
+                          Vergeben am {formatAdminRatedAt(adminRatedAtCommitted)}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground">
+                        Die Redaktionsbewertung ist endgültig und kann nicht geändert werden.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">
+                        Optional: Sterne antippen, dann mit &quot;Speichern&quot; übernehmen.
+                      </p>
+                      <AdminRatingStars
+                        value={adminRatingDraft}
+                        onChange={setAdminRatingDraft}
+                        disabled={!isAdminOrSuperAdmin || saving}
+                      />
+                      {adminRatingDraft != null && isAdminOrSuperAdmin && !saving && (
+                        <AnimatedButton
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className={cn(glassButton)}
+                          onClick={() => setAdminRatingDraft(null)}
+                        >
+                          Auswahl zurücksetzen
+                        </AnimatedButton>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
 

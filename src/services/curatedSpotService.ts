@@ -1,6 +1,7 @@
 import {
   CuratedSpot,
   CreateCuratedSpotDto,
+  CuratedSpotsUserRatingsSettings,
   PatchCuratedSpotDto,
 } from '../models/curated-spot';
 import { useApi, endpoints } from '../lib/api';
@@ -59,6 +60,23 @@ export function useCuratedSpotService() {
         endpoints.curatedSpotVideo(id),
         formData,
         { isFormData: true }
+      );
+      return unwrapData(response);
+    },
+
+    getUserRatingsSettings: async (): Promise<CuratedSpotsUserRatingsSettings> => {
+      const response = await api.get<ApiResponse<CuratedSpotsUserRatingsSettings>>(
+        endpoints.curatedSpotsUserRatingsSettings
+      );
+      return unwrapData(response);
+    },
+
+    patchUserRatingsSettings: async (
+      dto: { isEnabled: boolean }
+    ): Promise<CuratedSpotsUserRatingsSettings> => {
+      const response = await api.patch<ApiResponse<CuratedSpotsUserRatingsSettings>>(
+        endpoints.curatedSpotsUserRatingsSettings,
+        dto
       );
       return unwrapData(response);
     },

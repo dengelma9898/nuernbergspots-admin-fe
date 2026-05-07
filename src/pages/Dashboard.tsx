@@ -37,6 +37,7 @@ import {
   Car,
   MapPin,
   Sparkles,
+  Star,
 } from 'lucide-react';
 
 // Skeleton Loading Component for Dashboard Cards
@@ -741,11 +742,18 @@ export function Dashboard() {
                 index={0}
               />
               <NavigationCard
+                icon={Star}
+                title="Community-Bewertungen (Spots)"
+                description="Toggle, ob Nutzer kuratierte Spots einmalig bewerten dürfen"
+                href="/curated-spots/settings"
+                index={1}
+              />
+              <NavigationCard
                 icon={Sparkles}
                 title="Spot-Keywords"
                 description="Vokabular für Spot-Tags (getrennt von Partner-Keywords)"
                 href="/spot-keywords"
-                index={1}
+                index={2}
               />
             </motion.div>
           </motion.div>

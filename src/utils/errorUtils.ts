@@ -378,6 +378,24 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
     };
   }
 
+  // Konflikt (409) – z. B. Redaktionsbewertung bereits gesetzt und nicht änderbar
+  if (
+    statusCode === 409 ||
+    errorString.includes('409') ||
+    errorString.includes('conflict')
+  ) {
+    return applyContext(
+      {
+        title: 'Aktion nicht möglich',
+        message:
+          'Die Redaktionsbewertung kann nach der Vergabe nicht geändert oder zurückgesetzt werden.',
+        isPersistent: false,
+        actionHint: 'Bitte lade die Seite neu, um den aktuellen Stand zu sehen.',
+      },
+      context
+    );
+  }
+
   // 4XX Client-Fehler (400-499) - Generische Behandlung für andere 4XX Fehler
   if (statusCode && statusCode >= 400 && statusCode < 500) {
     return {

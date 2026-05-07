@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
+import { AdminRatingStars } from '@/components/curated-spots/AdminRatingStars';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -24,7 +25,7 @@ import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Edit, MapPin, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Edit, MapPin, Plus, Settings, ShieldCheck, Trash2 } from 'lucide-react';
 
 function CuratedSpotCardSkeleton() {
   return (
@@ -47,6 +48,18 @@ function CuratedSpotCardSkeleton() {
 
 function statusBadgeVariant(status: CuratedSpot['status']) {
   return status === 'ACTIVE' ? 'default' : 'secondary';
+}
+
+function formatAdminRatedAt(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  try {
+    return new Intl.DateTimeFormat('de-DE', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
 }
 
 export function CuratedSpotList() {
@@ -175,14 +188,24 @@ export function CuratedSpotList() {
                   </p>
                 </div>
               </div>
-              <AnimatedButton
-                onClick={() => navigate('/curated-spots/new')}
-                className={cn(glassButton, 'w-full sm:w-auto')}
-                disabled={!isAdminOrSuperAdmin}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Neuer Spot
-              </AnimatedButton>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:shrink-0">
+                <AnimatedButton
+                  onClick={() => navigate('/curated-spots/new')}
+                  className={cn(glassButton, 'w-full sm:w-auto')}
+                  disabled={!isAdminOrSuperAdmin}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Neuer Spot
+                </AnimatedButton>
+                <AnimatedButton
+                  variant="outline"
+                  onClick={() => navigate('/curated-spots/settings')}
+                  className={cn(glassButton, 'w-full sm:w-auto')}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Community-Bewertungen
+                </AnimatedButton>
+              </div>
             </motion.div>
 
             {!isAdminOrSuperAdmin && userRole !== null && (
@@ -245,7 +268,31 @@ export function CuratedSpotList() {
                           · {spot.keywordIds.length} Spot-Keyword(s) · {spot.imageUrls.length} Bild(er)
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="flex-grow space-y-2 text-sm text-muted-foreground">
+                      <CardContent className="flex-grow space-y-3 text-sm text-muted-foreground">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-foreground/90">Redaktion</p>
+                          {spot.adminRating != null && spot.adminRating >= 1 && spot.adminRating <= 5 ? (
+                            <AdminRatingStars value={spot.adminRating} readOnly />
+                          ) : (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-xs text-muted-foreground">Noch nicht vergeben</span>
+                              <AdminRatingStars value={null} readOnly />
+                            </div>
+                          )}
+                          {formatAdminRatedAt(spot.adminRatedAt) && (
+                            <p className="text-xs opacity-80">
+                              Vergeben am {formatAdminRatedAt(spot.adminRatedAt)}
+                            </p>
+                          )}
+                        </div>
+                        {spot.userRatingCount != null &&
+                          spot.userRatingCount > 0 &&
+                          spot.userRatingAverage != null && (
+                            <p className="text-xs">
+                              Nutzer: Ø {spot.userRatingAverage.toFixed(1)} ({spot.userRatingCount}{' '}
+                              {spot.userRatingCount === 1 ? 'Stimme' : 'Stimmen'})
+                            </p>
+                          )}
                         <p className="line-clamp-3 font-mono text-xs opacity-80">
                           {spot.descriptionMarkdown.slice(0, 160)}
                           {spot.descriptionMarkdown.length > 160 ? '…' : ''}

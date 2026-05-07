@@ -13,6 +13,7 @@ jest.mock('../../lib/api', () => ({
     curatedSpotAdminById: (id: string) => `/curated-spots/admin/${id}`,
     curatedSpotImages: (id: string) => `/curated-spots/${id}/images`,
     curatedSpotVideo: (id: string) => `/curated-spots/${id}/video`,
+    curatedSpotsUserRatingsSettings: '/curated-spots/settings/user-ratings',
   },
 }));
 
@@ -123,5 +124,30 @@ describe('curatedSpotService', () => {
     );
     const fd = mockApi.post.mock.calls[0][1] as FormData;
     expect(fd.get('file')).toBe(vf);
+  });
+
+  it('getUserRatingsSettings calls GET /curated-spots/settings/user-ratings', async () => {
+    const settings = {
+      id: 'curated_spots_user_ratings_settings' as const,
+      isEnabled: true,
+      updatedAt: '2024-01-01T12:00:00.000Z',
+    };
+    mockApi.get.mockResolvedValue({ data: settings });
+    const result = await service.getUserRatingsSettings();
+    expect(mockApi.get).toHaveBeenCalledWith('/curated-spots/settings/user-ratings');
+    expect(result).toEqual(settings);
+  });
+
+  it('patchUserRatingsSettings calls PATCH /curated-spots/settings/user-ratings', async () => {
+    const settings = {
+      id: 'curated_spots_user_ratings_settings' as const,
+      isEnabled: false,
+      updatedAt: '2024-01-02T12:00:00.000Z',
+    };
+    mockApi.patch.mockResolvedValue({ data: settings });
+    const body = { isEnabled: false };
+    const result = await service.patchUserRatingsSettings(body);
+    expect(mockApi.patch).toHaveBeenCalledWith('/curated-spots/settings/user-ratings', body);
+    expect(result).toEqual(settings);
   });
 });

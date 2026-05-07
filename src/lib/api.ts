@@ -72,6 +72,7 @@ export const endpoints = {
   curatedSpotAdminById: (id: string) => `/curated-spots/admin/${id}`,
   curatedSpotImages: (id: string) => `/curated-spots/${id}/images`,
   curatedSpotVideo: (id: string) => `/curated-spots/${id}/video`,
+  curatedSpotsUserRatingsSettings: '/curated-spots/settings/user-ratings',
   spotKeywords: '/spot-keywords',
   spotKeywordById: (id: string) => `/spot-keywords/${encodeURIComponent(id)}`,
   spotKeywordsSuggest: (q: string, limit?: number) => {
