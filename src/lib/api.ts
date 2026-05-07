@@ -53,8 +53,15 @@ export const endpoints = {
   chatroomById: (id: string) => `/chatrooms/${id}`,
   chatroomParticipants: (id: string) => `/chatrooms/${id}/participants`,
   chatroomMessages: (id: string) => `/chatrooms/${id}/messages`,
-  specialPolls: '/special-polls',
+  specialPolls: (options?: { highlighted?: boolean }) => {
+    const base = '/special-polls';
+    return options?.highlighted === true ? `${base}?highlighted=true` : base;
+  },
   specialPollById: (id: string) => `/special-polls/${id}`,
+  specialPollHighlight: (id: string) => `/special-polls/${id}/highlight`,
+  specialPollResponseUpvote: (pollId: string, responseId: string) =>
+    `/special-polls/${pollId}/responses/${encodeURIComponent(responseId)}/upvote`,
+  specialPollResponsesMe: (pollId: string) => `/special-polls/${pollId}/responses/me`,
   easterEggHunt: '/easter-egg-hunt',
   downtime: '/downtime',
   appVersions: {

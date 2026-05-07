@@ -1,6 +1,5 @@
 // Special Poll Service Tests
 
-// Mock API
 const mockApi = {
   get: jest.fn(),
   post: jest.fn(),
@@ -11,8 +10,13 @@ const mockApi = {
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
   endpoints: {
-    specialPolls: '/special-polls',
+    specialPolls: (opts?: { highlighted?: boolean }) =>
+      opts?.highlighted === true ? '/special-polls?highlighted=true' : '/special-polls',
     specialPollById: (id: string) => `/special-polls/${id}`,
+    specialPollHighlight: (id: string) => `/special-polls/${id}/highlight`,
+    specialPollResponseUpvote: (pollId: string, responseId: string) =>
+      `/special-polls/${pollId}/responses/${encodeURIComponent(responseId)}/upvote`,
+    specialPollResponsesMe: (pollId: string) => `/special-polls/${pollId}/responses/me`,
   },
 }));
 
@@ -20,14 +24,14 @@ jest.mock('../../lib/apiUtils', () => ({
   unwrapData: jest.fn(response => response.data),
 }));
 
-// Mock React
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
   useMemo: jest.fn(fn => fn()),
 }));
 
+import { SpecialPollResponse, SpecialPollStatus } from '@/models/specialPoll';
+
 import { useSpecialPollService } from '../specialPollService';
-import { SpecialPollStatus } from '@/models/specialPoll';
 
 describe('Special Poll Service', () => {
   let specialPollService: ReturnType<typeof useSpecialPollService>;
@@ -42,16 +46,18 @@ describe('Special Poll Service', () => {
       const mockPolls = [
         {
           id: '1',
-          question: 'What is your favorite cuisine?',
-          status: 'active',
+          title: 'What is your favorite cuisine?',
+          status: SpecialPollStatus.ACTIVE,
+          isHighlighted: false,
           responses: [],
           createdAt: '2024-01-01',
           updatedAt: '2024-01-01',
         },
         {
           id: '2',
-          question: 'Best time for events?',
-          status: 'draft',
+          title: 'Best time for events?',
+          status: SpecialPollStatus.PENDING,
+          isHighlighted: true,
           responses: [],
           createdAt: '2024-01-01',
           updatedAt: '2024-01-01',
@@ -65,6 +71,14 @@ describe('Special Poll Service', () => {
       expect(result).toEqual(mockPolls);
     });
 
+    it('should fetch highlighted polls when requested', async () => {
+      mockApi.get.mockResolvedValue({ data: [] });
+
+      await specialPollService.getSpecialPolls({ highlighted: true });
+
+      expect(mockApi.get).toHaveBeenCalledWith('/special-polls?highlighted=true');
+    });
+
     it('should handle API errors', async () => {
       mockApi.get.mockRejectedValue(new Error('Network error'));
 
@@ -76,11 +90,18 @@ describe('Special Poll Service', () => {
     it('should fetch a specific special poll', async () => {
       const mockPoll = {
         id: '1',
-        question: 'What is your favorite cuisine?',
-        status: 'active',
+        title: 'What is your favorite cuisine?',
+        status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [
-          { id: '1', text: 'Italian', votes: 5 },
-          { id: '2', text: 'Asian', votes: 3 },
+          {
+            id: 'r1',
+            userId: 'u1',
+            userName: 'A',
+            response: 'Italian',
+            createdAt: '2024-01-01',
+            upvotedUserIds: ['x'],
+          },
         ],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
@@ -104,11 +125,13 @@ describe('Special Poll Service', () => {
     it('should create a new special poll', async () => {
       const pollData = {
         title: 'What is your favorite activity?',
+        isHighlighted: true,
       };
       const createdPoll = {
         id: '1',
         title: 'What is your favorite activity?',
-        status: 'ACTIVE' as const,
+        status: SpecialPollStatus.PENDING,
+        isHighlighted: true,
         responses: [],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
@@ -140,8 +163,10 @@ describe('Special Poll Service', () => {
         id: '1',
         title: 'Test question?',
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [],
         updatedAt: '2024-01-02',
+        createdAt: '2024-01-01',
       };
       mockApi.patch.mockResolvedValue({ data: updatedPoll });
 
@@ -161,6 +186,19 @@ describe('Special Poll Service', () => {
     });
   });
 
+  describe('updateSpecialPollHighlight', () => {
+    it('should patch highlight endpoint', async () => {
+      const body = { isHighlighted: true };
+      const updatedPoll = { id: '1', title: 'T', status: SpecialPollStatus.ACTIVE, isHighlighted: true, responses: [], createdAt: '', updatedAt: '' };
+      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+
+      const result = await specialPollService.updateSpecialPollHighlight('1', body);
+
+      expect(mockApi.patch).toHaveBeenCalledWith('/special-polls/1/highlight', body);
+      expect(result).toEqual(updatedPoll);
+    });
+  });
+
   describe('addResponse', () => {
     it('should add a response to poll', async () => {
       const responseText = 'New response option';
@@ -168,20 +206,8 @@ describe('Special Poll Service', () => {
         id: '1',
         title: 'Test question?',
         status: SpecialPollStatus.ACTIVE,
-        responses: [
-          {
-            userId: '1',
-            userName: 'User1',
-            response: 'Existing response',
-            createdAt: '2024-01-01',
-          },
-          {
-            userId: '2',
-            userName: 'User2',
-            response: 'New response option',
-            createdAt: '2024-01-01',
-          },
-        ],
+        isHighlighted: false,
+        responses: [] as SpecialPollResponse[],
       };
       mockApi.post.mockResolvedValue({ data: updatedPoll });
 
@@ -203,18 +229,21 @@ describe('Special Poll Service', () => {
   });
 
   describe('removeResponse', () => {
-    it('should remove a response from poll', async () => {
+    it('should DELETE own response via responses/me', async () => {
       const updatedPoll = {
         id: '1',
         title: 'Test question?',
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [],
+        createdAt: '',
+        updatedAt: '',
       };
       mockApi.delete.mockResolvedValue({ data: updatedPoll });
 
       const result = await specialPollService.removeResponse('1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/special-polls/1/responses');
+      expect(mockApi.delete).toHaveBeenCalledWith('/special-polls/1/responses/me');
       expect(result).toEqual(updatedPoll);
     });
 
@@ -224,6 +253,29 @@ describe('Special Poll Service', () => {
       await expect(specialPollService.removeResponse('1')).rejects.toThrow(
         'Remove response failed'
       );
+    });
+  });
+
+  describe('upvoteResponse', () => {
+    it('should POST upvote endpoint with empty JSON body', async () => {
+      const updatedPoll = {
+        id: '1',
+        title: 'T',
+        status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
+        responses: [],
+        createdAt: '',
+        updatedAt: '',
+      };
+      mockApi.post.mockResolvedValue({ data: updatedPoll });
+
+      const result = await specialPollService.upvoteResponse('1', 'resp-uuid');
+
+      expect(mockApi.post).toHaveBeenCalledWith(
+        '/special-polls/1/responses/resp-uuid/upvote',
+        {}
+      );
+      expect(result).toEqual(updatedPoll);
     });
   });
 
@@ -245,16 +297,32 @@ describe('Special Poll Service', () => {
 
   describe('updateResponses', () => {
     it('should update all responses for a poll', async () => {
-      const responses = [
-        { userId: '1', userName: 'User1', response: 'Updated response 1', createdAt: '2024-01-01' },
-        { userId: '2', userName: 'User2', response: 'Updated response 2', createdAt: '2024-01-01' },
-        { userId: '3', userName: 'User3', response: 'New response 3', createdAt: '2024-01-01' },
+      const responses: SpecialPollResponse[] = [
+        {
+          id: 'r1',
+          userId: '1',
+          userName: 'User1',
+          response: 'Updated response 1',
+          createdAt: '2024-01-01',
+          upvotedUserIds: [],
+        },
+        {
+          id: 'r2',
+          userId: '2',
+          userName: 'User2',
+          response: 'Updated response 2',
+          createdAt: '2024-01-01',
+          upvotedUserIds: ['u'],
+        },
       ];
       const updatedPoll = {
         id: '1',
         title: 'Test question?',
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses,
+        createdAt: '',
+        updatedAt: '',
       };
       mockApi.patch.mockResolvedValue({ data: updatedPoll });
 
@@ -265,12 +333,15 @@ describe('Special Poll Service', () => {
     });
 
     it('should handle empty responses array', async () => {
-      const responses: any[] = [];
+      const responses: SpecialPollResponse[] = [];
       const updatedPoll = {
         id: '1',
         title: 'Test question?',
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [],
+        createdAt: '',
+        updatedAt: '',
       };
       mockApi.patch.mockResolvedValue({ data: updatedPoll });
 
@@ -281,8 +352,15 @@ describe('Special Poll Service', () => {
     });
 
     it('should handle update responses errors', async () => {
-      const responses = [
-        { userId: '1', userName: 'User1', response: 'Test', createdAt: '2024-01-01' },
+      const responses: SpecialPollResponse[] = [
+        {
+          id: 'r1',
+          userId: '1',
+          userName: 'User1',
+          response: 'Test',
+          createdAt: '2024-01-01',
+          upvotedUserIds: [],
+        },
       ];
       mockApi.patch.mockRejectedValue(new Error('Update responses failed'));
 
@@ -302,6 +380,7 @@ describe('Special Poll Service', () => {
         id: '1',
         title: longTitle,
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
@@ -322,6 +401,7 @@ describe('Special Poll Service', () => {
         id: '1',
         title: unicodeTitle,
         status: SpecialPollStatus.ACTIVE,
+        isHighlighted: false,
         responses: [],
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
@@ -333,23 +413,21 @@ describe('Special Poll Service', () => {
       expect(result.title).toBe(unicodeTitle);
     });
 
-    it('should handle multiple status transitions', async () => {
-      // Pending -> Active
+    it('should handle multiple status transitions (nur ACTIVE/PENDING)', async () => {
       const statusData1 = { status: SpecialPollStatus.ACTIVE };
       const updatedPoll1 = { id: '1', status: SpecialPollStatus.ACTIVE };
       mockApi.patch.mockResolvedValueOnce({ data: updatedPoll1 });
 
       await specialPollService.updateSpecialPollStatus('1', statusData1);
 
-      // Active -> Closed
-      const statusData2 = { status: SpecialPollStatus.CLOSED };
-      const updatedPoll2 = { id: '1', status: SpecialPollStatus.CLOSED };
+      const statusData2 = { status: SpecialPollStatus.PENDING };
+      const updatedPoll2 = { id: '1', status: SpecialPollStatus.PENDING };
       mockApi.patch.mockResolvedValueOnce({ data: updatedPoll2 });
 
       const result = await specialPollService.updateSpecialPollStatus('1', statusData2);
 
       expect(mockApi.patch).toHaveBeenCalledTimes(2);
-      expect(result.status).toBe(SpecialPollStatus.CLOSED);
+      expect(result.status).toBe(SpecialPollStatus.PENDING);
     });
   });
 

@@ -1,20 +1,33 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
-import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
-import SpecialPollDetail from '../SpecialPollDetail';
-import { SpecialPollStatus } from '@/models/specialPoll';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
-// Mock React Router
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
+import { SpecialPollStatus } from '@/models/specialPoll';
+import { UserType } from '@/models/users';
+
+import SpecialPollDetail from '../SpecialPollDetail';
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
-  useParams: () => ({ pollId: 'test-poll-id' }),
 }));
 
-// Mock UI Components
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    getUserId: () => 'moderator-own-id',
+  }),
+}));
+
+const mockGetUserProfile = jest.fn();
+jest.mock('@/services/userService', () => ({
+  useUserService: () => ({
+    getUserProfile: mockGetUserProfile,
+  }),
+}));
+
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => (
@@ -40,15 +53,14 @@ jest.mock('@/components/ui/badge', () => ({
 }));
 
 jest.mock('@/components/ui/button', () => ({
-  Button: ({ children, onClick, disabled, variant, size, type, className }: any) => (
+  Button: ({ children, variant, size, type = 'button', className, ...props }: any) => (
     <button
-      onClick={onClick}
-      disabled={disabled}
+      type={type}
       data-variant={variant}
       data-size={size}
-      type={type}
       className={className}
       data-testid="button"
+      {...props}
     >
       {children}
     </button>
@@ -98,11 +110,8 @@ jest.mock('@/components/ui/select', () => ({
       data-value={value}
       data-disabled={disabled}
       onClick={() => {
-        // Only trigger if the new value is different from current
-        if (value !== 'PENDING') {
-          if (onValueChange) {
-            onValueChange('PENDING');
-          }
+        if (value !== 'PENDING' && onValueChange) {
+          onValueChange('PENDING');
         }
       }}
     >
@@ -123,13 +132,54 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ children }: any) => <span data-testid="select-value">{children}</span>,
 }));
 
-// Mock Lucide React icons
+jest.mock('@/components/ui/skeleton', () => ({
+  Skeleton: (props: any) => <div data-slot="skeleton" {...props} />,
+}));
+
+jest.mock('@/components/ui/label', () => ({
+  Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor}>{children}</label>,
+}));
+
+jest.mock('@/components/ui/switch', () => ({
+  Switch: ({ checked, onCheckedChange, disabled, id }: any) => (
+    <button
+      type="button"
+      role="switch"
+      data-testid={`switch-${id ?? 'anon'}`}
+      disabled={disabled}
+      aria-checked={checked}
+      onClick={() => !disabled && onCheckedChange && onCheckedChange(!checked)}
+    >
+      sw
+    </button>
+  ),
+}));
+
+jest.mock('@/components/LoadingButton', () => ({
+  LoadingButton: ({
+    children,
+    isLoading,
+    loadingText,
+    onClick,
+    type,
+    ...props
+  }: any) => (
+    <button
+      {...props}
+      type={type ?? 'button'}
+      onClick={onClick}
+      disabled={props.disabled || isLoading}
+    >
+      {isLoading ? loadingText : children}
+    </button>
+  ),
+}));
+
 jest.mock('lucide-react', () => ({
   ...jest.requireActual('lucide-react'),
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
 }));
 
-// Mock Toast
 jest.mock('sonner', () => ({
   toast: {
     error: jest.fn(),
@@ -137,21 +187,23 @@ jest.mock('sonner', () => ({
   },
 }));
 
-// Mock Special Poll Service
 const mockSpecialPollService = {
   getSpecialPoll: jest.fn(),
   addResponse: jest.fn(),
   updateResponses: jest.fn(),
   updateSpecialPollStatus: jest.fn(),
+  updateSpecialPollHighlight: jest.fn(),
+  removeResponse: jest.fn(),
+  removeSpecialPoll: jest.fn(),
+  upvoteResponse: jest.fn(),
 };
 
 jest.mock('@/services/specialPollService', () => ({
   useSpecialPollService: () => mockSpecialPollService,
 }));
 
-// Mock date-fns
 jest.mock('date-fns', () => ({
-  format: jest.fn((date, formatStr) => {
+  format: jest.fn((date: unknown, formatStr: string) => {
     if (formatStr.includes('HH:mm')) {
       return '15.01.2024 14:30';
     }
@@ -171,35 +223,43 @@ describe('SpecialPollDetail Component', () => {
     id: 'test-poll-id',
     title: 'Community Cleanup Event',
     status: SpecialPollStatus.ACTIVE,
+    isHighlighted: false,
     createdAt: '2024-01-15T10:00:00.000Z',
+    updatedAt: '2024-01-15T10:00:00.000Z',
     responses: [
       {
         id: '1',
+        userId: 'u1',
         userName: 'John Doe',
         response: 'I will participate!',
         createdAt: '2024-01-15T12:00:00.000Z',
+        upvotedUserIds: [] as string[],
       },
       {
         id: '2',
+        userId: 'moderator-own-id',
         userName: 'Jane Smith',
         response: 'Great initiative!',
         createdAt: '2024-01-15T13:00:00.000Z',
+        upvotedUserIds: ['u9', 'moderator-own-id'],
       },
     ],
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetUserProfile.mockResolvedValue({ userType: UserType.SUPER_ADMIN });
     mockSpecialPollService.getSpecialPoll.mockResolvedValue(mockPoll);
   });
 
-  const renderComponent = () => {
-    return render(
+  const renderComponent = () =>
+    render(
       <MemoryRouter initialEntries={['/mittmach-mittwoch/test-poll-id']}>
-        <SpecialPollDetail />
+        <Routes>
+          <Route path="/mittmach-mittwoch/:pollId" element={<SpecialPollDetail />} />
+        </Routes>
       </MemoryRouter>
     );
-  };
 
   it('renders poll detail page correctly', async () => {
     renderComponent();
@@ -221,10 +281,12 @@ describe('SpecialPollDetail Component', () => {
     });
   });
 
-  it('displays loading state initially', () => {
+  it('displays skeleton while loading', async () => {
+    mockSpecialPollService.getSpecialPoll.mockImplementationOnce(() => new Promise(() => {}));
+
     renderComponent();
 
-    expect(screen.getByText('Lade Aktion...')).toBeTruthy();
+    expect(document.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThan(0);
   });
 
   it('navigates back to overview when back button is clicked', async () => {
@@ -246,7 +308,6 @@ describe('SpecialPollDetail Component', () => {
       expect(screen.getAllByText('I will participate!').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Jane Smith').length).toBeGreaterThan(0);
       expect(screen.getAllByText('Great initiative!').length).toBeGreaterThan(0);
-      // Check that we have response timestamps
       expect(screen.getAllByText(/15\.01\.2024/).length).toBeGreaterThan(0);
     });
   });
@@ -271,7 +332,6 @@ describe('SpecialPollDetail Component', () => {
     await waitFor(() => {
       expect(screen.getByText('Noch keine Antworten vorhanden.')).toBeTruthy();
       expect(screen.getByText(/Anzahl Antworten:/)).toBeTruthy();
-      // Check that there are no user names displayed (indicates 0 responses)
       expect(screen.queryByText('John Doe')).toBeFalsy();
       expect(screen.queryByText('Jane Smith')).toBeFalsy();
     });
@@ -287,36 +347,14 @@ describe('SpecialPollDetail Component', () => {
     });
   });
 
-  it('adds new response successfully', async () => {
-    mockSpecialPollService.addResponse.mockResolvedValue({});
-    renderComponent();
-
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('Deine Antwort...')).toBeTruthy();
-    });
-
-    const input = screen.getByPlaceholderText('Deine Antwort...');
-    const submitButton = screen.getByText('Antwort absenden');
-
-    await user.type(input, 'My new response');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith(
-        'test-poll-id',
-        'My new response'
-      );
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Antwort wurde hinzugefügt');
-    });
-  });
-
   it('handles response addition error', async () => {
-    mockSpecialPollService.addResponse.mockRejectedValue(new Error('Add response failed'));
     renderComponent();
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Deine Antwort...')).toBeTruthy();
     });
+
+    mockSpecialPollService.addResponse.mockRejectedValue(new Error('Add response failed'));
 
     const input = screen.getByPlaceholderText('Deine Antwort...');
     const submitButton = screen.getByText('Antwort absenden');
@@ -361,7 +399,29 @@ describe('SpecialPollDetail Component', () => {
     });
   });
 
-  it('opens delete response dialog', async () => {
+  it('submits new poll response successfully', async () => {
+    mockSpecialPollService.addResponse.mockResolvedValue({});
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('Deine Antwort...')).toBeTruthy();
+    });
+
+    const input = screen.getByPlaceholderText('Deine Antwort...');
+    const submitButton = screen.getByRole('button', { name: /antwort absenden/i });
+    fireEvent.change(input, { target: { value: 'My new response' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockSpecialPollService.addResponse).toHaveBeenCalledWith(
+        'test-poll-id',
+        'My new response'
+      );
+      expectToastSuccessTitle(toast.success as jest.Mock, 'Antwort wurde hinzugefügt');
+    });
+  });
+
+  it('opens delete response dialog for super-admin moderation', async () => {
     renderComponent();
 
     await waitFor(() => {
@@ -376,12 +436,11 @@ describe('SpecialPollDetail Component', () => {
     expect(dialogTitles.length).toBeGreaterThan(0);
   });
 
-  it('shows delete buttons for responses', async () => {
+  it('shows moderation delete buttons for super-admin only', async () => {
     renderComponent();
 
     await waitFor(() => {
-      const deleteButtons = screen.getAllByTestId('trash2-icon');
-      expect(deleteButtons.length).toBe(2);
+      expect(screen.getAllByTestId('trash2-icon').length).toBe(2);
     });
   });
 
@@ -389,20 +448,55 @@ describe('SpecialPollDetail Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const deleteButtons = screen.getAllByTestId('trash2-icon');
-      expect(deleteButtons.length).toBe(2);
+      expect(screen.getAllByTestId('trash2-icon').length).toBe(2);
     });
 
-    // Click first delete button
     const deleteButtons = screen.getAllByTestId('trash2-icon');
     fireEvent.click(deleteButtons[0].closest('button')!);
 
-    // Cancel deletion - get all cancel buttons and use the first one
     const cancelButtons = screen.getAllByText('Abbrechen');
     await user.click(cancelButtons[0]);
 
-    // Should not call delete service
     expect(mockSpecialPollService.updateResponses).not.toHaveBeenCalled();
+  });
+
+  it('upvotes response', async () => {
+    mockSpecialPollService.upvoteResponse.mockResolvedValue({});
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getAllByLabelText('Zustimmen')).toHaveLength(2);
+    });
+
+    const buttons = screen.getAllByLabelText('Zustimmen');
+    await user.click(buttons[0]);
+
+    await waitFor(() => {
+      expect(mockSpecialPollService.upvoteResponse).toHaveBeenCalledWith('test-poll-id', '1');
+    });
+  });
+
+  it('shows own-response delete action for matching user id', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Meine Antwort löschen')).toHaveLength(1);
+    });
+  });
+
+  it('calls removeResponse for own answer', async () => {
+    mockSpecialPollService.removeResponse.mockResolvedValue({});
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Meine Antwort löschen')).toBeTruthy();
+    });
+
+    await user.click(screen.getByText('Meine Antwort löschen'));
+
+    await waitFor(() => {
+      expect(mockSpecialPollService.removeResponse).toHaveBeenCalledWith('test-poll-id');
+    });
   });
 
   it('updates poll status successfully', async () => {
@@ -410,8 +504,7 @@ describe('SpecialPollDetail Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const statusSelect = screen.getByTestId('select');
-      expect(statusSelect).toBeTruthy();
+      expect(screen.getByTestId('select')).toBeTruthy();
     });
 
     const statusSelect = screen.getByTestId('select');
@@ -432,12 +525,10 @@ describe('SpecialPollDetail Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const statusSelect = screen.getByTestId('select');
-      expect(statusSelect).toBeTruthy();
+      expect(screen.getByTestId('select')).toBeTruthy();
     });
 
-    const statusSelect = screen.getByTestId('select');
-    fireEvent.click(statusSelect);
+    fireEvent.click(screen.getByTestId('select'));
 
     await waitFor(() => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
@@ -450,8 +541,23 @@ describe('SpecialPollDetail Component', () => {
     });
   });
 
-  it('displays correct status badge color for different statuses', async () => {
-    // Test PENDING status
+  it('toggles highlight for super-admin', async () => {
+    mockSpecialPollService.updateSpecialPollHighlight.mockResolvedValue({});
+    renderComponent();
+
+    await waitFor(() => expect(screen.getByTestId('switch-poll-highlight')).toBeTruthy());
+
+    fireEvent.click(screen.getByTestId('switch-poll-highlight'));
+
+    await waitFor(() => {
+      expect(mockSpecialPollService.updateSpecialPollHighlight).toHaveBeenCalledWith(
+        'test-poll-id',
+        { isHighlighted: true }
+      );
+    });
+  });
+
+  it('zeigt API-PENDING in der Oberfläche als ACTIVE', async () => {
     mockSpecialPollService.getSpecialPoll.mockResolvedValue({
       ...mockPoll,
       status: SpecialPollStatus.PENDING,
@@ -460,33 +566,38 @@ describe('SpecialPollDetail Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      const badge = screen.getByTestId('badge');
-      expect(badge.textContent).toBe('PENDING');
+      const badges = screen.getAllByTestId('badge');
+      expect(badges.some(b => b.textContent === 'ACTIVE')).toBeTruthy();
+      expect(badges.some(b => b.textContent === 'PENDING')).toBeFalsy();
     });
   });
 
-  it('displays status select options', async () => {
+  it('displays status select options ohne Geschlossen', async () => {
     renderComponent();
 
     await waitFor(() => {
       expect(screen.getByText('Aktiv')).toBeTruthy();
       expect(screen.getByText('Ausstehend')).toBeTruthy();
-      expect(screen.getByText('Geschlossen')).toBeTruthy();
+      expect(screen.queryByText('Geschlossen')).not.toBeInTheDocument();
     });
   });
 
   it('disables status select during update', async () => {
+    mockSpecialPollService.updateSpecialPollStatus.mockImplementationOnce(
+      () => new Promise(() => {})
+    );
     renderComponent();
 
-    await waitFor(() => {
-      const statusSelect = screen.getByTestId('select');
-      expect(statusSelect.getAttribute('data-disabled')).toBe('false');
-    });
+    await waitFor(() => expect(screen.getByTestId('select')).toBeTruthy());
+
+    fireEvent.click(screen.getByTestId('select'));
+
+    await waitFor(() => expect(screen.getByTestId('select').getAttribute('data-disabled')).toBe('true'));
   });
 
   it('disables response input during submission', async () => {
     mockSpecialPollService.addResponse.mockImplementation(
-      () => new Promise(resolve => setTimeout(resolve, 100))
+      () => new Promise(() => {})
     );
 
     renderComponent();
@@ -501,38 +612,36 @@ describe('SpecialPollDetail Component', () => {
     await user.type(input, 'Test response');
     await user.click(submitButton);
 
-    expect(input.disabled).toBe(true);
+    await waitFor(() => {
+      expect(input.disabled).toBe(true);
+    });
   });
 
   it('reloads poll after successful operations', async () => {
     mockSpecialPollService.addResponse.mockResolvedValue({});
     renderComponent();
 
-    // Clear the initial load call
-    mockSpecialPollService.getSpecialPoll.mockClear();
-
     await waitFor(() => {
       expect(screen.getByPlaceholderText('Deine Antwort...')).toBeTruthy();
     });
 
-    const input = screen.getByPlaceholderText('Deine Antwort...');
-    const submitButton = screen.getByText('Antwort absenden');
+    mockSpecialPollService.getSpecialPoll.mockClear();
 
-    await user.type(input, 'New response');
-    await user.click(submitButton);
+    await user.type(screen.getByPlaceholderText('Deine Antwort...'), 'New response');
+    await user.click(screen.getByRole('button', { name: /antwort absenden/i }));
 
     await waitFor(() => {
-      // Should reload poll after successful addition
       expect(mockSpecialPollService.getSpecialPoll).toHaveBeenCalledWith('test-poll-id');
     });
   });
 
-  it('displays trash icon in delete buttons', async () => {
+  it('hides moderation controls without super-admin role', async () => {
+    mockGetUserProfile.mockResolvedValueOnce({ userType: UserType.ADMIN });
     renderComponent();
 
-    await waitFor(() => {
-      const trashIcons = screen.getAllByTestId('trash2-icon');
-      expect(trashIcons.length).toBe(2);
-    });
+    await waitFor(() => expect(screen.getByText('Community Cleanup Event')).toBeTruthy());
+
+    expect(screen.queryByTestId('trash2-icon')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('switch-poll-highlight')).not.toBeInTheDocument();
   });
 });

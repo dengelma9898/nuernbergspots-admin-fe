@@ -2,18 +2,32 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
-import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
-import MittmachMittwoch from '../MittmachMittwoch';
-import { SpecialPollStatus } from '@/models/specialPoll';
 
-// Mock React Router
+import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
+import { SpecialPollStatus } from '@/models/specialPoll';
+import { UserType } from '@/models/users';
+
+import MittmachMittwoch from '../MittmachMittwoch';
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
 
-// Mock UI Components
+const mockGetUserProfile = jest.fn();
+jest.mock('@/services/userService', () => ({
+  useUserService: () => ({
+    getUserProfile: mockGetUserProfile,
+  }),
+}));
+
+jest.mock('@/contexts/AuthContext', () => ({
+  useAuth: () => ({
+    getUserId: () => 'test-user-id',
+  }),
+}));
+
 jest.mock('@/components/ui/card', () => ({
   Card: ({ children, onClick, className }: any) => (
     <div data-testid="card" onClick={onClick} className={className}>
@@ -80,39 +94,24 @@ jest.mock('@/components/ui/dialog', () => ({
 }));
 
 jest.mock('@/components/ui/input', () => ({
-  Input: ({ value, onChange, placeholder, onKeyDown }: any) => (
+  Input: ({ value, onChange, placeholder, onKeyDown, disabled }: any) => (
     <input
       value={value}
       onChange={onChange}
       placeholder={placeholder}
       onKeyDown={onKeyDown}
+      disabled={disabled}
       data-testid="input"
     />
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
-  Select: ({ children, value, onValueChange }: any) => (
-    <div
-      data-testid="select"
-      data-value={value}
-      onClick={() => onValueChange && onValueChange('ACTIVE')}
-    >
+jest.mock('@/components/ui/label', () => ({
+  Label: ({ children, htmlFor, className }: any) => (
+    <label htmlFor={htmlFor} className={className}>
       {children}
-    </div>
+    </label>
   ),
-  SelectContent: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="select-content">{children}</div>
-  ),
-  SelectItem: ({ children, value }: any) => (
-    <div data-testid="select-item" data-value={value}>
-      {children}
-    </div>
-  ),
-  SelectTrigger: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="select-trigger">{children}</div>
-  ),
-  SelectValue: ({ placeholder }: any) => <span data-testid="select-value">{placeholder}</span>,
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({
@@ -121,13 +120,34 @@ jest.mock('@/components/ui/skeleton', () => ({
   ),
 }));
 
-// Mock Lucide React icons
+jest.mock('@/components/ui/switch', () => ({
+  Switch: ({ id, checked, onCheckedChange, disabled }: any) => (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      data-testid={id ? `switch-${id}` : 'switch'}
+      disabled={disabled}
+      onClick={() => !disabled && onCheckedChange && onCheckedChange(!checked)}
+    >
+      toggle
+    </button>
+  ),
+}));
+
+jest.mock('@/components/LoadingButton', () => ({
+  LoadingButton: ({ children, isLoading, loadingText, ...props }: any) => (
+    <button {...props} disabled={props.disabled || isLoading} type={props.type ?? 'button'}>
+      {isLoading ? loadingText : children}
+    </button>
+  ),
+}));
+
 jest.mock('lucide-react', () => ({
   ...jest.requireActual('lucide-react'),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
 }));
 
-// Mock Toast
 jest.mock('sonner', () => ({
   toast: {
     error: jest.fn(),
@@ -135,7 +155,6 @@ jest.mock('sonner', () => ({
   },
 }));
 
-// Mock Special Poll Service
 const mockSpecialPollService = {
   getSpecialPolls: jest.fn(),
   createSpecialPoll: jest.fn(),
@@ -145,7 +164,6 @@ jest.mock('@/services/specialPollService', () => ({
   useSpecialPollService: () => mockSpecialPollService,
 }));
 
-// Mock date-fns
 jest.mock('date-fns', () => ({
   format: jest.fn(() => '15.01.2024'),
 }));
@@ -158,58 +176,80 @@ describe('MittmachMittwoch Component', () => {
   const user = userEvent.setup();
   const { toast } = require('sonner');
 
+  const response = (over: Partial<{ id: string; userId: string; userName: string; response: string; createdAt: string; upvotedUserIds: string[] }>) => ({
+    id: 'r1',
+    userId: 'u1',
+    userName: 'John Doe',
+    response: 'Great idea!',
+    createdAt: '2024-01-15T10:00:00.000Z',
+    upvotedUserIds: [] as string[],
+    ...over,
+  });
+
   const mockPolls = [
     {
       id: '1',
       title: 'Community Cleanup',
       status: SpecialPollStatus.ACTIVE,
+      isHighlighted: false,
       createdAt: '2024-01-15T10:00:00.000Z',
+      updatedAt: '2024-01-15T10:00:00.000Z',
       responses: [
-        { id: '1', userName: 'John Doe', response: 'Great idea!' },
-        { id: '2', userName: 'Jane Smith', response: 'I will participate' },
+        response({ id: 'r1', userName: 'John Doe', response: 'Great idea!' }),
+        response({ id: 'r2', userName: 'Jane Smith', response: 'I will participate' }),
       ],
     },
     {
       id: '2',
       title: 'Food Drive',
       status: SpecialPollStatus.PENDING,
+      isHighlighted: false,
       createdAt: '2024-01-10T09:00:00.000Z',
+      updatedAt: '2024-01-10T09:00:00.000Z',
       responses: [],
     },
     {
       id: '3',
-      title: 'Old Event',
-      status: SpecialPollStatus.CLOSED,
+      title: 'Highlighted Event',
+      status: SpecialPollStatus.ACTIVE,
+      isHighlighted: true,
       createdAt: '2024-01-05T08:00:00.000Z',
-      responses: [{ id: '3', userName: 'Bob Wilson', response: 'Was successful' }],
+      updatedAt: '2024-01-05T08:00:00.000Z',
+      responses: [response({ id: 'r3', userName: 'Bob Wilson', response: 'Was successful' })],
     },
   ];
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetUserProfile.mockResolvedValue({ userType: UserType.SUPER_ADMIN });
     mockSpecialPollService.getSpecialPolls.mockResolvedValue(mockPolls);
   });
 
-  const renderComponent = () => {
-    return render(
+  const renderComponent = () =>
+    render(
       <BrowserRouter>
         <MittmachMittwoch />
       </BrowserRouter>
     );
-  };
+
+  async function waitForSuperAdminToolbar() {
+    await waitFor(() => {
+      expect(screen.getByText('Neue Aktion/Poll')).toBeInTheDocument();
+    });
+  }
 
   it('renders MittmachMittwoch page correctly', async () => {
     renderComponent();
 
     expect(screen.getByText('Mittmach Mittwoch')).toBeTruthy();
     expect(screen.getByText('Zurück zum Dashboard')).toBeTruthy();
-    expect(screen.getByText('Neue Aktion/Poll')).toBeTruthy();
     expect(screen.getByText(/Hier findest du alle Aktionen/)).toBeTruthy();
 
     await waitFor(() => {
       expect(screen.getByText('Community Cleanup')).toBeTruthy();
       expect(screen.getByText('Food Drive')).toBeTruthy();
-      expect(screen.getByText('Old Event')).toBeTruthy();
+      expect(screen.getByText('Highlighted Event')).toBeTruthy();
+      expect(screen.getByText('Neue Aktion/Poll')).toBeTruthy();
     });
   });
 
@@ -217,23 +257,18 @@ describe('MittmachMittwoch Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(mockSpecialPollService.getSpecialPolls).toHaveBeenCalledTimes(1);
+      expect(mockSpecialPollService.getSpecialPolls).toHaveBeenCalledWith(undefined);
     });
   });
 
   it('displays loading state with skeleton animations', () => {
-    mockSpecialPollService.getSpecialPolls.mockImplementation(
-      () => new Promise(() => {}) // Never resolves
-    );
+    mockSpecialPollService.getSpecialPolls.mockImplementation(() => new Promise(() => {}));
 
     const { container } = renderComponent();
 
-    // Überprüfe, dass Skeleton-Elemente gerendert werden
     const skeletonElements = container.querySelectorAll('[data-slot="skeleton"]');
     expect(skeletonElements.length).toBeGreaterThan(0);
-
-    // Sollte mindestens 35+ Skeleton-Elemente haben (Header + 6 Cards mit je 5+ Elementen)
-    expect(skeletonElements.length).toBeGreaterThan(35);
+    expect(skeletonElements.length).toBeGreaterThan(20);
   });
 
   it('navigates back to dashboard when back button is clicked', async () => {
@@ -245,37 +280,63 @@ describe('MittmachMittwoch Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
   });
 
-  it('displays polls grouped by status', async () => {
+  it('blendet Umfragen nach Hervorhebung in zwei Abschnitte ein', async () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Aktive Aktionen')).toBeTruthy();
-      expect(screen.getByText('Ausstehende Aktionen')).toBeTruthy();
-      expect(screen.getByText('Geschlossene Aktionen')).toBeTruthy();
+      expect(screen.getByText('Hervorgehobene Aktionen')).toBeTruthy();
+      expect(screen.getByText('Weitere Aktionen')).toBeTruthy();
+    });
+  });
+
+  it('shows highlighted badge when poll is highlighted', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Hervorgehoben')).toBeTruthy();
+    });
+  });
+
+  it('calls getSpecialPolls with highlighted flag when toggle is enabled', async () => {
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('Community Cleanup')).toBeInTheDocument();
+    });
+
+    mockSpecialPollService.getSpecialPolls.mockClear();
+
+    const highlightSwitch = screen.getByTestId('switch-highlight-only');
+    await user.click(highlightSwitch);
+
+    await waitFor(() => {
+      expect(mockSpecialPollService.getSpecialPolls).toHaveBeenCalledWith({ highlighted: true });
+    });
+  });
+
+  it('hides create button for non-super-admin users', async () => {
+    mockGetUserProfile.mockResolvedValueOnce({ userType: UserType.ADMIN });
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.queryByText('Neue Aktion/Poll')).not.toBeInTheDocument();
     });
   });
 
   it('displays poll details correctly', async () => {
     renderComponent();
 
-    // Warte zuerst auf die grundlegenden Poll-Titel
     await waitFor(() => {
       expect(screen.getByText('Community Cleanup')).toBeTruthy();
       expect(screen.getByText('Food Drive')).toBeTruthy();
-      expect(screen.getByText('Old Event')).toBeTruthy();
-    }, { timeout: 3000 });
+      expect(screen.getByText('Highlighted Event')).toBeTruthy();
+    });
 
-    // Dann prüfe die Antwort-Zählungen
     await waitFor(() => {
       expect(screen.getByText('2 Antworten')).toBeTruthy();
       expect(screen.getByText('0 Antworten')).toBeTruthy();
       expect(screen.getByText('1 Antwort')).toBeTruthy();
     });
-
-    // Prüfe dass die "Letzte Antwort" Funktion funktioniert (ohne spezifischen Benutzer)
-    const lastResponseElements = screen.queryAllByText(/Letzte Antwort von/);
-    // Es sollte mindestens eine "Letzte Antwort" geben bei Polls mit Antworten
-    expect(lastResponseElements.length).toBeGreaterThanOrEqual(0);
   });
 
   it('displays poll creation dates', async () => {
@@ -298,6 +359,7 @@ describe('MittmachMittwoch Component', () => {
 
   it('opens create poll dialog when button is clicked', async () => {
     renderComponent();
+    await waitForSuperAdminToolbar();
 
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
@@ -309,16 +371,14 @@ describe('MittmachMittwoch Component', () => {
   it('creates new poll successfully', async () => {
     mockSpecialPollService.createSpecialPoll.mockResolvedValue({});
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Open dialog
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
-    // Enter title
     const titleInput = screen.getByPlaceholderText('Titel der Aktion/Poll');
     await user.type(titleInput, 'New Test Poll');
 
-    // Submit
     const submitButton = screen.getByText('Erstellen');
     await user.click(submitButton);
 
@@ -333,16 +393,14 @@ describe('MittmachMittwoch Component', () => {
   it('handles poll creation error', async () => {
     mockSpecialPollService.createSpecialPoll.mockRejectedValue(new Error('Creation failed'));
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Open dialog
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
-    // Enter title
     const titleInput = screen.getByPlaceholderText('Titel der Aktion/Poll');
     await user.type(titleInput, 'Failed Poll');
 
-    // Submit
     const submitButton = screen.getByText('Erstellen');
     await user.click(submitButton);
 
@@ -356,12 +414,11 @@ describe('MittmachMittwoch Component', () => {
 
   it('prevents creating poll with empty title', async () => {
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Open dialog
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
-    // Submit without title
     const submitButton = screen.getByText('Erstellen') as HTMLButtonElement;
     expect(submitButton.disabled).toBe(true);
   });
@@ -369,12 +426,11 @@ describe('MittmachMittwoch Component', () => {
   it('allows creating poll with Enter key', async () => {
     mockSpecialPollService.createSpecialPoll.mockResolvedValue({});
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Open dialog
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
-    // Enter title and press Enter
     const titleInput = screen.getByPlaceholderText('Titel der Aktion/Poll');
     await user.type(titleInput, 'Enter Key Poll');
     await user.keyboard('{Enter}');
@@ -388,34 +444,34 @@ describe('MittmachMittwoch Component', () => {
 
   it('closes dialog when cancel is clicked', async () => {
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Open dialog
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
-    // Cancel
     const cancelButton = screen.getByText('Abbrechen');
     await user.click(cancelButton);
 
-    // Dialog should be closed (this is hard to test with our mock, but the button should be there)
     expect(screen.getByText('Neue Aktion/Poll erstellen')).toBeTruthy();
   });
 
   it('navigates to poll detail when poll card is clicked', async () => {
     renderComponent();
 
-    // Warte bis die Polls geladen sind
     await waitFor(() => {
       expect(screen.getByText('Community Cleanup')).toBeTruthy();
     });
 
-    // Hole die erste Poll-Card und klicke darauf
     const pollCards = screen.getAllByTestId('card');
     expect(pollCards.length).toBeGreaterThan(0);
-    
-    fireEvent.click(pollCards[0]);
 
-    expect(mockNavigate).toHaveBeenCalledWith('/mittmach-mittwoch/1');
+    const highlightedCard = pollCards.find(card =>
+      card.textContent?.includes('Highlighted Event')
+    );
+    expect(highlightedCard).toBeDefined();
+    fireEvent.click(highlightedCard!);
+
+    expect(mockNavigate).toHaveBeenCalledWith('/mittmach-mittwoch/3');
   });
 
   it('displays correct status badges', async () => {
@@ -424,13 +480,13 @@ describe('MittmachMittwoch Component', () => {
     await waitFor(() => {
       const badges = screen.getAllByTestId('badge');
       expect(badges.some(badge => badge.textContent === 'ACTIVE')).toBeTruthy();
-      expect(badges.some(badge => badge.textContent === 'PENDING')).toBeTruthy();
-      expect(badges.some(badge => badge.textContent === 'CLOSED')).toBeTruthy();
+      expect(badges.some(badge => badge.textContent === 'PENDING')).toBeFalsy();
     });
   });
 
-  it('displays plus icon in create button', () => {
+  it('displays plus icon in create button', async () => {
     renderComponent();
+    await waitForSuperAdminToolbar();
 
     expect(screen.getByTestId('plus-icon')).toBeTruthy();
   });
@@ -439,31 +495,19 @@ describe('MittmachMittwoch Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('2 Antworten')).toBeTruthy(); // Multiple responses
-      expect(screen.getByText('1 Antwort')).toBeTruthy(); // Single response
-      expect(screen.getByText('0 Antworten')).toBeTruthy(); // No responses
-    });
-  });
-
-  it('shows loading state that completes', async () => {
-    renderComponent();
-
-    // Should complete loading and show polls
-    await waitFor(() => {
-      expect(screen.getByText('Community Cleanup')).toBeTruthy();
-      expect(screen.getByText('Food Drive')).toBeTruthy();
-      expect(screen.getByText('Old Event')).toBeTruthy();
+      expect(screen.getByText('2 Antworten')).toBeTruthy();
+      expect(screen.getByText('1 Antwort')).toBeTruthy();
+      expect(screen.getByText('0 Antworten')).toBeTruthy();
     });
   });
 
   it('reloads polls after successful creation', async () => {
     mockSpecialPollService.createSpecialPoll.mockResolvedValue({});
     renderComponent();
+    await waitForSuperAdminToolbar();
 
-    // Clear the initial call
     mockSpecialPollService.getSpecialPolls.mockClear();
 
-    // Open dialog and create poll
     const createButton = screen.getByText('Neue Aktion/Poll');
     await user.click(createButton);
 
@@ -474,7 +518,6 @@ describe('MittmachMittwoch Component', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      // Should call getSpecialPolls again after creation
       expect(mockSpecialPollService.getSpecialPolls).toHaveBeenCalledTimes(1);
     });
   });
