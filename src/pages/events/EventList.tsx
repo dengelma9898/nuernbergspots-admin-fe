@@ -44,6 +44,7 @@ import {
   Eye,
   Pencil,
   RefreshCw,
+  BadgeCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -76,9 +77,23 @@ import {
 import { LoadingButton } from '@/components/LoadingButton';
 import { scaleIn } from '@/lib/animations';
 
+function mergeAdminEvents(activeFromApi: Event[], pendingFromApi: Event[]): Event[] {
+  const activeIds = new Set(activeFromApi.map(e => e.id));
+  const pendingOnly = pendingFromApi.filter(p => !activeIds.has(p.id));
+  const merged = [...pendingOnly, ...activeFromApi];
+  merged.sort((a, b) => {
+    const aP = a.status === 'PENDING' ? 0 : 1;
+    const bP = b.status === 'PENDING' ? 0 : 1;
+    if (aP !== bP) return aP - bP;
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+  });
+  return merged;
+}
+
 interface EventListCacheData {
   events: Event[];
   categories: EventCategory[];
+  pendingAccess: boolean;
   updatedAt: number;
 }
 
@@ -96,9 +111,13 @@ export const EventList: React.FC = () => {
   const initialDateFilter = ['all', 'with-date', 'no-date'].includes(searchParams.get('date') || '')
     ? (searchParams.get('date') as string)
     : 'all';
+  const initialApprovalFilter = ['all', 'pending', 'active'].includes(searchParams.get('approval') || '')
+    ? (searchParams.get('approval') as string)
+    : 'all';
   const cachedData = shouldUseEventListCache ? eventListCache : null;
   const [events, setEvents] = useState<Event[]>(cachedData?.events ?? []);
   const [categories, setCategories] = useState<EventCategory[]>(cachedData?.categories ?? []);
+  const [pendingAccess, setPendingAccess] = useState<boolean>(cachedData?.pendingAccess ?? false);
   const [loading, setLoading] = useState(!cachedData);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
@@ -111,6 +130,8 @@ export const EventList: React.FC = () => {
     initialTimeFilter === 'month' ? searchParams.get('month') || '' : ''
   );
   const [dateFilter, setDateFilter] = useState<string>(initialDateFilter); // 'all' | 'with-date' | 'no-date'
+  const [approvalFilter, setApprovalFilter] = useState<string>(initialApprovalFilter);
+  const [approvingEventId, setApprovingEventId] = useState<string | null>(null);
   // State für den Auswahlmodus
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
@@ -119,13 +140,18 @@ export const EventList: React.FC = () => {
   const eventCategoryService = useEventCategoryService();
   const navigate = useNavigate();
 
-  const updateEventListCache = (nextEvents: Event[], nextCategories: EventCategory[]) => {
+  const updateEventListCache = (
+    nextEvents: Event[],
+    nextCategories: EventCategory[],
+    nextPendingAccess: boolean
+  ) => {
     if (!shouldUseEventListCache) {
       return;
     }
     eventListCache = {
       events: nextEvents,
       categories: nextCategories,
+      pendingAccess: nextPendingAccess,
       updatedAt: Date.now(),
     };
   };
@@ -140,6 +166,7 @@ export const EventList: React.FC = () => {
     if (!forceRefresh && shouldUseEventListCache && eventListCache) {
       setEvents(eventListCache.events);
       setCategories(eventListCache.categories);
+      setPendingAccess(eventListCache.pendingAccess);
       setLoading(false);
       return true;
     }
@@ -151,9 +178,34 @@ export const EventList: React.FC = () => {
         eventService.getEvents(),
         eventCategoryService.getCategories(),
       ]);
-      setEvents(fetchedEvents);
+
+      let pendingList: Event[] = [];
+      let nextPendingAccess = false;
+      try {
+        pendingList = await eventService.getPendingEvents();
+        nextPendingAccess = true;
+      } catch (pendingError: unknown) {
+        const status = (pendingError as { status?: number }).status;
+        if (status !== 403) {
+          console.error('Fehler beim Laden ausstehender Events:', pendingError);
+          showUserFriendlyError(
+            pendingError,
+            toast,
+            () => {
+              void loadData(true);
+            },
+            'load-pending-events'
+          );
+        }
+        pendingList = [];
+        nextPendingAccess = false;
+      }
+
+      const mergedEvents = mergeAdminEvents(fetchedEvents, pendingList);
+      setEvents(mergedEvents);
       setCategories(fetchedCategories);
-      updateEventListCache(fetchedEvents, fetchedCategories);
+      setPendingAccess(nextPendingAccess);
+      updateEventListCache(mergedEvents, fetchedCategories, nextPendingAccess);
       return true;
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
@@ -169,6 +221,7 @@ export const EventList: React.FC = () => {
     if (shouldUseEventListCache && eventListCache) {
       setEvents(eventListCache.events);
       setCategories(eventListCache.categories);
+      setPendingAccess(eventListCache.pendingAccess);
       setLoading(false);
       return;
     }
@@ -228,10 +281,17 @@ export const EventList: React.FC = () => {
       nextParams.delete('date');
     }
 
+    if (approvalFilter !== 'all') {
+      nextParams.set('approval', approvalFilter);
+    } else {
+      nextParams.delete('approval');
+    }
+
     if (nextParams.toString() !== searchParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
   }, [
+    approvalFilter,
     categoryFilter,
     dateFilter,
     searchParams,
@@ -263,7 +323,7 @@ export const EventList: React.FC = () => {
       });
       setEvents(prevEvents => {
         const nextEvents = prevEvents.filter(event => event.id !== eventToDelete);
-        updateEventListCache(nextEvents, categories);
+        updateEventListCache(nextEvents, categories, pendingAccess);
         return nextEvents;
       });
       setDeleteDialogOpen(false);
@@ -273,6 +333,30 @@ export const EventList: React.FC = () => {
       showUserFriendlyError(error, toast, () => confirmDelete(), 'delete-event');
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleApproveEvent = async (eventId: string) => {
+    if (approvingEventId !== null || loading) {
+      return;
+    }
+    try {
+      setApprovingEventId(eventId);
+      const updated = await eventService.approveEvent(eventId);
+      setEvents(prevEvents => {
+        const nextEvents = prevEvents.map(e => (e.id === eventId ? { ...e, ...updated } : e));
+        updateEventListCache(nextEvents, categories, pendingAccess);
+        return nextEvents;
+      });
+      showSuccessMessage(toast, {
+        title: 'Event freigegeben',
+        description: 'Das Event ist jetzt aktiv und für Nutzer sichtbar.',
+      });
+    } catch (error) {
+      console.error('Fehler bei der Freigabe:', error);
+      showUserFriendlyError(error, toast, () => void handleApproveEvent(eventId), 'approve-event');
+    } finally {
+      setApprovingEventId(null);
     }
   };
 
@@ -317,8 +401,21 @@ export const EventList: React.FC = () => {
   }, [events]);
 
 
+  const pendingModerationCount = useMemo(
+    () => events.filter(e => e.status === 'PENDING').length,
+    [events]
+  );
+
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    const isPendingModeration = event.status === 'PENDING';
+    const matchesApproval =
+      approvalFilter === 'all' ||
+      (approvalFilter === 'pending' && isPendingModeration) ||
+      (approvalFilter === 'active' && !isPendingModeration);
+    if (!matchesApproval) return false;
 
     // Datums-Filter (mit/ohne Zeiteinordnung)
     const eventHasDate = hasDateInfo(event);
@@ -532,6 +629,8 @@ export const EventList: React.FC = () => {
               <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
               <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
               <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
             </div>
           </div>
 
@@ -599,6 +698,14 @@ export const EventList: React.FC = () => {
               <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                 Events
               </h1>
+              {pendingAccess && pendingModerationCount > 0 ? (
+                <Badge
+                  variant="outline"
+                  className="border-amber-400/60 text-foreground bg-amber-500/10 shrink-0"
+                >
+                  {pendingModerationCount} ausstehend
+                </Badge>
+              ) : null}
               <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
                 {isSelectionMode ? (
                   <>
@@ -706,14 +813,24 @@ export const EventList: React.FC = () => {
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className={cn(glassInput, 'w-full sm:w-[180px] mb-2 md:mb-0')}>
-                  <SelectValue placeholder="Status filtern" />
+                <SelectTrigger className={cn(glassInput, 'w-full sm:w-[200px] mb-2 md:mb-0')}>
+                  <SelectValue placeholder="Zeitraum-Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle Events</SelectItem>
+                  <SelectItem value="all">Alle Zeiträume (Status)</SelectItem>
                   <SelectItem value="past">Vergangene Events</SelectItem>
                   <SelectItem value="running">Laufende Events</SelectItem>
                   <SelectItem value="future">Zukünftige Events</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={approvalFilter} onValueChange={setApprovalFilter}>
+                <SelectTrigger className={cn(glassInput, 'w-full sm:w-[200px] mb-2 md:mb-0')}>
+                  <SelectValue placeholder="Freigabe filtern" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Freigaben</SelectItem>
+                  <SelectItem value="pending">Ausstehend</SelectItem>
+                  <SelectItem value="active">Freigegeben</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -846,6 +963,9 @@ export const EventList: React.FC = () => {
                               event={event}
                               category={categories.find(cat => cat.id === event.categoryId)}
                               onDelete={handleDelete}
+                              showApprove={pendingAccess && event.status === 'PENDING'}
+                              onApprove={handleApproveEvent}
+                              isApproving={approvingEventId === event.id}
                               onCopy={(id) => {
                                 navigate(`/events/${id}/copy`);
                                 showSuccessMessage(toast, {
@@ -923,6 +1043,9 @@ interface EventCardProps {
   category?: EventCategory;
   onDelete: (id: string) => void;
   onCopy?: (id: string) => void;
+  showApprove?: boolean;
+  onApprove?: (id: string) => void;
+  isApproving?: boolean;
   isPreview?: boolean;
   onEdit?: () => void;
   showDeleteButton?: boolean;
@@ -938,6 +1061,9 @@ export const EventCard: React.FC<EventCardProps> = ({
   category,
   onDelete,
   onCopy,
+  showApprove = false,
+  onApprove,
+  isApproving = false,
   isPreview = false,
   onEdit,
   showDeleteButton = false,
@@ -1200,6 +1326,15 @@ export const EventCard: React.FC<EventCardProps> = ({
                 Keine Kategorie
               </Badge>
             )}
+            {event.status === 'PENDING' ? (
+              <Badge
+                variant="outline"
+                className="border-amber-400/70 text-amber-100 bg-amber-500/15 border-secondary"
+              >
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Ausstehend
+              </Badge>
+            ) : null}
             <Badge
               variant={status.variant}
               className="ml-auto mt-1 sm:mt-0 border-secondary"
@@ -1316,6 +1451,19 @@ export const EventCard: React.FC<EventCardProps> = ({
                   <Pencil className="h-4 w-4" />
                   <span className="sr-only">Bearbeiten</span>
                 </AnimatedButton>
+                {showApprove && onApprove ? (
+                  <AnimatedButton
+                    size="sm"
+                    onClick={() => onApprove(event.id)}
+                    disabled={isApproving}
+                    className="bg-emerald-600/90 text-white hover:bg-emerald-600 border-0 gap-1"
+                    title="Freigeben"
+                    aria-label="Event freigeben"
+                  >
+                    <BadgeCheck className="h-4 w-4" />
+                    <span className="hidden sm:inline">Freigeben</span>
+                  </AnimatedButton>
+                ) : null}
                 {onCopy && (
                   <AnimatedButton
                     variant="outline"

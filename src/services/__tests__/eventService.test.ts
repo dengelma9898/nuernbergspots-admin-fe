@@ -63,6 +63,42 @@ describe('Event Service', () => {
     });
   });
 
+  describe('getPendingEvents', () => {
+    it('should fetch pending events', async () => {
+      const mockEvents = [
+        {
+          id: 'p1',
+          title: 'Pending',
+          description: 'x',
+          status: 'PENDING' as const,
+        },
+      ];
+      mockApi.get.mockResolvedValue({ data: mockEvents });
+
+      const result = await eventService.getPendingEvents();
+
+      expect(mockApi.get).toHaveBeenCalledWith('/events/pending');
+      expect(result).toEqual(mockEvents);
+    });
+  });
+
+  describe('approveEvent', () => {
+    it('should approve a pending event', async () => {
+      const approved = {
+        id: 'p1',
+        title: 'Pending',
+        description: 'x',
+        status: 'ACTIVE' as const,
+      };
+      mockApi.patch.mockResolvedValue({ data: approved });
+
+      const result = await eventService.approveEvent('p1');
+
+      expect(mockApi.patch).toHaveBeenCalledWith('/events/p1/approve', {});
+      expect(result).toEqual(approved);
+    });
+  });
+
   describe('createEvent', () => {
     it('should create a new event', async () => {
       const newEvent = {

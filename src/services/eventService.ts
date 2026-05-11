@@ -48,6 +48,27 @@ export function useEventService() {
     },
 
     /**
+     * Lädt alle ausstehenden Events (nur admin / super_admin).
+     */
+    getPendingEvents: async (): Promise<Event[]> => {
+      const response = await api.get<ApiResponse<Event[]>>(
+        `${endpoints.events}/pending`
+      );
+      return unwrapData(response);
+    },
+
+    /**
+     * Freigabe: PENDING → ACTIVE (nur admin / super_admin).
+     */
+    approveEvent: async (eventId: string): Promise<Event> => {
+      const response = await api.patch<ApiResponse<Event>>(
+        `${endpoints.events}/${eventId}/approve`,
+        {}
+      );
+      return unwrapData(response);
+    },
+
+    /**
      * Lädt ein spezifisches Event
      */
     getEvent: async (eventId: string): Promise<Event> => {

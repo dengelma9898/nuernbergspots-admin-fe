@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { convertFFToHex } from '@/utils/colorUtils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
-import { Euro, Star, Tag } from 'lucide-react';
+import { Euro, Star, Tag, AlertCircle } from 'lucide-react';
 
 interface EventInfoCardProps {
   event: Event;
@@ -47,6 +47,15 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-foreground">Event Informationen</CardTitle>
           <div className="flex items-center gap-2">
+            {event.status === 'PENDING' ? (
+              <Badge
+                variant="outline"
+                className="border-amber-400/70 text-amber-100 bg-amber-500/15 border-secondary"
+              >
+                <AlertCircle className="mr-1 h-3 w-3" />
+                Ausstehend
+              </Badge>
+            ) : null}
             <Badge variant={status.variant} className="border-secondary">
               {status.icon}
               <span className="ml-1">{status.label}</span>

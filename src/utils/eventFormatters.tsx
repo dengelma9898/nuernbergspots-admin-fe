@@ -51,38 +51,79 @@ export interface EventStatus {
 export const getEventStatus = (event: Event): EventStatus => {
   const now = new Date();
 
-  const firstSlot = event.dailyTimeSlots[0];
-  const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
+  if (event.dailyTimeSlots?.length) {
+    const firstSlot = event.dailyTimeSlots[0];
+    const lastSlot = event.dailyTimeSlots[event.dailyTimeSlots.length - 1];
 
-  const firstDate = new Date(firstSlot.date);
-  const lastDate = new Date(lastSlot.date);
+    const firstDate = new Date(firstSlot.date);
+    const lastDate = new Date(lastSlot.date);
 
-  if (isPast(lastDate)) {
+    if (isPast(lastDate)) {
+      return {
+        label: 'Beendet',
+        icon: <CheckCircle2 className="h-4 w-4" />,
+        variant: 'secondary' as const,
+      };
+    }
+
+    if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
+      return {
+        label: 'Läuft jetzt',
+        icon: <Clock className="h-4 w-4" />,
+        variant: 'default' as const,
+      };
+    }
+
+    if (isFuture(firstDate)) {
+      return {
+        label: 'Kommend',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'outline' as const,
+      };
+    }
+
     return {
-      label: 'Beendet',
-      icon: <CheckCircle2 className="h-4 w-4" />,
+      label: 'Unbekannt',
+      icon: <AlertCircle className="h-4 w-4" />,
       variant: 'secondary' as const,
     };
   }
 
-  if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-    return {
-      label: 'Läuft jetzt',
-      icon: <Clock className="h-4 w-4" />,
-      variant: 'default' as const,
-    };
-  }
+  if (event.monthYear) {
+    const monthYearDate = monthYearToDate(event.monthYear);
+    if (monthYearDate) {
+      const endOfMonthDate = new Date(
+        monthYearDate.getFullYear(),
+        monthYearDate.getMonth() + 1,
+        0
+      );
 
-  if (isFuture(firstDate)) {
-    return {
-      label: 'Kommend',
-      icon: <AlertCircle className="h-4 w-4" />,
-      variant: 'outline' as const,
-    };
+      if (isPast(endOfMonthDate)) {
+        return {
+          label: 'Beendet',
+          icon: <CheckCircle2 className="h-4 w-4" />,
+          variant: 'secondary' as const,
+        };
+      }
+
+      if (isFuture(monthYearDate)) {
+        return {
+          label: 'Kommend',
+          icon: <AlertCircle className="h-4 w-4" />,
+          variant: 'outline' as const,
+        };
+      }
+
+      return {
+        label: 'Diesen Monat',
+        icon: <AlertCircle className="h-4 w-4" />,
+        variant: 'default' as const,
+      };
+    }
   }
 
   return {
-    label: 'Unbekannt',
+    label: 'Ohne Datum',
     icon: <AlertCircle className="h-4 w-4" />,
     variant: 'secondary' as const,
   };
@@ -114,7 +155,9 @@ export const html5ToMonthYear = (html5Month: string | undefined | null): string 
   const [year, month] = parts;
   if (!month || !year || year.length !== 4) return '';
   return `${month.padStart(2, '0')}.${year}`;
-};/**
+};
+
+/**
  * Formatiert monthYear für die Anzeige
  * @param monthYear - Format: mm.yyyy (z.B. "02.2026")
  * @returns Formatierter String (z.B. "Februar 2026")

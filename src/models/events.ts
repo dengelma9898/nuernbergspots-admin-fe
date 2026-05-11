@@ -4,6 +4,8 @@ export interface DailyTimeSlot {
   to?: string; // Optional time (HH:mm)
 }
 
+export type EventModerationStatus = 'ACTIVE' | 'PENDING';
+
 export interface Event {
   id: string;
   title: string;
@@ -23,6 +25,8 @@ export interface Event {
   priceString?: string;
   categoryId?: string;
   isPromoted?: boolean;
+  /** Freigabe-Status; fehlend entspricht ACTIVE (Backend-Abwärtskompatibilität). */
+  status?: EventModerationStatus;
   dailyTimeSlots: DailyTimeSlot[];
   /**
    * Monat und Jahr für Events ohne genaues Datum.

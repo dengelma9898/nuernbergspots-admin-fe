@@ -5,7 +5,7 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, getUserFriendlyError } from '@/utils/errorUtils';
+import { showUserFriendlyError, getUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Background } from '@/components/Background';
@@ -17,7 +17,7 @@ import { staggerContainer, fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BadgeCheck } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +48,7 @@ export const EventDetail: React.FC = () => {
   const [event, setEvent] = useState<Event | null>(null);
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isApproving, setIsApproving] = useState(false);
 
   const loadData = async () => {
     if (!id) return;
@@ -133,6 +134,26 @@ export const EventDetail: React.FC = () => {
   const handleDelete = async () => {
     await eventForm.handleDelete();
     navigate(eventListPathWithFilters);
+  };
+
+  const handleApprovePending = async () => {
+    if (!event || isApproving || loading) {
+      return;
+    }
+    try {
+      setIsApproving(true);
+      const updated = await eventService.approveEvent(event.id);
+      setEvent(updated);
+      showSuccessMessage(toast, {
+        title: 'Event freigegeben',
+        description: 'Das Event ist jetzt aktiv und für Nutzer sichtbar.',
+      });
+    } catch (error) {
+      console.error('Fehler bei der Freigabe:', error);
+      showUserFriendlyError(error, toast, () => void handleApprovePending(), 'approve-event');
+    } finally {
+      setIsApproving(false);
+    }
   };
 
   if (loading) {
@@ -382,6 +403,37 @@ export const EventDetail: React.FC = () => {
               <h1 className="text-3xl font-bold text-foreground">Event Details</h1>
             </div>
           </motion.div>
+
+          {event.status === 'PENDING' ? (
+            <motion.div
+              className={cn(
+                glassCard,
+                'p-6 mb-8 border-amber-400/40 bg-amber-500/10 flex flex-col sm:flex-row sm:items-center gap-4'
+              )}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="text-foreground flex-1 space-y-1">
+                <p className="font-semibold">Ausstehende Freigabe</p>
+                <p className="text-sm text-muted-foreground">
+                  Dieses Event ist noch nicht öffentlich. Nach der Freigabe wird es sichtbar und es
+                  kann eine Benachrichtigung an Nutzer gesendet werden.
+                </p>
+              </div>
+              <LoadingButton
+                onClick={() => void handleApprovePending()}
+                isLoading={isApproving}
+                disabled={loading || eventForm.isEditing}
+                loadingText="Wird freigegeben..."
+                className="bg-emerald-600 text-white hover:bg-emerald-600/90 shrink-0 gap-2"
+              >
+                <BadgeCheck className="h-4 w-4" />
+                Freigeben
+              </LoadingButton>
+            </motion.div>
+          ) : null}
 
           <motion.div
             className="grid grid-cols-1 lg:grid-cols-2 gap-6"

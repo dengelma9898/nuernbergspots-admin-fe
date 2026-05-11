@@ -180,6 +180,7 @@ jest.mock('lucide-react', () => ({
   Upload: () => <span data-testid="upload-icon">Upload</span>,
   Plus: () => <span data-testid="plus-icon">Plus</span>,
   Image: () => <span data-testid="image-icon">Image</span>,
+  BadgeCheck: () => <span data-testid="badge-check-icon">BadgeCheck</span>,
 }));
 
 const mockEvent: Event = {
@@ -229,6 +230,7 @@ const mockCategory: EventCategory = {
 
 const mockEventService = {
   getEvent: jest.fn(),
+  approveEvent: jest.fn(),
   updateEvent: jest.fn(),
   deleteEvent: jest.fn(),
   uploadEventImage: jest.fn(),
@@ -260,6 +262,7 @@ describe('EventDetail Component', () => {
     );
 
     mockEventService.getEvent.mockResolvedValue(mockEvent);
+    mockEventService.approveEvent.mockResolvedValue({ ...mockEvent, status: 'ACTIVE' });
     mockEventCategoryService.getCategories.mockResolvedValue([mockCategory]);
   });
 
@@ -286,6 +289,24 @@ describe('EventDetail Component', () => {
 
       // Sollte mindestens 40+ Skeleton-Elemente haben (Header + 2 Cards mit Details)
       expect(skeletonElements.length).toBeGreaterThan(40);
+    });
+
+    it('sollte Freigabe-Banner für ausstehende Events anzeigen', async () => {
+      mockEventService.getEvent.mockResolvedValue({ ...mockEvent, status: 'PENDING' });
+
+      renderWithRouter(<EventDetail />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Ausstehende Freigabe')).toBeInTheDocument();
+      });
+
+      const approveBtn = screen.getByRole('button', { name: /Freigeben/i });
+      expect(approveBtn).toBeInTheDocument();
+      fireEvent.click(approveBtn);
+
+      await waitFor(() => {
+        expect(mockEventService.approveEvent).toHaveBeenCalledWith('event-1');
+      });
     });
 
     it('sollte Event-Informationen anzeigen', async () => {

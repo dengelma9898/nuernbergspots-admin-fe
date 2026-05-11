@@ -145,6 +145,7 @@ jest.mock('lucide-react', () => ({
   CheckSquare: () => <div data-testid="check-square-icon">CheckSquare</div>,
   Square: () => <div data-testid="square-icon">Square</div>,
   X: () => <div data-testid="x-icon">X</div>,
+  BadgeCheck: () => <div data-testid="badge-check-icon">BadgeCheck</div>,
 }));
 
 // Mock Sonner toast
@@ -199,6 +200,8 @@ jest.mock('@/utils/iconUtils', () => ({
 const mockNavigate = jest.fn();
 const mockEventService = {
   getEvents: jest.fn(),
+  getPendingEvents: jest.fn(),
+  approveEvent: jest.fn(),
   deleteEvent: jest.fn(),
 };
 const mockEventCategoryService = {
@@ -318,6 +321,7 @@ describe('EventList Component', () => {
       mockFutureEvent,
       mockRunningEvent,
     ]);
+    mockEventService.getPendingEvents.mockResolvedValue([]);
     mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
 
     // Mock date-fns return values
@@ -385,11 +389,12 @@ describe('EventList Component', () => {
   });
 
   describe('Data Loading', () => {
-    it('sollte Events und Kategorien beim Mount laden', async () => {
+    it('sollte Events, Pending-Liste und Kategorien beim Mount laden', async () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
         expect(mockEventService.getEvents).toHaveBeenCalledTimes(1);
+        expect(mockEventService.getPendingEvents).toHaveBeenCalledTimes(1);
         expect(mockEventCategoryService.getCategories).toHaveBeenCalledTimes(1);
       });
     });
@@ -500,7 +505,8 @@ describe('EventList Component', () => {
     });
 
     it('sollte alle Filter-Selects rendern', () => {
-      expect(screen.getByText('Status filtern')).toBeInTheDocument();
+      expect(screen.getByText('Zeitraum-Status')).toBeInTheDocument();
+      expect(screen.getByText('Freigabe filtern')).toBeInTheDocument();
       expect(screen.getByText('Kategorie filtern')).toBeInTheDocument();
       expect(screen.getByText('Zeitraum filtern')).toBeInTheDocument();
     });
