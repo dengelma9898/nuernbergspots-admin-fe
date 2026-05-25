@@ -184,4 +184,3 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
     </div>
   );
 };
-

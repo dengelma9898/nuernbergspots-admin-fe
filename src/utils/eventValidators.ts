@@ -5,7 +5,7 @@ import { Event } from '@/models/events';
  */
 export const isEventChanged = (event: Event | null, editedEvent: Partial<Event>): boolean => {
   if (!event) return false;
-  
+
   // Vergleiche nur relevante Felder
   const fieldsToCompare: (keyof Event)[] = [
     'title',
@@ -23,7 +23,7 @@ export const isEventChanged = (event: Event | null, editedEvent: Partial<Event>)
     'website',
     'socialMedia',
   ];
-  
+
   return fieldsToCompare.some(field => {
     if (field === 'socialMedia') {
       return JSON.stringify(event[field]) !== JSON.stringify(editedEvent[field]);
@@ -32,4 +32,3 @@ export const isEventChanged = (event: Event | null, editedEvent: Partial<Event>)
     return JSON.stringify(event[field]) !== JSON.stringify(editedEvent[field]);
   });
 };
-

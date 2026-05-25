@@ -28,7 +28,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
+import {
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ArrowLeft,
+  AlertCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -92,7 +101,7 @@ export function CategoryList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -136,7 +145,7 @@ export function CategoryList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -170,7 +179,9 @@ export function CategoryList() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       showSuccessMessage(toast, {
         title: 'Kategorie gelöscht',
-        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+        description: categoryToDelete
+          ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.`
+          : 'Die Kategorie wurde erfolgreich gelöscht.',
       });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
@@ -250,7 +261,10 @@ export function CategoryList() {
                   <div className="space-y-4 py-4">
                     {/* Validierungsfehler */}
                     {validationErrors.length > 0 && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                         <AlertDescription className="mt-2">
@@ -262,7 +276,7 @@ export function CategoryList() {
                         </AlertDescription>
                       </Alert>
                     )}
-                    
+
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -378,10 +392,7 @@ export function CategoryList() {
                     {/* Keywords Section */}
                     <div className="flex flex-wrap gap-1 mb-3">
                       {[...Array(3)].map((_, j) => (
-                        <Skeleton
-                          key={j}
-                          className="h-6 w-16 rounded-xl"
-                        />
+                        <Skeleton key={j} className="h-6 w-16 rounded-xl" />
                       ))}
                     </div>
 
@@ -418,22 +429,24 @@ export function CategoryList() {
               initial="initial"
               animate="animate"
             >
-              {categories.map((category) => (
+              {categories.map(category => (
                 <motion.div key={category.id} variants={fadeInUp}>
                   <Card className={cn(glassCard, 'p-4 sm:p-6')}>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="font-bold text-lg flex-1 text-foreground">{category.name}</div>
-                      <div className="text-muted-foreground">{getIconComponent(category.iconName)}</div>
+                      <div className="font-bold text-lg flex-1 text-foreground">
+                        {category.name}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {getIconComponent(category.iconName)}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-3">{category.description || '-'}</div>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      {category.description || '-'}
+                    </div>
                     <div className="flex flex-wrap gap-1 mb-3">
                       {category.keywords && category.keywords.length > 0 ? (
                         category.keywords.map(keyword => (
-                          <Badge
-                            key={keyword.name}
-                            variant="outline"
-                            className="text-xs"
-                          >
+                          <Badge key={keyword.name} variant="outline" className="text-xs">
                             {keyword.name}
                           </Badge>
                         ))
@@ -487,7 +500,9 @@ export function CategoryList() {
                     <TableHead className="text-foreground font-semibold">Keywords</TableHead>
                     <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
                     <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
-                    <TableHead className="text-foreground font-semibold w-[100px]">Aktionen</TableHead>
+                    <TableHead className="text-foreground font-semibold w-[100px]">
+                      Aktionen
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -510,10 +525,7 @@ export function CategoryList() {
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
                             {[...Array(2)].map((_, j) => (
-                              <Skeleton
-                                key={j}
-                                className="h-5 w-12 rounded-xl"
-                              />
+                              <Skeleton key={j} className="h-5 w-12 rounded-xl" />
                             ))}
                           </div>
                         </TableCell>
@@ -543,20 +555,20 @@ export function CategoryList() {
                         key={category.id}
                         className="border-secondary hover:bg-muted/50 transition-colors"
                       >
-                        <TableCell className="font-medium text-foreground">{category.name}</TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {category.name}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {getIconComponent(category.iconName)}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{category.description || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {category.description || '-'}
+                        </TableCell>
                         <TableCell>
                           {category.keywords && category.keywords.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                               {category.keywords.map(keyword => (
-                                <Badge
-                                  key={keyword.name}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
+                                <Badge key={keyword.name} variant="outline" className="text-xs">
                                   {keyword.name}
                                 </Badge>
                               ))}
@@ -574,10 +586,7 @@ export function CategoryList() {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <AnimatedButton
-                                variant="ghost"
-                                className="h-8 w-8 p-0"
-                              >
+                              <AnimatedButton variant="ghost" className="h-8 w-8 p-0">
                                 <MoreHorizontal className="h-4 w-4" />
                               </AnimatedButton>
                             </DropdownMenuTrigger>

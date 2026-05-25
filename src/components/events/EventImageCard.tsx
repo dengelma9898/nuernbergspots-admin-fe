@@ -184,4 +184,3 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
     </Card>
   );
 };
-

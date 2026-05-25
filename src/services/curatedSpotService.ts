@@ -36,7 +36,9 @@ export function useCuratedSpotService() {
 
     /** Soft-Delete; Response laut Doku: aktualisierter Spot mit isDeleted: true */
     delete: async (id: string): Promise<CuratedSpot> => {
-      const response = await api.delete<ApiResponse<CuratedSpot>>(`${endpoints.curatedSpots}/${id}`);
+      const response = await api.delete<ApiResponse<CuratedSpot>>(
+        `${endpoints.curatedSpots}/${id}`
+      );
       return unwrapData(response);
     },
 
@@ -71,9 +73,9 @@ export function useCuratedSpotService() {
       return unwrapData(response);
     },
 
-    patchUserRatingsSettings: async (
-      dto: { isEnabled: boolean }
-    ): Promise<CuratedSpotsUserRatingsSettings> => {
+    patchUserRatingsSettings: async (dto: {
+      isEnabled: boolean;
+    }): Promise<CuratedSpotsUserRatingsSettings> => {
       const response = await api.patch<ApiResponse<CuratedSpotsUserRatingsSettings>>(
         endpoints.curatedSpotsUserRatingsSettings,
         dto

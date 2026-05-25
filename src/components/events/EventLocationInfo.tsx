@@ -50,4 +50,3 @@ export const EventLocationInfo: React.FC<EventLocationInfoProps> = ({
     </div>
   );
 };
-

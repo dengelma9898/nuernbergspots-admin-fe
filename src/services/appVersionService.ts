@@ -40,9 +40,7 @@ export function useAppVersionService() {
      * Lädt alle Changelogs sortiert nach Version (absteigend)
      */
     getAllChangelogs: async (): Promise<Changelog[]> => {
-      const response = await api.get<ApiResponse<Changelog[]>>(
-        '/app-versions/admin/changelogs'
-      );
+      const response = await api.get<ApiResponse<Changelog[]>>('/app-versions/admin/changelogs');
       return unwrapData(response) || [];
     },
 
@@ -82,10 +80,7 @@ export function useAppVersionService() {
      * Löscht einen Changelog
      */
     deleteChangelog: async (version: string): Promise<void> => {
-      await api.delete<ApiResponse<void>>(
-        `/app-versions/admin/changelogs/${version}`
-      );
+      await api.delete<ApiResponse<void>>(`/app-versions/admin/changelogs/${version}`);
     },
   };
 }
-

@@ -23,6 +23,6 @@ test('nach Login: Partner verwalten zeigt Geschäfte-Liste mit Daten', async ({ 
   const pendingSection = page.getByRole('heading', { name: /Ausstehende Partner/ });
   const inactiveSection = page.getByRole('heading', { name: /Inaktive Partner/ });
   await expect(
-    emptyState.or(activeSection).or(pendingSection).or(inactiveSection).first(),
+    emptyState.or(activeSection).or(pendingSection).or(inactiveSection).first()
   ).toBeVisible({ timeout: 15_000 });
 });

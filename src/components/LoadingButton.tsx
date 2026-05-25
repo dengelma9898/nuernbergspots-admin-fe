@@ -15,7 +15,7 @@ interface LoadingButtonProps extends ButtonProps {
 
 /**
  * LoadingButton-Komponente mit erweiterten Mikroanimationen
- * 
+ *
  * Features:
  * - Scale-Animation beim Klicken (0.95 → 1.0)
  * - Sanfte Hover-Effekte
@@ -24,13 +24,13 @@ interface LoadingButtonProps extends ButtonProps {
  * - Pulse-Animation während des Ladens
  * - Disabled-State mit visuellem Feedback
  */
-export function LoadingButton({ 
-  children, 
+export function LoadingButton({
+  children,
   isLoading = false,
   loadingText,
   disabled,
   className,
-  ...props 
+  ...props
 }: LoadingButtonProps) {
   const isDisabled = disabled || isLoading;
 
@@ -38,25 +38,29 @@ export function LoadingButton({
     <motion.div
       whileTap={isDisabled ? {} : { scale: 0.95 }}
       whileHover={isDisabled ? {} : { scale: 1.02 }}
-      animate={isLoading ? { 
-        scale: [1, 1.02, 1],
-      } : {}}
-      transition={isLoading ? {
-        scale: {
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }
-      } : fastTransition}
+      animate={
+        isLoading
+          ? {
+              scale: [1, 1.02, 1],
+            }
+          : {}
+      }
+      transition={
+        isLoading
+          ? {
+              scale: {
+                duration: 1.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              },
+            }
+          : fastTransition
+      }
     >
-      <Button 
-        {...props} 
+      <Button
+        {...props}
         disabled={isDisabled}
-        className={cn(
-          'relative overflow-hidden',
-          isLoading && 'cursor-wait',
-          className
-        )}
+        className={cn('relative overflow-hidden', isLoading && 'cursor-wait', className)}
       >
         <AnimatePresence mode="wait">
           {isLoading ? (
@@ -73,7 +77,7 @@ export function LoadingButton({
                 transition={{
                   duration: 1,
                   repeat: Infinity,
-                  ease: "linear"
+                  ease: 'linear',
                 }}
               >
                 <Loader2 className="h-4 w-4" />
@@ -105,4 +109,3 @@ export function LoadingButton({
     </motion.div>
   );
 }
-

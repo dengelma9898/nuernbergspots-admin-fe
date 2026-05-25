@@ -6,7 +6,7 @@
 
 :root {
   --radius: 0.625rem;
-  
+
   /* Neues Farbschema: Weiß Primary, Schwarz Secondary, Rot Tertiary */
   /* Light Mode */
   --background: oklch(1 0 0); /* Weiß */

@@ -131,7 +131,11 @@ jest.mock('@/components/ui/dialog', () => ({
 
 jest.mock('@/components/ui/alert-dialog', () => ({
   AlertDialog: ({ children, open, onOpenChange }: any) => (
-    <div data-testid="alert-dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
+    <div
+      data-testid="alert-dialog"
+      data-open={open}
+      onClick={() => onOpenChange && onOpenChange(false)}
+    >
       {children}
     </div>
   ),
@@ -243,7 +247,7 @@ jest.mock('date-fns', () => ({
     if (formatStr === 'MMMM yyyy') return 'Januar 2024';
     return '2024-01-15';
   }),
-  startOfMonth: jest.fn((date) => new Date(date.getFullYear(), date.getMonth(), 1)),
+  startOfMonth: jest.fn(date => new Date(date.getFullYear(), date.getMonth(), 1)),
 }));
 
 jest.mock('date-fns/locale', () => ({
@@ -791,10 +795,12 @@ describe('NewsManagement Component', () => {
     });
 
     // Find the delete button for text news - it should be near the text content
-    const textNewsContainer = screen.getByText('Das ist eine Test-Nachricht').closest('[data-testid="card"]');
+    const textNewsContainer = screen
+      .getByText('Das ist eine Test-Nachricht')
+      .closest('[data-testid="card"]');
     const deleteButtons = textNewsContainer?.querySelectorAll('[data-testid="trash2-icon"]');
     const deleteButton = deleteButtons?.[0]?.closest('button');
-    
+
     expect(deleteButton).toBeTruthy();
     await user.click(deleteButton!);
 
@@ -808,12 +814,12 @@ describe('NewsManagement Component', () => {
     await waitFor(() => {
       expect(mockNewsService.delete).toHaveBeenCalledWith('text-1');
     });
-    
+
     // Wait for fetchNews to complete (getAll is called after delete)
     await waitFor(() => {
       expect(mockNewsService.getAll).toHaveBeenCalled();
     });
-    
+
     // Toast should be called after successful deletion
     expect(mockToastSuccess).toHaveBeenCalledWith('News erfolgreich gelöscht');
   });
@@ -829,10 +835,12 @@ describe('NewsManagement Component', () => {
     mockNewsService.getAll.mockClear();
 
     // Find the delete button for text news
-    const textNewsContainer = screen.getByText('Das ist eine Test-Nachricht').closest('[data-testid="card"]');
+    const textNewsContainer = screen
+      .getByText('Das ist eine Test-Nachricht')
+      .closest('[data-testid="card"]');
     const deleteButtons = textNewsContainer?.querySelectorAll('[data-testid="trash2-icon"]');
     const deleteButton = deleteButtons?.[0]?.closest('button');
-    
+
     expect(deleteButton).toBeTruthy();
     await user.click(deleteButton!);
 

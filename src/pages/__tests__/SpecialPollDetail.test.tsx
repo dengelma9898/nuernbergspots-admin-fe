@@ -156,14 +156,7 @@ jest.mock('@/components/ui/switch', () => ({
 }));
 
 jest.mock('@/components/LoadingButton', () => ({
-  LoadingButton: ({
-    children,
-    isLoading,
-    loadingText,
-    onClick,
-    type,
-    ...props
-  }: any) => (
+  LoadingButton: ({ children, isLoading, loadingText, onClick, type, ...props }: any) => (
     <button
       {...props}
       type={type ?? 'button'}
@@ -592,13 +585,13 @@ describe('SpecialPollDetail Component', () => {
 
     fireEvent.click(screen.getByTestId('select'));
 
-    await waitFor(() => expect(screen.getByTestId('select').getAttribute('data-disabled')).toBe('true'));
+    await waitFor(() =>
+      expect(screen.getByTestId('select').getAttribute('data-disabled')).toBe('true')
+    );
   });
 
   it('disables response input during submission', async () => {
-    mockSpecialPollService.addResponse.mockImplementation(
-      () => new Promise(() => {})
-    );
+    mockSpecialPollService.addResponse.mockImplementation(() => new Promise(() => {}));
 
     renderComponent();
 

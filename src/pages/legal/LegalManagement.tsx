@@ -1,20 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  FileText,
-  ArrowLeft,
-  Clock,
-  CheckCircle2,
-  Edit,
-} from 'lucide-react';
+import { FileText, ArrowLeft, Clock, CheckCircle2, Edit } from 'lucide-react';
 import { toast } from 'sonner';
 import { LegalDocument } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
@@ -159,10 +147,7 @@ export function LegalManagement() {
             variants={staggerContainer}
             className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}
           >
-            <motion.div
-              variants={fadeInUp}
-              className="flex flex-row items-center gap-4"
-            >
+            <motion.div variants={fadeInUp} className="flex flex-row items-center gap-4">
               <AnimatedButton
                 onClick={() => navigate('/dashboard')}
                 variant="outline"
@@ -173,9 +158,7 @@ export function LegalManagement() {
                 <span className="sr-only">Zurück</span>
               </AnimatedButton>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  Legal-Verwaltung
-                </h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Legal-Verwaltung</h1>
                 <p className="text-muted-foreground mt-1">
                   Verwaltung von Impressum, Datenschutzerklärung und AGBs
                 </p>
@@ -193,7 +176,7 @@ export function LegalManagement() {
             {allTypes.map((type, index) => {
               const document = documents.find(doc => doc.type === type);
               const exists = !!document;
-              
+
               return (
                 <motion.div key={type} variants={fadeInUp}>
                   <Card className={cn(glassCard, 'p-4 sm:p-6 h-full flex flex-col')}>
@@ -234,9 +217,7 @@ export function LegalManagement() {
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="h-4 w-4" />
-                              <span>
-                                Aktualisiert: {formatDate(document.updatedAt)}
-                              </span>
+                              <span>Aktualisiert: {formatDate(document.updatedAt)}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <FileText className="h-4 w-4" />
@@ -279,4 +260,3 @@ export function LegalManagement() {
     </PageTransition>
   );
 }
-

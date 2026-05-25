@@ -70,23 +70,23 @@ interface ErrorWithStatus extends Error {
 function extractStatusCode(error: unknown): number | null {
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;
-    
+
     // 1. Prüfe direktes status-Property
     if (typeof err.status === 'number') {
       return err.status;
     }
-    
+
     // 2. Prüfe response.status falls vorhanden
     if ((err as any).response?.status && typeof (err as any).response.status === 'number') {
       return (err as any).response.status;
     }
-    
+
     // 3. Versuche Status-Code aus Fehlermeldung zu extrahieren
     const message = err.message || String(error);
-    
+
     // Suche nach "status: 413" oder "413" oder "HTTP error! status: 413"
-    const statusMatch = message.match(/(?:status|code)[:\s]*(\d{3})/i) || 
-                        message.match(/\b(\d{3})\b/);
+    const statusMatch =
+      message.match(/(?:status|code)[:\s]*(\d{3})/i) || message.match(/\b(\d{3})\b/);
     if (statusMatch) {
       const code = parseInt(statusMatch[1], 10);
       // Validiere dass es ein gültiger HTTP-Status-Code ist
@@ -139,8 +139,8 @@ function applyContext(error: UserFriendlyError, context?: ErrorContext): UserFri
     'load-legal-document': 'Fehler beim Laden des Dokuments',
     'save-legal-document': 'Fehler beim Speichern des Dokuments',
     'load-analytics': 'Fehler beim Laden der Analytics',
-    'login': 'Fehler beim Anmelden',
-    'generic': '',
+    login: 'Fehler beim Anmelden',
+    generic: '',
   };
 
   return {
@@ -170,7 +170,7 @@ function extractValidationMessagesAsArray(error: ErrorWithStatus): string[] | nu
       return [message];
     }
   }
-  
+
   return null;
 }
 
@@ -183,120 +183,168 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   if (errorString.includes('firebase') || errorString.includes('auth/')) {
     // Firebase Quota-Exceeded Fehler
     if (errorString.includes('quota-exceeded') || errorString.includes('quota exceeded')) {
-      return applyContext({
-        title: 'Service vorübergehend nicht verfügbar',
-        message:
-          'Der Service ist derzeit aufgrund hoher Nutzung nicht verfügbar. Bitte versuche es in ein paar Minuten erneut.',
-        isPersistent: true,
-        actionHint: 'Bitte warte einige Minuten und versuche es dann erneut. Wenn das Problem länger besteht, kontaktiere den Support.',
-        isRetryable: true,
-      }, context);
+      return applyContext(
+        {
+          title: 'Service vorübergehend nicht verfügbar',
+          message:
+            'Der Service ist derzeit aufgrund hoher Nutzung nicht verfügbar. Bitte versuche es in ein paar Minuten erneut.',
+          isPersistent: true,
+          actionHint:
+            'Bitte warte einige Minuten und versuche es dann erneut. Wenn das Problem länger besteht, kontaktiere den Support.',
+          isRetryable: true,
+        },
+        context
+      );
     }
 
     // Firebase Auth-Fehler allgemein
     if (errorString.includes('auth/')) {
       // Spezifische Firebase Auth-Fehler
       if (errorString.includes('auth/user-not-found')) {
-        return applyContext({
-          title: 'Benutzer nicht gefunden',
-          message: 'Der angegebene Benutzer existiert nicht. Bitte überprüfe deine Eingaben.',
-          isPersistent: true,
-          actionHint: 'Überprüfe deine E-Mail-Adresse und versuche es erneut.',
-        }, context);
+        return applyContext(
+          {
+            title: 'Benutzer nicht gefunden',
+            message: 'Der angegebene Benutzer existiert nicht. Bitte überprüfe deine Eingaben.',
+            isPersistent: true,
+            actionHint: 'Überprüfe deine E-Mail-Adresse und versuche es erneut.',
+          },
+          context
+        );
       }
 
-      if (errorString.includes('auth/wrong-password') || errorString.includes('auth/invalid-credential')) {
-        return applyContext({
-          title: 'Falsches Passwort',
-          message: 'Das eingegebene Passwort ist nicht korrekt. Bitte versuche es erneut.',
-          isPersistent: true,
-          actionHint: 'Überprüfe dein Passwort. Falls du es vergessen hast, nutze die Passwort-Reset-Funktion.',
-        }, context);
+      if (
+        errorString.includes('auth/wrong-password') ||
+        errorString.includes('auth/invalid-credential')
+      ) {
+        return applyContext(
+          {
+            title: 'Falsches Passwort',
+            message: 'Das eingegebene Passwort ist nicht korrekt. Bitte versuche es erneut.',
+            isPersistent: true,
+            actionHint:
+              'Überprüfe dein Passwort. Falls du es vergessen hast, nutze die Passwort-Reset-Funktion.',
+          },
+          context
+        );
       }
 
       if (errorString.includes('auth/email-already-in-use')) {
-        return applyContext({
-          title: 'E-Mail bereits registriert',
-          message: 'Diese E-Mail-Adresse wird bereits verwendet. Bitte verwende eine andere E-Mail-Adresse oder melde dich an.',
-          isPersistent: true,
-          actionHint: 'Verwende eine andere E-Mail-Adresse oder melde dich mit deinem bestehenden Account an.',
-        }, context);
+        return applyContext(
+          {
+            title: 'E-Mail bereits registriert',
+            message:
+              'Diese E-Mail-Adresse wird bereits verwendet. Bitte verwende eine andere E-Mail-Adresse oder melde dich an.',
+            isPersistent: true,
+            actionHint:
+              'Verwende eine andere E-Mail-Adresse oder melde dich mit deinem bestehenden Account an.',
+          },
+          context
+        );
       }
 
       if (errorString.includes('auth/weak-password')) {
-        return applyContext({
-          title: 'Passwort zu schwach',
-          message: 'Das Passwort ist zu schwach. Bitte wähle ein sichereres Passwort mit mindestens 6 Zeichen.',
-          isPersistent: true,
-          actionHint: 'Verwende ein Passwort mit mindestens 6 Zeichen, das Buchstaben und Zahlen enthält.',
-        }, context);
+        return applyContext(
+          {
+            title: 'Passwort zu schwach',
+            message:
+              'Das Passwort ist zu schwach. Bitte wähle ein sichereres Passwort mit mindestens 6 Zeichen.',
+            isPersistent: true,
+            actionHint:
+              'Verwende ein Passwort mit mindestens 6 Zeichen, das Buchstaben und Zahlen enthält.',
+          },
+          context
+        );
       }
 
       if (errorString.includes('auth/network-request-failed')) {
-        return applyContext({
-          title: 'Netzwerkfehler',
-          message: 'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
-          isPersistent: true,
-          actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
-          isRetryable: true,
-        }, context);
+        return applyContext(
+          {
+            title: 'Netzwerkfehler',
+            message:
+              'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
+            isPersistent: true,
+            actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
+            isRetryable: true,
+          },
+          context
+        );
       }
 
       if (errorString.includes('auth/too-many-requests')) {
-        return applyContext({
-          title: 'Zu viele Versuche',
-          message: 'Du hast zu viele Anmeldeversuche unternommen. Bitte warte einige Minuten, bevor du es erneut versuchst.',
-          isPersistent: true,
-          actionHint: 'Warte 5-10 Minuten und versuche es dann erneut.',
-        }, context);
+        return applyContext(
+          {
+            title: 'Zu viele Versuche',
+            message:
+              'Du hast zu viele Anmeldeversuche unternommen. Bitte warte einige Minuten, bevor du es erneut versuchst.',
+            isPersistent: true,
+            actionHint: 'Warte 5-10 Minuten und versuche es dann erneut.',
+          },
+          context
+        );
       }
 
       // Generischer Firebase Auth-Fehler
-      return applyContext({
-        title: 'Anmeldung fehlgeschlagen',
-        message: 'Bei der Anmeldung ist ein Fehler aufgetreten. Bitte überprüfe deine Eingaben und versuche es erneut.',
-        isPersistent: true,
-        actionHint: 'Überprüfe deine E-Mail-Adresse und dein Passwort. Falls das Problem weiterhin besteht, kontaktiere den Support.',
-        isRetryable: true,
-      }, context);
+      return applyContext(
+        {
+          title: 'Anmeldung fehlgeschlagen',
+          message:
+            'Bei der Anmeldung ist ein Fehler aufgetreten. Bitte überprüfe deine Eingaben und versuche es erneut.',
+          isPersistent: true,
+          actionHint:
+            'Überprüfe deine E-Mail-Adresse und dein Passwort. Falls das Problem weiterhin besteht, kontaktiere den Support.',
+          isRetryable: true,
+        },
+        context
+      );
     }
 
     // Generischer Firebase-Fehler (nicht Auth-spezifisch)
-    return applyContext({
-      title: 'Service-Fehler',
-      message: 'Es ist ein Fehler beim Verbinden mit dem Service aufgetreten. Bitte versuche es später erneut.',
-      isPersistent: true,
-      actionHint: 'Bitte versuche es in ein paar Minuten erneut. Wenn das Problem weiterhin besteht, kontaktiere den Support.',
-      isRetryable: true,
-    }, context);
+    return applyContext(
+      {
+        title: 'Service-Fehler',
+        message:
+          'Es ist ein Fehler beim Verbinden mit dem Service aufgetreten. Bitte versuche es später erneut.',
+        isPersistent: true,
+        actionHint:
+          'Bitte versuche es in ein paar Minuten erneut. Wenn das Problem weiterhin besteht, kontaktiere den Support.',
+        isRetryable: true,
+      },
+      context
+    );
   }
 
   // Validation-Fehler haben höchste Priorität (werden vor Upload geprüft)
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;
-    
+
     // 1. Prüfe explizite validationError Property
     if (err.validationError) {
-      return applyContext({
-        title: err.validationError.title,
-        message: err.validationError.message,
-        isPersistent: true,
-        actionHint: err.validationError.actionHint,
-      }, context);
+      return applyContext(
+        {
+          title: err.validationError.title,
+          message: err.validationError.message,
+          isPersistent: true,
+          actionHint: err.validationError.actionHint,
+        },
+        context
+      );
     }
-    
+
     // 2. Prüfe API-Response auf Validierungsfehler (400 mit message Array)
     if (statusCode === 400) {
       const validationMessages = extractValidationMessagesAsArray(err);
       if (validationMessages && validationMessages.length > 0) {
         // Verwende die originalen Nachrichten aus der API-Response
-        return applyContext({
-          title: 'Bitte korrigiere die folgenden Fehler',
-          message: validationMessages.join('\n'),
-          isPersistent: true,
-          actionHint: 'Überprüfe deine Eingaben und versuche es erneut.',
-          validationMessages: validationMessages,
-        }, context);
+        return applyContext(
+          {
+            title: 'Bitte korrigiere die folgenden Fehler',
+            message: validationMessages.join('\n'),
+            isPersistent: true,
+            actionHint: 'Überprüfe deine Eingaben und versuche es erneut.',
+            validationMessages: validationMessages,
+          },
+          context
+        );
       }
     }
   }
@@ -312,25 +360,32 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
     errorString.includes('zu groß') ||
     errorString.includes('maximale größe')
   ) {
-    return applyContext({
-      title: 'Datei ist zu groß',
-      message:
-        'Die Datei, die du hochladen möchtest, ist zu groß. Bitte wähle eine kleinere Datei aus oder komprimiere sie vorher.',
-      isPersistent: true,
-      actionHint: 'Versuche eine Datei mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
-    }, context);
+    return applyContext(
+      {
+        title: 'Datei ist zu groß',
+        message:
+          'Die Datei, die du hochladen möchtest, ist zu groß. Bitte wähle eine kleinere Datei aus oder komprimiere sie vorher.',
+        isPersistent: true,
+        actionHint:
+          'Versuche eine Datei mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
+      },
+      context
+    );
   }
 
   // 5XX Server-Fehler (500-599) - Priorität: Hoch, da sehr spezifisch
   if (statusCode && statusCode >= 500 && statusCode < 600) {
-    return applyContext({
-      title: 'Server hat Probleme',
-      message:
-        'Der Server hat gerade technische Probleme. Das liegt nicht an dir - bitte versuche es in ein paar Minuten nochmal.',
-      isPersistent: true,
-      actionHint: 'Wenn das Problem länger besteht, kontaktiere bitte den Support.',
-      isRetryable: true,
-    }, context);
+    return applyContext(
+      {
+        title: 'Server hat Probleme',
+        message:
+          'Der Server hat gerade technische Probleme. Das liegt nicht an dir - bitte versuche es in ein paar Minuten nochmal.',
+        isPersistent: true,
+        actionHint: 'Wenn das Problem länger besteht, kontaktiere bitte den Support.',
+        isRetryable: true,
+      },
+      context
+    );
   }
 
   // Authentifizierungsfehler (401) - Vor anderen 4XX Fehlern
@@ -342,7 +397,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Anmeldung erforderlich',
-      message: 'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
+      message:
+        'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
       isPersistent: true,
       actionHint: 'Bitte melde dich erneut an.',
     };
@@ -357,7 +413,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Keine Berechtigung',
-      message: 'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
+      message:
+        'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
       isPersistent: true,
       actionHint: 'Kontaktiere einen Administrator, wenn du glaubst, dass dies ein Fehler ist.',
     };
@@ -372,18 +429,15 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Nicht gefunden',
-      message: 'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
+      message:
+        'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
       isPersistent: false,
       actionHint: 'Bitte aktualisiere die Seite und versuche es erneut.',
     };
   }
 
-  // Konflikt (409) – z. B. Redaktionsbewertung bereits gesetzt und nicht änderbar
-  if (
-    statusCode === 409 ||
-    errorString.includes('409') ||
-    errorString.includes('conflict')
-  ) {
+  // Konflikt (409) – z. B. Redaktionsbewertung bereits gesetzt und nicht änderbar
+  if (statusCode === 409 || errorString.includes('409') || errorString.includes('conflict')) {
     return applyContext(
       {
         title: 'Aktion nicht möglich',
@@ -418,7 +472,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
       message:
         'Die Verbindung zum Server konnte nicht hergestellt werden. Das liegt wahrscheinlich an einer Serverkonfiguration.',
       isPersistent: true,
-      actionHint: 'Bitte versuche es später erneut oder kontaktiere den Support, wenn das Problem weiterhin besteht.',
+      actionHint:
+        'Bitte versuche es später erneut oder kontaktiere den Support, wenn das Problem weiterhin besteht.',
     };
   }
 
@@ -431,14 +486,17 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
       errorString.includes('networkerror') ||
       errorString.includes('err_network'))
   ) {
-    return applyContext({
-      title: 'Netzwerkfehler',
-      message:
-        'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
-      isPersistent: true,
-      actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
-      isRetryable: true,
-    }, context);
+    return applyContext(
+      {
+        title: 'Netzwerkfehler',
+        message:
+          'Es konnte keine Verbindung zum Server hergestellt werden. Bitte überprüfe deine Internetverbindung.',
+        isPersistent: true,
+        actionHint: 'Überprüfe deine Internetverbindung und versuche es erneut.',
+        isRetryable: true,
+      },
+      context
+    );
   }
 
   // Timeout-Fehler
@@ -447,14 +505,17 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
     errorString.includes('aborted') ||
     errorString.includes('timed out')
   ) {
-    return applyContext({
-      title: 'Zeitüberschreitung',
-      message:
-        'Die Anfrage hat zu lange gedauert. Die Datei könnte zu groß sein oder deine Verbindung ist langsam.',
-      isPersistent: true,
-      actionHint: 'Versuche eine kleinere Datei hochzuladen oder versuche es später erneut.',
-      isRetryable: true,
-    }, context);
+    return applyContext(
+      {
+        title: 'Zeitüberschreitung',
+        message:
+          'Die Anfrage hat zu lange gedauert. Die Datei könnte zu groß sein oder deine Verbindung ist langsam.',
+        isPersistent: true,
+        actionHint: 'Versuche eine kleinere Datei hochzuladen oder versuche es später erneut.',
+        isRetryable: true,
+      },
+      context
+    );
   }
 
   // Authentifizierungsfehler (401)
@@ -466,7 +527,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Anmeldung erforderlich',
-      message: 'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
+      message:
+        'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
       isPersistent: true,
       actionHint: 'Bitte melde dich erneut an.',
     };
@@ -481,7 +543,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Keine Berechtigung',
-      message: 'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
+      message:
+        'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
       isPersistent: true,
       actionHint: 'Kontaktiere einen Administrator, wenn du glaubst, dass dies ein Fehler ist.',
     };
@@ -496,7 +559,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   ) {
     return {
       title: 'Nicht gefunden',
-      message: 'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
+      message:
+        'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
       isPersistent: false,
       actionHint: 'Bitte aktualisiere die Seite und versuche es erneut.',
     };
@@ -531,7 +595,8 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
       message:
         'Die Datei, die du hochladen möchtest, ist zu groß. Bitte wähle eine kleinere Datei aus oder komprimiere sie vorher.',
       isPersistent: true,
-      actionHint: 'Versuche eine Datei mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
+      actionHint:
+        'Versuche eine Datei mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
     };
   }
 
@@ -583,12 +648,12 @@ export function showUserFriendlyError(
   skipToast?: boolean
 ) {
   const friendlyError = getUserFriendlyError(error, context);
-  
+
   // Wenn skipToast true ist, zeige keinen Toast (Fehler wird z.B. im Dialog angezeigt)
   if (skipToast) {
     return;
   }
-  
+
   // Wenn Retry möglich ist und eine Retry-Aktion übergeben wurde
   if (friendlyError.isRetryable && retryAction) {
     toast.error(friendlyError.title, {
@@ -618,12 +683,9 @@ export function showUserFriendlyError(
  * Erstellt eine benutzerfreundliche Fehlermeldung für einen spezifischen Kontext
  * Kann für spezifischere Fehlermeldungen verwendet werden
  */
-export function createContextualError(
-  context: string,
-  error: unknown
-): UserFriendlyError {
+export function createContextualError(context: string, error: unknown): UserFriendlyError {
   const baseError = getUserFriendlyError(error);
-  
+
   // Kontext-spezifische Anpassungen
   if (context === 'image-upload') {
     const statusCode = extractStatusCode(error);
@@ -633,11 +695,12 @@ export function createContextualError(
         message:
           'Das Bild, das du hochladen möchtest, ist zu groß. Bitte wähle ein kleineres Bild aus oder komprimiere es vorher.',
         isPersistent: true,
-        actionHint: 'Versuche ein Bild mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
+        actionHint:
+          'Versuche ein Bild mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
       };
     }
   }
-  
+
   return baseError;
 }
 
@@ -657,21 +720,20 @@ export interface SuccessMessageOptions {
  * @param toast - Die Toast-Funktion von sonner
  * @param options - Optionen für die Erfolgsmeldung
  */
-export function showSuccessMessage(
-  toast: any,
-  options: SuccessMessageOptions
-): void {
+export function showSuccessMessage(toast: any, options: SuccessMessageOptions): void {
   const { title, description, undoAction, nextSteps } = options;
-  
+
   toast.success(title, {
     description: description,
-    action: undoAction ? {
-      label: 'Rückgängig',
-      onClick: undoAction,
-    } : undefined,
+    action: undoAction
+      ? {
+          label: 'Rückgängig',
+          onClick: undoAction,
+        }
+      : undefined,
     duration: undoAction ? 10000 : 5000, // Länger sichtbar für Undo-Option
   });
-  
+
   // Optional: Zeige nächste Schritte als separaten Toast
   if (nextSteps && nextSteps.length > 0) {
     setTimeout(() => {

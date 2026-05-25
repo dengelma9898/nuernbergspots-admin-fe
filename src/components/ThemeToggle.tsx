@@ -16,9 +16,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     // Placeholder während des Ladens
-    return (
-      <div className="h-9 w-9 rounded-md bg-muted animate-pulse" />
-    );
+    return <div className="h-9 w-9 rounded-md bg-muted animate-pulse" />;
   }
 
   const currentTheme = theme === 'system' ? systemTheme : theme;
@@ -40,4 +38,3 @@ export function ThemeToggle() {
     </AnimatedButton>
   );
 }
-

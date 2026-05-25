@@ -51,9 +51,7 @@ export function useEventService() {
      * Lädt alle ausstehenden Events (nur admin / super_admin).
      */
     getPendingEvents: async (): Promise<Event[]> => {
-      const response = await api.get<ApiResponse<Event[]>>(
-        `${endpoints.events}/pending`
-      );
+      const response = await api.get<ApiResponse<Event[]>>(`${endpoints.events}/pending`);
       return unwrapData(response);
     },
 

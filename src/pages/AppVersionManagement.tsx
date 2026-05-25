@@ -17,13 +17,7 @@ import { defaultTransition } from '@/lib/animations';
 import { glassCard, glassButton, glassInput } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -198,7 +192,7 @@ export function AppVersionManagement() {
     setIsCreatingNew(false);
     setNewVersionInput('');
 
-    const existingChangelog = changelogs.find((c) => c.version === version);
+    const existingChangelog = changelogs.find(c => c.version === version);
     if (existingChangelog) {
       setChangelogContent(existingChangelog.content);
       setOriginalContent(existingChangelog.content);
@@ -259,7 +253,7 @@ export function AppVersionManagement() {
         return;
       }
       // Prüfen ob Version bereits existiert
-      if (changelogs.some((c) => c.version === version)) {
+      if (changelogs.some(c => c.version === version)) {
         toast.error('Für diese Version existiert bereits ein Changelog');
         return;
       }
@@ -300,8 +294,8 @@ export function AppVersionManagement() {
           description: `Changelog für Version ${selectedVersion} wurde erfolgreich aktualisiert.`,
         });
         // Aktualisiere die Liste
-        setChangelogs((prev) =>
-          prev.map((c) => (c.version === selectedVersion ? updatedChangelog : c))
+        setChangelogs(prev =>
+          prev.map(c => (c.version === selectedVersion ? updatedChangelog : c))
         );
         setOriginalContent(content);
       } catch (error) {
@@ -324,7 +318,7 @@ export function AppVersionManagement() {
         description: `Changelog für Version ${selectedVersion} wurde erfolgreich gelöscht.`,
       });
       // Entferne aus der Liste
-      const updatedChangelogs = changelogs.filter((c) => c.version !== selectedVersion);
+      const updatedChangelogs = changelogs.filter(c => c.version !== selectedVersion);
       setChangelogs(updatedChangelogs);
       setDeleteDialogOpen(false);
 
@@ -421,7 +415,9 @@ export function AppVersionManagement() {
             className={cn(glassButton, 'rounded-full')}
             title="Aktualisieren"
           >
-            <RefreshCw className={cn('h-5 w-5', (isLoading || isLoadingChangelogs) && 'animate-spin')} />
+            <RefreshCw
+              className={cn('h-5 w-5', (isLoading || isLoadingChangelogs) && 'animate-spin')}
+            />
             <span className="sr-only">Aktualisieren</span>
           </AnimatedButton>
         </div>
@@ -490,7 +486,7 @@ export function AppVersionManagement() {
                   type="text"
                   placeholder="z.B. 1.2.3"
                   value={versionInput}
-                  onChange={(e) => setVersionInput(e.target.value)}
+                  onChange={e => setVersionInput(e.target.value)}
                   disabled={isLoading || isSaving}
                   className={cn(glassInput)}
                   pattern="^\d+\.\d+\.\d+$"
@@ -505,7 +501,10 @@ export function AppVersionManagement() {
                   type="submit"
                   disabled={isLoading || isSaving || !versionInput.trim()}
                   loading={isSaving}
-                  className={cn(glassButton, 'bg-green-600 hover:bg-green-700 text-white disabled:opacity-50')}
+                  className={cn(
+                    glassButton,
+                    'bg-green-600 hover:bg-green-700 text-white disabled:opacity-50'
+                  )}
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Version speichern
@@ -561,7 +560,7 @@ export function AppVersionManagement() {
                               Keine Changelogs vorhanden
                             </SelectItem>
                           ) : (
-                            changelogs.map((changelog) => (
+                            changelogs.map(changelog => (
                               <SelectItem key={changelog.version} value={changelog.version}>
                                 <div className="flex items-center gap-2">
                                   <FileText className="h-4 w-4" />
@@ -595,7 +594,7 @@ export function AppVersionManagement() {
                         type="text"
                         placeholder="z.B. 1.2.3"
                         value={newVersionInput}
-                        onChange={(e) => setNewVersionInput(e.target.value)}
+                        onChange={e => setNewVersionInput(e.target.value)}
                         disabled={isSavingChangelog}
                         className={cn(glassInput)}
                         pattern="^\d+\.\d+\.\d+$"
@@ -622,7 +621,8 @@ export function AppVersionManagement() {
               {(selectedVersion || isCreatingNew) && (
                 <div className="space-y-2">
                   <Label className="text-foreground">
-                    Changelog-Inhalt {isCreatingNew && newVersionInput && `(Version ${newVersionInput})`}
+                    Changelog-Inhalt{' '}
+                    {isCreatingNew && newVersionInput && `(Version ${newVersionInput})`}
                     {!isCreatingNew && selectedVersion && `(Version ${selectedVersion})`}
                   </Label>
                   <MarkdownEditor
@@ -650,7 +650,9 @@ export function AppVersionManagement() {
                 <div className="text-center py-8 text-muted-foreground">
                   <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Noch keine Changelogs vorhanden.</p>
-                  <p className="text-sm">Klicken Sie auf "Neuer Changelog", um einen zu erstellen.</p>
+                  <p className="text-sm">
+                    Klicken Sie auf "Neuer Changelog", um einen zu erstellen.
+                  </p>
                 </div>
               )}
 
@@ -716,8 +718,9 @@ export function AppVersionManagement() {
                   <strong>Beispiel:</strong> 1.2.3 (Major.Minor.Patch)
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
-                  <strong>Changelogs:</strong> Markdown-Changelogs werden automatisch beim Version-Check
-                  an die App übermittelt, sofern ein Changelog für die entsprechende Version existiert.
+                  <strong>Changelogs:</strong> Markdown-Changelogs werden automatisch beim
+                  Version-Check an die App übermittelt, sofern ein Changelog für die entsprechende
+                  Version existiert.
                 </p>
               </div>
             </div>
@@ -775,4 +778,3 @@ export function AppVersionManagement() {
     </PageTransition>
   );
 }
-

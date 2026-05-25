@@ -18,7 +18,11 @@ import { useTaxiStandService } from '@/services/taxiStandService';
 import { CreateTaxiStandDto, UpdateTaxiStandDto } from '@/models/taxi-stand';
 
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -156,7 +160,12 @@ export function TaxiStandForm() {
     if (!formData.phoneNumber.trim()) {
       errors.push('Bitte geben Sie eine Telefonnummer ein');
     }
-    if (!locationData || !locationData.address || locationData.latitude === 0 || locationData.longitude === 0) {
+    if (
+      !locationData ||
+      !locationData.address ||
+      locationData.latitude === 0 ||
+      locationData.longitude === 0
+    ) {
       errors.push('Bitte wählen Sie einen Standort aus (Partner oder Adresssuche)');
     }
 
@@ -301,7 +310,9 @@ export function TaxiStandForm() {
                       id="phoneNumber"
                       type="tel"
                       value={formData.phoneNumber}
-                      onChange={e => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))
+                      }
                       placeholder="z.B. +49 911 19410"
                       className={cn(glassInput)}
                       required
@@ -331,7 +342,9 @@ export function TaxiStandForm() {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, description: e.target.value }))
+                      }
                       placeholder="z.B. Vor dem Haupteingang"
                       className={cn(glassInput, 'min-h-[80px]')}
                     />
@@ -347,7 +360,9 @@ export function TaxiStandForm() {
                       type="number"
                       min="0"
                       value={formData.numberOfTaxis}
-                      onChange={e => setFormData(prev => ({ ...prev, numberOfTaxis: e.target.value }))}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, numberOfTaxis: e.target.value }))
+                      }
                       placeholder="z.B. 10"
                       className={cn(glassInput)}
                     />

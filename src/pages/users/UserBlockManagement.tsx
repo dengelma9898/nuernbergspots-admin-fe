@@ -95,15 +95,20 @@ export function UserBlockManagement() {
       setValidationErrors(['Kein User ausgewählt']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     // Verwende customerId für die Blockierung
     const customerId = selectedUser.customerId;
-    
+
     if (!customerId) {
       console.error('User object:', selectedUser);
-      showUserFriendlyError(new Error('Customer-ID nicht gefunden. Der User kann nicht blockiert werden.'), toast, undefined, 'block-user');
+      showUserFriendlyError(
+        new Error('Customer-ID nicht gefunden. Der User kann nicht blockiert werden.'),
+        toast,
+        undefined,
+        'block-user'
+      );
       return;
     }
 
@@ -117,9 +122,7 @@ export function UserBlockManagement() {
       });
 
       showSuccessMessage(toast, {
-        title: isBlocking
-          ? 'User erfolgreich blockiert'
-          : 'User erfolgreich entsperrt',
+        title: isBlocking ? 'User erfolgreich blockiert' : 'User erfolgreich entsperrt',
         description: `${selectedUser.email} wurde erfolgreich ${isBlocking ? 'blockiert' : 'entsperrt'}.`,
       });
 
@@ -129,7 +132,12 @@ export function UserBlockManagement() {
       await loadUsers();
     } catch (error) {
       console.error('Fehler beim Blockieren/Entsperren:', error);
-      showUserFriendlyError(error, toast, () => handleBlockConfirm(), isBlocking ? 'block-user' : 'unblock-user');
+      showUserFriendlyError(
+        error,
+        toast,
+        () => handleBlockConfirm(),
+        isBlocking ? 'block-user' : 'unblock-user'
+      );
     } finally {
       setIsBlocking(false);
     }
@@ -235,7 +243,10 @@ export function UserBlockManagement() {
               animate="animate"
             >
               {filteredUsers.map((user, index) => (
-                <motion.div key={`user-mobile-${index}-${user.id || user.email || 'unknown'}`} variants={fadeInUp}>
+                <motion.div
+                  key={`user-mobile-${index}-${user.id || user.email || 'unknown'}`}
+                  variants={fadeInUp}
+                >
                   <Card className={cn(glassCard, 'p-4 overflow-hidden')}>
                     <div className="mb-3">
                       <div className="flex items-center gap-2 mb-1">
@@ -325,7 +336,10 @@ export function UserBlockManagement() {
                     </TableHeader>
                     <TableBody>
                       {[...Array(5)].map((_, i) => (
-                        <TableRow key={`skeleton-desktop-${i}`} className="border-border hover:bg-muted/50">
+                        <TableRow
+                          key={`skeleton-desktop-${i}`}
+                          className="border-border hover:bg-muted/50"
+                        >
                           <TableCell>
                             <Skeleton className="h-4 w-48 rounded" />
                           </TableCell>
@@ -379,10 +393,10 @@ export function UserBlockManagement() {
                           key={`user-desktop-${index}-${user.id || user.email || 'unknown'}`}
                           className="border-border hover:bg-muted/50 transition-colors duration-200"
                         >
-                          <TableCell className="text-foreground font-medium">{user.email}</TableCell>
-                          <TableCell className="text-foreground/80">
-                            {user.name || '-'}
+                          <TableCell className="text-foreground font-medium">
+                            {user.email}
                           </TableCell>
+                          <TableCell className="text-foreground/80">{user.name || '-'}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {user.isBlocked ? (
@@ -463,7 +477,7 @@ export function UserBlockManagement() {
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               {!selectedUser?.isBlocked && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -512,4 +526,3 @@ export function UserBlockManagement() {
     </PageTransition>
   );
 }
-

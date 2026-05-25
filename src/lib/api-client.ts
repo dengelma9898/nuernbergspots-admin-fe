@@ -236,9 +236,12 @@ class ApiClient {
     }
   }
 
-  private async extractErrorMessage(response: Response, statusCode?: number): Promise<{ message: string; data?: any }> {
+  private async extractErrorMessage(
+    response: Response,
+    statusCode?: number
+  ): Promise<{ message: string; data?: any }> {
     const status = statusCode || response.status;
-    
+
     try {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -261,7 +264,7 @@ class ApiClient {
     } catch {
       // Wenn das Parsen fehlschlägt, verwende den Standard-Fehlercode
     }
-    
+
     // Füge Status-Code zur Fehlermeldung hinzu für bessere Fehlererkennung
     return { message: `HTTP error! status: ${status}` };
   }

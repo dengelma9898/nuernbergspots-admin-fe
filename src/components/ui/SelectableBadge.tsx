@@ -14,7 +14,7 @@ interface SelectableBadgeProps {
 
 /**
  * SelectableBadge - Eine wiederverwendbare Komponente für auswählbare Tags/Badges
- * 
+ *
  * Features:
  * - Automatisches Checkmark-Icon bei ausgewählten Tags
  * - Subtile Animationen (Hover & Tap)
@@ -51,4 +51,3 @@ export function SelectableBadge({
     </motion.div>
   );
 }
-

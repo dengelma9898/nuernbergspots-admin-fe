@@ -39,26 +39,34 @@ export function ContactRequestDetail() {
   const [responseMessage, setResponseMessage] = useState('');
   const contactService = useContactService();
 
-  const fetchContactRequest = useCallback(async (showSuccessToast = false) => {
-    if (!id) return;
-    try {
-      setIsRefreshing(true);
-      const request = await contactService.getContactRequestById(id);
-      setContactRequest(request);
-      if (showSuccessToast) {
-        showSuccessMessage(toast, {
-          title: 'Kontaktanfrage erfolgreich aktualisiert',
-          description: 'Die Kontaktanfrage wurde erfolgreich geladen.',
-        });
+  const fetchContactRequest = useCallback(
+    async (showSuccessToast = false) => {
+      if (!id) return;
+      try {
+        setIsRefreshing(true);
+        const request = await contactService.getContactRequestById(id);
+        setContactRequest(request);
+        if (showSuccessToast) {
+          showSuccessMessage(toast, {
+            title: 'Kontaktanfrage erfolgreich aktualisiert',
+            description: 'Die Kontaktanfrage wurde erfolgreich geladen.',
+          });
+        }
+      } catch (error) {
+        console.error('Fehler beim Laden der Kontaktanfrage:', error);
+        showUserFriendlyError(
+          error,
+          toast,
+          () => fetchContactRequest(showSuccessToast),
+          'load-contact-requests'
+        );
+      } finally {
+        setLoading(false);
+        setIsRefreshing(false);
       }
-    } catch (error) {
-      console.error('Fehler beim Laden der Kontaktanfrage:', error);
-      showUserFriendlyError(error, toast, () => fetchContactRequest(showSuccessToast), 'load-contact-requests');
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [id, contactService]);
+    },
+    [id, contactService]
+  );
 
   const handleSubmitResponse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,11 +102,13 @@ export function ContactRequestDetail() {
     const typeConfig = {
       [ContactRequestType.GENERAL]: {
         label: 'Allgemein',
-        className: 'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
+        className:
+          'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
       },
       [ContactRequestType.FEEDBACK]: {
         label: 'Feedback',
-        className: 'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
+        className:
+          'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
       },
       [ContactRequestType.BUSINESS_CLAIM]: {
         label: 'Geschäft beanspruchen',
@@ -106,7 +116,8 @@ export function ContactRequestDetail() {
       },
       [ContactRequestType.BUSINESS_REQUEST]: {
         label: 'Geschäftsanfrage',
-        className: 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
+        className:
+          'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
       },
     };
 
@@ -153,16 +164,33 @@ export function ContactRequestDetail() {
                 isAdmin ? 'bg-primary-foreground/20' : 'bg-muted-foreground/20'
               )}
             >
-              <User className={cn('h-4 w-4', isAdmin ? 'text-primary-foreground' : 'text-foreground')} />
+              <User
+                className={cn('h-4 w-4', isAdmin ? 'text-primary-foreground' : 'text-foreground')}
+              />
             </div>
-            <span className={cn('text-xs font-medium', isAdmin ? 'text-primary-foreground' : 'text-foreground')}>
+            <span
+              className={cn(
+                'text-xs font-medium',
+                isAdmin ? 'text-primary-foreground' : 'text-foreground'
+              )}
+            >
               {isAdmin ? 'Admin' : 'Benutzer'}
             </span>
           </div>
-          <p className={cn('text-sm md:text-base leading-relaxed mb-3', isAdmin ? 'text-primary-foreground' : 'text-foreground')}>
+          <p
+            className={cn(
+              'text-sm md:text-base leading-relaxed mb-3',
+              isAdmin ? 'text-primary-foreground' : 'text-foreground'
+            )}
+          >
             {message.message}
           </p>
-          <div className={cn('text-xs font-medium', isAdmin ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+          <div
+            className={cn(
+              'text-xs font-medium',
+              isAdmin ? 'text-primary-foreground/70' : 'text-muted-foreground'
+            )}
+          >
             {format(new Date(message.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
           </div>
         </Card>
@@ -276,8 +304,11 @@ export function ContactRequestDetail() {
                   Konversation
                 </h2>
                 <div className="space-y-4">
-                  {contactRequest.messages.map((message) => (
-                    <MessageBubble key={`${message.createdAt}-${message.message.substring(0, 20)}`} message={message} />
+                  {contactRequest.messages.map(message => (
+                    <MessageBubble
+                      key={`${message.createdAt}-${message.message.substring(0, 20)}`}
+                      message={message}
+                    />
                   ))}
                 </div>
               </Card>

@@ -74,7 +74,7 @@ export function EventCategoryList() {
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [selectedImagePreview, setSelectedImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
   const imageUpload = useValidatedImageUpload({
     maxImages: 5,
@@ -103,7 +103,7 @@ export function EventCategoryList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -115,12 +115,12 @@ export function EventCategoryList() {
         fallbackImages: existingImageUrls, // Bestehende Bilder (leer beim Erstellen)
       };
       const category = await eventCategoryService.createCategory(categoryToSave);
-      
+
       // Wenn neue Bilder ausgewählt wurden, lade diese hoch
       if (imageUpload.files.length > 0) {
         await eventCategoryService.updateFallbackImages(category.id, imageUpload.files);
       }
-      
+
       setCategories([...categories, category]);
       setNewCategory({
         name: '',
@@ -169,7 +169,7 @@ export function EventCategoryList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -230,7 +230,9 @@ export function EventCategoryList() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       showSuccessMessage(toast, {
         title: 'Kategorie gelöscht',
-        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+        description: categoryToDelete
+          ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.`
+          : 'Die Kategorie wurde erfolgreich gelöscht.',
       });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
@@ -354,7 +356,10 @@ export function EventCategoryList() {
                   <div className="space-y-4 py-4">
                     {/* Validierungsfehler */}
                     {validationErrors.length > 0 && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                         <AlertDescription className="mt-2">
@@ -366,7 +371,7 @@ export function EventCategoryList() {
                         </AlertDescription>
                       </Alert>
                     )}
-                    
+
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -431,7 +436,9 @@ export function EventCategoryList() {
                       <Input
                         type="color"
                         value={newCategory.colorCode}
-                        onChange={e => setNewCategory({ ...newCategory, colorCode: e.target.value })}
+                        onChange={e =>
+                          setNewCategory({ ...newCategory, colorCode: e.target.value })
+                        }
                         className={cn(glassInput, 'h-12')}
                       />
                     </motion.div>
@@ -442,17 +449,20 @@ export function EventCategoryList() {
                       animate="animate"
                       transition={{ ...defaultTransition, delay: 0.5 }}
                     >
-                      <Label className="text-foreground">
-                        Fallback-Bilder (max. 5)
-                      </Label>
+                      <Label className="text-foreground">Fallback-Bilder (max. 5)</Label>
                       {imageUpload.error && (
-                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <Alert
+                          variant="destructive"
+                          className={cn(glassCard, 'border-destructive/50')}
+                        >
                           <AlertCircle className="h-4 w-4" />
                           <AlertTitle>{imageUpload.error.title}</AlertTitle>
                           <AlertDescription className="mt-2">
                             <p>{imageUpload.error.message}</p>
                             {imageUpload.error.actionHint && (
-                              <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                              <p className="mt-2 text-sm opacity-90">
+                                {imageUpload.error.actionHint}
+                              </p>
                             )}
                           </AlertDescription>
                         </Alert>
@@ -492,7 +502,7 @@ export function EventCategoryList() {
                             </button>
                           </div>
                         ))}
-                        {(existingImageUrls.length + imageUpload.previewUrls.length) < 5 && (
+                        {existingImageUrls.length + imageUpload.previewUrls.length < 5 && (
                           <label className="flex items-center justify-center h-24 border-2 border-dashed border-secondary rounded-lg cursor-pointer hover:bg-muted transition-colors">
                             <input
                               type="file"
@@ -561,10 +571,7 @@ export function EventCategoryList() {
                     {/* Fallback Images */}
                     <div className="flex flex-wrap gap-2 mb-3">
                       {[...Array(3)].map((_, imgIndex) => (
-                        <Skeleton
-                          key={imgIndex}
-                          className="h-8 w-8 rounded-lg"
-                        />
+                        <Skeleton key={imgIndex} className="h-8 w-8 rounded-lg" />
                       ))}
                     </div>
 
@@ -612,10 +619,16 @@ export function EventCategoryList() {
                 <motion.div key={category.id} variants={fadeInUp}>
                   <Card className={cn(glassCard, 'p-4')}>
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="text-foreground font-bold text-lg flex-1">{category.name}</div>
-                      <div className="text-muted-foreground">{getIconComponent(category.iconName)}</div>
+                      <div className="text-foreground font-bold text-lg flex-1">
+                        {category.name}
+                      </div>
+                      <div className="text-muted-foreground">
+                        {getIconComponent(category.iconName)}
+                      </div>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-3">{category.description || '-'}</div>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      {category.description || '-'}
+                    </div>
                     <div className="flex items-center gap-2 mb-3">
                       <div
                         className="w-5 h-5 rounded-full border-2 border-secondary"
@@ -684,7 +697,9 @@ export function EventCategoryList() {
                     <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
                     <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
                     <TableHead className="text-foreground font-semibold">Fallback-Bilder</TableHead>
-                    <TableHead className="w-[100px] text-foreground font-semibold">Aktionen</TableHead>
+                    <TableHead className="w-[100px] text-foreground font-semibold">
+                      Aktionen
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -729,10 +744,7 @@ export function EventCategoryList() {
                           <TableCell className="py-4">
                             <div className="flex items-center gap-2">
                               {[...Array(3)].map((_, imgIndex) => (
-                                <Skeleton
-                                  key={imgIndex}
-                                  className="h-8 w-8 rounded-lg"
-                                />
+                                <Skeleton key={imgIndex} className="h-8 w-8 rounded-lg" />
                               ))}
                             </div>
                           </TableCell>
@@ -763,11 +775,15 @@ export function EventCategoryList() {
                         key={category.id}
                         className="border-secondary hover:bg-muted/50 transition-colors"
                       >
-                        <TableCell className="font-medium text-foreground">{category.name}</TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {category.name}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {getIconComponent(category.iconName)}
                         </TableCell>
-                        <TableCell className="text-muted-foreground">{category.description || '-'}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {category.description || '-'}
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <div
@@ -806,10 +822,7 @@ export function EventCategoryList() {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <AnimatedButton
-                                variant="ghost"
-                                className="h-8 w-8 p-0"
-                              >
+                              <AnimatedButton variant="ghost" className="h-8 w-8 p-0">
                                 <MoreHorizontal className="h-4 w-4" />
                               </AnimatedButton>
                             </DropdownMenuTrigger>

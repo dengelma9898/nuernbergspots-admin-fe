@@ -352,7 +352,9 @@ export function JobOffers() {
                 />
               </div>
               <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className={cn(glassInput, 'w-full sm:w-[180px] rounded-lg mb-2 md:mb-0')}>
+                <SelectTrigger
+                  className={cn(glassInput, 'w-full sm:w-[180px] rounded-lg mb-2 md:mb-0')}
+                >
                   <SelectValue placeholder="Beschäftigungsart" />
                 </SelectTrigger>
                 <SelectContent className={cn(glassCard)}>
@@ -432,7 +434,9 @@ export function JobOffers() {
                             />
                           )}
                           <div className="flex items-center justify-between mb-1">
-                            <span className="font-bold text-lg text-foreground">{jobOffer.title}</span>
+                            <span className="font-bold text-lg text-foreground">
+                              {jobOffer.title}
+                            </span>
                             <Badge
                               variant={jobOffer.homeOffice ? 'default' : 'secondary'}
                               className="ml-2"
@@ -527,7 +531,9 @@ export function JobOffers() {
                     <JobOfferCard
                       jobOffer={jobOffer}
                       onDelete={handleDelete}
-                      category={categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null}
+                      category={
+                        categories.find(cat => cat.id === jobOffer.jobOfferCategoryId) || null
+                      }
                     />
                   </motion.div>
                 ))}
@@ -585,9 +591,7 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
                 </div>
               )}
             </div>
-            <Badge
-              variant={jobOffer.homeOffice ? 'default' : 'secondary'}
-            >
+            <Badge variant={jobOffer.homeOffice ? 'default' : 'secondary'}>
               <Home className="h-4 w-4 mr-1" />
               {jobOffer.homeOffice ? 'Home Office' : 'Vor Ort'}
             </Badge>
@@ -634,7 +638,9 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center !px-4 !pt-2 !pb-4 gap-0">
-          <div className="text-xs text-muted-foreground">Erstellt am {formatDate(jobOffer.createdAt)}</div>
+          <div className="text-xs text-muted-foreground">
+            Erstellt am {formatDate(jobOffer.createdAt)}
+          </div>
           <div className="flex gap-2">
             <AnimatedButton
               variant="outline"
@@ -644,11 +650,7 @@ const JobOfferCard: React.FC<JobOfferCardProps> = ({ jobOffer, onDelete, categor
             >
               Bearbeiten
             </AnimatedButton>
-            <AnimatedButton
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete(jobOffer.id)}
-            >
+            <AnimatedButton variant="destructive" size="sm" onClick={() => onDelete(jobOffer.id)}>
               Löschen
             </AnimatedButton>
           </div>

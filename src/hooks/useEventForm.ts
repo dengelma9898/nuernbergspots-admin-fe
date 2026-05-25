@@ -132,4 +132,3 @@ export const useEventForm = ({ event, onEventUpdate }: UseEventFormProps): UseEv
     setSearchValue,
   };
 };
-

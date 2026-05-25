@@ -27,9 +27,7 @@ export function useBusinessEventsSettingsService() {
       /**
        * Aktualisiert die Business Events Settings
        */
-      updateBusinessEventsSettings: async (
-        isEnabled: boolean
-      ): Promise<BusinessEventsSettings> => {
+      updateBusinessEventsSettings: async (isEnabled: boolean): Promise<BusinessEventsSettings> => {
         const response = await api.patch<ApiResponse<BusinessEventsSettings>>(
           endpoints.businessEventsSettings,
           { isEnabled }

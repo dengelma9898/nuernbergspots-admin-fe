@@ -709,9 +709,7 @@ describe('EditBusiness Component', () => {
         expect(screen.getByDisplayValue('Restaurant Alpha')).toBeInTheDocument();
       });
 
-      const promotedSwitch = screen.getByLabelText(
-        'Als "Highlight" markieren'
-      ) as HTMLInputElement;
+      const promotedSwitch = screen.getByLabelText('Als "Highlight" markieren') as HTMLInputElement;
       fireEvent.click(promotedSwitch);
 
       await waitFor(() => {

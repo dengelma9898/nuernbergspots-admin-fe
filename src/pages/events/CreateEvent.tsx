@@ -5,17 +5,16 @@ import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Info } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { MonthYearPicker } from '@/components/ui/month-year-picker';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -113,9 +112,9 @@ export const CreateEvent: React.FC = () => {
   useEffect(() => {
     if (validationErrors.length > 0 && validationErrorsRef.current) {
       setTimeout(() => {
-        validationErrorsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        validationErrorsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
       }, 100); // Kleine Verzögerung, damit das Element gerendert ist
     }
@@ -178,7 +177,7 @@ export const CreateEvent: React.FC = () => {
     } catch (error) {
       console.error('Fehler beim Erstellen des Events:', error);
       const friendlyError = getUserFriendlyError(error, 'save-event');
-      
+
       // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
@@ -271,9 +270,9 @@ export const CreateEvent: React.FC = () => {
               <CardContent className="space-y-6">
                 {/* Validierungsfehler */}
                 {validationErrors.length > 0 && (
-                  <Alert 
+                  <Alert
                     ref={validationErrorsRef}
-                    variant="destructive" 
+                    variant="destructive"
                     className={cn(glassCard, 'border-destructive/50')}
                   >
                     <AlertCircle className="h-4 w-4" />
@@ -366,16 +365,18 @@ export const CreateEvent: React.FC = () => {
                 {newEvent.dailyTimeSlots.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Label className="text-foreground">
-                        Tägliche Zeitangaben (optional)
-                      </Label>
+                      <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p>Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.</p>
+                            <p>
+                              Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
+                              sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
+                              &apos;Monat/Jahr&apos;.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -383,10 +384,7 @@ export const CreateEvent: React.FC = () => {
 
                     <div className="space-y-4">
                       {newEvent.dailyTimeSlots.map(slot => (
-                        <div
-                          key={slot.date}
-                          className={cn(glassCard, 'p-4')}
-                        >
+                        <div key={slot.date} className={cn(glassCard, 'p-4')}>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                             <div className="font-medium text-foreground">
                               {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
@@ -424,7 +422,11 @@ export const CreateEvent: React.FC = () => {
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
-                          <p>Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.</p>
+                          <p>
+                            Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen,
+                            ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig
+                            existieren.
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -436,8 +438,8 @@ export const CreateEvent: React.FC = () => {
                     className={cn(glassInput)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht.
-                    Sobald Start- und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
+                    und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
                   </p>
                 </div>
 
@@ -658,8 +660,8 @@ export const CreateEvent: React.FC = () => {
                     </div>
 
                     <p className="text-xs text-muted-foreground mt-4">
-                      Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu,
-                      die Sie öffentlich teilen möchten.
+                      Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen
+                      hinzu, die Sie öffentlich teilen möchten.
                     </p>
                   </div>
                 </div>

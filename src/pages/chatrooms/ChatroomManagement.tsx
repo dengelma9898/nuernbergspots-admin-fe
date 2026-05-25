@@ -46,7 +46,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getUserFriendlyError, showUserFriendlyError, showSuccessMessage, type UserFriendlyError } from '@/utils/errorUtils';
+import {
+  getUserFriendlyError,
+  showUserFriendlyError,
+  showSuccessMessage,
+  type UserFriendlyError,
+} from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
 import { Background } from '@/components/Background';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
@@ -115,13 +120,13 @@ export function ChatroomManagement() {
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [createError, setCreateError] = useState<UserFriendlyError | null>(null);
   const [editError, setEditError] = useState<UserFriendlyError | null>(null);
-  
+
   // Zentrale Bildvalidierung für Create-Dialog
   const createImageUpload = useValidatedImageUpload({
     maxImages: 1,
     maxSizeMB: 1,
   });
-  
+
   // Zentrale Bildvalidierung für Edit-Dialog
   const editImageUpload = useValidatedImageUpload({
     maxImages: 1,
@@ -147,7 +152,12 @@ export function ChatroomManagement() {
         setChatrooms(data);
       } else {
         console.error('Ungültiges Datenformat beim Laden der Chatrooms:', data);
-        showUserFriendlyError(new Error('Ungültiges Datenformat'), toast, () => loadChatrooms(), 'load-chatroom');
+        showUserFriendlyError(
+          new Error('Ungültiges Datenformat'),
+          toast,
+          () => loadChatrooms(),
+          'load-chatroom'
+        );
         setChatrooms([]);
       }
     } catch (error) {
@@ -174,7 +184,7 @@ export function ChatroomManagement() {
       setCreateError(null);
     }
   };
-  
+
   // Handler für Edit-Dialog
   const handleEditImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     editImageUpload.handleFileChange(event);
@@ -375,13 +385,18 @@ export function ChatroomManagement() {
                   </DialogTrigger>
                   <DialogContent className={cn(glassCard)}>
                     <DialogHeader>
-                      <DialogTitle className="text-foreground">Neuen Chatroom erstellen</DialogTitle>
+                      <DialogTitle className="text-foreground">
+                        Neuen Chatroom erstellen
+                      </DialogTitle>
                       <DialogDescription className="text-muted-foreground">
                         Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
                       </DialogDescription>
                     </DialogHeader>
                     {(createError || createImageUpload.error) && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>
                           {createImageUpload.error?.title || createError?.title}
@@ -459,7 +474,10 @@ export function ChatroomManagement() {
                             />
                             <Label
                               htmlFor="image-upload"
-                              className={cn(glassButton, 'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2')}
+                              className={cn(
+                                glassButton,
+                                'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
+                              )}
                             >
                               Bild auswählen
                             </Label>
@@ -487,7 +505,7 @@ export function ChatroomManagement() {
                         Erstellen
                       </AnimatedButton>
                     </DialogFooter>
-                </DialogContent>
+                  </DialogContent>
                 </Dialog>
               </div>
             </motion.div>
@@ -513,9 +531,7 @@ export function ChatroomManagement() {
                 {(editError || editImageUpload.error) && (
                   <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>
-                      {editImageUpload.error?.title || editError?.title}
-                    </AlertTitle>
+                    <AlertTitle>{editImageUpload.error?.title || editError?.title}</AlertTitle>
                     <AlertDescription className="mt-2">
                       <p>{editImageUpload.error?.message || editError?.message}</p>
                       {(editImageUpload.error?.actionHint || editError?.actionHint) && (
@@ -563,7 +579,7 @@ export function ChatroomManagement() {
                     <Label className="text-foreground">Chatroom Bild</Label>
                     <div className="flex items-center gap-4">
                       <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
-                        {(editImageUpload.previewUrls.length > 0 || originalImageUrl) ? (
+                        {editImageUpload.previewUrls.length > 0 || originalImageUrl ? (
                           <>
                             <img
                               src={editImageUpload.previewUrls[0] || originalImageUrl || ''}
@@ -603,7 +619,10 @@ export function ChatroomManagement() {
                         />
                         <Label
                           htmlFor="edit-image-upload"
-                          className={cn(glassButton, 'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2')}
+                          className={cn(
+                            glassButton,
+                            'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
+                          )}
                         >
                           Bild auswählen
                         </Label>
@@ -640,9 +659,7 @@ export function ChatroomManagement() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className={cn(glassButton)}>
-                    Abbrechen
-                  </AlertDialogCancel>
+                  <AlertDialogCancel className={cn(glassButton)}>Abbrechen</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteChatroom}
                     className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
@@ -663,10 +680,7 @@ export function ChatroomManagement() {
               {isLoading ? (
                 // Show 6 skeleton chatroom cards
                 Array.from({ length: 6 }).map((_, index) => (
-                  <motion.div 
-                    key={index} 
-                    variants={fadeInUp}
-                  >
+                  <motion.div key={index} variants={fadeInUp}>
                     <ChatroomSkeleton />
                   </motion.div>
                 ))
@@ -685,13 +699,13 @@ export function ChatroomManagement() {
                   </Card>
                 </motion.div>
               ) : (
-                chatrooms.map((chatroom) => (
-                  <motion.div 
-                    key={chatroom.id} 
-                    variants={fadeInUp}
-                  >
+                chatrooms.map(chatroom => (
+                  <motion.div key={chatroom.id} variants={fadeInUp}>
                     <Card
-                      className={cn(glassCard, 'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}
+                      className={cn(
+                        glassCard,
+                        'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full'
+                      )}
                       onClick={() => handleChatroomClick(chatroom.id)}
                     >
                       <CardHeader className="pb-2">
@@ -739,7 +753,10 @@ export function ChatroomManagement() {
                               e.stopPropagation();
                               openEditDialog(chatroom, e);
                             }}
-                            className={cn(glassButton, 'w-full sm:w-auto flex items-center justify-center')}
+                            className={cn(
+                              glassButton,
+                              'w-full sm:w-auto flex items-center justify-center'
+                            )}
                           >
                             <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
                           </AnimatedButton>

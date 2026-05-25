@@ -176,7 +176,16 @@ describe('MittmachMittwoch Component', () => {
   const user = userEvent.setup();
   const { toast } = require('sonner');
 
-  const response = (over: Partial<{ id: string; userId: string; userName: string; response: string; createdAt: string; upvotedUserIds: string[] }>) => ({
+  const response = (
+    over: Partial<{
+      id: string;
+      userId: string;
+      userName: string;
+      response: string;
+      createdAt: string;
+      upvotedUserIds: string[];
+    }>
+  ) => ({
     id: 'r1',
     userId: 'u1',
     userName: 'John Doe',
@@ -465,9 +474,7 @@ describe('MittmachMittwoch Component', () => {
     const pollCards = screen.getAllByTestId('card');
     expect(pollCards.length).toBeGreaterThan(0);
 
-    const highlightedCard = pollCards.find(card =>
-      card.textContent?.includes('Highlighted Event')
-    );
+    const highlightedCard = pollCards.find(card => card.textContent?.includes('Highlighted Event'));
     expect(highlightedCard).toBeDefined();
     fireEvent.click(highlightedCard!);
 

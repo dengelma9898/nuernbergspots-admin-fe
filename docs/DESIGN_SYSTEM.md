@@ -1,4 +1,5 @@
 # Design-System Dokumentation
+
 ## Minimalistisches Design mit Dark Mode Support
 
 **Version:** 1.0  
@@ -91,6 +92,7 @@ Der Hintergrund besteht aus **maximal 2 Ebenen**:
 ### Basis-Komponenten (shadcn/ui)
 
 Die Anwendung nutzt **shadcn/ui** als Basis-Komponenten-Bibliothek:
+
 - `Card` - Container für Inhalte
 - `Button` - Interaktive Buttons
 - `Input` - Eingabefelder
@@ -104,33 +106,43 @@ Die Anwendung nutzt **shadcn/ui** als Basis-Komponenten-Bibliothek:
 **Hinweis:** Der Dateiname `glassmorphism.ts` ist historisch bedingt. Die Datei enthält **kein** Glassmorphism, sondern minimalistisches Border-Design.
 
 #### `glassCard`
+
 Basis-Klassen für Cards mit Secondary Color Border:
+
 ```typescript
 bg-card border border-secondary rounded-lg transition-all duration-300
 ```
 
 #### `glassCardHover`
+
 Card mit Hover-Effekt:
+
 ```typescript
 glassCard + hover:border-secondary/80 cursor-pointer
 ```
 
 #### `glassInput`
+
 Input-Felder mit Secondary Color Border:
+
 ```typescript
 bg-background border border-secondary text-foreground
 focus:border-secondary rounded-lg transition-all duration-300
 ```
 
 #### `glassButton`
+
 Buttons mit Secondary Color Border:
+
 ```typescript
 bg-background border border-secondary text-foreground
 hover:bg-secondary/5 hover:border-secondary/80 rounded-lg
 ```
 
 #### `glassBadge`
+
 Badges/Labels mit Secondary Color Border:
+
 ```typescript
 bg-background border border-secondary text-foreground rounded-md
 ```
@@ -142,21 +154,28 @@ bg-background border border-secondary text-foreground rounded-md
 ### Framer Motion Variants (`src/lib/animations.ts`)
 
 #### `fadeInUp`
+
 Standard Page-Transition Animation:
+
 - Verwendet für: Page-Transitions, Cards beim Laden
 - Animation: Opacity 0→1, Y: 20px→0
 
 #### `staggerContainer` & `staggerItem`
+
 List-Animationen mit Stagger-Effekt:
+
 - Verwendet für: Card-Lists, Grid-Layouts
 - Delay: 50ms zwischen Items
 
 #### `scaleIn`
+
 Modal/Popover Animationen:
+
 - Verwendet für: Modals, Dropdowns
 - Animation: Opacity 0→1, Scale: 0.9→1.0
 
 #### Weitere Variants
+
 - `fadeIn` - Einfache Fade-Animationen
 - `slideInRight/Left` - Sidebar/Drawer Animationen
 - `shake` - Error-State Animationen
@@ -165,31 +184,41 @@ Modal/Popover Animationen:
 ### Wiederverwendbare Komponenten
 
 #### `PageTransition` (`src/components/PageTransition.tsx`)
+
 Wrapper für Page-Transitions:
+
 - Smooth Fade-In + Slide-Up Animation
 - Respektiert `prefers-reduced-motion`
 - Konsistente Transitions zwischen Seiten
 
 #### `AnimatedCard` (`src/components/AnimatedCard.tsx`)
+
 Card mit Stagger-Animation:
+
 - Konfigurierbare Delay für Stagger-Effekt
 - Sanfte Hover-Effekte (Scale 1.02)
 - Unterstützt alle Card-Props
 
 #### `AnimatedButton` (`src/components/AnimatedButton.tsx`)
+
 Button mit Click-Feedback:
+
 - Click-Animation (Scale 0.95 → 1.0)
 - Hover-Animation (Scale 1.02)
 - Besseres visuelles Feedback
 
 #### `LoadingButton` (`src/components/LoadingButton.tsx`)
+
 Button mit Loading-State:
+
 - Zeigt Spinner während des Ladens
 - Deaktiviert während des Ladens
 - Smooth Transition zwischen States
 
 #### `Background` (`src/components/Background.tsx`)
+
 Minimalistische Background-Komponente:
+
 - Maximal 2 Ebenen (1 Gradient + 1 Blur-Kreis)
 - Theme-basierte Farben
 - Sanfte Animationen mit Framer Motion
@@ -218,6 +247,7 @@ Die Anwendung folgt einem **Mobile-First** Design-Prinzip:
 ### Body-Padding
 
 Alle Seiten verwenden responsive Padding für bessere Abstände:
+
 ```typescript
 px-4 sm:px-6 lg:px-8
 ```
@@ -229,6 +259,7 @@ px-4 sm:px-6 lg:px-8
 ### Implementierung
 
 Dark Mode wird über **next-themes** verwaltet:
+
 - Automatische Erkennung des System-Themes
 - Manuelles Umschalten über Theme-Toggle
 - Persistierung der Präferenz
@@ -246,6 +277,7 @@ Dark Mode wird über **next-themes** verwaltet:
 ### Skeleton Loading
 
 Anstatt Spinner werden **Skeleton-Komponenten** verwendet:
+
 - Bessere UX während des Ladens
 - Zeigt die Struktur des kommenden Inhalts
 - Konsistente Styling mit dem Design-System
@@ -284,9 +316,7 @@ import { Card } from '@/components/ui/card';
 import { glassCard } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 
-<Card className={cn(glassCard)}>
-  {/* Card Content */}
-</Card>
+<Card className={cn(glassCard)}>{/* Card Content */}</Card>;
 ```
 
 ### Button mit Animation
@@ -294,9 +324,7 @@ import { cn } from '@/lib/utils';
 ```tsx
 import { AnimatedButton } from '@/components/AnimatedButton';
 
-<AnimatedButton onClick={handleClick}>
-  Klicken
-</AnimatedButton>
+<AnimatedButton onClick={handleClick}>Klicken</AnimatedButton>;
 ```
 
 ### Page mit Background und Transition
@@ -307,10 +335,8 @@ import { PageTransition } from '@/components/PageTransition';
 
 <PageTransition>
   <Background />
-  <div className="relative z-10">
-    {/* Page Content */}
-  </div>
-</PageTransition>
+  <div className="relative z-10">{/* Page Content */}</div>
+</PageTransition>;
 ```
 
 ### Liste mit Stagger-Animation
@@ -325,7 +351,7 @@ import { staggerContainer, staggerItem } from '@/lib/animations';
       {/* Item Content */}
     </motion.div>
   ))}
-</motion.div>
+</motion.div>;
 ```
 
 ---

@@ -6,7 +6,14 @@ import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { AdminRatingStars } from '@/components/curated-spots/AdminRatingStars';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -25,7 +32,16 @@ import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Edit, MapPin, Plus, Settings, ShieldCheck, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Edit,
+  MapPin,
+  Plus,
+  Settings,
+  ShieldCheck,
+  Trash2,
+} from 'lucide-react';
 
 function CuratedSpotCardSkeleton() {
   return (
@@ -83,8 +99,7 @@ export function CuratedSpotList() {
   const [userRole, setUserRole] = useState<UserType | null>(null);
   const [actionSpotId, setActionSpotId] = useState<string | null>(null);
 
-  const isAdminOrSuperAdmin =
-    userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
+  const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const loadSpots = useCallback(async () => {
     try {
@@ -213,8 +228,8 @@ export function CuratedSpotList() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Berechtigung</AlertTitle>
                 <AlertDescription>
-                  Nur Admin oder Super-Admin können Spots anlegen oder bearbeiten. Die Liste kann je nach
-                  Backend dennoch sichtbar sein.
+                  Nur Admin oder Super-Admin können Spots anlegen oder bearbeiten. Die Liste kann je
+                  nach Backend dennoch sichtbar sein.
                 </AlertDescription>
               </Alert>
             )}
@@ -258,24 +273,31 @@ export function CuratedSpotList() {
                     <Card className={cn(glassCardHover, 'h-full flex flex-col')}>
                       <CardHeader>
                         <div className="flex items-start justify-between gap-2">
-                          <CardTitle className="text-lg text-foreground line-clamp-2">{spot.name}</CardTitle>
+                          <CardTitle className="text-lg text-foreground line-clamp-2">
+                            {spot.name}
+                          </CardTitle>
                           <Badge variant={statusBadgeVariant(spot.status)}>{spot.status}</Badge>
                         </div>
                         <CardDescription className="text-muted-foreground">
                           {spot.address?.street?.trim()
                             ? `${spot.address.street} ${spot.address.houseNumber}, ${spot.address.postalCode} ${spot.address.city}`
                             : 'Keine Adresse hinterlegt'}{' '}
-                          · {spot.keywordIds.length} Spot-Keyword(s) · {spot.imageUrls.length} Bild(er)
+                          · {spot.keywordIds.length} Spot-Keyword(s) · {spot.imageUrls.length}{' '}
+                          Bild(er)
                         </CardDescription>
                       </CardHeader>
                       <CardContent className="flex-grow space-y-3 text-sm text-muted-foreground">
                         <div className="space-y-1">
                           <p className="text-xs font-medium text-foreground/90">Redaktion</p>
-                          {spot.adminRating != null && spot.adminRating >= 1 && spot.adminRating <= 5 ? (
+                          {spot.adminRating != null &&
+                          spot.adminRating >= 1 &&
+                          spot.adminRating <= 5 ? (
                             <AdminRatingStars value={spot.adminRating} readOnly />
                           ) : (
                             <div className="flex flex-col gap-1">
-                              <span className="text-xs text-muted-foreground">Noch nicht vergeben</span>
+                              <span className="text-xs text-muted-foreground">
+                                Noch nicht vergeben
+                              </span>
                               <AdminRatingStars value={null} readOnly />
                             </div>
                           )}

@@ -228,5 +228,4 @@ describe('Event Service', () => {
       expect(result).toEqual(mockUrls);
     });
   });
-
 });

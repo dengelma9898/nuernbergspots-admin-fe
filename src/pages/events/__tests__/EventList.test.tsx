@@ -449,7 +449,9 @@ describe('EventList Component', () => {
 
       // Nach dem Klick sollte der Auswahlmodus aktiv sein
       await waitFor(() => {
-        expect(screen.getByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')).toBeInTheDocument();
+        expect(
+          screen.getByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')
+        ).toBeInTheDocument();
         expect(screen.getByText('Alle auswählen')).toBeInTheDocument();
         expect(screen.getByText('Auswahl aufheben')).toBeInTheDocument();
         expect(screen.getByText('Abbrechen')).toBeInTheDocument();
@@ -476,7 +478,9 @@ describe('EventList Component', () => {
       fireEvent.click(cancelButton);
 
       await waitFor(() => {
-        expect(screen.queryByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')).not.toBeInTheDocument();
+        expect(
+          screen.queryByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')
+        ).not.toBeInTheDocument();
       });
     });
   });

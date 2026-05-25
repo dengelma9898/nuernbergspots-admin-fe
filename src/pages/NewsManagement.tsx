@@ -101,10 +101,7 @@ const NewsSkeletonBubble: React.FC<{ type?: 'text' | 'image' | 'poll' }> = ({ ty
             </div>
             <div className="space-y-2">
               {[...Array(3)].map((_, idx) => (
-                <div
-                  key={idx}
-                  className={cn(glassCard, 'flex justify-between items-center p-3')}
-                >
+                <div key={idx} className={cn(glassCard, 'flex justify-between items-center p-3')}>
                   <Skeleton className="h-4 w-32 rounded" />
                   <Skeleton className="h-6 w-8 rounded-full" />
                 </div>
@@ -141,11 +138,7 @@ const NewsBubble: React.FC<{
   onDelete: (item: NewsItem) => void;
 }> = ({ item, onEdit, onDelete }) => {
   return (
-    <motion.div
-      variants={fadeInUp}
-      whileHover={{ scale: 1.02 }}
-      className="px-1"
-    >
+    <motion.div variants={fadeInUp} whileHover={{ scale: 1.02 }} className="px-1">
       <Card className={cn(glassCard, 'w-full !py-2')}>
         <CardContent className="p-3 md:p-4">
           <div className="flex items-center justify-between mb-3">
@@ -204,84 +197,78 @@ const NewsBubble: React.FC<{
                 </AnimatedButton>
               )}
               <span className="text-xs text-muted-foreground">
-              {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: de })}
-            </span>
-          </div>
-        </div>
-
-        {/* Content */}
-        {item.type === 'text' && (
-          <div className="text-base leading-relaxed text-foreground">
-            {(item as TextNewsItem).content}
-          </div>
-        )}
-
-        {item.type === 'image' && (
-          <div>
-            <div className="flex gap-3 flex-wrap">
-              {(item as ImageNewsItem).imageUrls.map((url, idx) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt={`Bild ${idx + 1}`}
-                  className="w-24 h-24 object-cover rounded-xl border border-secondary shadow-lg"
-                />
-              ))}
+                {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true, locale: de })}
+              </span>
             </div>
-            {(item as ImageNewsItem).content && (
-              <div className="text-base leading-relaxed mt-2 text-foreground">
-                {(item as ImageNewsItem).content}
+          </div>
+
+          {/* Content */}
+          {item.type === 'text' && (
+            <div className="text-base leading-relaxed text-foreground">
+              {(item as TextNewsItem).content}
+            </div>
+          )}
+
+          {item.type === 'image' && (
+            <div>
+              <div className="flex gap-3 flex-wrap">
+                {(item as ImageNewsItem).imageUrls.map((url, idx) => (
+                  <img
+                    key={url}
+                    src={url}
+                    alt={`Bild ${idx + 1}`}
+                    className="w-24 h-24 object-cover rounded-xl border border-secondary shadow-lg"
+                  />
+                ))}
               </div>
-            )}
-          </div>
-        )}
-
-        {item.type === 'poll' && (
-          <div>
-            <div className="font-medium mb-2 flex items-center gap-2 text-foreground">
-              <BarChart2 className="w-4 h-4 text-muted-foreground" />
-              {(item as PollNewsItem).question}
-            </div>
-            <div className="flex flex-col gap-2">
-              {(item as PollNewsItem).options.map(opt => (
-                <div
-                  key={opt.id}
-                  className={cn(glassCard, 'flex justify-between items-center w-full p-3')}
-                >
-                  <span className="text-foreground">{opt.text}</span>
-                  <Badge variant="secondary">
-                    {opt.voters.length}
-                  </Badge>
+              {(item as ImageNewsItem).content && (
+                <div className="text-base leading-relaxed mt-2 text-foreground">
+                  {(item as ImageNewsItem).content}
                 </div>
+              )}
+            </div>
+          )}
+
+          {item.type === 'poll' && (
+            <div>
+              <div className="font-medium mb-2 flex items-center gap-2 text-foreground">
+                <BarChart2 className="w-4 h-4 text-muted-foreground" />
+                {(item as PollNewsItem).question}
+              </div>
+              <div className="flex flex-col gap-2">
+                {(item as PollNewsItem).options.map(opt => (
+                  <div
+                    key={opt.id}
+                    className={cn(glassCard, 'flex justify-between items-center w-full p-3')}
+                  >
+                    <span className="text-foreground">{opt.text}</span>
+                    <Badge variant="secondary">{opt.voters.length}</Badge>
+                  </div>
+                ))}
+              </div>
+              {item.expiresAt && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  Läuft ab: {new Date(item.expiresAt).toLocaleString('de-DE')}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Reactions */}
+          {item.reactions && item.reactions.length > 0 && (
+            <div className="flex gap-2 mt-3 flex-wrap">
+              {Array.from(new Set(item.reactions.map(r => r.type))).map(type => (
+                <Badge key={type} variant="outline" className="flex items-center gap-1">
+                  <span>{type}</span>
+                  <span className="text-xs">
+                    {item.reactions?.filter(r => r.type === type).length}
+                  </span>
+                </Badge>
               ))}
             </div>
-            {item.expiresAt && (
-              <div className="text-xs text-muted-foreground mt-2">
-                Läuft ab: {new Date(item.expiresAt).toLocaleString('de-DE')}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Reactions */}
-        {item.reactions && item.reactions.length > 0 && (
-          <div className="flex gap-2 mt-3 flex-wrap">
-            {Array.from(new Set(item.reactions.map(r => r.type))).map(type => (
-              <Badge
-                key={type}
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <span>{type}</span>
-                <span className="text-xs">
-                  {item.reactions?.filter(r => r.type === type).length}
-                </span>
-              </Badge>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };
@@ -300,7 +287,7 @@ const NewsManagement: React.FC = () => {
   const [showPollModal, setShowPollModal] = useState(false);
   const [imageContent, setImageContent] = useState('');
   const [imageSending, setImageSending] = useState(false);
-  
+
   // Zentrale Bildvalidierung mit max 5 MB pro Bild
   const {
     files: imageFiles,
@@ -353,22 +340,25 @@ const NewsManagement: React.FC = () => {
   };
 
   // Gruppiere News nach Monat/Jahr
-  const groupedNewsByMonth = news.reduce((acc, item) => {
-    const createdAt = new Date(item.createdAt);
-    const monthKey = format(startOfMonth(createdAt), 'yyyy-MM', { locale: de });
-    const monthLabel = format(startOfMonth(createdAt), 'MMMM yyyy', { locale: de });
+  const groupedNewsByMonth = news.reduce(
+    (acc, item) => {
+      const createdAt = new Date(item.createdAt);
+      const monthKey = format(startOfMonth(createdAt), 'yyyy-MM', { locale: de });
+      const monthLabel = format(startOfMonth(createdAt), 'MMMM yyyy', { locale: de });
 
-    if (!acc[monthKey]) {
-      acc[monthKey] = {
-        label: monthLabel,
-        date: createdAt,
-        items: [],
-      };
-    }
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          label: monthLabel,
+          date: createdAt,
+          items: [],
+        };
+      }
 
-    acc[monthKey].items.push(item);
-    return acc;
-  }, {} as Record<string, { label: string; date: Date; items: NewsItem[] }>);
+      acc[monthKey].items.push(item);
+      return acc;
+    },
+    {} as Record<string, { label: string; date: Date; items: NewsItem[] }>
+  );
 
   // Sortiere die Monate absteigend (neueste zuerst)
   const sortedMonthGroups = Object.values(groupedNewsByMonth).sort(
@@ -399,7 +389,6 @@ const NewsManagement: React.FC = () => {
       setSending(false);
     }
   };
-
 
   const handleSendImageNews = async () => {
     if (!imageContent.trim() || imageFiles.length === 0) return;
@@ -569,505 +558,499 @@ const NewsManagement: React.FC = () => {
                   <ArrowLeft className="w-5 h-5" />
                   <span className="sr-only">Zurück zum Dashboard</span>
                 </AnimatedButton>
-                <h1 className="text-xl md:text-2xl font-bold text-foreground">
-                  News Management
-                </h1>
+                <h1 className="text-xl md:text-2xl font-bold text-foreground">News Management</h1>
+              </div>
+              <AnimatedButton
+                variant="ghost"
+                size="icon"
+                onClick={fetchNews}
+                title="Neu laden"
+                className={cn(glassButton, 'rounded-xl')}
+              >
+                <RefreshCw className={loading ? 'animate-spin' : ''} />
+              </AnimatedButton>
             </div>
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={fetchNews}
-                  title="Neu laden"
-                  className={cn(glassButton, 'rounded-xl')}
+          </motion.div>
+          {/* News Feed */}
+          <div
+            ref={feedRef}
+            className="flex-1 flex flex-col gap-4 overflow-y-auto overflow-x-visible pb-32 px-4"
+            style={{ scrollBehavior: 'smooth', minHeight: 0 }}
+          >
+            {loading ? (
+              <motion.div
+                className="space-y-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                {/* Mixed skeleton types for realistic loading */}
+                <NewsSkeletonBubble type="text" />
+                <NewsSkeletonBubble type="image" />
+                <NewsSkeletonBubble type="poll" />
+                <NewsSkeletonBubble type="text" />
+                <NewsSkeletonBubble type="image" />
+              </motion.div>
+            ) : news.length === 0 ? (
+              <motion.div
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={defaultTransition}
+              >
+                <Card className={cn(glassCard, 'p-8')}>
+                  <div className="text-center text-muted-foreground text-lg">
+                    Noch keine News vorhanden. Klicke auf das Refresh-Icon zum Laden.
+                  </div>
+                </Card>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={`news-${news.length}`}
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                {sortedMonthGroups.map(group => (
+                  <div key={group.label} className="space-y-4">
+                    <MonthHeader label={group.label} />
+                    {group.items.map(item => (
+                      <NewsBubble
+                        key={item.id}
+                        item={item}
+                        onEdit={handleEdit}
+                        onDelete={setDeletingItem}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </motion.div>
+            )}
+          </div>
+          {/* Fixed Bottom Input Bar */}
+          <motion.form
+            className={cn(glassCard, 'fixed bottom-0 left-0 w-full z-30 border-t p-4')}
+            style={{ maxWidth: '100vw' }}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.2 }}
+            onSubmit={e => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
+            <div className="flex flex-col gap-3">
+              <Input
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder="Neue Nachricht schreiben..."
+                disabled={sending}
+                className={cn(glassInput, 'w-full')}
+                autoFocus
+              />
+              <div className="flex gap-2 w-full">
+                <LoadingButton
+                  type="submit"
+                  disabled={sending || !input.trim()}
+                  isLoading={sending}
+                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                  size="sm"
                 >
-                  <RefreshCw className={loading ? 'animate-spin' : ''} />
+                  <Send className="w-4 h-4" />
+                </LoadingButton>
+                <AnimatedButton
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowImageModal(true)}
+                  title="Bild-News hinzufügen"
+                  className={cn(glassButton, 'flex-1')}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </AnimatedButton>
+                <AnimatedButton
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPollModal(true)}
+                  title="Umfrage erstellen"
+                  className={cn(glassButton, 'flex-1')}
+                >
+                  <BarChart2 className="w-4 h-4" />
                 </AnimatedButton>
               </div>
-            </motion.div>
-            {/* News Feed */}
-            <div
-              ref={feedRef}
-              className="flex-1 flex flex-col gap-4 overflow-y-auto overflow-x-visible pb-32 px-4"
-              style={{ scrollBehavior: 'smooth', minHeight: 0 }}
-            >
-              {loading ? (
-                <motion.div
-                  className="space-y-4"
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {/* Mixed skeleton types for realistic loading */}
-                  <NewsSkeletonBubble type="text" />
-                  <NewsSkeletonBubble type="image" />
-                  <NewsSkeletonBubble type="poll" />
-                  <NewsSkeletonBubble type="text" />
-                  <NewsSkeletonBubble type="image" />
-                </motion.div>
-              ) : news.length === 0 ? (
-                <motion.div
-                  variants={fadeInUp}
-                  initial="initial"
-                  animate="animate"
-                  transition={defaultTransition}
-                >
-                  <Card className={cn(glassCard, 'p-8')}>
-                    <div className="text-center text-muted-foreground text-lg">
-                      Noch keine News vorhanden. Klicke auf das Refresh-Icon zum Laden.
-                    </div>
-                  </Card>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key={`news-${news.length}`}
-                  variants={staggerContainer}
-                  initial="initial"
-                  animate="animate"
-                >
-                  {sortedMonthGroups.map(group => (
-                    <div key={group.label} className="space-y-4">
-                      <MonthHeader label={group.label} />
-                      {group.items.map((item) => (
-                        <NewsBubble
-                          key={item.id}
-                          item={item}
-                          onEdit={handleEdit}
-                          onDelete={setDeletingItem}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </motion.div>
-              )}
             </div>
-            {/* Fixed Bottom Input Bar */}
-            <motion.form
-              className={cn(glassCard, 'fixed bottom-0 left-0 w-full z-30 border-t p-4')}
-              style={{ maxWidth: '100vw' }}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={{ ...defaultTransition, delay: 0.2 }}
-              onSubmit={e => {
-                e.preventDefault();
-                handleSend();
-              }}
-            >
-              <div className="flex flex-col gap-3">
-                <Input
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  placeholder="Neue Nachricht schreiben..."
-                  disabled={sending}
-                  className={cn(glassInput, 'w-full')}
-                  autoFocus
+          </motion.form>
+          <Dialog
+            open={showImageModal}
+            onOpenChange={open => {
+              setShowImageModal(open);
+              if (!open) {
+                // Reset state when dialog closes
+                setImageContent('');
+                clearImageFiles();
+              }
+            }}
+          >
+            <DialogContent className={cn(glassCard)}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Bild-News erstellen</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Textarea
+                  value={imageContent}
+                  onChange={e => setImageContent(e.target.value)}
+                  placeholder="Text zur Bild-News..."
+                  disabled={imageSending}
+                  className={cn(glassInput)}
                 />
-                <div className="flex gap-2 w-full">
-                  <LoadingButton
-                    type="submit"
-                    disabled={sending || !input.trim()}
-                    isLoading={sending}
-                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
-                    size="sm"
-                  >
-                    <Send className="w-4 h-4" />
-                  </LoadingButton>
+                {imageError && (
+                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>{imageError.title}</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <p>{imageError.message}</p>
+                      {imageError.actionHint && (
+                        <p className="mt-2 text-sm opacity-90">{imageError.actionHint}</p>
+                      )}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    disabled={imageFiles.length >= MAX_IMAGES || imageSending}
+                    onChange={handleImageFiles}
+                    className="hidden"
+                    id="image-upload-input"
+                  />
                   <AnimatedButton
-                    type="button"
+                    asChild
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowImageModal(true)}
-                    title="Bild-News hinzufügen"
-                    className={cn(glassButton, 'flex-1')}
+                    className={cn(glassButton, 'mb-3')}
+                    disabled={imageFiles.length >= MAX_IMAGES || imageSending}
                   >
-                    <ImageIcon className="w-4 h-4" />
+                    <label htmlFor="image-upload-input" className="cursor-pointer">
+                      {imageFiles.length >= MAX_IMAGES ? 'Maximal 5 Bilder' : 'Bilder auswählen'}
+                    </label>
                   </AnimatedButton>
-                  <AnimatedButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowPollModal(true)}
-                    title="Umfrage erstellen"
-                    className={cn(glassButton, 'flex-1')}
-                  >
-                    <BarChart2 className="w-4 h-4" />
-                  </AnimatedButton>
+                  <div className="flex gap-3 flex-wrap">
+                    {imagePreviews.map((url, idx) => (
+                      <div key={idx} className="relative w-20 h-20 overflow-visible">
+                        <img
+                          src={url}
+                          alt={`Preview ${idx + 1}`}
+                          className="object-cover w-full h-full rounded-xl border border-secondary"
+                        />
+                        <button
+                          type="button"
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleRemoveImage(idx);
+                          }}
+                          disabled={imageSending}
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full shadow-md z-10 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          style={{ position: 'absolute' }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </motion.form>
-            <Dialog
-              open={showImageModal}
-              onOpenChange={(open) => {
-                setShowImageModal(open);
-                if (!open) {
-                  // Reset state when dialog closes
-                  setImageContent('');
-                  clearImageFiles();
-                }
-              }}
-            >
-              <DialogContent className={cn(glassCard)}>
-                <DialogHeader>
-                  <DialogTitle className="text-foreground">Bild-News erstellen</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Textarea
-                    value={imageContent}
-                    onChange={e => setImageContent(e.target.value)}
-                    placeholder="Text zur Bild-News..."
+              <DialogFooter>
+                <DialogClose asChild>
+                  <AnimatedButton
+                    type="button"
+                    variant="ghost"
                     disabled={imageSending}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
+                  >
+                    Abbrechen
+                  </AnimatedButton>
+                </DialogClose>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSendImageNews}
+                  disabled={imageSending || !imageContent.trim() || imageFiles.length === 0}
+                  isLoading={imageSending}
+                  loadingText="Wird gesendet..."
+                  className={cn(glassButton, 'rounded-xl')}
+                >
+                  Senden
+                </LoadingButton>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={showPollModal} onOpenChange={setShowPollModal}>
+            <DialogContent className={cn(glassCard, 'max-w-lg')}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Umfrage erstellen</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="poll-question" className="text-foreground">
+                    Frage
+                  </Label>
+                  <Input
+                    id="poll-question"
+                    value={pollQuestion}
+                    onChange={e => setPollQuestion(e.target.value)}
+                    placeholder="Stelle deine Frage..."
+                    disabled={pollSending}
                     className={cn(glassInput)}
                   />
-                  {imageError && (
-                    <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>{imageError.title}</AlertTitle>
-                      <AlertDescription className="mt-2">
-                        <p>{imageError.message}</p>
-                        {imageError.actionHint && (
-                          <p className="mt-2 text-sm opacity-90">{imageError.actionHint}</p>
-                        )}
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  <div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      disabled={imageFiles.length >= MAX_IMAGES || imageSending}
-                      onChange={handleImageFiles}
-                      className="hidden"
-                      id="image-upload-input"
-                    />
-                    <AnimatedButton
-                      asChild
-                      variant="outline"
-                      size="sm"
-                      className={cn(glassButton, 'mb-3')}
-                      disabled={imageFiles.length >= MAX_IMAGES || imageSending}
-                    >
-                      <label htmlFor="image-upload-input" className="cursor-pointer">
-                        {imageFiles.length >= MAX_IMAGES ? 'Maximal 5 Bilder' : 'Bilder auswählen'}
-                      </label>
-                    </AnimatedButton>
-                    <div className="flex gap-3 flex-wrap">
-                      {imagePreviews.map((url, idx) => (
-                        <div
-                          key={idx}
-                          className="relative w-20 h-20 overflow-visible"
+                </div>
+
+                <div className="space-y-3">
+                  <Label className="text-foreground">Antwortmöglichkeiten</Label>
+                  {pollOptions.map((option, index) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        value={option}
+                        onChange={e => handlePollOptionChange(index, e.target.value)}
+                        placeholder={`Option ${index + 1}`}
+                        disabled={pollSending}
+                        className={cn(glassInput)}
+                      />
+                      {pollOptions.length > 2 && (
+                        <AnimatedButton
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleRemovePollOption(index)}
+                          disabled={pollSending}
+                          className="text-destructive hover:text-destructive/90"
                         >
+                          <X className="w-4 h-4" />
+                        </AnimatedButton>
+                      )}
+                    </div>
+                  ))}
+                  <AnimatedButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddPollOption}
+                    disabled={pollSending || pollOptions.length >= 10}
+                    className={cn(glassButton, 'w-full')}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Option hinzufügen
+                  </AnimatedButton>
+                </div>
+
+                <div className={cn(glassCard, 'flex items-center space-x-3 p-3')}>
+                  <Switch
+                    id="multiple-answers"
+                    checked={allowMultipleAnswers}
+                    onCheckedChange={setAllowMultipleAnswers}
+                    disabled={pollSending}
+                  />
+                  <Label htmlFor="multiple-answers" className="text-foreground">
+                    Mehrfachauswahl erlauben
+                  </Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="poll-expires" className="text-foreground">
+                    Ablaufdatum (optional)
+                  </Label>
+                  <Input
+                    id="poll-expires"
+                    type="datetime-local"
+                    value={pollExpiresAt}
+                    onChange={e => setPollExpiresAt(e.target.value)}
+                    disabled={pollSending}
+                    className={cn(glassInput)}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <AnimatedButton
+                    type="button"
+                    variant="ghost"
+                    disabled={pollSending}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
+                  >
+                    Abbrechen
+                  </AnimatedButton>
+                </DialogClose>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSendPoll}
+                  disabled={
+                    pollSending || !pollQuestion.trim() || pollOptions.some(opt => !opt.trim())
+                  }
+                  isLoading={pollSending}
+                  loadingText="Wird erstellt..."
+                  className={cn(glassButton, 'rounded-xl')}
+                >
+                  Umfrage erstellen
+                </LoadingButton>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          {/* Edit Text News Dialog */}
+          <Dialog
+            open={editingItem?.type === 'text'}
+            onOpenChange={open => !open && setEditingItem(null)}
+          >
+            <DialogContent className={cn(glassCard)}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Text-News bearbeiten</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Textarea
+                  value={editTextContent}
+                  onChange={e => setEditTextContent(e.target.value)}
+                  placeholder="Text bearbeiten..."
+                  disabled={editSaving}
+                  className={cn(glassInput, 'min-h-[150px]')}
+                />
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <AnimatedButton
+                    type="button"
+                    variant="ghost"
+                    disabled={editSaving}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
+                  >
+                    Abbrechen
+                  </AnimatedButton>
+                </DialogClose>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSaveEdit}
+                  disabled={editSaving || !editTextContent.trim()}
+                  isLoading={editSaving}
+                  loadingText="Wird gespeichert..."
+                  className={cn(glassButton, 'rounded-xl')}
+                >
+                  Speichern
+                </LoadingButton>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          {/* Edit Image News Dialog */}
+          <Dialog
+            open={editingItem?.type === 'image'}
+            onOpenChange={open => !open && setEditingItem(null)}
+          >
+            <DialogContent className={cn(glassCard, 'max-w-2xl')}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Bild-News bearbeiten</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-image-content" className="text-foreground">
+                    Text
+                  </Label>
+                  <Textarea
+                    id="edit-image-content"
+                    value={editImageContent}
+                    onChange={e => setEditImageContent(e.target.value)}
+                    placeholder="Text bearbeiten..."
+                    disabled={editSaving}
+                    className={cn(glassInput)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-foreground">Bilder</Label>
+                  {editImageUrls.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {editImageUrls.map((url, idx) => (
+                        <div key={idx} className="relative group overflow-visible">
                           <img
                             src={url}
-                            alt={`Preview ${idx + 1}`}
-                            className="object-cover w-full h-full rounded-xl border border-secondary"
+                            alt={`Bild ${idx + 1}`}
+                            className="w-full h-32 object-cover rounded-xl border border-secondary"
                           />
                           <button
                             type="button"
-                            onClick={(e) => {
+                            onClick={e => {
                               e.stopPropagation();
-                              handleRemoveImage(idx);
+                              handleRemoveImageFromEdit(url);
                             }}
-                            disabled={imageSending}
-                            className="absolute -top-2 -right-2 w-6 h-6 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full shadow-md z-10 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={editSaving}
+                            title="Bild entfernen"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-7 w-7 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                             style={{ position: 'absolute' }}
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  ) : (
+                    <Card className={cn(glassCard, 'text-center py-8')}>
+                      <div className="text-muted-foreground">Keine Bilder vorhanden</div>
+                    </Card>
+                  )}
                 </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <AnimatedButton
-                      type="button"
-                      variant="ghost"
-                      disabled={imageSending}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                  </DialogClose>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSendImageNews}
-                    disabled={imageSending || !imageContent.trim() || imageFiles.length === 0}
-                    isLoading={imageSending}
-                    loadingText="Wird gesendet..."
-                    className={cn(glassButton, 'rounded-xl')}
-                  >
-                    Senden
-                  </LoadingButton>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            <Dialog open={showPollModal} onOpenChange={setShowPollModal}>
-              <DialogContent className={cn(glassCard, 'max-w-lg')}>
-                <DialogHeader>
-                  <DialogTitle className="text-foreground">Umfrage erstellen</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="poll-question" className="text-foreground">
-                      Frage
-                    </Label>
-                    <Input
-                      id="poll-question"
-                      value={pollQuestion}
-                      onChange={e => setPollQuestion(e.target.value)}
-                      placeholder="Stelle deine Frage..."
-                      disabled={pollSending}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-foreground">Antwortmöglichkeiten</Label>
-                    {pollOptions.map((option, index) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          value={option}
-                          onChange={e => handlePollOptionChange(index, e.target.value)}
-                          placeholder={`Option ${index + 1}`}
-                          disabled={pollSending}
-                          className={cn(glassInput)}
-                        />
-                        {pollOptions.length > 2 && (
-                          <AnimatedButton
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemovePollOption(index)}
-                            disabled={pollSending}
-                            className="text-destructive hover:text-destructive/90"
-                          >
-                            <X className="w-4 h-4" />
-                          </AnimatedButton>
-                        )}
-                      </div>
-                    ))}
-                    <AnimatedButton
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleAddPollOption}
-                      disabled={pollSending || pollOptions.length >= 10}
-                      className={cn(glassButton, 'w-full')}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      Option hinzufügen
-                    </AnimatedButton>
-                  </div>
-
-                  <div className={cn(glassCard, 'flex items-center space-x-3 p-3')}>
-                    <Switch
-                      id="multiple-answers"
-                      checked={allowMultipleAnswers}
-                      onCheckedChange={setAllowMultipleAnswers}
-                      disabled={pollSending}
-                    />
-                    <Label htmlFor="multiple-answers" className="text-foreground">
-                      Mehrfachauswahl erlauben
-                    </Label>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="poll-expires" className="text-foreground">
-                      Ablaufdatum (optional)
-                    </Label>
-                    <Input
-                      id="poll-expires"
-                      type="datetime-local"
-                      value={pollExpiresAt}
-                      onChange={e => setPollExpiresAt(e.target.value)}
-                      disabled={pollSending}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <AnimatedButton
-                      type="button"
-                      variant="ghost"
-                      disabled={pollSending}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                  </DialogClose>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSendPoll}
-                    disabled={
-                      pollSending || !pollQuestion.trim() || pollOptions.some(opt => !opt.trim())
-                    }
-                    isLoading={pollSending}
-                    loadingText="Wird erstellt..."
-                    className={cn(glassButton, 'rounded-xl')}
-                  >
-                    Umfrage erstellen
-                  </LoadingButton>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            {/* Edit Text News Dialog */}
-            <Dialog open={editingItem?.type === 'text'} onOpenChange={open => !open && setEditingItem(null)}>
-              <DialogContent className={cn(glassCard)}>
-                <DialogHeader>
-                  <DialogTitle className="text-foreground">Text-News bearbeiten</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <Textarea
-                    value={editTextContent}
-                    onChange={e => setEditTextContent(e.target.value)}
-                    placeholder="Text bearbeiten..."
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <AnimatedButton
+                    type="button"
+                    variant="ghost"
                     disabled={editSaving}
-                    className={cn(glassInput, 'min-h-[150px]')}
-                  />
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <AnimatedButton
-                      type="button"
-                      variant="ghost"
-                      disabled={editSaving}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                  </DialogClose>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSaveEdit}
-                    disabled={editSaving || !editTextContent.trim()}
-                    isLoading={editSaving}
-                    loadingText="Wird gespeichert..."
-                    className={cn(glassButton, 'rounded-xl')}
-                  >
-                    Speichern
-                  </LoadingButton>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            {/* Edit Image News Dialog */}
-            <Dialog
-              open={editingItem?.type === 'image'}
-              onOpenChange={open => !open && setEditingItem(null)}
-            >
-              <DialogContent className={cn(glassCard, 'max-w-2xl')}>
-                <DialogHeader>
-                  <DialogTitle className="text-foreground">Bild-News bearbeiten</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-image-content" className="text-foreground">
-                      Text
-                    </Label>
-                    <Textarea
-                      id="edit-image-content"
-                      value={editImageContent}
-                      onChange={e => setEditImageContent(e.target.value)}
-                      placeholder="Text bearbeiten..."
-                      disabled={editSaving}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Bilder</Label>
-                    {editImageUrls.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {editImageUrls.map((url, idx) => (
-                          <div key={idx} className="relative group overflow-visible">
-                            <img
-                              src={url}
-                              alt={`Bild ${idx + 1}`}
-                              className="w-full h-32 object-cover rounded-xl border border-secondary"
-                            />
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveImageFromEdit(url);
-                              }}
-                              disabled={editSaving}
-                              title="Bild entfernen"
-                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full h-7 w-7 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                              style={{ position: 'absolute' }}
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <Card className={cn(glassCard, 'text-center py-8')}>
-                        <div className="text-muted-foreground">Keine Bilder vorhanden</div>
-                      </Card>
-                    )}
-                  </div>
-                </div>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <AnimatedButton
-                      type="button"
-                      variant="ghost"
-                      disabled={editSaving}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                  </DialogClose>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSaveEdit}
-                    disabled={editSaving || !editImageContent.trim()}
-                    isLoading={editSaving}
-                    loadingText="Wird gespeichert..."
-                    className={cn(glassButton, 'rounded-xl')}
-                  >
-                    Speichern
-                  </LoadingButton>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            {/* Delete Confirmation Dialog */}
-            <AlertDialog open={!!deletingItem} onOpenChange={(open) => !open && setDeletingItem(null)}>
-              <AlertDialogContent className={cn(glassCard)}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-foreground">
-                    News löschen?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription className="text-foreground/80">
-                    Möchten Sie diese News wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel
-                    disabled={deleting}
-                    className={cn(glassButton, 'rounded-xl')}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
                   >
                     Abbrechen
-                  </AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    className={cn(
-                      'bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl',
-                      deleting && 'opacity-50 cursor-not-allowed'
-                    )}
-                  >
-                    {deleting ? 'Wird gelöscht...' : 'Löschen'}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                  </AnimatedButton>
+                </DialogClose>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSaveEdit}
+                  disabled={editSaving || !editImageContent.trim()}
+                  isLoading={editSaving}
+                  loadingText="Wird gespeichert..."
+                  className={cn(glassButton, 'rounded-xl')}
+                >
+                  Speichern
+                </LoadingButton>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          {/* Delete Confirmation Dialog */}
+          <AlertDialog open={!!deletingItem} onOpenChange={open => !open && setDeletingItem(null)}>
+            <AlertDialogContent className={cn(glassCard)}>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-foreground">News löschen?</AlertDialogTitle>
+                <AlertDialogDescription className="text-foreground/80">
+                  Möchten Sie diese News wirklich löschen? Diese Aktion kann nicht rückgängig
+                  gemacht werden.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting} className={cn(glassButton, 'rounded-xl')}>
+                  Abbrechen
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className={cn(
+                    'bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl',
+                    deleting && 'opacity-50 cursor-not-allowed'
+                  )}
+                >
+                  {deleting ? 'Wird gelöscht...' : 'Löschen'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
-      </PageTransition>
-    );
-  };
+      </div>
+    </PageTransition>
+  );
+};
 
 export default NewsManagement;

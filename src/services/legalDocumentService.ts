@@ -19,7 +19,12 @@ export const useLegalDocumentService = () => {
   const normalizeType = (type: string): LegalDocumentType => {
     const normalized = type.toLowerCase();
     // Unterstütze sowohl 'agb' als auch 'agbs' für Rückwärtskompatibilität
-    if (normalized === 'impressum' || normalized === 'datenschutz' || normalized === 'agb' || normalized === 'agbs') {
+    if (
+      normalized === 'impressum' ||
+      normalized === 'datenschutz' ||
+      normalized === 'agb' ||
+      normalized === 'agbs'
+    ) {
       // Konvertiere 'agbs' zu 'agb' für Konsistenz mit Backend
       if (normalized === 'agbs') {
         return 'agb' as LegalDocumentType;
@@ -35,10 +40,10 @@ export const useLegalDocumentService = () => {
    */
   const getLegalDocument = async (type: LegalDocumentType): Promise<LegalDocument | null> => {
     try {
-      const response = await api.get<ApiResponse<LegalDocumentResponseDto[]> | LegalDocumentResponseDto[]>(
-        `${baseUrl}/type/${type}`
-      );
-      
+      const response = await api.get<
+        ApiResponse<LegalDocumentResponseDto[]> | LegalDocumentResponseDto[]
+      >(`${baseUrl}/type/${type}`);
+
       // Unterstütze beide Formate: wrapped in ApiResponse oder direkt als Array
       let documents: LegalDocumentResponseDto[];
       if (Array.isArray(response)) {
@@ -48,20 +53,20 @@ export const useLegalDocumentService = () => {
       } else {
         documents = [];
       }
-      
+
       // Wenn kein Dokument existiert, gib null zurück
       if (!documents || documents.length === 0) {
         return null;
       }
-      
+
       // Normalisiere Typen (falls Backend uppercase verwendet)
       const normalizedDocuments: LegalDocumentResponseDto[] = documents.map(doc => ({
         ...doc,
         type: normalizeType(doc.type),
       }));
-      
+
       const transformed = transformBackendDtoToFrontendModel(normalizedDocuments);
-      
+
       return transformed || null;
     } catch (error: any) {
       // Wenn 404 oder leeres Array, bedeutet das, dass noch kein Dokument existiert
@@ -83,10 +88,10 @@ export const useLegalDocumentService = () => {
    */
   const getAllLegalDocuments = async (): Promise<LegalDocument[]> => {
     const types: LegalDocumentType[] = ['impressum', 'datenschutz', 'agb'];
-    
+
     const promises = types.map(type => getLegalDocument(type).catch(() => null));
     const results = await Promise.all(promises);
-    
+
     // Filtere null-Werte heraus (Dokumente die nicht existieren)
     return results.filter((doc): doc is LegalDocument => doc !== null);
   };
@@ -102,18 +107,17 @@ export const useLegalDocumentService = () => {
       type,
       content: update.content,
     };
-    
+
     // Backend erstellt eine neue Version (oder das erste Dokument)
-    const response = await api.post<ApiResponse<LegalDocumentResponseDto> | LegalDocumentResponseDto>(
-      baseUrl,
-      createDto
-    );
-    
+    const response = await api.post<
+      ApiResponse<LegalDocumentResponseDto> | LegalDocumentResponseDto
+    >(baseUrl, createDto);
+
     // Unterstütze beide Formate: wrapped in ApiResponse oder direkt
     if (response && typeof response === 'object' && 'data' in response) {
       unwrapData(response as ApiResponse<LegalDocumentResponseDto>);
     }
-    
+
     // Nach dem Erstellen die aktualisierten Dokumente laden
     const updated = await getLegalDocument(type);
     if (!updated) {
@@ -141,4 +145,3 @@ export const useLegalDocumentService = () => {
     getLegalDocumentVersion,
   };
 };
-

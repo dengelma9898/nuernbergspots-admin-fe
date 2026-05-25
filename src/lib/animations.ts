@@ -2,7 +2,7 @@ import { Variants } from 'framer-motion';
 
 /**
  * Standard-Animation-Variants für die gesamte Anwendung
- * 
+ *
  * Diese Variants können wiederverwendet werden, um konsistente
  * Animationen über die gesamte Anwendung hinweg zu gewährleisten.
  */
@@ -12,18 +12,18 @@ import { Variants } from 'framer-motion';
  * Verwendet für: Page-Transitions, Cards beim Laden
  */
 export const fadeInUp: Variants = {
-  initial: { 
-    opacity: 0, 
-    y: 20 
+  initial: {
+    opacity: 0,
+    y: 20,
   },
-  animate: { 
-    opacity: 1, 
-    y: 0 
+  animate: {
+    opacity: 1,
+    y: 0,
   },
-  exit: { 
-    opacity: 0, 
-    y: -20 
-  }
+  exit: {
+    opacity: 0,
+    y: -20,
+  },
 };
 
 /**
@@ -31,18 +31,18 @@ export const fadeInUp: Variants = {
  * Verwendet für: Modals, Popovers, Dropdowns
  */
 export const scaleIn: Variants = {
-  initial: { 
-    opacity: 0, 
-    scale: 0.9 
+  initial: {
+    opacity: 0,
+    scale: 0.9,
   },
-  animate: { 
-    opacity: 1, 
-    scale: 1 
+  animate: {
+    opacity: 1,
+    scale: 1,
   },
-  exit: { 
-    opacity: 0, 
-    scale: 0.9 
-  }
+  exit: {
+    opacity: 0,
+    scale: 0.9,
+  },
 };
 
 /**
@@ -54,9 +54,9 @@ export const staggerContainer: Variants = {
   animate: {
     transition: {
       staggerChildren: 0.05,
-      delayChildren: 0.1
-    }
-  }
+      delayChildren: 0.1,
+    },
+  },
 };
 
 /**
@@ -64,18 +64,18 @@ export const staggerContainer: Variants = {
  * Verwendet zusammen mit staggerContainer
  */
 export const staggerItem: Variants = {
-  initial: { 
-    opacity: 0, 
-    y: 20 
+  initial: {
+    opacity: 0,
+    y: 20,
   },
-  animate: { 
-    opacity: 1, 
+  animate: {
+    opacity: 1,
     y: 0,
     transition: {
       duration: 0.4,
-      ease: [0.22, 1, 0.36, 1] // Custom easing für smooth animation
-    }
-  }
+      ease: [0.22, 1, 0.36, 1], // Custom easing für smooth animation
+    },
+  },
 };
 
 /**
@@ -83,15 +83,15 @@ export const staggerItem: Variants = {
  * Verwendet für: Text, Icons, einfache Elemente
  */
 export const fadeIn: Variants = {
-  initial: { 
-    opacity: 0 
+  initial: {
+    opacity: 0,
   },
-  animate: { 
-    opacity: 1 
+  animate: {
+    opacity: 1,
   },
-  exit: { 
-    opacity: 0 
-  }
+  exit: {
+    opacity: 0,
+  },
 };
 
 /**
@@ -99,18 +99,18 @@ export const fadeIn: Variants = {
  * Verwendet für: Sidebars, Drawers, Notifications
  */
 export const slideInRight: Variants = {
-  initial: { 
-    opacity: 0, 
-    x: 100 
+  initial: {
+    opacity: 0,
+    x: 100,
   },
-  animate: { 
-    opacity: 1, 
-    x: 0 
+  animate: {
+    opacity: 1,
+    x: 0,
   },
-  exit: { 
-    opacity: 0, 
-    x: 100 
-  }
+  exit: {
+    opacity: 0,
+    x: 100,
+  },
 };
 
 /**
@@ -118,18 +118,18 @@ export const slideInRight: Variants = {
  * Verwendet für: Navigation, Menüs
  */
 export const slideInLeft: Variants = {
-  initial: { 
-    opacity: 0, 
-    x: -100 
+  initial: {
+    opacity: 0,
+    x: -100,
   },
-  animate: { 
-    opacity: 1, 
-    x: 0 
+  animate: {
+    opacity: 1,
+    x: 0,
   },
-  exit: { 
-    opacity: 0, 
-    x: -100 
-  }
+  exit: {
+    opacity: 0,
+    x: -100,
+  },
 };
 
 /**
@@ -137,16 +137,16 @@ export const slideInLeft: Variants = {
  * Verwendet für: Formular-Fehler, Validierungs-Fehler
  */
 export const shake: Variants = {
-  initial: { 
-    x: 0 
+  initial: {
+    x: 0,
   },
-  animate: { 
+  animate: {
     x: [0, -10, 10, -10, 10, 0],
     transition: {
       duration: 0.5,
-      ease: "easeInOut"
-    }
-  }
+      ease: 'easeInOut',
+    },
+  },
 };
 
 /**
@@ -159,9 +159,9 @@ export const pulse: Variants = {
     transition: {
       duration: 2,
       repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
+      ease: 'easeInOut',
+    },
+  },
 };
 
 /**
@@ -169,17 +169,17 @@ export const pulse: Variants = {
  */
 export const defaultTransition = {
   duration: 0.3,
-  ease: [0.22, 1, 0.36, 1] as [number, number, number, number]
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
 };
 
 export const fastTransition = {
   duration: 0.2,
-  ease: [0.22, 1, 0.36, 1] as [number, number, number, number]
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
 };
 
 export const slowTransition = {
   duration: 0.5,
-  ease: [0.22, 1, 0.36, 1] as [number, number, number, number]
+  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
 };
 
 /**
@@ -187,36 +187,35 @@ export const slowTransition = {
  * Verwendet für: Filter-Bereiche, Accordions
  */
 export const expandCollapse: Variants = {
-  initial: { 
-    height: 0, 
-    opacity: 0 
+  initial: {
+    height: 0,
+    opacity: 0,
   },
-  animate: { 
-    height: 'auto', 
+  animate: {
+    height: 'auto',
     opacity: 1,
     transition: {
       height: {
         duration: 0.3,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1],
       },
       opacity: {
         duration: 0.2,
-        delay: 0.1
-      }
-    }
+        delay: 0.1,
+      },
+    },
   },
-  exit: { 
-    height: 0, 
+  exit: {
+    height: 0,
     opacity: 0,
     transition: {
       height: {
         duration: 0.3,
-        ease: [0.22, 1, 0.36, 1]
+        ease: [0.22, 1, 0.36, 1],
       },
       opacity: {
-        duration: 0.15
-      }
-    }
-  }
+        duration: 0.15,
+      },
+    },
+  },
 };
-

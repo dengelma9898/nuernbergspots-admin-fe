@@ -133,23 +133,28 @@ export function UserManagement() {
     const typeConfig = {
       [UserType.USER]: {
         label: 'User',
-        className: 'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
+        className:
+          'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
       },
       [UserType.ADMIN]: {
         label: 'Admin',
-        className: 'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
+        className:
+          'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
       },
       [UserType.SUPER_ADMIN]: {
         label: 'Super Admin',
-        className: 'bg-red-600/20 text-red-600 dark:text-red-400 border-red-600 dark:border-red-400',
+        className:
+          'bg-red-600/20 text-red-600 dark:text-red-400 border-red-600 dark:border-red-400',
       },
       [UserType.BUSINESS]: {
         label: 'Business',
-        className: 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
+        className:
+          'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
       },
       [UserType.PREMIUM_BUSINESS]: {
         label: 'Premium Business',
-        className: 'bg-yellow-600/20 text-yellow-600 dark:text-yellow-400 border-yellow-600 dark:border-yellow-400',
+        className:
+          'bg-yellow-600/20 text-yellow-600 dark:text-yellow-400 border-yellow-600 dark:border-yellow-400',
       },
     };
 
@@ -213,7 +218,9 @@ export function UserManagement() {
               <div
                 className={cn(
                   'flex items-center gap-1 text-xs font-medium',
-                  trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                  trend >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
                 )}
               >
                 <TrendingUp className={cn('h-3 w-3', trend < 0 && 'rotate-180')} />
@@ -357,7 +364,9 @@ export function UserManagement() {
               animate="animate"
             >
               {loading ? (
-                Array.from({ length: 3 }, (_, index) => <StatCardSkeleton key={`stat-skeleton-${index}`} index={index} />)
+                Array.from({ length: 3 }, (_, index) => (
+                  <StatCardSkeleton key={`stat-skeleton-${index}`} index={index} />
+                ))
               ) : (
                 <>
                   <StatCard
@@ -429,16 +438,16 @@ export function UserManagement() {
                               {user.email}
                             </div>
                           </TableCell>
-                          <TableCell className="text-foreground">
-                            {user.name || '-'}
-                          </TableCell>
+                          <TableCell className="text-foreground">{user.name || '-'}</TableCell>
                           <TableCell>{getUserTypeBadge(user.userType)}</TableCell>
                           <TableCell>{getStatusBadge(user)}</TableCell>
                           <TableCell className="text-muted-foreground">
                             {user.createdAt ? (
                               <div className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
-                                {format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                                {format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm', {
+                                  locale: de,
+                                })}
                               </div>
                             ) : (
                               '-'
@@ -457,4 +466,3 @@ export function UserManagement() {
     </PageTransition>
   );
 }
-

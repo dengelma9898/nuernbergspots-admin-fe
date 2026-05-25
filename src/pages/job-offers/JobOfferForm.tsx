@@ -3,18 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  ArrowLeft,
-  Plus,
-  X,
-  ImagePlus,
-  Check,
-  Link as LinkIcon,
-  AlertCircle,
-} from 'lucide-react';
+import { ArrowLeft, Plus, X, ImagePlus, Check, Link as LinkIcon, AlertCircle } from 'lucide-react';
 import { siFacebook, siInstagram } from 'simple-icons';
 import { toast } from 'sonner';
-import { showUserFriendlyError, getUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  getUserFriendlyError,
+  showSuccessMessage,
+} from '@/utils/errorUtils';
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
 import { useJobOfferService } from '@/services/jobOfferService';
 import { Label } from '@/components/ui/label';
@@ -78,8 +74,8 @@ function JobOfferFormSkeleton() {
               <div className="p-4 sm:p-6 border-b border-secondary">
                 <Skeleton className="h-6 w-48 rounded" />
               </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    {/* Title field */}
+              <div className="p-4 sm:p-6 space-y-4">
+                {/* Title field */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-12 rounded" />
                   <Skeleton className="h-10 w-full rounded" />
@@ -149,20 +145,20 @@ function JobOfferFormSkeleton() {
                 {/* Location */}
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-16 rounded" />
-                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-              </div>
+                  <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                </div>
 
-              {/* Employment type */}
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
-                <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-              </div>
+                {/* Employment type */}
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
+                  <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
+                </div>
 
-              {/* Additional notes */}
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
-                <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
-              </div>
+                {/* Additional notes */}
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
+                  <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
+                </div>
 
                 {/* Home office toggle */}
                 <div className="flex items-center space-x-2">
@@ -225,10 +221,7 @@ function JobOfferFormSkeleton() {
               <div className="p-4 sm:p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton
-                      key={index}
-                      className="h-32 w-full rounded-lg"
-                    />
+                    <Skeleton key={index} className="h-32 w-full rounded-lg" />
                   ))}
                 </div>
               </div>
@@ -258,7 +251,7 @@ export function JobOfferForm() {
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
   const [companyLogoFile, setCompanyLogoFile] = useState<File | null>(null);
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string>('');
-  
+
   // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild)
   const imageUpload = useValidatedImageUpload({
     maxImages: 10, // Max 10 Bilder insgesamt
@@ -310,9 +303,9 @@ export function JobOfferForm() {
   useEffect(() => {
     if (validationErrors.length > 0 && validationErrorsRef.current) {
       setTimeout(() => {
-        validationErrorsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        validationErrorsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
       }, 100); // Kleine Verzögerung, damit das Element gerendert ist
     }
@@ -432,9 +425,12 @@ export function JobOfferForm() {
       });
       navigate('/job-offers');
     } catch (error) {
-      console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`, error);
+      console.error(
+        `Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Stellenangebots:`,
+        error
+      );
       const friendlyError = getUserFriendlyError(error, 'save-job-offer');
-      
+
       // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
@@ -542,9 +538,7 @@ export function JobOfferForm() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Allgemeine Informationen
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Allgemeine Informationen</h2>
                   </div>
                   <div className="p-4 sm:p-6 space-y-4">
                     <div className="space-y-2">
@@ -593,7 +587,12 @@ export function JobOfferForm() {
                             </AnimatedButton>
                           </div>
                         ) : (
-                          <label className={cn(glassCard, 'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300')}>
+                          <label
+                            className={cn(
+                              glassCard,
+                              'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300'
+                            )}
+                          >
                             <input
                               type="file"
                               accept="image/*"
@@ -716,11 +715,7 @@ export function JobOfferForm() {
                         </SelectTrigger>
                         <SelectContent className={cn(glassCard)}>
                           {categories.map(cat => (
-                            <SelectItem
-                              key={cat.id}
-                              value={cat.id}
-                              className="cursor-pointer"
-                            >
+                            <SelectItem key={cat.id} value={cat.id} className="cursor-pointer">
                               <span className="flex items-center gap-2">
                                 {getIconComponent?.(cat.iconName)}
                                 {cat.name}
@@ -738,9 +733,7 @@ export function JobOfferForm() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Details
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Details</h2>
                   </div>
                   <div className="p-4 sm:p-6 space-y-4">
                     <div className="space-y-2">
@@ -789,7 +782,10 @@ export function JobOfferForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="additionalNotesForTypeOfEmployment" className="text-foreground">
+                      <Label
+                        htmlFor="additionalNotesForTypeOfEmployment"
+                        className="text-foreground"
+                      >
                         Zusätzliche Notizen zur Beschäftigungsart
                       </Label>
                       <Textarea
@@ -862,7 +858,9 @@ export function JobOfferForm() {
                         id="startDate"
                         type="date"
                         value={formData.startDate}
-                        onChange={e => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                        onChange={e =>
+                          setFormData(prev => ({ ...prev, startDate: e.target.value }))
+                        }
                         required
                         className={cn(glassInput)}
                       />
@@ -875,9 +873,7 @@ export function JobOfferForm() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Kontaktdaten
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Kontaktdaten</h2>
                   </div>
                   <div className="p-4 sm:p-6 space-y-4">
                     <div className="space-y-2">
@@ -954,9 +950,7 @@ export function JobOfferForm() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Social Media
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Social Media</h2>
                   </div>
                   <div className="p-4 sm:p-6 space-y-4">
                     <div className="space-y-2">
@@ -1062,19 +1056,22 @@ export function JobOfferForm() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">
-                      Bilder
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Bilder</h2>
                   </div>
                   <div className="p-4 sm:p-6 space-y-4">
                     {imageUpload.error && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>{imageUpload.error.title}</AlertTitle>
                         <AlertDescription className="mt-2">
                           <p>{imageUpload.error.message}</p>
                           {imageUpload.error.actionHint && (
-                            <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                            <p className="mt-2 text-sm opacity-90">
+                              {imageUpload.error.actionHint}
+                            </p>
                           )}
                         </AlertDescription>
                       </Alert>
@@ -1116,8 +1113,13 @@ export function JobOfferForm() {
                           </button>
                         </div>
                       ))}
-                      {(existingImageUrls.length + imageUpload.previewUrls.length) < 10 && (
-                        <label className={cn(glassCard, 'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300')}>
+                      {existingImageUrls.length + imageUpload.previewUrls.length < 10 && (
+                        <label
+                          className={cn(
+                            glassCard,
+                            'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300'
+                          )}
+                        >
                           <input
                             type="file"
                             accept="image/*"
@@ -1155,9 +1157,7 @@ export function JobOfferForm() {
                 className={cn(glassButton, 'flex items-center')}
               >
                 {isSaving ? (
-                  <>
-                    {id ? 'Wird gespeichert...' : 'Wird erstellt...'}
-                  </>
+                  <>{id ? 'Wird gespeichert...' : 'Wird erstellt...'}</>
                 ) : (
                   <>
                     <Check className="h-4 w-4" />

@@ -22,10 +22,7 @@ function mergeDotenvFile(relativePath: string): void {
     if (eq <= 0) continue;
     const key = t.slice(0, eq).trim();
     let val = t.slice(eq + 1).trim();
-    if (
-      (val.startsWith('"') && val.endsWith('"')) ||
-      (val.startsWith("'") && val.endsWith("'"))
-    ) {
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1);
     }
     if (process.env[key] === undefined) {

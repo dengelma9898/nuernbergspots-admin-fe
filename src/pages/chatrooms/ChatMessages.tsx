@@ -29,9 +29,7 @@ function ChatMessageSkeleton({ isOwnMessage = false }: { isOwnMessage?: boolean 
     <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
       <div className="relative max-w-[70%]">
         <div className={cn(glassCard, 'rounded-lg p-3')}>
-          {!isOwnMessage && (
-            <Skeleton className="h-4 w-20 mb-1 rounded" />
-          )}
+          {!isOwnMessage && <Skeleton className="h-4 w-20 mb-1 rounded" />}
           <div className="space-y-1">
             <Skeleton className="h-4 w-full rounded" />
             <Skeleton className="h-4 w-3/4 rounded" />
@@ -89,11 +87,7 @@ export function ChatMessages() {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await Promise.all([
-        loadChatroomName(),
-        loadMessages(),
-        loadUserRole()
-      ]);
+      await Promise.all([loadChatroomName(), loadMessages(), loadUserRole()]);
       toast.success('Daten erfolgreich aktualisiert');
     } catch (error) {
       console.error('Fehler beim Aktualisieren:', error);
@@ -200,7 +194,12 @@ export function ChatMessages() {
       setEditingMessage(null);
     } catch (error) {
       console.error('Fehler beim Bearbeiten der Nachricht:', error);
-      showUserFriendlyError(error, toast, () => handleEditMessage(messageId, content), 'send-message');
+      showUserFriendlyError(
+        error,
+        toast,
+        () => handleEditMessage(messageId, content),
+        'send-message'
+      );
     }
   };
 
@@ -342,13 +341,19 @@ export function ChatMessages() {
                   animate="animate"
                   transition={{ ...defaultTransition, delay: index * 0.05 }}
                 >
-                  <div className="relative max-w-[70%] min-w-0 flex-shrink-0" style={{ overflow: 'visible' }}>
+                  <div
+                    className="relative max-w-[70%] min-w-0 flex-shrink-0"
+                    style={{ overflow: 'visible' }}
+                  >
                     {editingMessage === message.id ? (
                       <>
-                        <div className={cn(glassCard, 'rounded-lg p-3')} style={{ overflow: 'visible' }}>
+                        <div
+                          className={cn(glassCard, 'rounded-lg p-3')}
+                          style={{ overflow: 'visible' }}
+                        >
                           <Input
                             defaultValue={message.content}
-                            onKeyDown={(e) => {
+                            onKeyDown={e => {
                               if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault();
                                 const input = e.currentTarget;
@@ -360,7 +365,7 @@ export function ChatMessages() {
                             }}
                             autoFocus
                             className={cn(glassInput, 'w-full')}
-                            onBlur={(e) => {
+                            onBlur={e => {
                               // Delay to allow Enter key to fire first
                               setTimeout(() => {
                                 if (editingMessage === message.id) {
@@ -381,8 +386,10 @@ export function ChatMessages() {
                             <Button
                               variant="default"
                               size="sm"
-                              onClick={(e) => {
-                                const input = e.currentTarget.closest('.rounded-lg')?.querySelector('input') as HTMLInputElement;
+                              onClick={e => {
+                                const input = e.currentTarget
+                                  .closest('.rounded-lg')
+                                  ?.querySelector('input') as HTMLInputElement;
                                 if (input) {
                                   handleEditMessage(message.id, input.value);
                                 }
@@ -395,7 +402,11 @@ export function ChatMessages() {
                         </div>
                         {message.reactions && message.reactions.length > 0 && (
                           <div
-                            className={cn(glassCard, `absolute left-4 -bottom-4 flex gap-1 px-2 py-1 rounded-full text-base z-10`, isOwnMessage(message) ? 'right-4 left-auto' : '')}
+                            className={cn(
+                              glassCard,
+                              `absolute left-4 -bottom-4 flex gap-1 px-2 py-1 rounded-full text-base z-10`,
+                              isOwnMessage(message) ? 'right-4 left-auto' : ''
+                            )}
                             style={{ minHeight: '28px' }}
                           >
                             {message.reactions.map((reaction, index) => (
@@ -408,7 +419,10 @@ export function ChatMessages() {
                       </>
                     ) : (
                       <>
-                        <div className={cn(glassCard, 'rounded-lg p-3')} style={{ overflow: 'visible' }}>
+                        <div
+                          className={cn(glassCard, 'rounded-lg p-3')}
+                          style={{ overflow: 'visible' }}
+                        >
                           {!isOwnMessage(message) && (
                             <div className="text-sm font-semibold mb-1 text-foreground">
                               {message.senderName}
@@ -417,150 +431,162 @@ export function ChatMessages() {
                           <div className="text-sm whitespace-pre-line text-foreground break-words">
                             {message.content}
                           </div>
-                          <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground min-w-0 gap-2 relative" style={{ overflow: 'visible' }}>
+                          <div
+                            className="flex items-center justify-between mt-1 text-xs text-muted-foreground min-w-0 gap-2 relative"
+                            style={{ overflow: 'visible' }}
+                          >
                             <span className="truncate min-w-0 flex-1">
                               {format(new Date(message.createdAt), 'HH:mm', { locale: de })}
-                              {message.editedAt && (
-                                message.editedByAdmin ? ' (von Admin bearbeitet)' : ' (bearbeitet)'
-                              )}
+                              {message.editedAt &&
+                                (message.editedByAdmin
+                                  ? ' (von Admin bearbeitet)'
+                                  : ' (bearbeitet)')}
                             </span>
-                            <div className="flex-shrink-0 relative" style={{ zIndex: openMenuId === message.id ? 1000 : 'auto' }}>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 flex-shrink-0 hover:bg-accent/50 transition-all duration-200"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenMenuId(openMenuId === message.id ? null : message.id);
-                            }}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                          <AnimatePresence>
-                            {openMenuId === message.id && (
-                              <motion.div
-                                ref={el => (menuRefs.current[message.id] = el)}
-                                initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                transition={{ duration: 0.15 }}
-                                className={cn(
-                                  'absolute min-w-[180px] py-1 rounded-md shadow-lg border',
-                                  isOwnMessage(message) ? 'right-0' : 'left-0',
-                                  'top-full mt-1'
+                            <div
+                              className="flex-shrink-0 relative"
+                              style={{ zIndex: openMenuId === message.id ? 1000 : 'auto' }}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 flex-shrink-0 hover:bg-accent/50 transition-all duration-200"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setOpenMenuId(openMenuId === message.id ? null : message.id);
+                                }}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                              <AnimatePresence>
+                                {openMenuId === message.id && (
+                                  <motion.div
+                                    ref={el => (menuRefs.current[message.id] = el)}
+                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    transition={{ duration: 0.15 }}
+                                    className={cn(
+                                      'absolute min-w-[180px] py-1 rounded-md shadow-lg border',
+                                      isOwnMessage(message) ? 'right-0' : 'left-0',
+                                      'top-full mt-1'
+                                    )}
+                                    style={{
+                                      zIndex: 1000,
+                                      position: 'absolute',
+                                      backgroundColor: 'hsl(var(--popover))',
+                                      color: 'hsl(var(--popover-foreground))',
+                                      backdropFilter: 'blur(16px) saturate(180%)',
+                                      WebkitBackdropFilter: 'blur(16px) saturate(180%)',
+                                      display: 'block',
+                                      visibility: 'visible',
+                                      opacity: 1,
+                                      boxShadow:
+                                        '0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                                    }}
+                                    onClick={e => e.stopPropagation()}
+                                  >
+                                    {canEditOrDeleteMessage(message) && (
+                                      <>
+                                        <button
+                                          onClick={() => {
+                                            setEditingMessage(message.id);
+                                            setOpenMenuId(null);
+                                          }}
+                                          className={cn(
+                                            'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left'
+                                          )}
+                                        >
+                                          <Edit2 className="h-4 w-4" />
+                                          Bearbeiten
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            handleDeleteMessage(message.id);
+                                            setOpenMenuId(null);
+                                          }}
+                                          className={cn(
+                                            'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-destructive/10 transition-colors cursor-pointer text-left text-destructive'
+                                          )}
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                          Löschen
+                                        </button>
+                                        <div className="h-px bg-border my-1" />
+                                      </>
+                                    )}
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.LIKE);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.LIKE)}</span>
+                                      {getReactionLabel(ReactionType.LIKE)}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.LOVE);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.LOVE)}</span>
+                                      {getReactionLabel(ReactionType.LOVE)}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.LAUGH);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.LAUGH)}</span>
+                                      {getReactionLabel(ReactionType.LAUGH)}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.WOW);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.WOW)}</span>
+                                      {getReactionLabel(ReactionType.WOW)}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.SAD);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.SAD)}</span>
+                                      {getReactionLabel(ReactionType.SAD)}
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        handleReaction(message.id, ReactionType.ANGRY);
+                                        setOpenMenuId(null);
+                                      }}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
+                                    >
+                                      <span>{getReactionEmoji(ReactionType.ANGRY)}</span>
+                                      {getReactionLabel(ReactionType.ANGRY)}
+                                    </button>
+                                  </motion.div>
                                 )}
-                                style={{ 
-                                  zIndex: 1000,
-                                  position: 'absolute',
-                                  backgroundColor: 'hsl(var(--popover))',
-                                  color: 'hsl(var(--popover-foreground))',
-                                  backdropFilter: 'blur(16px) saturate(180%)',
-                                  WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-                                  display: 'block',
-                                  visibility: 'visible',
-                                  opacity: 1,
-                                  boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)'
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                              {canEditOrDeleteMessage(message) && (
-                                <>
-                                  <button
-                                    onClick={() => {
-                                      setEditingMessage(message.id);
-                                      setOpenMenuId(null);
-                                    }}
-                                    className={cn(
-                                      'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left'
-                                    )}
-                                  >
-                                    <Edit2 className="h-4 w-4" />
-                                    Bearbeiten
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      handleDeleteMessage(message.id);
-                                      setOpenMenuId(null);
-                                    }}
-                                    className={cn(
-                                      'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-destructive/10 transition-colors cursor-pointer text-left text-destructive'
-                                    )}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                    Löschen
-                                  </button>
-                                  <div className="h-px bg-border my-1" />
-                                </>
-                              )}
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.LIKE);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.LIKE)}</span>
-                                {getReactionLabel(ReactionType.LIKE)}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.LOVE);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.LOVE)}</span>
-                                {getReactionLabel(ReactionType.LOVE)}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.LAUGH);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.LAUGH)}</span>
-                                {getReactionLabel(ReactionType.LAUGH)}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.WOW);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.WOW)}</span>
-                                {getReactionLabel(ReactionType.WOW)}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.SAD);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.SAD)}</span>
-                                {getReactionLabel(ReactionType.SAD)}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleReaction(message.id, ReactionType.ANGRY);
-                                  setOpenMenuId(null);
-                                }}
-                                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent/50 transition-colors cursor-pointer text-left"
-                              >
-                                <span>{getReactionEmoji(ReactionType.ANGRY)}</span>
-                                {getReactionLabel(ReactionType.ANGRY)}
-                              </button>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
+                              </AnimatePresence>
                             </div>
                           </div>
                         </div>
                         {message.reactions && message.reactions.length > 0 && (
                           <div
-                            className={cn(glassCard, `absolute left-4 -bottom-4 flex gap-1 px-2 py-1 rounded-full text-base z-10`, isOwnMessage(message) ? 'right-4 left-auto' : '')}
+                            className={cn(
+                              glassCard,
+                              `absolute left-4 -bottom-4 flex gap-1 px-2 py-1 rounded-full text-base z-10`,
+                              isOwnMessage(message) ? 'right-4 left-auto' : ''
+                            )}
                             style={{ minHeight: '28px' }}
                           >
                             {message.reactions.map((reaction, index) => (

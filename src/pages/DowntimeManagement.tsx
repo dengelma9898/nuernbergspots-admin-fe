@@ -96,9 +96,7 @@ export function DowntimeManagement() {
       const status = await downtimeService.setDowntimeStatus(pendingValue);
       setIsDowntime(status.isDowntime);
       showSuccessMessage(toast, {
-        title: status.isDowntime
-          ? 'Downtime wurde aktiviert'
-          : 'Downtime wurde deaktiviert',
+        title: status.isDowntime ? 'Downtime wurde aktiviert' : 'Downtime wurde deaktiviert',
         description: status.isDowntime
           ? 'Die Wartungsseite ist jetzt aktiv.'
           : 'Die Wartungsseite wurde deaktiviert.',
@@ -124,7 +122,7 @@ export function DowntimeManagement() {
 
   const getDialogDescription = () => {
     if (pendingValue === null) return '';
-    
+
     if (pendingValue) {
       return 'Möchten Sie den Downtime wirklich aktivieren? Wenn der Downtime aktiviert ist, wird die Anwendung für alle Benutzer nicht verfügbar sein. Diese Aktion kann erhebliche Auswirkungen auf die Nutzererfahrung haben.';
     } else {
@@ -204,20 +202,18 @@ export function DowntimeManagement() {
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-foreground">
-                  Wartungsmodus aktiv
-                </p>
+                <p className="text-sm font-semibold text-foreground">Wartungsmodus aktiv</p>
                 <p className="text-xs text-muted-foreground">
-                  Die Anwendung ist derzeit nicht verfügbar. Benutzer können nicht auf die
-                  Anwendung zugreifen, bis der Downtime deaktiviert wird.
+                  Die Anwendung ist derzeit nicht verfügbar. Benutzer können nicht auf die Anwendung
+                  zugreifen, bis der Downtime deaktiviert wird.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-      {/* Confirmation Dialog */}
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {/* Confirmation Dialog */}
+        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <AlertDialogContent className={cn(glassCard)}>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">{getDialogTitle()}</AlertDialogTitle>
@@ -226,10 +222,7 @@ export function DowntimeManagement() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel
-                onClick={handleCancelToggle}
-                className={cn(glassButton)}
-              >
+              <AlertDialogCancel onClick={handleCancelToggle} className={cn(glassButton)}>
                 Abbrechen
               </AlertDialogCancel>
               <AlertDialogAction
@@ -269,4 +262,3 @@ export function DowntimeManagement() {
     </PageTransition>
   );
 }
-

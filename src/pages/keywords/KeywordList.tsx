@@ -26,7 +26,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, MoreHorizontal, Pencil, Trash2, Check, X, ArrowLeft, AlertCircle } from 'lucide-react';
+import {
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  ArrowLeft,
+  AlertCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
@@ -75,7 +84,7 @@ export function KeywordList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -111,7 +120,7 @@ export function KeywordList() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -141,7 +150,9 @@ export function KeywordList() {
       setKeywords(keywords.filter(kw => kw.id !== keywordId));
       showSuccessMessage(toast, {
         title: 'Keyword gelöscht',
-        description: keywordToDelete ? `"${keywordToDelete.name}" wurde erfolgreich gelöscht.` : 'Das Keyword wurde erfolgreich gelöscht.',
+        description: keywordToDelete
+          ? `"${keywordToDelete.name}" wurde erfolgreich gelöscht.`
+          : 'Das Keyword wurde erfolgreich gelöscht.',
       });
     } catch (error) {
       console.error('Fehler beim Löschen des Keywords:', error);
@@ -216,7 +227,10 @@ export function KeywordList() {
                   <div className="space-y-4 py-4">
                     {/* Validierungsfehler */}
                     {validationErrors.length > 0 && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                         <AlertDescription className="mt-2">
@@ -228,7 +242,7 @@ export function KeywordList() {
                         </AlertDescription>
                       </Alert>
                     )}
-                    
+
                     <motion.div
                       className="space-y-2"
                       variants={fadeInUp}
@@ -260,7 +274,9 @@ export function KeywordList() {
                       <Label className="text-foreground">Beschreibung</Label>
                       <Input
                         value={newKeyword.description}
-                        onChange={e => setNewKeyword({ ...newKeyword, description: e.target.value })}
+                        onChange={e =>
+                          setNewKeyword({ ...newKeyword, description: e.target.value })
+                        }
                         placeholder="Beschreibung"
                         className={cn(glassInput)}
                       />
@@ -343,7 +359,9 @@ export function KeywordList() {
                 <motion.div key={keyword.id} variants={fadeInUp}>
                   <Card className={cn(glassCard, 'p-4 sm:p-6')}>
                     <div className="font-bold text-lg mb-2 text-foreground">{keyword.name}</div>
-                    <div className="text-sm text-muted-foreground mb-3">{keyword.description || '-'}</div>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      {keyword.description || '-'}
+                    </div>
                     <div className="text-xs text-muted-foreground mb-4 space-y-1">
                       <div>Erstellt: {new Date(keyword.createdAt).toLocaleDateString()}</div>
                       <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
@@ -388,7 +406,9 @@ export function KeywordList() {
                     <TableHead className="text-foreground font-semibold">Beschreibung</TableHead>
                     <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
                     <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
-                    <TableHead className="text-foreground font-semibold w-[100px]">Aktionen</TableHead>
+                    <TableHead className="text-foreground font-semibold w-[100px]">
+                      Aktionen
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -426,8 +446,12 @@ export function KeywordList() {
                         key={keyword.id}
                         className="border-secondary hover:bg-muted/50 transition-colors"
                       >
-                        <TableCell className="font-medium text-foreground">{keyword.name}</TableCell>
-                        <TableCell className="text-muted-foreground">{keyword.description || '-'}</TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {keyword.name}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {keyword.description || '-'}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {new Date(keyword.createdAt).toLocaleDateString()}
                         </TableCell>
@@ -437,10 +461,7 @@ export function KeywordList() {
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <AnimatedButton
-                                variant="ghost"
-                                className="h-8 w-8 p-0"
-                              >
+                              <AnimatedButton variant="ghost" className="h-8 w-8 p-0">
                                 <MoreHorizontal className="h-4 w-4" />
                               </AnimatedButton>
                             </DropdownMenuTrigger>

@@ -104,9 +104,8 @@ export function FeatureFlagsManagement() {
 
     try {
       setIsUpdating(true);
-      const updatedSettings = await businessEventsSettingsService.updateBusinessEventsSettings(
-        newValue
-      );
+      const updatedSettings =
+        await businessEventsSettingsService.updateBusinessEventsSettings(newValue);
       setBusinessEventsEnabled(updatedSettings.isEnabled);
       showSuccessMessage(toast, {
         title: updatedSettings.isEnabled
@@ -158,9 +157,7 @@ export function FeatureFlagsManagement() {
       >
         {/* Überschrift */}
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
-            Feature Flags
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Feature Flags</h2>
           <p className="text-sm sm:text-base text-muted-foreground break-words">
             Verwalten Sie die Feature Flags der Anwendung. Feature Flags ermöglichen es, Funktionen
             ein- und auszuschalten, ohne Code zu ändern.

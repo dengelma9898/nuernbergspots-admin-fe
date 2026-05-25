@@ -8,10 +8,7 @@
  */
 
 /** Erfolgstoast mit festem Titel und beliebiger (String-)Beschreibung. */
-export function expectToastSuccessTitle(
-  toastFn: jest.Mock,
-  title: string
-): void {
+export function expectToastSuccessTitle(toastFn: jest.Mock, title: string): void {
   expect(toastFn).toHaveBeenCalledWith(
     title,
     expect.objectContaining({ description: expect.any(String) })
@@ -19,10 +16,7 @@ export function expectToastSuccessTitle(
 }
 
 /** Fehlertoast: erster Parameter ist der zusammengesetzte Titel (enthält Kontext-Präfix). */
-export function expectToastErrorTitleContains(
-  toastFn: jest.Mock,
-  titleSubstring: string
-): void {
+export function expectToastErrorTitleContains(toastFn: jest.Mock, titleSubstring: string): void {
   expect(toastFn).toHaveBeenCalledWith(
     expect.stringContaining(titleSubstring),
     expect.objectContaining({ description: expect.any(String) })

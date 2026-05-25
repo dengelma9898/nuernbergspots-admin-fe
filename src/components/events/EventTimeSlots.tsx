@@ -4,12 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { MonthYearPicker } from '@/components/ui/month-year-picker';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
 import { formatDate, formatMonthYear } from '@/utils/eventFormatters';
@@ -44,7 +39,10 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                <p>Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.</p>
+                <p>
+                  Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei
+                  der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -172,7 +170,10 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">
-                <p>Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.</p>
+                <p>
+                  Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne
+                  Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.
+                </p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -211,9 +212,7 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
 
       {/* Hinweis wenn keine Zeiteinordnung vorhanden */}
       {!isEditing && (!slots || slots.length === 0) && !monthYear && (
-        <div className="text-sm text-muted-foreground italic">
-          Keine Zeiteinordnung vorhanden
-        </div>
+        <div className="text-sm text-muted-foreground italic">Keine Zeiteinordnung vorhanden</div>
       )}
     </div>
   );

@@ -166,8 +166,7 @@ export function CuratedSpotForm() {
   /** Auswahl vor dem ersten Speichern (Neuanlage oder noch ohne committed Rating). */
   const [adminRatingDraft, setAdminRatingDraft] = useState<number | null>(null);
 
-  const isAdminOrSuperAdmin =
-    userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
+  const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const loadUserRole = useCallback(async () => {
     const userId = getUserId();
@@ -360,7 +359,9 @@ export function CuratedSpotForm() {
       longitude: address.longitude,
     };
 
-    const keywordIds = chips.filter((c): c is Extract<Chip, { kind: 'id' }> => c.kind === 'id').map(c => c.id);
+    const keywordIds = chips
+      .filter((c): c is Extract<Chip, { kind: 'id' }> => c.kind === 'id')
+      .map(c => c.id);
     const newKeywordNames = chips
       .filter((c): c is Extract<Chip, { kind: 'new' }> => c.kind === 'new')
       .map(c => c.label.trim());
@@ -378,9 +379,7 @@ export function CuratedSpotForm() {
           videoUrl: videoUrl.trim() || undefined,
           instagramUrl: instagramUrl.trim() || undefined,
           status,
-          ...(adminRatingDraft != null &&
-          adminRatingDraft >= 1 &&
-          adminRatingDraft <= 5
+          ...(adminRatingDraft != null && adminRatingDraft >= 1 && adminRatingDraft <= 5
             ? { adminRating: adminRatingDraft }
             : {}),
         });
@@ -562,8 +561,8 @@ export function CuratedSpotForm() {
                     Redaktionsbewertung
                   </CardTitle>
                   <CardDescription>
-                    Einmalig vergebbar (1–5 Sterne); nach Speichern nicht mehr änderbar — siehe Backend-Doku
-                    curated-spots-ratings-web-integration.
+                    Einmalig vergebbar (1–5 Sterne); nach Speichern nicht mehr änderbar — siehe
+                    Backend-Doku curated-spots-ratings-web-integration.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -737,7 +736,9 @@ export function CuratedSpotForm() {
               <Card className={cn(glassCard)}>
                 <CardHeader>
                   <CardTitle className="text-foreground">Links & Medien</CardTitle>
-                  <CardDescription>Optionale URLs; Uploads ersetzen/ergänzen gemäß API.</CardDescription>
+                  <CardDescription>
+                    Optionale URLs; Uploads ersetzen/ergänzen gemäß API.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">

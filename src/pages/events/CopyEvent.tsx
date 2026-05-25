@@ -13,12 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ArrowLeft, X, Info } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { MonthYearPicker } from '@/components/ui/month-year-picker';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 import { getIconComponent } from '@/utils/iconUtils';
 import { format, eachDayOfInterval, parseISO } from 'date-fns';
@@ -255,7 +250,10 @@ export const CopyEvent: React.FC = () => {
           setTitleImagePreview(preview);
           setTitleImageUrlToCopy(null); // Erfolgreich als File geladen
         } catch (error) {
-          console.warn('Titelbild kann nicht direkt geladen werden (CORS), verwende URL-Kopie:', error);
+          console.warn(
+            'Titelbild kann nicht direkt geladen werden (CORS), verwende URL-Kopie:',
+            error
+          );
           // Fallback: URL direkt kopieren
           setTitleImageUrlToCopy(event.titleImageUrl);
           setTitleImagePreview(event.titleImageUrl);
@@ -271,7 +269,10 @@ export const CopyEvent: React.FC = () => {
             imageFiles.push(imageFile);
             previews.push(URL.createObjectURL(imageFile));
           } catch (error) {
-            console.warn(`Bild ${i} kann nicht direkt geladen werden (CORS), verwende URL-Kopie:`, error);
+            console.warn(
+              `Bild ${i} kann nicht direkt geladen werden (CORS), verwende URL-Kopie:`,
+              error
+            );
             // Fallback: URL direkt kopieren
             urlsToCopy.push(event.imageUrls[i]);
             previews.push(event.imageUrls[i]);
@@ -283,7 +284,9 @@ export const CopyEvent: React.FC = () => {
       }
     } catch (error) {
       console.error('Fehler beim Laden der Bilder:', error);
-      toast.info('Die Bilder werden mit dem kopierten Event verknüpft. Beide Events zeigen die gleichen Bilder.');
+      toast.info(
+        'Die Bilder werden mit dem kopierten Event verknüpft. Beide Events zeigen die gleichen Bilder.'
+      );
     }
   };
 
@@ -353,15 +356,25 @@ export const CopyEvent: React.FC = () => {
       setLoading(true);
 
       // Validiere Location-Daten vor dem Speichern
-      if (!newEvent.address || !newEvent.address.trim() || newEvent.latitude === 0 || newEvent.longitude === 0) {
-        showUserFriendlyError(new Error('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.'), toast, undefined, 'save-event');
+      if (
+        !newEvent.address ||
+        !newEvent.address.trim() ||
+        newEvent.latitude === 0 ||
+        newEvent.longitude === 0
+      ) {
+        showUserFriendlyError(
+          new Error('Bitte wählen Sie eine vollständige Adresse mit Koordinaten aus.'),
+          toast,
+          undefined,
+          'save-event'
+        );
         setLoading(false);
         return;
       }
 
       // Entferne Felder, die nicht im Event-Interface sind und erstelle flache Location-Daten
       const { startDate, endDate, price, ...eventData } = newEvent;
-      
+
       // Stelle sicher, dass nur priceString gesendet wird, nicht price, und Location-Daten flach sind
       const finalEventData = {
         ...eventData,
@@ -528,11 +541,7 @@ export const CopyEvent: React.FC = () => {
                 {/* Bilder kopieren Option */}
                 <div className={cn(glassCard, 'p-4')}>
                   <div className="flex items-center space-x-3">
-                    <Switch
-                      id="copyImages"
-                      checked={copyImages}
-                      onCheckedChange={setCopyImages}
-                    />
+                    <Switch id="copyImages" checked={copyImages} onCheckedChange={setCopyImages} />
                     <div className="space-y-1">
                       <Label htmlFor="copyImages" className="text-foreground">
                         Bilder mitkopieren
@@ -541,7 +550,9 @@ export const CopyEvent: React.FC = () => {
                         Wenn aktiviert, werden alle Bilder des ursprünglichen Events mitkopiert.
                         {imageUrlsToCopy.length > 0 || titleImageUrlToCopy ? (
                           <span className="block mt-1 text-destructive">
-                            Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du das ursprüngliche Event oder dessen Bilder später löschst, sind die Bilder auch im kopierten Event nicht mehr verfügbar.
+                            Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du
+                            das ursprüngliche Event oder dessen Bilder später löschst, sind die
+                            Bilder auch im kopierten Event nicht mehr verfügbar.
                           </span>
                         ) : null}
                       </p>
@@ -627,8 +638,8 @@ export const CopyEvent: React.FC = () => {
                     className={cn(glassInput, 'min-h-[100px]')}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie
-                    Programm, Highlights oder besondere Hinweise.
+                    Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie Programm,
+                    Highlights oder besondere Hinweise.
                   </p>
                 </div>
 
@@ -664,16 +675,18 @@ export const CopyEvent: React.FC = () => {
                 {newEvent.dailyTimeSlots.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2">
-                      <Label className="text-foreground">
-                        Tägliche Zeitangaben (optional)
-                      </Label>
+                      <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
-                            <p>Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor &apos;Monat/Jahr&apos;.</p>
+                            <p>
+                              Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
+                              sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
+                              &apos;Monat/Jahr&apos;.
+                            </p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -719,7 +732,11 @@ export const CopyEvent: React.FC = () => {
                           <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
-                          <p>Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.</p>
+                          <p>
+                            Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen,
+                            ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig
+                            existieren.
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -731,8 +748,8 @@ export const CopyEvent: React.FC = () => {
                     className={cn(glassInput)}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht.
-                    Sobald Start- und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
+                    und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
                   </p>
                 </div>
 
@@ -745,7 +762,9 @@ export const CopyEvent: React.FC = () => {
                         ⚠️ Adresse muss neu gesetzt werden
                       </div>
                       <p className="text-xs text-destructive/80">
-                        Die Adresse des kopierten Events ist nicht vollständig oder konnte nicht korrekt übertragen werden. Bitte suchen Sie die Adresse erneut über das Suchfeld und wählen Sie den passenden Eintrag aus.
+                        Die Adresse des kopierten Events ist nicht vollständig oder konnte nicht
+                        korrekt übertragen werden. Bitte suchen Sie die Adresse erneut über das
+                        Suchfeld und wählen Sie den passenden Eintrag aus.
                       </p>
                     </div>
                   )}
@@ -776,8 +795,8 @@ export const CopyEvent: React.FC = () => {
                     </div>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den
-                    passenden Eintrag aus.
+                    Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den passenden
+                    Eintrag aus.
                   </p>
                 </div>
 
@@ -843,8 +862,7 @@ export const CopyEvent: React.FC = () => {
                           Tickets erforderlich
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben
-                          müssen.
+                          Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
                         </p>
                       </div>
                     </div>
@@ -983,8 +1001,8 @@ export const CopyEvent: React.FC = () => {
                     </div>
 
                     <p className="text-xs text-muted-foreground mt-4">
-                      Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu,
-                      die du öffentlich teilen möchtest.
+                      Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu, die
+                      du öffentlich teilen möchtest.
                     </p>
                   </div>
                 </div>

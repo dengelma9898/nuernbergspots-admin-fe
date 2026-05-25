@@ -1923,8 +1923,8 @@ body {
   gap: calc(var(--spacing) * 2);
 }
 :is(
-    .data-\[variant\=destructive\]\:\*\:\[svg\]\:\!text-destructive[data-variant='destructive'] > *
-  ):is(svg) {
+  .data-\[variant\=destructive\]\:\*\:\[svg\]\:\!text-destructive[data-variant='destructive'] > *
+):is(svg) {
   color: var(--destructive) !important;
 }
 .\[\&\>\[role\=checkbox\]\]\:translate-y-\[2px\] > [role='checkbox'] {

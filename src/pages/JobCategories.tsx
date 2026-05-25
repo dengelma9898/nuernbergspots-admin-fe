@@ -129,10 +129,7 @@ function JobCategoryTableSkeleton() {
               <TableCell>
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 2 }).map((_, imgIndex) => (
-                    <Skeleton
-                      key={imgIndex}
-                      className="h-8 w-8 rounded"
-                    />
+                    <Skeleton key={imgIndex} className="h-8 w-8 rounded" />
                   ))}
                 </div>
               </TableCell>
@@ -163,7 +160,7 @@ export function JobCategories() {
   const navigate = useNavigate();
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]); // Bestehende Bilder vom Backend
-  
+
   // Zentrale Bildvalidierung für neue Bilder (max 1 MB pro Bild, max 5 Bilder)
   const imageUpload = useValidatedImageUpload({
     maxImages: 5,
@@ -194,7 +191,7 @@ export function JobCategories() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -263,7 +260,7 @@ export function JobCategories() {
       setValidationErrors(['Bitte geben Sie einen Namen ein']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     try {
@@ -326,7 +323,9 @@ export function JobCategories() {
       setCategories(categories.filter(cat => cat.id !== categoryId));
       showSuccessMessage(toast, {
         title: 'Kategorie gelöscht',
-        description: categoryToDelete ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.` : 'Die Kategorie wurde erfolgreich gelöscht.',
+        description: categoryToDelete
+          ? `"${categoryToDelete.name}" wurde erfolgreich gelöscht.`
+          : 'Die Kategorie wurde erfolgreich gelöscht.',
       });
     } catch (error) {
       console.error('Fehler beim Löschen der Kategorie:', error);
@@ -413,9 +412,7 @@ export function JobCategories() {
                 <ArrowLeft className="h-5 w-5" />
                 <span className="sr-only">Zurück zum Dashboard</span>
               </AnimatedButton>
-              <h1 className="text-2xl font-bold text-foreground">
-                Job-Kategorien verwalten
-              </h1>
+              <h1 className="text-2xl font-bold text-foreground">Job-Kategorien verwalten</h1>
             </div>
           </motion.div>
 
@@ -448,7 +445,10 @@ export function JobCategories() {
                   <div className="space-y-4 py-4">
                     {/* Validierungsfehler */}
                     {validationErrors.length > 0 && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
                         <AlertDescription className="mt-2">
@@ -460,7 +460,7 @@ export function JobCategories() {
                         </AlertDescription>
                       </Alert>
                     )}
-                    
+
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">Name</label>
                       <Input
@@ -499,7 +499,9 @@ export function JobCategories() {
                       <Input
                         type="color"
                         value={newCategory.colorCode}
-                        onChange={e => setNewCategory({ ...newCategory, colorCode: e.target.value })}
+                        onChange={e =>
+                          setNewCategory({ ...newCategory, colorCode: e.target.value })
+                        }
                         className={cn(glassInput, 'h-12')}
                       />
                     </div>
@@ -508,13 +510,18 @@ export function JobCategories() {
                         Fallback-Bilder (max. 5)
                       </label>
                       {imageUpload.error && (
-                        <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                        <Alert
+                          variant="destructive"
+                          className={cn(glassCard, 'border-destructive/50')}
+                        >
                           <AlertCircle className="h-4 w-4" />
                           <AlertTitle>{imageUpload.error.title}</AlertTitle>
                           <AlertDescription className="mt-2">
                             <p>{imageUpload.error.message}</p>
                             {imageUpload.error.actionHint && (
-                              <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                              <p className="mt-2 text-sm opacity-90">
+                                {imageUpload.error.actionHint}
+                              </p>
                             )}
                           </AlertDescription>
                         </Alert>
@@ -554,8 +561,13 @@ export function JobCategories() {
                             </button>
                           </div>
                         ))}
-                        {(existingImageUrls.length + imageUpload.previewUrls.length) < 5 && (
-                          <label className={cn(glassCard, 'flex items-center justify-center h-24 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-colors')}>
+                        {existingImageUrls.length + imageUpload.previewUrls.length < 5 && (
+                          <label
+                            className={cn(
+                              glassCard,
+                              'flex items-center justify-center h-24 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-colors'
+                            )}
+                          >
                             <input
                               type="file"
                               accept="image/*"
@@ -584,9 +596,7 @@ export function JobCategories() {
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
                         {isSaving ? (
-                          <>
-                            {editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}
-                          </>
+                          <>{editingCategory ? 'Wird gespeichert...' : 'Wird erstellt...'}</>
                         ) : (
                           <>
                             <Check className="mr-2 h-4 w-4" />
@@ -616,11 +626,7 @@ export function JobCategories() {
               ))}
             </motion.div>
           ) : categories.length === 0 ? (
-            <motion.div
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-            >
+            <motion.div variants={fadeInUp} initial="initial" animate="animate">
               <Card className={cn(glassCard, 'block md:hidden p-8 text-center')}>
                 <div className="text-muted-foreground text-lg">Keine Kategorien vorhanden</div>
               </Card>
@@ -636,10 +642,14 @@ export function JobCategories() {
                 <motion.div key={category.id} variants={fadeInUp}>
                   <Card className={cn(glassCard, 'rounded-2xl p-4')}>
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="font-bold text-lg flex-1 text-foreground">{category.name}</div>
+                      <div className="font-bold text-lg flex-1 text-foreground">
+                        {category.name}
+                      </div>
                       <div className="text-foreground">{getIconComponent(category.iconName)}</div>
                     </div>
-                    <div className="text-sm text-muted-foreground mb-2">{category.description || '-'}</div>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      {category.description || '-'}
+                    </div>
                     <div className="flex items-center gap-2 mb-2">
                       <div
                         className="w-5 h-5 rounded-full border border-secondary"
@@ -692,11 +702,7 @@ export function JobCategories() {
           {isLoading ? (
             <JobCategoryTableSkeleton />
           ) : (
-            <motion.div
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-            >
+            <motion.div variants={fadeInUp} initial="initial" animate="animate">
               <Card className={cn(glassCard, 'hidden md:block overflow-hidden')}>
                 <Table>
                   <TableHeader>
@@ -706,9 +712,15 @@ export function JobCategories() {
                       <TableHead className="text-foreground font-semibold">Beschreibung</TableHead>
                       <TableHead className="text-foreground font-semibold">Farbe</TableHead>
                       <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
-                      <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
-                      <TableHead className="text-foreground font-semibold">Fallback-Bilder</TableHead>
-                      <TableHead className="w-[100px] text-foreground font-semibold">Aktionen</TableHead>
+                      <TableHead className="text-foreground font-semibold">
+                        Aktualisiert am
+                      </TableHead>
+                      <TableHead className="text-foreground font-semibold">
+                        Fallback-Bilder
+                      </TableHead>
+                      <TableHead className="w-[100px] text-foreground font-semibold">
+                        Aktionen
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -724,11 +736,15 @@ export function JobCategories() {
                           key={category.id}
                           className="border-secondary hover:bg-muted/50 transition-colors"
                         >
-                          <TableCell className="font-medium text-foreground">{category.name}</TableCell>
+                          <TableCell className="font-medium text-foreground">
+                            {category.name}
+                          </TableCell>
                           <TableCell className="text-foreground">
                             {getIconComponent(category.iconName)}
                           </TableCell>
-                          <TableCell className="text-muted-foreground">{category.description || '-'}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {category.description || '-'}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div
@@ -767,17 +783,11 @@ export function JobCategories() {
                           <TableCell>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <AnimatedButton
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0 rounded-lg"
-                                >
+                                <AnimatedButton variant="ghost" className="h-8 w-8 p-0 rounded-lg">
                                   <MoreHorizontal className="h-4 w-4" />
                                 </AnimatedButton>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align="end"
-                                className={cn(glassCard)}
-                              >
+                              <DropdownMenuContent align="end" className={cn(glassCard)}>
                                 <DropdownMenuItem
                                   onClick={() => handleEditCategory(category)}
                                   className="cursor-pointer"

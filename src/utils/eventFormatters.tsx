@@ -92,11 +92,7 @@ export const getEventStatus = (event: Event): EventStatus => {
   if (event.monthYear) {
     const monthYearDate = monthYearToDate(event.monthYear);
     if (monthYearDate) {
-      const endOfMonthDate = new Date(
-        monthYearDate.getFullYear(),
-        monthYearDate.getMonth() + 1,
-        0
-      );
+      const endOfMonthDate = new Date(monthYearDate.getFullYear(), monthYearDate.getMonth() + 1, 0);
 
       if (isPast(endOfMonthDate)) {
         return {
@@ -195,5 +191,5 @@ export const monthYearToDate = (monthYear: string | undefined | null): Date | nu
  * Prüft ob ein Event Zeitinformationen hat (dailyTimeSlots oder monthYear)
  */
 export const hasDateInfo = (event: Event): boolean => {
-  return (event.dailyTimeSlots?.length > 0) || !!event.monthYear;
+  return event.dailyTimeSlots?.length > 0 || !!event.monthYear;
 };

@@ -59,7 +59,7 @@ describe('Badge Component', () => {
       render(<Badge variant="outline">Outline</Badge>);
 
       const badge = screen.getByText('Outline');
-      expect(badge).toHaveClass('text-foreground');
+      expect(badge).toHaveClass('text-card-foreground');
     });
   });
 
@@ -218,7 +218,7 @@ describe('Badge Component', () => {
       );
 
       const badge = screen.getByText('Outline Custom');
-      expect(badge).toHaveClass('text-foreground', 'custom-outline');
+      expect(badge).toHaveClass('text-card-foreground', 'custom-outline');
     });
   });
 

@@ -189,7 +189,11 @@ describe('Chat Message Service', () => {
       };
       mockApi.patch.mockResolvedValue({ data: updatedMessage });
 
-      const result = await chatMessageService.adminUpdateMessage('chatroom1', 'message1', updateData);
+      const result = await chatMessageService.adminUpdateMessage(
+        'chatroom1',
+        'message1',
+        updateData
+      );
 
       expect(mockApi.patch).toHaveBeenCalledWith(
         '/chatrooms/chatroom1/messages/message1/admin',

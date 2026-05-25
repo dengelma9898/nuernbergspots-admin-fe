@@ -1,9 +1,9 @@
 ---
 name: Curated Spots Ratings Admin
-overview: "Das Admin-Frontend soll die in [curated-spots-ratings-web-integration.md](file:///Users/dengelma/develop/nuernbergspots/backend/docs/curated-spots-ratings-web-integration.md) beschriebenen Felder und Endpunkte abbilden: Redaktionsbewertung (einmalig) per klickbaren Stern-Icons in der Form, read-only Sterne in der Liste, optional Nutzer-Statistiken, sowie GET/PATCH für den Community-Bewertungs-Toggle – konsistent mit `curatedSpotService`, `.cursorrules` (Glassmorphism, Skeletons, API-Guards) und `unwrapData`."
+overview: 'Das Admin-Frontend soll die in [curated-spots-ratings-web-integration.md](file:///Users/dengelma/develop/nuernbergspots/backend/docs/curated-spots-ratings-web-integration.md) beschriebenen Felder und Endpunkte abbilden: Redaktionsbewertung (einmalig) per klickbaren Stern-Icons in der Form, read-only Sterne in der Liste, optional Nutzer-Statistiken, sowie GET/PATCH für den Community-Bewertungs-Toggle – konsistent mit `curatedSpotService`, `.cursorrules` (Glassmorphism, Skeletons, API-Guards) und `unwrapData`.'
 todos:
   - id: models-types
-    content: "curated-spot.ts: CuratedSpot + Create/Patch DTOs + CuratedSpotsUserRatingsSettings"
+    content: 'curated-spot.ts: CuratedSpot + Create/Patch DTOs + CuratedSpotsUserRatingsSettings'
     status: completed
   - id: api-service-tests
     content: api.ts Endpoints; curatedSpotService GET/PATCH settings; Service-Tests erweitern
@@ -12,10 +12,10 @@ todos:
     content: 409-Konflikt für adminRating benutzerfreundlich (errorUtils und/oder Form)
     status: completed
   - id: list-display
-    content: "CuratedSpotList: Redaktion read-only als Stern-Icons (1–5), optional Nutzer-Ø/Count, Datum"
+    content: 'CuratedSpotList: Redaktion read-only als Stern-Icons (1–5), optional Nutzer-Ø/Count, Datum'
     status: completed
   - id: form-admin-rating
-    content: "CuratedSpotForm: Bewertung per klickbaren Stern-Icons (Create optional, Edit einmalig); Guards + PATCH/POST"
+    content: 'CuratedSpotForm: Bewertung per klickbaren Stern-Icons (Create optional, Edit einmalig); Guards + PATCH/POST'
     status: completed
   - id: settings-page-route
     content: Neue Settings-Seite (Switch, Skeleton, Ref-Pattern), routes + Links Liste/Dashboard
@@ -78,7 +78,7 @@ isProject: false
 ## 5. Formular: Redaktionsbewertung (Create & Edit)
 
 - [`src/pages/curated-spots/CuratedSpotForm.tsx`](src/pages/curated-spots/CuratedSpotForm.tsx):
-  - **Auswahl ausschließlich über Stern-Icons:** Fünf Sterne als Steuerung – Klick auf Stern *n* setzt die Bewertung auf *n* (1–5); Hover kann alle Sterne bis *n* visuell hervorheben (übliches Rating-Pattern). Kein Slider/separate Zahleneingabe nötig.
+  - **Auswahl ausschließlich über Stern-Icons:** Fünf Sterne als Steuerung – Klick auf Stern _n_ setzt die Bewertung auf _n_ (1–5); Hover kann alle Sterne bis _n_ visuell hervorheben (übliches Rating-Pattern). Kein Slider/separate Zahleneingabe nötig.
   - Beim Laden (`getAdmin` / nach Create-Redirect): `adminRating`/`adminRatedAt` in State; wenn `adminRating != null`: **nur read-only Sternzeile** (keine `onClick`, `pointer-events-none` o. ä.), kein erneutes Senden eines anderen Werts.
   - **Neuanlage:** Sterne optional wählbar; wenn keine Auswahl, kein `adminRating` im `create`-DTO; sonst gewählter Wert (1–5).
   - **Bearbeiten:** interaktive Sterne nur wenn `adminRating === null`; beim Speichern `patch` mit `{ adminRating }` nur wenn der User eine Erstvergabe auslöst (Loading-Guard `saving` wie bestehend).

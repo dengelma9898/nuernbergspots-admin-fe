@@ -50,4 +50,3 @@ export interface AdventCalendarParticipant {
   profilePictureUrl?: string;
   participatedAt: string;
 }
-

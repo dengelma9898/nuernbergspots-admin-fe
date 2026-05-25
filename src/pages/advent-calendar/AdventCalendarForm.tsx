@@ -1,13 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto } from '@/models/advent-calendar';
+import {
+  CreateAdventCalendarEntryDto,
+  UpdateAdventCalendarEntryDto,
+} from '@/models/advent-calendar';
 import { useAdventCalendarService } from '@/services/adventCalendarService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Image as ImageIcon, Upload, X, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Upload,
+  X,
+  Link as LinkIcon,
+  AlertCircle,
+} from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
@@ -82,7 +96,7 @@ export function AdventCalendarForm() {
   const [originalImageUrl, setOriginalImageUrl] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const validationErrorsRef = useRef<HTMLDivElement>(null);
-  
+
   // Zentrale Bildvalidierung mit max 1 MB pro Bild
   const imageUpload = useValidatedImageUpload({
     maxImages: 1,
@@ -100,7 +114,7 @@ export function AdventCalendarForm() {
 
   const loadEntry = async () => {
     if (!id) return;
-    
+
     try {
       setIsLoading(true);
       const entry = await adventCalendarService.getById(id);
@@ -137,9 +151,9 @@ export function AdventCalendarForm() {
   useEffect(() => {
     if (validationErrors.length > 0 && validationErrorsRef.current) {
       setTimeout(() => {
-        validationErrorsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        validationErrorsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
       }, 100); // Kleine Verzögerung, damit das Element gerendert ist
     }
@@ -166,14 +180,14 @@ export function AdventCalendarForm() {
     if (!urlString || !urlString.trim()) {
       return '';
     }
-    
+
     const trimmed = urlString.trim();
-    
+
     // Wenn bereits ein Protokoll vorhanden ist, zurückgeben
     if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
       return trimmed;
     }
-    
+
     // Wenn kein Protokoll vorhanden ist, https:// hinzufügen
     return `https://${trimmed}`;
   };
@@ -182,7 +196,7 @@ export function AdventCalendarForm() {
     if (!urlString || !urlString.trim()) {
       return true; // Leer ist erlaubt (optional)
     }
-    
+
     try {
       const normalized = normalizeUrl(urlString);
       const url = new URL(normalized);
@@ -197,7 +211,7 @@ export function AdventCalendarForm() {
 
     // Validierung
     const errors: string[] = [];
-    
+
     if (!formData.description.trim()) {
       errors.push('Bitte geben Sie eine Beschreibung ein');
     }
@@ -232,12 +246,12 @@ export function AdventCalendarForm() {
           description: formData.description,
           linkUrl: formData.linkUrl?.trim() ? normalizeUrl(formData.linkUrl.trim()) : undefined,
         };
-        
+
         // Wenn Bild gelöscht werden soll UND kein neues Bild ausgewählt wurde, sende null ans Backend
         if (shouldDeleteImage && imageUpload.files.length === 0) {
           updateData.imageUrl = null;
         }
-        
+
         const updatedEntry = await adventCalendarService.update(id, updateData);
         entryId = updatedEntry.id;
 
@@ -249,7 +263,7 @@ export function AdventCalendarForm() {
           // Wenn kein neues Bild ausgewählt wurde, aber gelöscht werden soll,
           // wurde das bereits im updateData.imageUrl = null gesetzt
         }
-        
+
         // Reset delete flag
         setShouldDeleteImage(false);
 
@@ -282,7 +296,7 @@ export function AdventCalendarForm() {
     } catch (error) {
       console.error(`Fehler beim ${id ? 'Aktualisieren' : 'Erstellen'} des Eintrags:`, error);
       const friendlyError = getUserFriendlyError(error, 'save-advent-calendar');
-      
+
       // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
@@ -331,7 +345,9 @@ export function AdventCalendarForm() {
                       <span className="sr-only">Zurück</span>
                     </AnimatedButton>
                     <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
-                      {id ? 'Adventskalender-Eintrag bearbeiten' : 'Neuen Adventskalender-Eintrag erstellen'}
+                      {id
+                        ? 'Adventskalender-Eintrag bearbeiten'
+                        : 'Neuen Adventskalender-Eintrag erstellen'}
                     </CardTitle>
                   </div>
                 </CardHeader>
@@ -350,9 +366,9 @@ export function AdventCalendarForm() {
                 <CardContent className="p-4 sm:p-6 space-y-6">
                   {/* Validierungsfehler */}
                   {validationErrors.length > 0 && (
-                    <Alert 
+                    <Alert
                       ref={validationErrorsRef}
-                      variant="destructive" 
+                      variant="destructive"
                       className={cn(glassCard, 'border-destructive/50')}
                     >
                       <AlertCircle className="h-4 w-4" />
@@ -366,7 +382,7 @@ export function AdventCalendarForm() {
                       </AlertDescription>
                     </Alert>
                   )}
-                  
+
                   {/* Number */}
                   <div className="space-y-2">
                     <Label htmlFor="number" className="text-foreground">
@@ -413,11 +429,13 @@ export function AdventCalendarForm() {
                     </Label>
                     <MarkdownEditor
                       value={formData.description}
-                      onChange={(value) => {
+                      onChange={value => {
                         setFormData(prev => ({ ...prev, description: value }));
                         // Fehler zurücksetzen, wenn Wert geändert wird
                         if (validationErrors.length > 0) {
-                          setValidationErrors(prev => prev.filter(err => !err.includes('Beschreibung')));
+                          setValidationErrors(prev =>
+                            prev.filter(err => !err.includes('Beschreibung'))
+                          );
                         }
                       }}
                       placeholder="Beschreibung des Adventskalender-Eintrags (Markdown wird unterstützt)"
@@ -425,7 +443,8 @@ export function AdventCalendarForm() {
                       required
                     />
                     <p className="text-xs text-muted-foreground">
-                      Du kannst Markdown verwenden, um Links, Formatierungen und Listen einzufügen. Nutze die Toolbar-Buttons oder die Markdown-Syntax direkt.
+                      Du kannst Markdown verwenden, um Links, Formatierungen und Listen einzufügen.
+                      Nutze die Toolbar-Buttons oder die Markdown-Syntax direkt.
                     </p>
                   </div>
 
@@ -452,7 +471,8 @@ export function AdventCalendarForm() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Optional: URL zu einem externen Link für diesen Eintrag. Protokoll (https://) wird automatisch hinzugefügt, falls nicht vorhanden.
+                      Optional: URL zu einem externen Link für diesen Eintrag. Protokoll (https://)
+                      wird automatisch hinzugefügt, falls nicht vorhanden.
                     </p>
                   </div>
 
@@ -523,21 +543,31 @@ export function AdventCalendarForm() {
                   <div className="space-y-2">
                     <Label className="text-foreground">Bild</Label>
                     {imageUpload.error && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>{imageUpload.error.title}</AlertTitle>
                         <AlertDescription className="mt-2">
                           <p>{imageUpload.error.message}</p>
                           {imageUpload.error.actionHint && (
-                            <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                            <p className="mt-2 text-sm opacity-90">
+                              {imageUpload.error.actionHint}
+                            </p>
                           )}
                         </AlertDescription>
                       </Alert>
                     )}
                     <div className="space-y-4">
-                      {(imageUpload.previewUrls.length > 0 || originalImageUrl) ? (
+                      {imageUpload.previewUrls.length > 0 || originalImageUrl ? (
                         <div className="relative group">
-                          <div className={cn(glassCard, 'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2')}>
+                          <div
+                            className={cn(
+                              glassCard,
+                              'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2'
+                            )}
+                          >
                             <img
                               src={imageUpload.previewUrls[0] || originalImageUrl}
                               alt="Vorschau"
@@ -615,4 +645,3 @@ export function AdventCalendarForm() {
     </PageTransition>
   );
 }
-

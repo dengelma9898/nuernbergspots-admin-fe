@@ -18,10 +18,7 @@ export interface FileValidationResult {
  * @param maxSizeMB - Maximale Größe in MB (Standard: 1 MB)
  * @returns Validation-Result mit isValid-Flag und optionaler Fehlermeldung
  */
-export function validateFileSize(
-  file: File,
-  maxSizeMB: number = 1
-): FileValidationResult {
+export function validateFileSize(file: File, maxSizeMB: number = 1): FileValidationResult {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   const fileSizeMB = file.size / (1024 * 1024);
 
@@ -31,7 +28,8 @@ export function validateFileSize(
       error: {
         title: 'Datei ist zu groß',
         message: `Die Datei "${file.name}" ist mit ${fileSizeMB.toFixed(2)} MB zu groß. Die maximale Größe beträgt ${maxSizeMB} MB.`,
-        actionHint: 'Bitte wähle eine kleinere Datei aus oder komprimiere sie vorher mit einem Bildbearbeitungsprogramm.',
+        actionHint:
+          'Bitte wähle eine kleinere Datei aus oder komprimiere sie vorher mit einem Bildbearbeitungsprogramm.',
       },
     };
   }
@@ -63,9 +61,7 @@ export function validateImageFormat(
   allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp']
 ): FileValidationResult {
   if (!allowedTypes.includes(file.type)) {
-    const allowedFormats = allowedTypes
-      .map(type => type.split('/')[1].toUpperCase())
-      .join(', ');
+    const allowedFormats = allowedTypes.map(type => type.split('/')[1].toUpperCase()).join(', ');
 
     return {
       isValid: false,
@@ -86,10 +82,7 @@ export function validateImageFormat(
  * @param maxSizeMB - Maximale Größe in MB (Standard: 1 MB)
  * @returns Validation-Result mit isValid-Flag und optionaler Fehlermeldung
  */
-export function validateImageFile(
-  file: File,
-  maxSizeMB: number = 1
-): FileValidationResult {
+export function validateImageFile(file: File, maxSizeMB: number = 1): FileValidationResult {
   // Prüfe zuerst das Format
   const formatResult = validateImageFormat(file);
   if (!formatResult.isValid) {

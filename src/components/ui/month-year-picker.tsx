@@ -3,8 +3,10 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { monthYearToHtml5, html5ToMonthYear } from '@/utils/eventFormatters';
 
-export interface MonthYearPickerProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'type'> {
+export interface MonthYearPickerProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'value' | 'onChange' | 'type'
+> {
   /**
    * Wert im Backend-Format (mm.yyyy)
    */

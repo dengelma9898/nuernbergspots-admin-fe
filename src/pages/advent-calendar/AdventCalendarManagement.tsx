@@ -209,7 +209,12 @@ export function AdventCalendarManagement() {
       });
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Feature-Status:', error);
-      showUserFriendlyError(error, toast, () => handleFeatureStatusToggle(newValue), 'save-advent-calendar');
+      showUserFriendlyError(
+        error,
+        toast,
+        () => handleFeatureStatusToggle(newValue),
+        'save-advent-calendar'
+      );
     } finally {
       setIsUpdatingFeatureStatus(false);
     }
@@ -345,7 +350,10 @@ export function AdventCalendarManagement() {
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2">
                       <Settings className="h-5 w-5 text-foreground" />
-                      <Label htmlFor="feature-status" className="text-foreground text-lg font-semibold">
+                      <Label
+                        htmlFor="feature-status"
+                        className="text-foreground text-lg font-semibold"
+                      >
                         Feature-Status
                       </Label>
                       {featureStatus && (
@@ -449,7 +457,9 @@ export function AdventCalendarManagement() {
               transition={{ ...defaultTransition, delay: 0.3 }}
             >
               <Card className={cn(glassCard, 'p-8 text-center')}>
-                <div className="text-foreground text-lg">Keine Adventskalender-Einträge gefunden.</div>
+                <div className="text-foreground text-lg">
+                  Keine Adventskalender-Einträge gefunden.
+                </div>
               </Card>
             </motion.div>
           ) : (
@@ -480,10 +490,7 @@ export function AdventCalendarManagement() {
               >
                 {filteredEntries.map((entry, index) => (
                   <motion.div key={entry.id} variants={fadeInUp}>
-                    <AdventCalendarEntryCard
-                      entry={entry}
-                      onDelete={handleDelete}
-                    />
+                    <AdventCalendarEntryCard entry={entry} onDelete={handleDelete} />
                   </motion.div>
                 ))}
               </motion.div>
@@ -495,23 +502,16 @@ export function AdventCalendarManagement() {
   );
 }
 
-
 interface AdventCalendarEntryCardProps {
   entry: AdventCalendarEntry;
   onDelete: (id: string) => void;
 }
 
-const AdventCalendarEntryCard: React.FC<AdventCalendarEntryCardProps> = ({
-  entry,
-  onDelete,
-}) => {
+const AdventCalendarEntryCard: React.FC<AdventCalendarEntryCardProps> = ({ entry, onDelete }) => {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      transition={defaultTransition}
-    >
+    <motion.div whileHover={{ scale: 1.02 }} transition={defaultTransition}>
       <Card className={cn(glassCardHover, 'flex flex-col gap-0 !py-0 !px-0 overflow-hidden')}>
         {entry.imageUrl ? (
           <div className="relative h-48 w-full">
@@ -562,9 +562,7 @@ const AdventCalendarEntryCard: React.FC<AdventCalendarEntryCardProps> = ({
             </div>
           )}
           <div className="flex justify-between items-center w-full">
-            <div className="text-xs text-muted-foreground">
-              {formatDate(entry.createdAt)}
-            </div>
+            <div className="text-xs text-muted-foreground">{formatDate(entry.createdAt)}</div>
             <div className="flex gap-2">
               <AnimatedButton
                 variant="outline"
@@ -574,11 +572,7 @@ const AdventCalendarEntryCard: React.FC<AdventCalendarEntryCardProps> = ({
               >
                 <Edit className="h-4 w-4" />
               </AnimatedButton>
-              <AnimatedButton
-                variant="destructive"
-                size="sm"
-                onClick={() => onDelete(entry.id)}
-              >
+              <AnimatedButton variant="destructive" size="sm" onClick={() => onDelete(entry.id)}>
                 <Trash2 className="h-4 w-4" />
               </AnimatedButton>
             </div>
@@ -661,4 +655,3 @@ const AdventCalendarEntryCardMobile: React.FC<AdventCalendarEntryCardMobileProps
     </Card>
   );
 };
-

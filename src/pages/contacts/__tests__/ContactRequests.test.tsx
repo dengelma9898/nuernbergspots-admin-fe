@@ -378,7 +378,10 @@ describe('ContactRequests', () => {
       });
 
       await waitFor(() => {
-        expectToastSuccessTitle(mockToast.success as jest.Mock, 'Kontaktanfragen erfolgreich aktualisiert');
+        expectToastSuccessTitle(
+          mockToast.success as jest.Mock,
+          'Kontaktanfragen erfolgreich aktualisiert'
+        );
       });
     });
 

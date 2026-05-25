@@ -245,9 +245,7 @@ describe('DowntimeManagement Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('alert-dialog-content')).toBeTruthy();
       expect(screen.getByText('Downtime aktivieren')).toBeTruthy();
-      expect(
-        screen.getByText(/Möchten Sie den Downtime wirklich aktivieren/)
-      ).toBeTruthy();
+      expect(screen.getByText(/Möchten Sie den Downtime wirklich aktivieren/)).toBeTruthy();
     });
   });
 
@@ -269,9 +267,7 @@ describe('DowntimeManagement Component', () => {
     await waitFor(() => {
       expect(screen.getByTestId('alert-dialog-content')).toBeTruthy();
       expect(screen.getByText('Downtime deaktivieren')).toBeTruthy();
-      expect(
-        screen.getByText(/Möchten Sie den Downtime wirklich deaktivieren/)
-      ).toBeTruthy();
+      expect(screen.getByText(/Möchten Sie den Downtime wirklich deaktivieren/)).toBeTruthy();
     });
   });
 
@@ -424,9 +420,7 @@ describe('DowntimeManagement Component', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Wartungsmodus aktiv')).toBeTruthy();
-      expect(
-        screen.getByText(/Die Anwendung ist derzeit nicht verfügbar/)
-      ).toBeTruthy();
+      expect(screen.getByText(/Die Anwendung ist derzeit nicht verfügbar/)).toBeTruthy();
       expect(screen.getByTestId('alert-triangle-icon')).toBeTruthy();
     });
   });
@@ -439,4 +433,3 @@ describe('DowntimeManagement Component', () => {
     });
   });
 });
-

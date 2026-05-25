@@ -4,10 +4,10 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { 
+  {
     ignores: [
       'dist/**',
-      'node_modules/**', 
+      'node_modules/**',
       'coverage/**',
       'build/**',
       '**/*.min.js',
@@ -27,14 +27,11 @@ export default tseslint.config(
       '**/*.spec.ts',
       '**/*.spec.tsx',
       '**/__tests__/**',
-      'e2e/**'
-    ] 
+      'e2e/**',
+    ],
   },
   {
-    extends: [
-      js.configs.recommended,
-      ...tseslint.configs.recommended
-    ],
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
@@ -44,20 +41,23 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
-      // React Hooks Rules
-      ...reactHooks.configs.recommended.rules,
-      
-      // React Refresh
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      // Klassische React-Hooks-Regeln (rules-of-hooks + exhaustive-deps).
+      // React-Compiler-Regeln aus eslint-plugin-react-hooks v7 bewusst ausgeschlossen:
+      // Sie erfordern eine Compiler-Migration im gesamten Codebase (~60+ Fehler).
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
 
-      // TypeScript Rules (lockerer für den Anfang)
-      '@typescript-eslint/no-unused-vars': ['warn', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_' 
-      }],
+      // React Refresh
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+
+      // TypeScript Rules (lockerer für den Anfang — Warnungen blockieren validate nicht)
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-require-imports': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
@@ -69,5 +69,5 @@ export default tseslint.config(
       'no-var': 'error',
       'no-empty': 'warn',
     },
-  },
+  }
 );

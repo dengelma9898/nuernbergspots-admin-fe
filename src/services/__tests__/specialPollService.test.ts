@@ -189,7 +189,15 @@ describe('Special Poll Service', () => {
   describe('updateSpecialPollHighlight', () => {
     it('should patch highlight endpoint', async () => {
       const body = { isHighlighted: true };
-      const updatedPoll = { id: '1', title: 'T', status: SpecialPollStatus.ACTIVE, isHighlighted: true, responses: [], createdAt: '', updatedAt: '' };
+      const updatedPoll = {
+        id: '1',
+        title: 'T',
+        status: SpecialPollStatus.ACTIVE,
+        isHighlighted: true,
+        responses: [],
+        createdAt: '',
+        updatedAt: '',
+      };
       mockApi.patch.mockResolvedValue({ data: updatedPoll });
 
       const result = await specialPollService.updateSpecialPollHighlight('1', body);
@@ -271,10 +279,7 @@ describe('Special Poll Service', () => {
 
       const result = await specialPollService.upvoteResponse('1', 'resp-uuid');
 
-      expect(mockApi.post).toHaveBeenCalledWith(
-        '/special-polls/1/responses/resp-uuid/upvote',
-        {}
-      );
+      expect(mockApi.post).toHaveBeenCalledWith('/special-polls/1/responses/resp-uuid/upvote', {});
       expect(result).toEqual(updatedPoll);
     });
   });

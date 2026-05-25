@@ -117,11 +117,9 @@ describe('curatedSpotService', () => {
     mockApi.post.mockResolvedValue({ data: sampleSpot });
     const vf = new File(['v'], 'v.mp4', { type: 'video/mp4' });
     await service.uploadVideo('spot-1', vf);
-    expect(mockApi.post).toHaveBeenCalledWith(
-      '/curated-spots/spot-1/video',
-      expect.any(FormData),
-      { isFormData: true }
-    );
+    expect(mockApi.post).toHaveBeenCalledWith('/curated-spots/spot-1/video', expect.any(FormData), {
+      isFormData: true,
+    });
     const fd = mockApi.post.mock.calls[0][1] as FormData;
     expect(fd.get('file')).toBe(vf);
   });

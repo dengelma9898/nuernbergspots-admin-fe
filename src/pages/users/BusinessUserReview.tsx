@@ -185,10 +185,7 @@ export const BusinessUserReview: React.FC = () => {
                             <Skeleton className="h-4 w-40 rounded mb-3" />
                             <div className="space-y-2">
                               {[...Array(2)].map((_, j) => (
-                                <div
-                                  key={j}
-                                  className={cn(glassCard, 'flex items-center p-3')}
-                                >
+                                <div key={j} className={cn(glassCard, 'flex items-center p-3')}>
                                   <Skeleton className="h-8 w-8 rounded-lg mr-3" />
                                   <Skeleton className="h-4 w-40 rounded" />
                                 </div>
@@ -219,7 +216,9 @@ export const BusinessUserReview: React.FC = () => {
                 transition={defaultTransition}
               >
                 <Card className={cn(glassCard, 'p-8 text-center')}>
-                  <div className="text-muted-foreground">Keine Benutzer zur Überprüfung gefunden.</div>
+                  <div className="text-muted-foreground">
+                    Keine Benutzer zur Überprüfung gefunden.
+                  </div>
                 </Card>
               </motion.div>
             ) : (
@@ -230,7 +229,7 @@ export const BusinessUserReview: React.FC = () => {
                 initial="initial"
                 animate="animate"
               >
-                {users.map((user) => (
+                {users.map(user => (
                   <motion.div key={user.id} variants={fadeInUp}>
                     <Card className={cn(glassCard, 'overflow-hidden')} data-slot="card">
                       <div className="p-4 sm:p-6">
@@ -238,7 +237,9 @@ export const BusinessUserReview: React.FC = () => {
                         <div className="border-b border-secondary pb-4 mb-4">
                           <div className="flex justify-between items-start flex-wrap gap-2">
                             <div className="space-y-1 min-w-0">
-                              <div className="text-lg font-semibold text-foreground">Business User</div>
+                              <div className="text-lg font-semibold text-foreground">
+                                Business User
+                              </div>
                               <div className="text-xs text-muted-foreground break-all truncate max-w-xs sm:max-w-none">
                                 ID: {user.id}
                               </div>
@@ -265,7 +266,8 @@ export const BusinessUserReview: React.FC = () => {
                                     <Building2 className="h-4 w-4 text-muted-foreground" />
                                   </div>
                                   {user.businessIds.length}{' '}
-                                  {user.businessIds.length === 1 ? 'Geschäft' : 'Geschäfte'} zugewiesen
+                                  {user.businessIds.length === 1 ? 'Geschäft' : 'Geschäfte'}{' '}
+                                  zugewiesen
                                 </div>
                               )}
                             </div>
@@ -298,7 +300,10 @@ export const BusinessUserReview: React.FC = () => {
                                 {user.businessNames.map(name => (
                                   <div
                                     key={name}
-                                    className={cn(glassCard, 'flex items-center text-sm p-3 break-all truncate max-w-full')}
+                                    className={cn(
+                                      glassCard,
+                                      'flex items-center text-sm p-3 break-all truncate max-w-full'
+                                    )}
                                   >
                                     <div className={cn(glassCard, 'p-2 mr-3')}>
                                       <Store className="h-4 w-4 text-muted-foreground" />

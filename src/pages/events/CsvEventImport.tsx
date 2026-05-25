@@ -8,11 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { glassCard, glassInput } from '@/lib/glassmorphism';
 
-import {
-  useEventService,
-  CsvImportResult,
-  CsvImportRowResult,
-} from '@/services/eventService';
+import { useEventService, CsvImportResult, CsvImportRowResult } from '@/services/eventService';
 
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -91,23 +87,29 @@ export const CsvEventImport: React.FC = () => {
   /**
    * Verarbeitet die Dateiauswahl
    */
-  const handleFileSelect = useCallback((file: File) => {
-    const error = validateFile(file);
-    setFileError(error);
-    setSelectedFile(error ? null : file);
-    setImportResult(null);
-    setEventTitles(new Map());
-  }, [validateFile]);
+  const handleFileSelect = useCallback(
+    (file: File) => {
+      const error = validateFile(file);
+      setFileError(error);
+      setSelectedFile(error ? null : file);
+      setImportResult(null);
+      setEventTitles(new Map());
+    },
+    [validateFile]
+  );
 
   /**
    * File-Input Change Handler
    */
-  const handleFileInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
-  }, [handleFileSelect]);
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        handleFileSelect(file);
+      }
+    },
+    [handleFileSelect]
+  );
 
   /**
    * Drag & Drop Handlers
@@ -122,14 +124,17 @@ export const CsvEventImport: React.FC = () => {
     setIsDragOver(false);
   }, []);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragOver(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) {
-      handleFileSelect(file);
-    }
-  }, [handleFileSelect]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragOver(false);
+      const file = e.dataTransfer.files?.[0];
+      if (file) {
+        handleFileSelect(file);
+      }
+    },
+    [handleFileSelect]
+  );
 
   /**
    * Datei entfernen
@@ -167,35 +172,38 @@ export const CsvEventImport: React.FC = () => {
   /**
    * Lädt Event-Titel für erfolgreiche und übersprungene Events
    */
-  const loadEventTitles = useCallback(async (result: CsvImportResult) => {
-    const titlesMap = new Map<string, string>();
-    const eventIdsToLoad: string[] = [];
+  const loadEventTitles = useCallback(
+    async (result: CsvImportResult) => {
+      const titlesMap = new Map<string, string>();
+      const eventIdsToLoad: string[] = [];
 
-    // Sammle alle Event-IDs, die geladen werden müssen
-    for (const row of result.results) {
-      if (row.success && row.eventId) {
-        eventIdsToLoad.push(row.eventId);
+      // Sammle alle Event-IDs, die geladen werden müssen
+      for (const row of result.results) {
+        if (row.success && row.eventId) {
+          eventIdsToLoad.push(row.eventId);
+        }
+        if (row.skipped && row.duplicateEventId) {
+          eventIdsToLoad.push(row.duplicateEventId);
+        }
       }
-      if (row.skipped && row.duplicateEventId) {
-        eventIdsToLoad.push(row.duplicateEventId);
-      }
-    }
 
-    // Lade Events parallel
-    const loadPromises = eventIdsToLoad.map(async (eventId) => {
-      try {
-        const event = await eventService.getEvent(eventId);
-        titlesMap.set(eventId, event.title);
-      } catch (error) {
-        console.error(`Fehler beim Laden des Events ${eventId}:`, error);
-        // Verwende ID als Fallback
-        titlesMap.set(eventId, eventId);
-      }
-    });
+      // Lade Events parallel
+      const loadPromises = eventIdsToLoad.map(async eventId => {
+        try {
+          const event = await eventService.getEvent(eventId);
+          titlesMap.set(eventId, event.title);
+        } catch (error) {
+          console.error(`Fehler beim Laden des Events ${eventId}:`, error);
+          // Verwende ID als Fallback
+          titlesMap.set(eventId, eventId);
+        }
+      });
 
-    await Promise.all(loadPromises);
-    setEventTitles(titlesMap);
-  }, [eventService]);
+      await Promise.all(loadPromises);
+      setEventTitles(titlesMap);
+    },
+    [eventService]
+  );
 
   /**
    * CSV-Upload ausführen
@@ -209,7 +217,7 @@ export const CsvEventImport: React.FC = () => {
       setEventTitles(new Map());
 
       const result = await eventService.importEventsFromCsv(selectedFile);
-      
+
       // Stelle sicher, dass results immer ein Array ist
       const safeResult: CsvImportResult = {
         totalRows: result.totalRows || 0,
@@ -320,17 +328,11 @@ export const CsvEventImport: React.FC = () => {
             transition={defaultTransition}
           >
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              <AnimatedButton
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/events')}
-              >
+              <AnimatedButton variant="ghost" size="icon" onClick={() => navigate('/events')}>
                 <ArrowLeft className="h-5 w-5" />
               </AnimatedButton>
               <div className="flex-1">
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                  CSV Event Import
-                </h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">CSV Event Import</h1>
                 <p className="text-sm text-muted-foreground mt-1">
                   Importiere mehrere Events gleichzeitig aus einer CSV-Datei
                 </p>
@@ -381,23 +383,38 @@ export const CsvEventImport: React.FC = () => {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-secondary">
-                            <th className="text-left py-2 pr-4 text-foreground font-semibold">Spalte</th>
-                            <th className="text-left py-2 pr-4 text-foreground font-semibold">Pflicht</th>
-                            <th className="text-left py-2 text-foreground font-semibold">Format / Beispiel</th>
+                            <th className="text-left py-2 pr-4 text-foreground font-semibold">
+                              Spalte
+                            </th>
+                            <th className="text-left py-2 pr-4 text-foreground font-semibold">
+                              Pflicht
+                            </th>
+                            <th className="text-left py-2 text-foreground font-semibold">
+                              Format / Beispiel
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
-                          {CSV_COLUMNS.map((col) => (
+                          {CSV_COLUMNS.map(col => (
                             <tr key={col.name} className="border-b border-secondary/50">
                               <td className="py-2 pr-4 text-foreground font-medium">{col.name}</td>
                               <td className="py-2 pr-4">
                                 {col.required ? (
-                                  <Badge variant="default" className="bg-red-600 text-white text-xs">Ja</Badge>
+                                  <Badge
+                                    variant="default"
+                                    className="bg-red-600 text-white text-xs"
+                                  >
+                                    Ja
+                                  </Badge>
                                 ) : (
-                                  <Badge variant="secondary" className="text-xs">Nein</Badge>
+                                  <Badge variant="secondary" className="text-xs">
+                                    Nein
+                                  </Badge>
                                 )}
                               </td>
-                              <td className="py-2 text-muted-foreground text-xs sm:text-sm">{col.format}</td>
+                              <td className="py-2 text-muted-foreground text-xs sm:text-sm">
+                                {col.format}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -472,7 +489,7 @@ export const CsvEventImport: React.FC = () => {
                       <AnimatedButton
                         variant="ghost"
                         size="sm"
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation();
                           handleRemoveFile();
                         }}
@@ -486,12 +503,8 @@ export const CsvEventImport: React.FC = () => {
                     <div className="flex flex-col items-center gap-3">
                       <Upload className="h-12 w-12 text-muted-foreground" />
                       <div>
-                        <p className="text-foreground font-medium">
-                          CSV-Datei hierher ziehen
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          oder klicken zum Auswählen
-                        </p>
+                        <p className="text-foreground font-medium">CSV-Datei hierher ziehen</p>
+                        <p className="text-sm text-muted-foreground">oder klicken zum Auswählen</p>
                       </div>
                     </div>
                   )}
@@ -564,9 +577,7 @@ export const CsvEventImport: React.FC = () => {
                 {/* Zusammenfassung */}
                 <Card className={cn(glassCard, 'mb-6')}>
                   <CardHeader>
-                    <CardTitle className="text-lg text-foreground">
-                      Import-Ergebnis
-                    </CardTitle>
+                    <CardTitle className="text-lg text-foreground">Import-Ergebnis</CardTitle>
                     <CardDescription className="text-muted-foreground">
                       {importResult.totalRows} Zeilen verarbeitet
                     </CardDescription>
@@ -580,12 +591,14 @@ export const CsvEventImport: React.FC = () => {
                     >
                       {/* Erfolgreich */}
                       <motion.div variants={staggerItem}>
-                        <Card className={cn(
-                          'border transition-all duration-300',
-                          importResult.successful > 0
-                            ? 'border-green-500/50 bg-green-500/5'
-                            : 'border-secondary'
-                        )}>
+                        <Card
+                          className={cn(
+                            'border transition-all duration-300',
+                            importResult.successful > 0
+                              ? 'border-green-500/50 bg-green-500/5'
+                              : 'border-secondary'
+                          )}
+                        >
                           <CardContent className="pt-4 pb-4 flex items-center gap-3">
                             <div className="p-2 rounded-full bg-green-500/10">
                               <CheckCircle2 className="h-6 w-6 text-green-500" />
@@ -602,12 +615,14 @@ export const CsvEventImport: React.FC = () => {
 
                       {/* Übersprungen */}
                       <motion.div variants={staggerItem}>
-                        <Card className={cn(
-                          'border transition-all duration-300',
-                          importResult.skipped > 0
-                            ? 'border-yellow-500/50 bg-yellow-500/5'
-                            : 'border-secondary'
-                        )}>
+                        <Card
+                          className={cn(
+                            'border transition-all duration-300',
+                            importResult.skipped > 0
+                              ? 'border-yellow-500/50 bg-yellow-500/5'
+                              : 'border-secondary'
+                          )}
+                        >
                           <CardContent className="pt-4 pb-4 flex items-center gap-3">
                             <div className="p-2 rounded-full bg-yellow-500/10">
                               <AlertTriangle className="h-6 w-6 text-yellow-500" />
@@ -624,12 +639,14 @@ export const CsvEventImport: React.FC = () => {
 
                       {/* Fehlgeschlagen */}
                       <motion.div variants={staggerItem}>
-                        <Card className={cn(
-                          'border transition-all duration-300',
-                          importResult.failed > 0
-                            ? 'border-red-500/50 bg-red-500/5'
-                            : 'border-secondary'
-                        )}>
+                        <Card
+                          className={cn(
+                            'border transition-all duration-300',
+                            importResult.failed > 0
+                              ? 'border-red-500/50 bg-red-500/5'
+                              : 'border-secondary'
+                          )}
+                        >
                           <CardContent className="pt-4 pb-4 flex items-center gap-3">
                             <div className="p-2 rounded-full bg-red-500/10">
                               <XCircle className="h-6 w-6 text-red-500" />
@@ -650,9 +667,7 @@ export const CsvEventImport: React.FC = () => {
                 {/* Detail-Ergebnis pro Zeile */}
                 <Card className={cn(glassCard)}>
                   <CardHeader>
-                    <CardTitle className="text-lg text-foreground">
-                      Details pro Zeile
-                    </CardTitle>
+                    <CardTitle className="text-lg text-foreground">Details pro Zeile</CardTitle>
                   </CardHeader>
                   <CardContent>
                     {!importResult.results || importResult.results.length === 0 ? (
@@ -677,7 +692,7 @@ export const CsvEventImport: React.FC = () => {
                             // Ansonsten nach Zeilen-Index sortieren
                             return a.rowIndex - b.rowIndex;
                           })
-                          .map((row) => {
+                          .map(row => {
                             // Extrahiere Titel für verschiedene Fälle
                             let eventTitle: string | null = null;
                             if (row.success && row.eventId) {
@@ -744,32 +759,39 @@ export const CsvEventImport: React.FC = () => {
 
                                 {/* Details */}
                                 <div className="space-y-2">
-                                  {row.skipped && row.errors && Array.isArray(row.errors) && row.errors.length > 0 && (
-                                    <div className="text-sm text-muted-foreground">
-                                      {row.errors.map((err, errIdx) => (
-                                        <div key={errIdx} className="mt-1">
-                                          {err.message}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                  {!row.success && !row.skipped && row.errors && Array.isArray(row.errors) && row.errors.length > 0 && (
-                                    <div className="space-y-1">
-                                      {row.errors.map((err, errIdx) => (
-                                        <p key={errIdx} className="text-sm text-destructive">
-                                          {err.field && (
-                                            <span className="font-medium">[{err.field}] </span>
-                                          )}
-                                          {err.message}
-                                          {err.value !== undefined && err.value !== null && (
-                                            <span className="text-muted-foreground ml-1">
-                                              (Wert: &quot;{String(err.value)}&quot;)
-                                            </span>
-                                          )}
-                                        </p>
-                                      ))}
-                                    </div>
-                                  )}
+                                  {row.skipped &&
+                                    row.errors &&
+                                    Array.isArray(row.errors) &&
+                                    row.errors.length > 0 && (
+                                      <div className="text-sm text-muted-foreground">
+                                        {row.errors.map((err, errIdx) => (
+                                          <div key={errIdx} className="mt-1">
+                                            {err.message}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
+                                  {!row.success &&
+                                    !row.skipped &&
+                                    row.errors &&
+                                    Array.isArray(row.errors) &&
+                                    row.errors.length > 0 && (
+                                      <div className="space-y-1">
+                                        {row.errors.map((err, errIdx) => (
+                                          <p key={errIdx} className="text-sm text-destructive">
+                                            {err.field && (
+                                              <span className="font-medium">[{err.field}] </span>
+                                            )}
+                                            {err.message}
+                                            {err.value !== undefined && err.value !== null && (
+                                              <span className="text-muted-foreground ml-1">
+                                                (Wert: &quot;{String(err.value)}&quot;)
+                                              </span>
+                                            )}
+                                          </p>
+                                        ))}
+                                      </div>
+                                    )}
                                 </div>
                               </motion.div>
                             );

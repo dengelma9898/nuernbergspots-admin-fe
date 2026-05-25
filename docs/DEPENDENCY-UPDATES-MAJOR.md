@@ -11,25 +11,25 @@ Dieses Dokument fasst **Major-Upgrades** zusammen, die über die in `package.jso
 
 Nach jedem Paket bzw. gemeinsamen Schritt wurde **`npm run type-check`**, **`npm run build`** und ein kurzer **Vite-Dev-Server** (HTTP 200) ausgeführt.
 
-| Thema | Stand | Verifiziert |
-|-------|--------|-------------|
-| **MUI 7 → 9** | `@mui/material` / `@mui/icons-material` **^9.0.0** | wie zuvor dokumentiert |
-| **@types/node** | **^25.6.0** | type-check, build, Dev-Start |
-| **simple-icons** | **^16.17.0** | type-check, build, Dev-Start |
-| **postcss-nesting** | **^14.0.0** (Peer `postcss ^8.4` erfüllt) | type-check, build, Dev-Start |
-| **jsdom** | **^29.0.2** | type-check, build, Dev-Start |
-| **lucide-react 1.x** | **^1.8.0**; Marken-Icons aus Lucide entfernt: Anpassung in [`JobOfferForm.tsx`](../src/pages/job-offers/JobOfferForm.tsx) (`Facebook`/`Instagram` über **simple-icons**, LinkedIn-Zeile mit **`LinkIcon`** statt entferntem Lucide-`Linkedin`, da kein passender Export in simple-icons v16 genutzt wurde) | type-check, build, Dev-Start |
-| **Vite 8 + @vitejs/plugin-react 6** | `vite` **^8.0.8**, `@vitejs/plugin-react` **^6.0.1** (ein gemeinsamer Schritt wegen `peer: vite ^8`) | type-check, build, Dev-Start |
-| **TypeScript 6** | **^6.0.3**; **`baseUrl`** in [`tsconfig.json`](../tsconfig.json) und [`tsconfig.app.json`](../tsconfig.app.json) entfernt (TS 6 Deprecation **TS5101**), `paths` für `@/*` unverändert | type-check, build, Dev-Start |
-| **ESLint 10** | **zurückgestellt** auf **^9.39.4** | `npm install` schlägt mit harten Peer-Konflikten fehl: u. a. `eslint-plugin-import@2.32.0` erlaubt nur `eslint` ^2–^9. Siehe Abschnitt *ESLint (9 → 10)*. |
-| **Jest / Gesamtsuite** | bewusst **nicht** Teil dieser Runde | Nachgang wie in [TESTING.md](./TESTING.md) |
+| Thema                               | Stand                                                                                                                                                                                                                                                                                                      | Verifiziert                                                                                                                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MUI 7 → 9**                       | `@mui/material` / `@mui/icons-material` **^9.0.0**                                                                                                                                                                                                                                                         | wie zuvor dokumentiert                                                                                                                                    |
+| **@types/node**                     | **^25.6.0**                                                                                                                                                                                                                                                                                                | type-check, build, Dev-Start                                                                                                                              |
+| **simple-icons**                    | **^16.17.0**                                                                                                                                                                                                                                                                                               | type-check, build, Dev-Start                                                                                                                              |
+| **postcss-nesting**                 | **^14.0.0** (Peer `postcss ^8.4` erfüllt)                                                                                                                                                                                                                                                                  | type-check, build, Dev-Start                                                                                                                              |
+| **jsdom**                           | **^29.0.2**                                                                                                                                                                                                                                                                                                | type-check, build, Dev-Start                                                                                                                              |
+| **lucide-react 1.x**                | **^1.8.0**; Marken-Icons aus Lucide entfernt: Anpassung in [`JobOfferForm.tsx`](../src/pages/job-offers/JobOfferForm.tsx) (`Facebook`/`Instagram` über **simple-icons**, LinkedIn-Zeile mit **`LinkIcon`** statt entferntem Lucide-`Linkedin`, da kein passender Export in simple-icons v16 genutzt wurde) | type-check, build, Dev-Start                                                                                                                              |
+| **Vite 8 + @vitejs/plugin-react 6** | `vite` **^8.0.8**, `@vitejs/plugin-react` **^6.0.1** (ein gemeinsamer Schritt wegen `peer: vite ^8`)                                                                                                                                                                                                       | type-check, build, Dev-Start                                                                                                                              |
+| **TypeScript 6**                    | **^6.0.3**; **`baseUrl`** in [`tsconfig.json`](../tsconfig.json) und [`tsconfig.app.json`](../tsconfig.app.json) entfernt (TS 6 Deprecation **TS5101**), `paths` für `@/*` unverändert                                                                                                                     | type-check, build, Dev-Start                                                                                                                              |
+| **ESLint 10**                       | **zurückgestellt** auf **^9.39.4**                                                                                                                                                                                                                                                                         | `npm install` schlägt mit harten Peer-Konflikten fehl: u. a. `eslint-plugin-import@2.32.0` erlaubt nur `eslint` ^2–^9. Siehe Abschnitt _ESLint (9 → 10)_. |
+| **Jest / Gesamtsuite**              | bewusst **nicht** Teil dieser Runde                                                                                                                                                                                                                                                                        | Nachgang wie in [TESTING.md](./TESTING.md)                                                                                                                |
 
 ## Übersicht: Major-Sprünge (Rest offen / blockiert)
 
-| Paket | Spezifikation (aktuell) | Bemerkung |
-|-------|-------------------------|-----------|
-| `eslint` | ^9.39.4 | Upgrade auf 10.x blockiert durch Plugin-Peers (s. unten) |
-| `typescript-eslint` | ^8.58.2 | passt zu TS 6.x laut Peer (`typescript <6.1`); bei Major-Bump mit ESLint 10 koordinieren |
+| Paket               | Spezifikation (aktuell) | Bemerkung                                                                                |
+| ------------------- | ----------------------- | ---------------------------------------------------------------------------------------- |
+| `eslint`            | ^9.39.4                 | Upgrade auf 10.x blockiert durch Plugin-Peers (s. unten)                                 |
+| `typescript-eslint` | ^8.58.2                 | passt zu TS 6.x laut Peer (`typescript <6.1`); bei Major-Bump mit ESLint 10 koordinieren |
 
 **Erledigt (nicht mehr in der Tabelle):** `@mui/*`, `vite`, `@vitejs/plugin-react`, `typescript`, `@types/node`, `jsdom`, `lucide-react`, `postcss-nesting`, `simple-icons` – jeweils auf den in `package.json` gesetzten Major-Stand angehoben und wie oben verifiziert.
 
@@ -44,7 +44,7 @@ Nach jedem Paket bzw. gemeinsamen Schritt wurde **`npm run type-check`**, **`npm
 - **Codeumfang:** MUI wird nur für **Material Icons** und die **`Icon`-Wrapper-Komponente** genutzt (`src/utils/iconUtils.tsx`, `src/components/ui/icon-picker.tsx` sowie zugehöriger Test-Mock). Keine `Dialog`/`ThemeProvider`-Nutzung aus `@mui/material` im App-Tree.
 - **Durchgeführt:** Versionen auf **^9.0.0** angehoben, `npm install`, ohne zusätzliche Code-Anpassungen (TypeScript blieb grün).
 - **Verifiziert:** `npm run type-check`, `npm run build`, kurzer **Dev-Start** (Vite, HTTP 200).
-- **Nachgang:** Vollständige **`npm run test`** / `validate`-Runde separat (siehe Abschnitt *Abgeschlossene Major-Schritte* und [TESTING.md](./TESTING.md)); visuelle Smoke-Tests der Icon-Picker-Flows im Browser.
+- **Nachgang:** Vollständige **`npm run test`** / `validate`-Runde separat (siehe Abschnitt _Abgeschlossene Major-Schritte_ und [TESTING.md](./TESTING.md)); visuelle Smoke-Tests der Icon-Picker-Flows im Browser.
 
 ### Migrationsweg (Referenz für andere Projekte / erweiterte Nutzung)
 
@@ -140,7 +140,7 @@ Betrifft vor allem **Jest** (`jest-environment-jsdom`).
 
 ### Stand Migration (admin-fe, 2026-04-20)
 
-- **Durchgeführt:** `lucide-react` **^1.8.0**; einzige betroffene Marken-Imports waren in **`JobOfferForm`** (`Linkedin`, `Facebook`, `Instagram` von Lucide). Umsetzung siehe Tabelle *Abgeschlossene Major-Schritte*.
+- **Durchgeführt:** `lucide-react` **^1.8.0**; einzige betroffene Marken-Imports waren in **`JobOfferForm`** (`Linkedin`, `Facebook`, `Instagram` von Lucide). Umsetzung siehe Tabelle _Abgeschlossene Major-Schritte_.
 - **Verifiziert:** `npm run type-check`, `npm run build`, Dev-Server.
 
 ### Wesentliche Punkte

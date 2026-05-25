@@ -99,18 +99,15 @@ const NavigationCard = ({
       animate="animate"
       transition={{
         ...defaultTransition,
-        delay: index * 0.05
+        delay: index * 0.05,
       }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.02,
         y: -4,
-        transition: defaultTransition
+        transition: defaultTransition,
       }}
     >
-      <Card
-        className={cn(glassCardHover, 'cursor-pointer group')}
-        onClick={() => navigate(href)}
-      >
+      <Card className={cn(glassCardHover, 'cursor-pointer group')} onClick={() => navigate(href)}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -130,10 +127,7 @@ const NavigationCard = ({
                 </CardDescription>
               </div>
             </div>
-            <motion.div
-              whileHover={{ x: 4, scale: 1.1 }}
-              transition={defaultTransition}
-            >
+            <motion.div whileHover={{ x: 4, scale: 1.1 }} transition={defaultTransition}>
               <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
             </motion.div>
           </div>
@@ -227,12 +221,7 @@ export function Dashboard() {
       fetchOpenContactRequests();
       fetchTotalUsers();
     }
-  }, [
-    fetchPendingApprovals,
-    fetchUsersInReview,
-    fetchOpenContactRequests,
-    fetchTotalUsers,
-  ]);
+  }, [fetchPendingApprovals, fetchUsersInReview, fetchOpenContactRequests, fetchTotalUsers]);
 
   return (
     <PageTransition>
@@ -241,85 +230,84 @@ export function Dashboard() {
         <Background />
 
         <div className="container mx-auto max-w-full p-8 sm:p-8 px-2 overflow-x-hidden relative z-10">
-        <motion.div
-          className="space-y-8"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          {/* Header Section */}
           <motion.div
-            className={cn(glassCard, 'p-6')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-4">
-              <div className="space-y-2">
-                <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
-                  Admin Dashboard
-                </h1>
-                <motion.div
-                  className={cn(glassBadge, 'text-lg sm:text-xl font-medium px-4 py-2')}
-                  variants={fadeIn}
-                  initial="initial"
-                  animate="animate"
-                  transition={{ ...defaultTransition, delay: 0.2 }}
-                >
-                  <span className="text-foreground">Hi Sarah 👋, schön dass du wieder da bist ✨</span>
-                  {(pendingApprovals > 0 || usersInReview > 0 || openContactRequests > 0) && (
-                    <span className="block mt-2 text-muted-foreground">
-                      {pendingApprovals + usersInReview + openContactRequests > 10
-                        ? 'Da wartet eine Menge Arbeit auf dich! 💪'
-                        : 'Es gibt ein bisschen was zu tun für dich 😊'}
-                    </span>
-                  )}
-                  {totalUsers > 0 && (
-                    <span className="block mt-2 text-muted-foreground">
-                      {totalUsers} registrierte Benutzer im System 👥
-                    </span>
-                  )}
-                </motion.div>
-              </div>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
-                <ThemeToggle />
-                <AnimatedButton
-                  variant="outline"
-                  onClick={() => navigate('/profile')}
-                  className={cn(glassButton, 'w-full sm:w-auto')}
-                >
-                  <User className="h-4 w-4" />
-                </AnimatedButton>
-                <AnimatedButton
-                  variant="outline"
-                  onClick={handleLogout}
-                  className="bg-background border border-destructive text-destructive hover:bg-destructive/10 hover:border-destructive w-full sm:w-auto rounded-lg transition-all duration-300"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Abmelden
-                </AnimatedButton>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Pending Reviews Cards - Direkt auf Background ohne Management-Kachel */}
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="space-y-8"
             variants={staggerContainer}
             initial="initial"
             animate="animate"
-            transition={{ ...defaultTransition, delay: 0.3 }}
           >
+            {/* Header Section */}
+            <motion.div
+              className={cn(glassCard, 'p-6')}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-4">
+                <div className="space-y-2">
+                  <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+                    Admin Dashboard
+                  </h1>
+                  <motion.div
+                    className={cn(glassBadge, 'text-lg sm:text-xl font-medium px-4 py-2')}
+                    variants={fadeIn}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.2 }}
+                  >
+                    <span className="text-foreground">
+                      Hi Sarah 👋, schön dass du wieder da bist ✨
+                    </span>
+                    {(pendingApprovals > 0 || usersInReview > 0 || openContactRequests > 0) && (
+                      <span className="block mt-2 text-muted-foreground">
+                        {pendingApprovals + usersInReview + openContactRequests > 10
+                          ? 'Da wartet eine Menge Arbeit auf dich! 💪'
+                          : 'Es gibt ein bisschen was zu tun für dich 😊'}
+                      </span>
+                    )}
+                    {totalUsers > 0 && (
+                      <span className="block mt-2 text-muted-foreground">
+                        {totalUsers} registrierte Benutzer im System 👥
+                      </span>
+                    )}
+                  </motion.div>
+                </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                  <ThemeToggle />
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={() => navigate('/profile')}
+                    className={cn(glassButton, 'w-full sm:w-auto')}
+                  >
+                    <User className="h-4 w-4" />
+                  </AnimatedButton>
+                  <AnimatedButton
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="bg-background border border-destructive text-destructive hover:bg-destructive/10 hover:border-destructive w-full sm:w-auto rounded-lg transition-all duration-300"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Abmelden
+                  </AnimatedButton>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Pending Reviews Cards - Direkt auf Background ohne Management-Kachel */}
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+              transition={{ ...defaultTransition, delay: 0.3 }}
+            >
               {/* Pending Business Approvals Card */}
               {pendingApprovalsLoading ? (
                 <DashboardCardSkeleton icon={Store} titleText="Ausstehende Partner ✍️" />
               ) : (
                 pendingApprovals > 0 && (
-                  <AnimatedCard
-                    index={0}
-                    className={cn(glassCardHover, 'p-4')}
-                  >
+                  <AnimatedCard index={0} className={cn(glassCardHover, 'p-4')}>
                     <CardContent className="p-0">
                       {/* Header with icon and title in one line */}
                       <div className="flex items-center gap-2 mb-3">
@@ -369,10 +357,7 @@ export function Dashboard() {
                 <DashboardCardSkeleton icon={User} titleText="Geschäftsinhaber prüfen 🔍" />
               ) : (
                 usersInReview > 0 && (
-                  <AnimatedCard
-                    index={1}
-                    className={cn(glassCardHover, 'p-4')}
-                  >
+                  <AnimatedCard index={1} className={cn(glassCardHover, 'p-4')}>
                     <CardContent className="p-0">
                       {/* Header with icon and title in one line */}
                       <div className="flex items-center gap-2 mb-3">
@@ -421,10 +406,7 @@ export function Dashboard() {
               {contactRequestsLoading ? (
                 <DashboardCardSkeleton icon={MessageSquare} titleText="Offene Kontaktanfragen 📧" />
               ) : (
-                <AnimatedCard
-                  index={2}
-                  className={cn(glassCardHover, 'p-4')}
-                >
+                <AnimatedCard index={2} className={cn(glassCardHover, 'p-4')}>
                   <CardContent className="p-0">
                     {/* Header with icon and title in one line */}
                     <div className="flex items-center gap-2 mb-3">
@@ -472,10 +454,7 @@ export function Dashboard() {
               {totalUsersLoading ? (
                 <DashboardCardSkeleton icon={Users} titleText="User-Verwaltung 👥" />
               ) : (
-                <AnimatedCard
-                  index={3}
-                  className={cn(glassCardHover, 'p-4')}
-                >
+                <AnimatedCard index={3} className={cn(glassCardHover, 'p-4')}>
                   <CardContent className="p-0">
                     {/* Header with icon and title in one line */}
                     <div className="flex items-center gap-2 mb-3">
@@ -492,9 +471,7 @@ export function Dashboard() {
                         <div className="text-2xl sm:text-3xl font-bold text-foreground">
                           {totalUsers}
                         </div>
-                        <div className="text-xl sm:text-2xl">
-                          👥
-                        </div>
+                        <div className="text-xl sm:text-2xl">👥</div>
                       </div>
 
                       {/* Action button - always visible */}
@@ -518,23 +495,23 @@ export function Dashboard() {
                   </CardContent>
                 </AnimatedCard>
               )}
-          </motion.div>
+            </motion.div>
 
-          {/* Partner */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.4 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Partner</h3>
+            {/* Partner */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.4 }}
             >
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Partner</h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <NavigationCard
                   icon={Store}
                   title="Partner verwalten"
@@ -577,25 +554,25 @@ export function Dashboard() {
                   href="/feature-flags"
                   index={5}
                 />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Events */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.5 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Events</h3>
-
+            {/* Events */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.5 }}
             >
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Events</h3>
+
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <NavigationCard
                   icon={Calendar}
                   title="Events verwalten"
@@ -610,24 +587,24 @@ export function Dashboard() {
                   href="/event-categories"
                   index={1}
                 />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Kontaktanfragen */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.6 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Kontaktanfragen</h3>
+            {/* Kontaktanfragen */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.6 }}
             >
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Kontaktanfragen</h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <NavigationCard
                   icon={MessageSquare}
                   title="Partner"
@@ -642,24 +619,24 @@ export function Dashboard() {
                   href="/contacts?filter=user"
                   index={1}
                 />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Community */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.7 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Community</h3>
+            {/* Community */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.7 }}
             >
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Community</h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
                 <NavigationCard
                   icon={MessageSquare}
                   title="News"
@@ -716,147 +693,149 @@ export function Dashboard() {
                   href="/taxi-stands"
                   index={7}
                 />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Kuratierte Spots */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.72 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Kuratierte Inhalte</h3>
+            {/* Kuratierte Spots */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.72 }}
             >
-              <NavigationCard
-                icon={MapPin}
-                title="Kuratierte Spots"
-                description="Spots anlegen, bearbeiten, freigeben und Medien hochladen (eigene API)"
-                href="/curated-spots"
-                index={0}
-              />
-              <NavigationCard
-                icon={Star}
-                title="Community-Bewertungen (Spots)"
-                description="Toggle, ob Nutzer kuratierte Spots einmalig bewerten dürfen"
-                href="/curated-spots/settings"
-                index={1}
-              />
-              <NavigationCard
-                icon={Sparkles}
-                title="Spot-Keywords"
-                description="Vokabular für Spot-Tags (getrennt von Partner-Keywords)"
-                href="/spot-keywords"
-                index={2}
-              />
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Kuratierte Inhalte</h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <NavigationCard
+                  icon={MapPin}
+                  title="Kuratierte Spots"
+                  description="Spots anlegen, bearbeiten, freigeben und Medien hochladen (eigene API)"
+                  href="/curated-spots"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Star}
+                  title="Community-Bewertungen (Spots)"
+                  description="Toggle, ob Nutzer kuratierte Spots einmalig bewerten dürfen"
+                  href="/curated-spots/settings"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={Sparkles}
+                  title="Spot-Keywords"
+                  description="Vokabular für Spot-Tags (getrennt von Partner-Keywords)"
+                  href="/spot-keywords"
+                  index={2}
+                />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Analytics und Sonstiges */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.85 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Analytics und Sonstiges</h3>
+            {/* Analytics und Sonstiges */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.85 }}
             >
-              <NavigationCard
-                icon={BarChart}
-                title="Analytics Dashboard"
-                description="Detaillierte Einblicke in die Performance deiner Partner"
-                href="/analytics"
-                index={0}
-              />
-              <NavigationCard
-                icon={Users}
-                title="User-Verwaltung"
-                description="Übersicht aller registrierten Benutzer und Statistiken"
-                href="/users"
-                index={1}
-              />
-              <NavigationCard
-                icon={Users}
-                title="Account-Management"
-                description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
-                href="/account-management"
-                index={2}
-              />
-              <NavigationCard
-                icon={Shield}
-                title="User Blockierung"
-                description="User blockieren oder entsperren bei Verstößen gegen AGBs"
-                href="/users/block-management"
-                index={3}
-              />
-              <NavigationCard
-                icon={Power}
-                title="Downtime-Verwaltung"
-                description="Wartungsmodus aktivieren oder deaktivieren"
-                href="/downtime-management"
-                index={4}
-              />
-              <NavigationCard
-                icon={Package}
-                title="App-Version-Verwaltung"
-                description="Mindestversion der App setzen und verwalten"
-                href="/app-version-management"
-                index={5}
-              />
+              <h3 className="text-xl font-semibold mb-4 text-foreground">
+                Analytics und Sonstiges
+              </h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <NavigationCard
+                  icon={BarChart}
+                  title="Analytics Dashboard"
+                  description="Detaillierte Einblicke in die Performance deiner Partner"
+                  href="/analytics"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={Users}
+                  title="User-Verwaltung"
+                  description="Übersicht aller registrierten Benutzer und Statistiken"
+                  href="/users"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={Users}
+                  title="Account-Management"
+                  description="Verwaltung und Bereinigung von anonymen Benutzeraccounts"
+                  href="/account-management"
+                  index={2}
+                />
+                <NavigationCard
+                  icon={Shield}
+                  title="User Blockierung"
+                  description="User blockieren oder entsperren bei Verstößen gegen AGBs"
+                  href="/users/block-management"
+                  index={3}
+                />
+                <NavigationCard
+                  icon={Power}
+                  title="Downtime-Verwaltung"
+                  description="Wartungsmodus aktivieren oder deaktivieren"
+                  href="/downtime-management"
+                  index={4}
+                />
+                <NavigationCard
+                  icon={Package}
+                  title="App-Version-Verwaltung"
+                  description="Mindestversion der App setzen und verwalten"
+                  href="/app-version-management"
+                  index={5}
+                />
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Legal */}
-          <motion.div
-            className="mt-8 space-y-4"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.75 }}
-          >
-            <h3 className="text-xl font-semibold mb-4 text-foreground">Legal</h3>
+            {/* Legal */}
             <motion.div
-              className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              variants={staggerContainer}
+              className="mt-8 space-y-4"
+              variants={fadeInUp}
               initial="initial"
               animate="animate"
+              transition={{ ...defaultTransition, delay: 0.75 }}
             >
-              <NavigationCard
-                icon={FileText}
-                title="Impressum"
-                description="Impressums-Informationen verwalten und bearbeiten"
-                href="/legal/impressum/edit"
-                index={0}
-              />
-              <NavigationCard
-                icon={FileText}
-                title="Datenschutzerklärung"
-                description="Datenschutzerklärung verwalten und bearbeiten"
-                href="/legal/datenschutz/edit"
-                index={1}
-              />
-              <NavigationCard
-                icon={FileText}
-                title="AGBs"
-                description="Allgemeine Geschäftsbedingungen verwalten und bearbeiten"
-                href="/legal/agb/edit"
-                index={2}
-              />
+              <h3 className="text-xl font-semibold mb-4 text-foreground">Legal</h3>
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+              >
+                <NavigationCard
+                  icon={FileText}
+                  title="Impressum"
+                  description="Impressums-Informationen verwalten und bearbeiten"
+                  href="/legal/impressum/edit"
+                  index={0}
+                />
+                <NavigationCard
+                  icon={FileText}
+                  title="Datenschutzerklärung"
+                  description="Datenschutzerklärung verwalten und bearbeiten"
+                  href="/legal/datenschutz/edit"
+                  index={1}
+                />
+                <NavigationCard
+                  icon={FileText}
+                  title="AGBs"
+                  description="Allgemeine Geschäftsbedingungen verwalten und bearbeiten"
+                  href="/legal/agb/edit"
+                  index={2}
+                />
+              </motion.div>
             </motion.div>
           </motion.div>
-        </motion.div>
         </div>
       </div>
     </PageTransition>

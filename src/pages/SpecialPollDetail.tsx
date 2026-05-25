@@ -206,12 +206,7 @@ export default function SpecialPollDetail() {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Fehler beim Ändern des Status:', error);
-      showUserFriendlyError(
-        error,
-        toast,
-        () => void handleStatusChange(newStatus),
-        'save-event'
-      );
+      showUserFriendlyError(error, toast, () => void handleStatusChange(newStatus), 'save-event');
     } finally {
       setIsStatusUpdating(false);
     }
@@ -371,9 +366,7 @@ export default function SpecialPollDetail() {
                         <span className="font-semibold text-foreground">Status</span>
                         <Select
                           value={poll.status}
-                          onValueChange={v =>
-                            void handleStatusChange(v as SpecialPollStatus)
-                          }
+                          onValueChange={v => void handleStatusChange(v as SpecialPollStatus)}
                           disabled={isStatusUpdating}
                         >
                           <SelectTrigger className={cn(glassInput, 'w-full sm:w-44')}>
@@ -397,7 +390,9 @@ export default function SpecialPollDetail() {
                         </DialogTrigger>
                         <DialogContent className={cn(glassCard)}>
                           <DialogHeader>
-                            <DialogTitle className="text-foreground">Umfrage wirklich löschen?</DialogTitle>
+                            <DialogTitle className="text-foreground">
+                              Umfrage wirklich löschen?
+                            </DialogTitle>
                           </DialogHeader>
                           <p className="text-sm text-muted-foreground">
                             Diese Aktion kann nicht rückgängig gemacht werden.
@@ -427,8 +422,8 @@ export default function SpecialPollDetail() {
 
                   {!isSuperAdmin && userRole !== null && (
                     <p className="text-sm text-muted-foreground">
-                      Status und Hervorhebung kann nur ein Super-Admin ändern. Du kannst antworten und
-                      abstimmen.
+                      Status und Hervorhebung kann nur ein Super-Admin ändern. Du kannst antworten
+                      und abstimmen.
                     </p>
                   )}
 
@@ -440,7 +435,9 @@ export default function SpecialPollDetail() {
                   <div>
                     <span className="font-semibold text-foreground">Antworten:</span>
                     {poll.responses.length === 0 ? (
-                      <div className="text-muted-foreground mt-2">Noch keine Antworten vorhanden.</div>
+                      <div className="text-muted-foreground mt-2">
+                        Noch keine Antworten vorhanden.
+                      </div>
                     ) : (
                       <motion.ul
                         className="mt-2 space-y-2"
@@ -460,9 +457,13 @@ export default function SpecialPollDetail() {
                             <div className="flex-1 min-w-0">
                               <div className="font-medium text-foreground">{resp.userName}</div>
                               <div className="text-sm text-muted-foreground">
-                                {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                                {format(new Date(resp.createdAt), 'dd.MM.yyyy HH:mm', {
+                                  locale: de,
+                                })}
                               </div>
-                              <div className="mt-1 text-foreground break-words">{resp.response}</div>
+                              <div className="mt-1 text-foreground break-words">
+                                {resp.response}
+                              </div>
                             </div>
                             <div className="flex flex-row sm:flex-col gap-2 items-stretch shrink-0">
                               <AnimatedButton
@@ -478,27 +479,23 @@ export default function SpecialPollDetail() {
                                 {resp.upvotedUserIds.length}
                               </AnimatedButton>
 
-                              {currentUserId &&
-                                resp.userId === currentUserId &&
-                                pollId && (
-                                  <LoadingButton
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-destructive"
-                                    onClick={() => void handleRemoveOwnResponse()}
-                                    isLoading={removingOwnResponse}
-                                    loadingText="…"
-                                  >
-                                    Meine Antwort löschen
-                                  </LoadingButton>
-                                )}
+                              {currentUserId && resp.userId === currentUserId && pollId && (
+                                <LoadingButton
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive"
+                                  onClick={() => void handleRemoveOwnResponse()}
+                                  isLoading={removingOwnResponse}
+                                  loadingText="…"
+                                >
+                                  Meine Antwort löschen
+                                </LoadingButton>
+                              )}
 
                               {isSuperAdmin && (
                                 <Dialog
-                                  open={
-                                    deleteDialogOpen && responseToDelete?.id === resp.id
-                                  }
+                                  open={deleteDialogOpen && responseToDelete?.id === resp.id}
                                   onOpenChange={open => {
                                     setDeleteDialogOpen(open);
                                     if (!open) setResponseToDelete(null);

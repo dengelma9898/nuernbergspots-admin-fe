@@ -716,9 +716,13 @@ describe('ChatMessages', () => {
         });
       });
 
-      expect(mockChatMessageService.adminUpdateMessage).toHaveBeenCalledWith('chatroom-1', 'message-2', {
-        content: 'Bearbeitete Nachricht',
-      });
+      expect(mockChatMessageService.adminUpdateMessage).toHaveBeenCalledWith(
+        'chatroom-1',
+        'message-2',
+        {
+          content: 'Bearbeitete Nachricht',
+        }
+      );
     });
 
     it('sollte Super-Admin erlauben, alle Nachrichten zu löschen', async () => {
@@ -748,7 +752,10 @@ describe('ChatMessages', () => {
         await mockChatMessageService.adminDeleteMessage('chatroom-1', 'message-2');
       });
 
-      expect(mockChatMessageService.adminDeleteMessage).toHaveBeenCalledWith('chatroom-1', 'message-2');
+      expect(mockChatMessageService.adminDeleteMessage).toHaveBeenCalledWith(
+        'chatroom-1',
+        'message-2'
+      );
     });
 
     it('sollte normale User nur eigene Nachrichten bearbeiten/löschen können', async () => {

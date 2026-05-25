@@ -53,8 +53,7 @@ export function SpotKeywordManagement() {
   const [suggestions, setSuggestions] = useState<SpotKeyword[]>([]);
   const [suggestLoading, setSuggestLoading] = useState(false);
 
-  const isAdminOrSuperAdmin =
-    userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
+  const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const loadUserRole = useCallback(async () => {
     const userId = getUserId();
@@ -172,7 +171,12 @@ export function SpotKeywordManagement() {
               </Alert>
             )}
 
-            <motion.div variants={fadeInUp} initial="initial" animate="animate" transition={defaultTransition}>
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
               <Card className={cn(glassCard)}>
                 <CardHeader>
                   <CardTitle className="text-foreground">Neues Spot-Keyword</CardTitle>
@@ -209,7 +213,12 @@ export function SpotKeywordManagement() {
               </Card>
             </motion.div>
 
-            <motion.div variants={fadeInUp} initial="initial" animate="animate" transition={defaultTransition}>
+            <motion.div
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
               <Card className={cn(glassCard)}>
                 <CardHeader>
                   <CardTitle className="text-foreground flex items-center gap-2">
@@ -217,8 +226,8 @@ export function SpotKeywordManagement() {
                     Suche / Vorschläge
                   </CardTitle>
                   <CardDescription>
-                    Prefix-Suche (mind. 1 Zeichen). Es gibt keinen Listen-Endpunkt für alle Keywords in
-                    der aktuellen API-Doku.
+                    Prefix-Suche (mind. 1 Zeichen). Es gibt keinen Listen-Endpunkt für alle Keywords
+                    in der aktuellen API-Doku.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

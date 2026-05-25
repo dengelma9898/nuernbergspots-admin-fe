@@ -226,7 +226,9 @@ export function BusinessUserList() {
                           key={user.id}
                           className="border-secondary hover:bg-muted/50 transition-colors duration-200"
                         >
-                          <TableCell className="text-foreground font-medium">{user.email}</TableCell>
+                          <TableCell className="text-foreground font-medium">
+                            {user.email}
+                          </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {user.isDeleted ? (

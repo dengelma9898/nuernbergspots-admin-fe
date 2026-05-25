@@ -344,14 +344,19 @@ export function TaxiStandManagement() {
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <Settings className="h-5 w-5 text-foreground" />
-                        <Label htmlFor="feature-status" className="text-foreground text-lg font-semibold">
+                        <Label
+                          htmlFor="feature-status"
+                          className="text-foreground text-lg font-semibold"
+                        >
                           Feature-Status
                         </Label>
-                        <Badge className={cn(
-                          featureStatus.isFeatureActive
-                            ? 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400'
-                            : 'bg-destructive/20 text-destructive border-destructive'
-                        )}>
+                        <Badge
+                          className={cn(
+                            featureStatus.isFeatureActive
+                              ? 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400'
+                              : 'bg-destructive/20 text-destructive border-destructive'
+                          )}
+                        >
                           {featureStatus.isFeatureActive ? 'Aktiviert' : 'Deaktiviert'}
                         </Badge>
                       </div>
@@ -398,7 +403,10 @@ export function TaxiStandManagement() {
                       variant="outline"
                       size="sm"
                       onClick={handleStartDateSave}
-                      disabled={isUpdatingFeatureStatus || startDateInput === (featureStatus.startDate || '')}
+                      disabled={
+                        isUpdatingFeatureStatus ||
+                        startDateInput === (featureStatus.startDate || '')
+                      }
                       className={cn(glassButton)}
                     >
                       Datum speichern
@@ -452,9 +460,12 @@ export function TaxiStandManagement() {
             >
               <Alert className={cn(glassCard, 'mb-6 border-amber-500/50')}>
                 <AlertCircle className="h-4 w-4 text-amber-500" />
-                <AlertTitle className="text-foreground">Taxistandorte-Feature ist derzeit deaktiviert</AlertTitle>
+                <AlertTitle className="text-foreground">
+                  Taxistandorte-Feature ist derzeit deaktiviert
+                </AlertTitle>
                 <AlertDescription className="text-muted-foreground">
-                  Die Taxistandorte-Liste kann nicht geladen werden, solange das Feature deaktiviert ist.
+                  Die Taxistandorte-Liste kann nicht geladen werden, solange das Feature deaktiviert
+                  ist.
                   {isAdminOrSuperAdmin && (
                     <span> Bitte aktivieren Sie das Feature oben in den Einstellungen.</span>
                   )}
@@ -604,11 +615,7 @@ const TaxiStandCard: React.FC<TaxiStandCardProps> = ({ stand, onDelete }) => {
             >
               <Edit className="h-4 w-4" />
             </AnimatedButton>
-            <AnimatedButton
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete(stand.id)}
-            >
+            <AnimatedButton variant="destructive" size="sm" onClick={() => onDelete(stand.id)}>
               <Trash2 className="h-4 w-4" />
             </AnimatedButton>
           </div>
@@ -630,9 +637,7 @@ const TaxiStandCardMobile: React.FC<TaxiStandCardMobileProps> = ({ stand, onDele
   return (
     <Card className={cn(glassCardHover, 'p-4')}>
       <div className="flex flex-col gap-2">
-        <span className="font-bold text-lg text-foreground">
-          {stand.title || 'Taxistandort'}
-        </span>
+        <span className="font-bold text-lg text-foreground">{stand.title || 'Taxistandort'}</span>
         {stand.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">{stand.description}</p>
         )}

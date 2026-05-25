@@ -372,7 +372,9 @@ describe('EventImageEditor Component', () => {
     it('sollte Schriftgröße-Slider anzeigen', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const titlePanel = screen
+        .getAllByTestId('tabs-content')
+        .find(el => el.getAttribute('data-value') === 'title')!;
       const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
       expect(fontSizeSlider).toBeInTheDocument();
       expect(fontSizeSlider).toHaveAttribute('min', '50');
@@ -382,7 +384,9 @@ describe('EventImageEditor Component', () => {
     it('sollte Schriftgröße ändern', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const titlePanel = screen
+        .getAllByTestId('tabs-content')
+        .find(el => el.getAttribute('data-value') === 'title')!;
       const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
       fireEvent.change(fontSizeSlider, { target: { value: '120' } });
 
@@ -426,7 +430,9 @@ describe('EventImageEditor Component', () => {
     it('sollte Title-Settings aktualisieren', () => {
       renderWithRouter(<EventImageEditor />);
 
-      const titlePanel = screen.getAllByTestId('tabs-content').find(el => el.getAttribute('data-value') === 'title')!;
+      const titlePanel = screen
+        .getAllByTestId('tabs-content')
+        .find(el => el.getAttribute('data-value') === 'title')!;
       const fontSizeSlider = within(titlePanel).getAllByTestId('slider')[0];
       fireEvent.change(fontSizeSlider, { target: { value: '88' } });
 

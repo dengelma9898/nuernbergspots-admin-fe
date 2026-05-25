@@ -64,8 +64,7 @@ export function CuratedSpotsUserRatingsSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [patching, setPatching] = useState(false);
 
-  const isAdminOrSuperAdmin =
-    userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
+  const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const loadUserRole = useCallback(async () => {
     const userId = getUserId();

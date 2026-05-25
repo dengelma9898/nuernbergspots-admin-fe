@@ -18,11 +18,7 @@ import {
 import { Business, BusinessStatus } from '@/models/business';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import {
-  CheckCircle2,
-  AlertCircle,
-  XCircle,
-} from 'lucide-react';
+import { CheckCircle2, AlertCircle, XCircle } from 'lucide-react';
 
 interface BusinessCardProps {
   business: Business;
@@ -119,13 +115,16 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-foreground mb-1 truncate">{business.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                Kategorien: {categoryNames}
-              </p>
+              <h3 className="text-lg font-semibold text-foreground mb-1 truncate">
+                {business.name}
+              </h3>
+              <p className="text-sm text-muted-foreground">Kategorien: {categoryNames}</p>
             </div>
           </div>
-          <Badge variant={status.variant} className="text-xs flex items-center gap-1 px-2 py-1 shrink-0">
+          <Badge
+            variant={status.variant}
+            className="text-xs flex items-center gap-1 px-2 py-1 shrink-0"
+          >
             {status.icon}
             <span>{status.label}</span>
           </Badge>
@@ -182,7 +181,9 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
           {business.isPromoted && (
             <div className="flex items-center text-sm">
               <Star className="mr-2 h-4 w-4 text-yellow-400 fill-current" />
-              <span className="text-yellow-600 dark:text-yellow-400 font-medium">Highlight Partner</span>
+              <span className="text-yellow-600 dark:text-yellow-400 font-medium">
+                Highlight Partner
+              </span>
             </div>
           )}
         </div>
@@ -207,4 +208,3 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
     </AnimatedCard>
   );
 };
-

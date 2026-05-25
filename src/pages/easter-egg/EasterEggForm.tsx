@@ -17,7 +17,11 @@ import { useEasterEggService } from '@/services/easterEggService';
 import { CreateEasterEggDto, UpdateEasterEggDto } from '@/models/easter-egg';
 
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 
 import { Background } from '@/components/Background';
@@ -182,7 +186,12 @@ export function EasterEggForm() {
     if (!formData.startDate) {
       errors.push('Bitte geben Sie ein Startdatum ein');
     }
-    if (!locationData || !locationData.address || locationData.latitude === 0 || locationData.longitude === 0) {
+    if (
+      !locationData ||
+      !locationData.address ||
+      locationData.latitude === 0 ||
+      locationData.longitude === 0
+    ) {
       errors.push('Bitte wählen Sie einen Standort aus (Partner oder Adresssuche)');
     }
     if (formData.numberOfWinners < 1) {
@@ -363,7 +372,9 @@ export function EasterEggForm() {
                     <Textarea
                       id="description"
                       value={formData.description}
-                      onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, description: e.target.value }))
+                      }
                       placeholder="Hinweis zum Versteck oder eine Beschreibung des Ostereis"
                       className={cn(glassInput, 'min-h-[120px]')}
                       required
@@ -379,7 +390,9 @@ export function EasterEggForm() {
                       id="prizeDescription"
                       type="text"
                       value={formData.prizeDescription}
-                      onChange={e => setFormData(prev => ({ ...prev, prizeDescription: e.target.value }))}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, prizeDescription: e.target.value }))
+                      }
                       placeholder="z.B. 2x Kinogutscheine"
                       className={cn(glassInput)}
                     />
@@ -395,7 +408,12 @@ export function EasterEggForm() {
                       type="number"
                       min="1"
                       value={formData.numberOfWinners}
-                      onChange={e => setFormData(prev => ({ ...prev, numberOfWinners: parseInt(e.target.value) || 1 }))}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          numberOfWinners: parseInt(e.target.value) || 1,
+                        }))
+                      }
                       className={cn(glassInput)}
                       required
                     />
@@ -411,7 +429,9 @@ export function EasterEggForm() {
                         id="startDate"
                         type="date"
                         value={formData.startDate}
-                        onChange={e => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                        onChange={e =>
+                          setFormData(prev => ({ ...prev, startDate: e.target.value }))
+                        }
                         className={cn(glassInput)}
                         required
                       />
@@ -436,31 +456,38 @@ export function EasterEggForm() {
                     <p className="text-xs text-muted-foreground">
                       Wähle einen Partner-Standort aus oder suche nach einer Adresse.
                     </p>
-                    <LocationSelector
-                      value={locationData}
-                      onChange={setLocationData}
-                    />
+                    <LocationSelector value={locationData} onChange={setLocationData} />
                   </div>
 
                   {/* Image Upload */}
                   <div className="space-y-2">
                     <Label className="text-foreground">Bild (optional)</Label>
                     {imageUpload.error && (
-                      <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
+                      <Alert
+                        variant="destructive"
+                        className={cn(glassCard, 'border-destructive/50')}
+                      >
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>{imageUpload.error.title}</AlertTitle>
                         <AlertDescription className="mt-2">
                           <p>{imageUpload.error.message}</p>
                           {imageUpload.error.actionHint && (
-                            <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                            <p className="mt-2 text-sm opacity-90">
+                              {imageUpload.error.actionHint}
+                            </p>
                           )}
                         </AlertDescription>
                       </Alert>
                     )}
                     <div className="space-y-4">
-                      {(imageUpload.previewUrls.length > 0 || originalImageUrl) ? (
+                      {imageUpload.previewUrls.length > 0 || originalImageUrl ? (
                         <div className="relative group">
-                          <div className={cn(glassCard, 'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2')}>
+                          <div
+                            className={cn(
+                              glassCard,
+                              'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2'
+                            )}
+                          >
                             <img
                               src={imageUpload.previewUrls[0] || originalImageUrl}
                               alt="Vorschau"

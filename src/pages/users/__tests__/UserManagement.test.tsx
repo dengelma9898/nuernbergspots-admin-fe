@@ -349,7 +349,6 @@ describe('UserManagement', () => {
         expect(screen.getByText('2')).toBeInTheDocument(); // 2 blocked users
       });
     });
-
   });
 
   describe('Accessibility', () => {
@@ -390,4 +389,3 @@ describe('UserManagement', () => {
     });
   });
 });
-

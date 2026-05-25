@@ -1,20 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  ArrowLeft,
-  Trophy,
-  Users,
-  Shuffle,
-  AlertCircle,
-} from 'lucide-react';
+import { ArrowLeft, Trophy, Users, Shuffle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { showSuccessMessage } from '@/utils/errorUtils';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -95,15 +83,13 @@ export function AdventCalendarParticipants() {
 
     const winners = entry.winners || [];
     const participants = entry.participants || [];
-    const availableParticipants = participants.filter(
-      userId => !winners.includes(userId)
-    );
+    const availableParticipants = participants.filter(userId => !winners.includes(userId));
 
     if (availableParticipants.length === 0) {
       setValidationErrors(['Es gibt keine Teilnehmer, die noch nicht Gewinner sind.']);
       return;
     }
-    
+
     setValidationErrors([]);
 
     // Zufälligen Teilnehmer auswählen
@@ -139,9 +125,7 @@ export function AdventCalendarParticipants() {
 
   const participants = entry.participants || []; // Array von User IDs
   const winners = entry.winners || [];
-  const availableParticipants = participants.filter(
-    userId => !winners.includes(userId)
-  );
+  const availableParticipants = participants.filter(userId => !winners.includes(userId));
 
   return (
     <PageTransition>
@@ -234,7 +218,10 @@ export function AdventCalendarParticipants() {
                           <motion.div
                             key={userId}
                             variants={fadeInUp}
-                            className={cn(glassCardHover, 'flex items-center justify-between p-4 bg-yellow-500/5 border-yellow-500/30')}
+                            className={cn(
+                              glassCardHover,
+                              'flex items-center justify-between p-4 bg-yellow-500/5 border-yellow-500/30'
+                            )}
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-12 h-12 rounded-full bg-yellow-500/20 flex items-center justify-center">
@@ -325,7 +312,9 @@ export function AdventCalendarParticipants() {
                   <Card className={cn(glassCard)}>
                     <CardContent className="text-center py-8">
                       <Trophy className="h-12 w-12 mx-auto mb-4 text-yellow-600 dark:text-yellow-400" />
-                      <p className="text-foreground text-lg">Alle Teilnehmer sind bereits Gewinner</p>
+                      <p className="text-foreground text-lg">
+                        Alle Teilnehmer sind bereits Gewinner
+                      </p>
                     </CardContent>
                   </Card>
                 </motion.div>
@@ -337,4 +326,3 @@ export function AdventCalendarParticipants() {
     </PageTransition>
   );
 }
-

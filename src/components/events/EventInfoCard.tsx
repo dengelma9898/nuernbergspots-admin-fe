@@ -7,7 +7,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
@@ -204,7 +210,11 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               className="w-fit text-xs flex items-center gap-1 border-secondary text-muted-foreground"
             >
               <span className="flex items-center">
-                {selectedCategory ? getIconComponent(selectedCategory.iconName) : <Tag className="h-3 w-3" />}
+                {selectedCategory ? (
+                  getIconComponent(selectedCategory.iconName)
+                ) : (
+                  <Tag className="h-3 w-3" />
+                )}
               </span>
               {selectedCategory?.name || 'Keine Kategorie'}
             </Badge>
@@ -229,4 +239,3 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
     </Card>
   );
 };
-

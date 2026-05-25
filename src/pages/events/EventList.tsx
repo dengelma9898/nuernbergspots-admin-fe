@@ -105,13 +105,17 @@ export const EventList: React.FC = () => {
   const initialTimeFilter = ['all', 'week', 'month'].includes(searchParams.get('time') || '')
     ? (searchParams.get('time') as string)
     : 'all';
-  const initialStatusFilter = ['all', 'past', 'running', 'future'].includes(searchParams.get('status') || '')
+  const initialStatusFilter = ['all', 'past', 'running', 'future'].includes(
+    searchParams.get('status') || ''
+  )
     ? (searchParams.get('status') as string)
     : 'all';
   const initialDateFilter = ['all', 'with-date', 'no-date'].includes(searchParams.get('date') || '')
     ? (searchParams.get('date') as string)
     : 'all';
-  const initialApprovalFilter = ['all', 'pending', 'active'].includes(searchParams.get('approval') || '')
+  const initialApprovalFilter = ['all', 'pending', 'active'].includes(
+    searchParams.get('approval') || ''
+  )
     ? (searchParams.get('approval') as string)
     : 'all';
   const cachedData = shouldUseEventListCache ? eventListCache : null;
@@ -121,7 +125,9 @@ export const EventList: React.FC = () => {
   const [loading, setLoading] = useState(!cachedData);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
   const [statusFilter, setStatusFilter] = useState<string>(initialStatusFilter);
-  const [categoryFilter, setCategoryFilter] = useState<string>(searchParams.get('category') || 'all');
+  const [categoryFilter, setCategoryFilter] = useState<string>(
+    searchParams.get('category') || 'all'
+  );
   const [timeFilter, setTimeFilter] = useState<string>(initialTimeFilter);
   const [selectedWeek, setSelectedWeek] = useState<string>(
     initialTimeFilter === 'week' ? searchParams.get('week') || '' : ''
@@ -400,7 +406,6 @@ export const EventList: React.FC = () => {
       });
   }, [events]);
 
-
   const pendingModerationCount = useMemo(
     () => events.filter(e => e.status === 'PENDING').length,
     [events]
@@ -496,51 +501,54 @@ export const EventList: React.FC = () => {
 
   // Gruppiere Events nach Monat (basierend auf Startmonat)
   // Priorität: dailyTimeSlots > monthYear > keine Zeiteinordnung
-  const groupedEventsByMonth = filteredEvents.reduce((acc, event) => {
-    let monthKey: string;
-    let monthLabel: string;
-    let groupDate: Date;
+  const groupedEventsByMonth = filteredEvents.reduce(
+    (acc, event) => {
+      let monthKey: string;
+      let monthLabel: string;
+      let groupDate: Date;
 
-    // Priorität 1: dailyTimeSlots
-    if (event.dailyTimeSlots?.length > 0) {
-      const firstSlot = event.dailyTimeSlots[0];
-      const firstDate = new Date(firstSlot.date);
-      monthKey = format(startOfMonth(firstDate), 'yyyy-MM', { locale: de });
-      monthLabel = format(startOfMonth(firstDate), 'MMMM yyyy', { locale: de });
-      groupDate = firstDate;
-    }
-    // Priorität 2: monthYear
-    else if (event.monthYear) {
-      const monthYearDate = monthYearToDate(event.monthYear);
-      if (monthYearDate) {
-        monthKey = format(startOfMonth(monthYearDate), 'yyyy-MM', { locale: de });
-        monthLabel = formatMonthYear(event.monthYear);
-        groupDate = monthYearDate;
-      } else {
-        // Fallback wenn monthYear ungültig
+      // Priorität 1: dailyTimeSlots
+      if (event.dailyTimeSlots?.length > 0) {
+        const firstSlot = event.dailyTimeSlots[0];
+        const firstDate = new Date(firstSlot.date);
+        monthKey = format(startOfMonth(firstDate), 'yyyy-MM', { locale: de });
+        monthLabel = format(startOfMonth(firstDate), 'MMMM yyyy', { locale: de });
+        groupDate = firstDate;
+      }
+      // Priorität 2: monthYear
+      else if (event.monthYear) {
+        const monthYearDate = monthYearToDate(event.monthYear);
+        if (monthYearDate) {
+          monthKey = format(startOfMonth(monthYearDate), 'yyyy-MM', { locale: de });
+          monthLabel = formatMonthYear(event.monthYear);
+          groupDate = monthYearDate;
+        } else {
+          // Fallback wenn monthYear ungültig
+          monthKey = 'no-date';
+          monthLabel = 'Ohne Datum';
+          groupDate = new Date(0);
+        }
+      }
+      // Priorität 3: Keine Zeiteinordnung
+      else {
         monthKey = 'no-date';
         monthLabel = 'Ohne Datum';
         groupDate = new Date(0);
       }
-    }
-    // Priorität 3: Keine Zeiteinordnung
-    else {
-      monthKey = 'no-date';
-      monthLabel = 'Ohne Datum';
-      groupDate = new Date(0);
-    }
 
-    if (!acc[monthKey]) {
-      acc[monthKey] = {
-        label: monthLabel,
-        date: groupDate,
-        events: [],
-      };
-    }
+      if (!acc[monthKey]) {
+        acc[monthKey] = {
+          label: monthLabel,
+          date: groupDate,
+          events: [],
+        };
+      }
 
-    acc[monthKey].events.push(event);
-    return acc;
-  }, {} as Record<string, { label: string; date: Date; events: Event[] }>);
+      acc[monthKey].events.push(event);
+      return acc;
+    },
+    {} as Record<string, { label: string; date: Date; events: Event[] }>
+  );
 
   // Sortiere die Monate absteigend (neueste zuerst), "no-date" am Ende
   const sortedMonths = Object.keys(groupedEventsByMonth).sort((a, b) => {
@@ -583,7 +591,7 @@ export const EventList: React.FC = () => {
   };
 
   const handleGenerateImage = () => {
-    const eventsForImage = isSelectionMode 
+    const eventsForImage = isSelectionMode
       ? filteredEvents.filter(e => selectedEventIds.has(e.id))
       : filteredEvents;
 
@@ -610,64 +618,64 @@ export const EventList: React.FC = () => {
         <div className="min-h-screen relative overflow-hidden">
           <Background />
           <div className="relative z-10 container mx-auto py-6 px-2 max-w-full overflow-x-hidden">
-          {/* Header Skeleton */}
-          <div className={cn(glassCard, 'p-6 mb-8')}>
-            {/* Header row */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
-              <Skeleton className="bg-muted h-10 w-full sm:w-48 rounded-lg" />
-              <Skeleton className="bg-muted h-8 w-32 rounded" />
-              <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
-                <Skeleton className="bg-muted h-10 w-full sm:w-32 rounded-lg" />
-                <Skeleton className="bg-muted h-10 w-full sm:w-32 rounded-lg" />
-                <Skeleton className="bg-muted h-10 w-full sm:w-40 rounded-lg" />
-              </div>
-            </div>
-
-            {/* Filter Bar */}
-            <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-              <Skeleton className="bg-muted h-10 flex-1 rounded-lg" />
-              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
-              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
-              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
-              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
-              <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
-            </div>
-          </div>
-
-          {/* Event Cards Grid Skeleton */}
-          <div className="space-y-8">
-            {[...Array(3)].map((_, sectionIndex) => (
-              <div key={sectionIndex}>
-                <Skeleton className="bg-muted h-8 w-48 mb-6 rounded" />
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {[...Array(6)].map((_, cardIndex) => (
-                    <Card key={cardIndex} className={cn(glassCard, 'flex flex-col')}>
-                      <Skeleton className="bg-muted h-48 w-full rounded-t-lg" />
-                      <div className="p-6">
-                        <Skeleton className="bg-muted h-6 w-40 rounded mb-2" />
-                        <Skeleton className="bg-muted h-4 w-32 rounded" />
-                      </div>
-                      <div className="px-6 pb-6 flex-grow">
-                        <Skeleton className="bg-muted h-4 w-full rounded mb-2" />
-                        <Skeleton className="bg-muted h-4 w-3/4 rounded" />
-                      </div>
-                      <div className="px-6 pb-6">
-                        <div className="flex justify-between items-center">
-                          <Skeleton className="bg-muted h-3 w-24 rounded" />
-                          <div className="flex gap-2">
-                            <Skeleton className="bg-muted h-8 w-20 rounded-lg" />
-                            <Skeleton className="bg-muted h-8 w-16 rounded-lg" />
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+            {/* Header Skeleton */}
+            <div className={cn(glassCard, 'p-6 mb-8')}>
+              {/* Header row */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
+                <Skeleton className="bg-muted h-10 w-full sm:w-48 rounded-lg" />
+                <Skeleton className="bg-muted h-8 w-32 rounded" />
+                <div className="w-full sm:w-auto sm:ml-auto flex flex-col sm:flex-row gap-2">
+                  <Skeleton className="bg-muted h-10 w-full sm:w-32 rounded-lg" />
+                  <Skeleton className="bg-muted h-10 w-full sm:w-32 rounded-lg" />
+                  <Skeleton className="bg-muted h-10 w-full sm:w-40 rounded-lg" />
                 </div>
               </div>
-            ))}
+
+              {/* Filter Bar */}
+              <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+                <Skeleton className="bg-muted h-10 flex-1 rounded-lg" />
+                <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+                <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+                <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+                <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+                <Skeleton className="bg-muted h-10 w-full sm:w-44 rounded-lg" />
+              </div>
+            </div>
+
+            {/* Event Cards Grid Skeleton */}
+            <div className="space-y-8">
+              {[...Array(3)].map((_, sectionIndex) => (
+                <div key={sectionIndex}>
+                  <Skeleton className="bg-muted h-8 w-48 mb-6 rounded" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[...Array(6)].map((_, cardIndex) => (
+                      <Card key={cardIndex} className={cn(glassCard, 'flex flex-col')}>
+                        <Skeleton className="bg-muted h-48 w-full rounded-t-lg" />
+                        <div className="p-6">
+                          <Skeleton className="bg-muted h-6 w-40 rounded mb-2" />
+                          <Skeleton className="bg-muted h-4 w-32 rounded" />
+                        </div>
+                        <div className="px-6 pb-6 flex-grow">
+                          <Skeleton className="bg-muted h-4 w-full rounded mb-2" />
+                          <Skeleton className="bg-muted h-4 w-3/4 rounded" />
+                        </div>
+                        <div className="px-6 pb-6">
+                          <div className="flex justify-between items-center">
+                            <Skeleton className="bg-muted h-3 w-24 rounded" />
+                            <div className="flex gap-2">
+                              <Skeleton className="bg-muted h-8 w-20 rounded-lg" />
+                              <Skeleton className="bg-muted h-8 w-16 rounded-lg" />
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
       </PageTransition>
     );
   }
@@ -695,9 +703,7 @@ export const EventList: React.FC = () => {
                 <ArrowLeft className="h-5 w-5" />
                 <span className="sr-only">Zurück zum Dashboard</span>
               </AnimatedButton>
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-                Events
-              </h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">Events</h1>
               {pendingAccess && pendingModerationCount > 0 ? (
                 <Badge
                   variant="outline"
@@ -783,7 +789,7 @@ export const EventList: React.FC = () => {
 
             {/* Auswahlmodus Banner */}
             {isSelectionMode && (
-              <motion.div 
+              <motion.div
                 className="mb-4 p-4 rounded-xl bg-primary/20 border border-primary/40 backdrop-blur-sm"
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -889,9 +895,9 @@ export const EventList: React.FC = () => {
                   </SelectContent>
                 </Select>
               )}
-              <Select 
-                value={dateFilter} 
-                onValueChange={(value) => {
+              <Select
+                value={dateFilter}
+                onValueChange={value => {
                   setDateFilter(value);
                   // Reset andere Filter wenn dateFilter geändert wird, um Konflikte zu vermeiden
                   if (value === 'no-date') {
@@ -917,75 +923,77 @@ export const EventList: React.FC = () => {
 
           {/* Content Area */}
           {filteredEvents.length === 0 ? (
-              <motion.div
-                className={cn(glassCard, 'p-8 text-center')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={defaultTransition}
-              >
-                <div className="text-muted-foreground text-lg">Keine Events gefunden.</div>
-              </motion.div>
-            ) : (
-              <motion.div
-                className="space-y-8"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-              >
-                {sortedMonths.length === 0 ? (
-                  <motion.div
-                    className={cn(glassCard, 'p-8 text-center')}
-                    variants={fadeInUp}
-                    initial="initial"
-                    animate="animate"
-                    transition={defaultTransition}
-                  >
-                    <div className="text-muted-foreground text-lg">Keine Gruppen gefunden (aber {filteredEvents.length} Events gefiltert).</div>
-                  </motion.div>
-                ) : (
-                  sortedMonths.map((monthKey, monthIndex) => {
-                    const monthGroup = groupedEventsByMonth[monthKey];
-                    return (
-                      <motion.div 
-                        key={monthKey} 
-                        variants={fadeInUp}
-                        initial="initial"
-                        animate="animate"
-                      >
-                        <h2 className="text-2xl font-bold text-foreground mb-6 capitalize">
-                          {monthGroup.label}
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                          {monthGroup.events.map((event, eventIndex) => (
-                            <EventCard
-                              key={event.id}
-                              event={event}
-                              category={categories.find(cat => cat.id === event.categoryId)}
-                              onDelete={handleDelete}
-                              showApprove={pendingAccess && event.status === 'PENDING'}
-                              onApprove={handleApproveEvent}
-                              isApproving={approvingEventId === event.id}
-                              onCopy={(id) => {
-                                navigate(`/events/${id}/copy`);
-                                showSuccessMessage(toast, {
-                                  title: 'Event wird kopiert',
-                                  description: 'Sie werden zur Kopier-Seite weitergeleitet.',
-                                });
-                              }}
-                              index={monthIndex * 10 + eventIndex}
-                              isSelectionMode={isSelectionMode}
-                              isSelected={selectedEventIds.has(event.id)}
-                              onToggleSelection={toggleEventSelection}
-                            />
-                          ))}
-                        </div>
-                      </motion.div>
-                    );
-                  })
-                )}
-              </motion.div>
-            )}
+            <motion.div
+              className={cn(glassCard, 'p-8 text-center')}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              transition={defaultTransition}
+            >
+              <div className="text-muted-foreground text-lg">Keine Events gefunden.</div>
+            </motion.div>
+          ) : (
+            <motion.div
+              className="space-y-8"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {sortedMonths.length === 0 ? (
+                <motion.div
+                  className={cn(glassCard, 'p-8 text-center')}
+                  variants={fadeInUp}
+                  initial="initial"
+                  animate="animate"
+                  transition={defaultTransition}
+                >
+                  <div className="text-muted-foreground text-lg">
+                    Keine Gruppen gefunden (aber {filteredEvents.length} Events gefiltert).
+                  </div>
+                </motion.div>
+              ) : (
+                sortedMonths.map((monthKey, monthIndex) => {
+                  const monthGroup = groupedEventsByMonth[monthKey];
+                  return (
+                    <motion.div
+                      key={monthKey}
+                      variants={fadeInUp}
+                      initial="initial"
+                      animate="animate"
+                    >
+                      <h2 className="text-2xl font-bold text-foreground mb-6 capitalize">
+                        {monthGroup.label}
+                      </h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {monthGroup.events.map((event, eventIndex) => (
+                          <EventCard
+                            key={event.id}
+                            event={event}
+                            category={categories.find(cat => cat.id === event.categoryId)}
+                            onDelete={handleDelete}
+                            showApprove={pendingAccess && event.status === 'PENDING'}
+                            onApprove={handleApproveEvent}
+                            isApproving={approvingEventId === event.id}
+                            onCopy={id => {
+                              navigate(`/events/${id}/copy`);
+                              showSuccessMessage(toast, {
+                                title: 'Event wird kopiert',
+                                description: 'Sie werden zur Kopier-Seite weitergeleitet.',
+                              });
+                            }}
+                            index={monthIndex * 10 + eventIndex}
+                            isSelectionMode={isSelectionMode}
+                            isSelected={selectedEventIds.has(event.id)}
+                            onToggleSelection={toggleEventSelection}
+                          />
+                        ))}
+                      </div>
+                    </motion.div>
+                  );
+                })
+              )}
+            </motion.div>
+          )}
 
           {/* Hidden elements for test compatibility */}
           <div className="sr-only">
@@ -995,17 +1003,12 @@ export const EventList: React.FC = () => {
           {/* Delete Confirmation Dialog */}
           <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
             <DialogContent className={cn(glassCard)}>
-              <motion.div
-                variants={scaleIn}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-              >
+              <motion.div variants={scaleIn} initial="initial" animate="animate" exit="exit">
                 <DialogHeader>
                   <DialogTitle className="text-foreground">Event löschen</DialogTitle>
                   <DialogDescription className="text-muted-foreground">
-                    Möchten Sie dieses Event wirklich löschen? Diese Aktion kann nicht
-                    rückgängig gemacht werden.
+                    Möchten Sie dieses Event wirklich löschen? Diese Aktion kann nicht rückgängig
+                    gemacht werden.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -1163,7 +1166,11 @@ export const EventCard: React.FC<EventCardProps> = ({
       const monthYearDate = monthYearToDate(event.monthYear);
       if (monthYearDate) {
         // Letzter Tag des Monats
-        const endOfMonthDate = new Date(monthYearDate.getFullYear(), monthYearDate.getMonth() + 1, 0);
+        const endOfMonthDate = new Date(
+          monthYearDate.getFullYear(),
+          monthYearDate.getMonth() + 1,
+          0
+        );
 
         if (isPast(endOfMonthDate)) {
           return {
@@ -1214,7 +1221,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     <AnimatedCard
       index={index}
       className={cn(
-        glassCard, 
+        glassCard,
         'flex flex-col relative',
         hasVisibleImage && 'pt-0 overflow-hidden',
         isSelectionMode && 'cursor-pointer transition-all duration-300',
@@ -1224,28 +1231,20 @@ export const EventCard: React.FC<EventCardProps> = ({
     >
       {/* Auswahlmodus Checkbox-Overlay */}
       {isSelectionMode && (
-        <div 
+        <div
           className={cn(
             'absolute top-4 left-4 z-20 rounded-lg p-2 transition-all duration-300',
-            isSelected 
-              ? 'bg-primary text-primary-foreground' 
+            isSelected
+              ? 'bg-primary text-primary-foreground'
               : 'bg-white/80 text-foreground backdrop-blur-sm'
           )}
         >
-          {isSelected ? (
-            <CheckSquare className="h-6 w-6" />
-          ) : (
-            <Square className="h-6 w-6" />
-          )}
+          {isSelected ? <CheckSquare className="h-6 w-6" /> : <Square className="h-6 w-6" />}
         </div>
       )}
       {event.titleImageUrl ? (
         <div className="relative h-48 w-full">
-          <img
-            src={event.titleImageUrl}
-            alt={event.title}
-            className="object-cover w-full h-full"
-          />
+          <img src={event.titleImageUrl} alt={event.title} className="object-cover w-full h-full" />
           {event.imageUrls && event.imageUrls.length > 0 && (
             <div className="absolute bottom-2 left-2 bg-background/90 text-foreground text-xs px-2 py-1 rounded-lg border border-secondary">
               +{event.imageUrls.length} weitere Bilder
@@ -1254,11 +1253,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       ) : event.imageUrls && event.imageUrls.length > 0 ? (
         <div className="relative h-48 w-full">
-          <img
-            src={event.imageUrls[0]}
-            alt={event.title}
-            className="object-cover w-full h-full"
-          />
+          <img src={event.imageUrls[0]} alt={event.title} className="object-cover w-full h-full" />
           {event.imageUrls.length > 1 && (
             <Badge
               variant="secondary"
@@ -1300,7 +1295,9 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="flex flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2 w-full">
             <div className="flex items-center gap-1 min-w-0">
-              <CardTitle className="text-xl text-foreground whitespace-nowrap">{event.title}</CardTitle>
+              <CardTitle className="text-xl text-foreground whitespace-nowrap">
+                {event.title}
+              </CardTitle>
               {event.isPromoted && <Star className="h-4 w-4 text-tertiary fill-current" />}
             </div>
             {category ? (
@@ -1335,10 +1332,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                 Ausstehend
               </Badge>
             ) : null}
-            <Badge
-              variant={status.variant}
-              className="ml-auto mt-1 sm:mt-0 border-secondary"
-            >
+            <Badge variant={status.variant} className="ml-auto mt-1 sm:mt-0 border-secondary">
               {status.icon}
               <span className="ml-1">{status.label}</span>
             </Badge>
@@ -1385,7 +1379,9 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       </CardContent>
       <CardFooter className="flex justify-between items-center">
-        <div className="text-xs text-muted-foreground">Erstellt am {formatDate(event.createdAt)}</div>
+        <div className="text-xs text-muted-foreground">
+          Erstellt am {formatDate(event.createdAt)}
+        </div>
         {isSelectionMode ? (
           <div className="text-sm text-muted-foreground italic">
             {isSelected ? 'Ausgewählt' : 'Klicken zum Auswählen'}
@@ -1475,11 +1471,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                     <Copy className="h-4 w-4" />
                   </AnimatedButton>
                 )}
-                <AnimatedButton
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => onDelete(event.id)}
-                >
+                <AnimatedButton variant="destructive" size="sm" onClick={() => onDelete(event.id)}>
                   Löschen
                 </AnimatedButton>
               </>

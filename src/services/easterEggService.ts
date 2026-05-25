@@ -120,9 +120,7 @@ export function useEasterEggService() {
      * Lädt die Teilnehmer eines Ostereis
      */
     getParticipants: async (id: string): Promise<string[]> => {
-      const response = await api.get<ApiResponse<string[]>>(
-        `${baseUrl}/eggs/${id}/participants`
-      );
+      const response = await api.get<ApiResponse<string[]>>(`${baseUrl}/eggs/${id}/participants`);
       return unwrapData(response);
     },
 
@@ -130,9 +128,7 @@ export function useEasterEggService() {
      * Lädt Statistiken zur Ostereiersuche
      */
     getStatistics: async (): Promise<EasterEggStatistics> => {
-      const response = await api.get<ApiResponse<EasterEggStatistics>>(
-        `${baseUrl}/statistics`
-      );
+      const response = await api.get<ApiResponse<EasterEggStatistics>>(`${baseUrl}/statistics`);
       return unwrapData(response);
     },
   };

@@ -1,11 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -13,17 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ArrowLeft,
-  Save,
-  Clock,
-  FileText,
-  History,
-  AlertCircle,
-} from 'lucide-react';
+import { ArrowLeft, Save, Clock, FileText, History, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 import { LegalDocument, LegalDocumentType, LegalDocumentVersion } from '@/models/legal-document';
 import { useLegalDocumentService } from '@/services/legalDocumentService';
 import { format } from 'date-fns';
@@ -99,7 +91,7 @@ export function LegalDocumentEdit() {
   const navigate = useNavigate();
   const { type } = useParams<{ type: LegalDocumentType }>();
   const legalDocumentService = useLegalDocumentService();
-  
+
   const [document, setDocument] = useState<LegalDocument | null>(null);
   const [currentContent, setCurrentContent] = useState<string>('');
   const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
@@ -112,7 +104,12 @@ export function LegalDocumentEdit() {
     if (type && isValidType(type)) {
       loadDocument(type);
     } else {
-      showUserFriendlyError(new Error('Ungültiger Dokumenttyp'), toast, undefined, 'load-legal-document');
+      showUserFriendlyError(
+        new Error('Ungültiger Dokumenttyp'),
+        toast,
+        undefined,
+        'load-legal-document'
+      );
       navigate('/legal');
     }
   }, [type]);
@@ -121,9 +118,9 @@ export function LegalDocumentEdit() {
   useEffect(() => {
     if (validationErrors.length > 0 && validationErrorsRef.current) {
       setTimeout(() => {
-        validationErrorsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        validationErrorsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
       }, 100); // Kleine Verzögerung, damit das Element gerendert ist
     }
@@ -137,7 +134,7 @@ export function LegalDocumentEdit() {
     try {
       setLoading(true);
       const data = await legalDocumentService.getLegalDocument(docType);
-      
+
       if (data) {
         // Dokument existiert bereits
         setDocument(data);
@@ -167,7 +164,7 @@ export function LegalDocumentEdit() {
     if (!document || !type) return;
 
     setSelectedVersionId(versionId);
-    
+
     if (versionId === document.currentVersion.id) {
       // Aktuelle Version anzeigen
       setCurrentContent(document.currentVersion.content);
@@ -187,7 +184,7 @@ export function LegalDocumentEdit() {
 
     // Prüfe ob Inhalt vorhanden ist
     const errors: string[] = [];
-    
+
     if (!currentContent.trim()) {
       errors.push('Bitte gib einen Inhalt ein');
     }
@@ -198,12 +195,12 @@ export function LegalDocumentEdit() {
         errors.push('Du kannst nur die aktuelle Version bearbeiten');
       }
     }
-    
+
     if (errors.length > 0) {
       setValidationErrors(errors);
       return;
     }
-    
+
     setValidationErrors([]);
 
     // Prüfe ob sich der Inhalt geändert hat (nur wenn Dokument existiert)
@@ -219,22 +216,20 @@ export function LegalDocumentEdit() {
       await legalDocumentService.updateLegalDocument(type, {
         content: currentContent,
       });
-      
+
       showSuccessMessage(toast, {
-        title: document 
-          ? 'Dokument erfolgreich gespeichert'
-          : 'Dokument erfolgreich erstellt',
-        description: document 
+        title: document ? 'Dokument erfolgreich gespeichert' : 'Dokument erfolgreich erstellt',
+        description: document
           ? 'Eine neue Version des Dokuments wurde erfolgreich erstellt.'
           : 'Das Dokument wurde erfolgreich erstellt.',
       });
-      
+
       // Dokument neu laden
       await loadDocument(type);
     } catch (error) {
       console.error('Fehler beim Speichern:', error);
       const friendlyError = getUserFriendlyError(error, 'save-legal-document');
-      
+
       // Wenn Validierungsfehler vorhanden sind, zeige sie auf der Seite
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
@@ -260,7 +255,7 @@ export function LegalDocumentEdit() {
 
   const isNewDocument = !document;
   const isViewingOldVersion = viewingVersion !== null;
-  const hasChanges = document 
+  const hasChanges = document
     ? currentContent.trim() !== document.currentVersion.content.trim()
     : currentContent.trim().length > 0;
 
@@ -291,10 +286,9 @@ export function LegalDocumentEdit() {
                   {getDocumentTitle(type)}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  {isNewDocument 
+                  {isNewDocument
                     ? 'Noch kein Dokument vorhanden - erstelle das erste Dokument'
-                    : `Aktuelle Version: ${document.currentVersion.version}`
-                  }
+                    : `Aktuelle Version: ${document.currentVersion.version}`}
                 </p>
               </div>
             </div>
@@ -313,10 +307,7 @@ export function LegalDocumentEdit() {
                   <label className="text-sm font-medium text-foreground mb-2 block">
                     Version auswählen
                   </label>
-                  <Select
-                    value={selectedVersionId || ''}
-                    onValueChange={handleVersionChange}
-                  >
+                  <Select value={selectedVersionId || ''} onValueChange={handleVersionChange}>
                     <SelectTrigger className={cn(glassInput, 'w-full sm:w-64')}>
                       <SelectValue placeholder="Version auswählen" />
                     </SelectTrigger>
@@ -377,7 +368,8 @@ export function LegalDocumentEdit() {
             >
               <p className="text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Noch kein Dokument vorhanden. Gib den Inhalt ein und speichere, um das erste Dokument zu erstellen.
+                Noch kein Dokument vorhanden. Gib den Inhalt ein und speichere, um das erste
+                Dokument zu erstellen.
               </p>
             </motion.div>
           )}
@@ -397,17 +389,16 @@ export function LegalDocumentEdit() {
                 <p className="text-sm text-muted-foreground">
                   {isNewDocument
                     ? 'Gib den Inhalt im Markdown-Format ein. Beim Speichern wird das erste Dokument erstellt.'
-                    : 'Bearbeite den Inhalt im Markdown-Format. Beim Speichern wird automatisch eine neue Version erstellt.'
-                  }
+                    : 'Bearbeite den Inhalt im Markdown-Format. Beim Speichern wird automatisch eine neue Version erstellt.'}
                 </p>
               )}
             </div>
-            
+
             {/* Validierungsfehler */}
             {validationErrors.length > 0 && (
-              <Alert 
+              <Alert
                 ref={validationErrorsRef}
-                variant="destructive" 
+                variant="destructive"
                 className={cn(glassCard, 'border-destructive/50 mb-6')}
               >
                 <AlertCircle className="h-4 w-4" />
@@ -425,7 +416,7 @@ export function LegalDocumentEdit() {
             <div className="mb-6">
               <MarkdownEditor
                 value={currentContent}
-                onChange={(value) => {
+                onChange={value => {
                   setCurrentContent(value);
                   // Fehler zurücksetzen, wenn Wert geändert wird
                   if (validationErrors.length > 0) {
@@ -448,12 +439,11 @@ export function LegalDocumentEdit() {
                   className={cn(glassButton, 'flex-1 sm:flex-none')}
                 >
                   <Save className="h-4 w-4 mr-2" />
-                  {isNewDocument 
+                  {isNewDocument
                     ? 'Dokument erstellen'
-                    : hasChanges 
-                      ? 'Neue Version speichern' 
-                      : 'Speichern'
-                  }
+                    : hasChanges
+                      ? 'Neue Version speichern'
+                      : 'Speichern'}
                 </LoadingButton>
                 {hasChanges && document && (
                   <AnimatedButton
@@ -475,4 +465,3 @@ export function LegalDocumentEdit() {
     </PageTransition>
   );
 }
-

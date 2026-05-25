@@ -193,7 +193,11 @@ describe('CreateBusiness Component', () => {
       if (embedded) {
         return Promise.resolve({ ...embedded });
       }
-      return Promise.resolve({ ...mockKeyword, id, name: id === mockKeyword.id ? mockKeyword.name : `Keyword ${id}` });
+      return Promise.resolve({
+        ...mockKeyword,
+        id,
+        name: id === mockKeyword.id ? mockKeyword.name : `Keyword ${id}`,
+      });
     });
   });
 

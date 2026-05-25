@@ -4,17 +4,7 @@ import remarkGfm from 'remark-gfm';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { 
-  Bold, 
-  Italic, 
-  Link, 
-  List, 
-  ListOrdered, 
-  Heading1, 
-  Heading2,
-  Eye,
-  Edit
-} from 'lucide-react';
+import { Bold, Italic, Link, List, ListOrdered, Heading1, Heading2, Eye, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface MarkdownEditorProps {
@@ -28,7 +18,7 @@ export interface MarkdownEditorProps {
 
 /**
  * Wiederverwendbarer Markdown Editor mit Preview-Funktion
- * 
+ *
  * Features:
  * - Split View: Edit und Preview Tabs
  * - Toolbar mit häufigen Formatierungen
@@ -132,17 +122,17 @@ export function MarkdownEditor({
 
   return (
     <div className={cn('space-y-2', className)}>
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'edit' | 'preview')}>
+      <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'edit' | 'preview')}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <TabsList className="backdrop-blur-2xl bg-white/10 dark:bg-white/10 border-white/20 dark:border-white/20">
-            <TabsTrigger 
-              value="edit" 
+            <TabsTrigger
+              value="edit"
               className="data-[state=active]:bg-white/20 dark:data-[state=active]:bg-white/20 data-[state=active]:text-foreground text-foreground/70"
             >
               <Edit className="h-4 w-4 mr-2" />
               Bearbeiten
             </TabsTrigger>
-            <TabsTrigger 
+            <TabsTrigger
               value="preview"
               className="data-[state=active]:bg-white/20 dark:data-[state=active]:bg-white/20 data-[state=active]:text-foreground text-foreground/70"
             >
@@ -154,7 +144,7 @@ export function MarkdownEditor({
           {/* Toolbar - nur im Edit-Modus anzeigen */}
           {activeTab === 'edit' && (
             <div className="flex flex-wrap gap-1 p-2 backdrop-blur-2xl bg-white/5 dark:bg-white/5 rounded-lg border border-white/10 dark:border-white/10">
-              {toolbarButtons.map((button) => {
+              {toolbarButtons.map(button => {
                 const Icon = button.icon;
                 return (
                   <Button
@@ -179,7 +169,7 @@ export function MarkdownEditor({
             <Textarea
               ref={textareaRef}
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={e => onChange(e.target.value)}
               placeholder={placeholder}
               className={cn(
                 'bg-background border-secondary placeholder:text-muted-foreground text-foreground rounded-lg font-mono text-sm',
@@ -189,7 +179,8 @@ export function MarkdownEditor({
             />
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Tipp: Verwende die Toolbar-Buttons für schnelle Formatierung oder Markdown-Syntax direkt.
+            Tipp: Verwende die Toolbar-Buttons für schnelle Formatierung oder Markdown-Syntax
+            direkt.
           </p>
         </TabsContent>
 
@@ -219,11 +210,11 @@ export function MarkdownEditor({
             )}
           >
             {value.trim() ? (
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {value}
-              </ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{value}</ReactMarkdown>
             ) : (
-              <p className="text-muted-foreground italic">Keine Vorschau verfügbar. Beginne mit der Eingabe im Bearbeiten-Modus.</p>
+              <p className="text-muted-foreground italic">
+                Keine Vorschau verfügbar. Beginne mit der Eingabe im Bearbeiten-Modus.
+              </p>
             )}
           </div>
         </TabsContent>
@@ -231,4 +222,3 @@ export function MarkdownEditor({
     </div>
   );
 }
-

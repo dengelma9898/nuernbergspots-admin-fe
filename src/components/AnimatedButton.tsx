@@ -11,16 +11,13 @@ interface AnimatedButtonProps extends ButtonProps {
 
 /**
  * AnimatedButton-Komponente mit Click-Animation
- * 
+ *
  * Features:
  * - Scale-Animation beim Klicken (0.95 → 1.0)
  * - Sanfte Hover-Effekte
  * - Besseres visuelles Feedback
  */
-export function AnimatedButton({ 
-  children, 
-  ...props 
-}: AnimatedButtonProps) {
+export function AnimatedButton({ children, ...props }: AnimatedButtonProps) {
   const { disabled } = props;
   return (
     <motion.div
@@ -28,10 +25,7 @@ export function AnimatedButton({
       whileHover={disabled ? {} : { scale: 1.02 }}
       transition={fastTransition}
     >
-      <Button {...props}>
-        {children}
-      </Button>
+      <Button {...props}>{children}</Button>
     </motion.div>
   );
 }
-

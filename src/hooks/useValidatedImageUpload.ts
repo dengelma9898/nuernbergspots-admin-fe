@@ -62,20 +62,20 @@ const DEFAULT_MAX_SIZE_MB = 1;
 
 /**
  * Zentrale Hook für validierte Bild-Uploads
- * 
+ *
  * Features:
  * - Automatische Validierung jedes Bildes (max 1 MB pro Bild)
  * - Unterstützt Single- und Multi-Upload
  * - Zeigt Fehlermeldungen über error-State (im Dialog anzeigen)
  * - Generiert Preview-URLs automatisch
- * 
+ *
  * @example
  * ```tsx
  * const { files, previewUrls, error, handleFileChange, removeImage } = useValidatedImageUpload({
  *   maxImages: 5,
  *   onImagesValidated: (files) => console.log('Validated:', files)
  * });
- * 
+ *
  * // Fehler im Dialog anzeigen:
  * {error && <Alert><AlertTitle>{error.title}</AlertTitle><AlertDescription>{error.message}</AlertDescription></Alert>}
  * ```
@@ -83,11 +83,7 @@ const DEFAULT_MAX_SIZE_MB = 1;
 export function useValidatedImageUpload(
   options: UseValidatedImageUploadOptions = {}
 ): UseValidatedImageUploadReturn {
-  const {
-    maxImages,
-    maxSizeMB = DEFAULT_MAX_SIZE_MB,
-    onImagesValidated,
-  } = options;
+  const { maxImages, maxSizeMB = DEFAULT_MAX_SIZE_MB, onImagesValidated } = options;
 
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -109,20 +105,23 @@ export function useValidatedImageUpload(
     }
   }, []);
 
-  const removeImage = useCallback((index: number) => {
-    // Revoke Object URL wenn vorhanden
-    if (previewUrls[index]?.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrls[index]);
-    }
-    
-    setFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
-    
-    // Lösche Fehler wenn alle Bilder entfernt wurden
-    if (files.length === 1) {
-      setError(null);
-    }
-  }, [files.length, previewUrls]);
+  const removeImage = useCallback(
+    (index: number) => {
+      // Revoke Object URL wenn vorhanden
+      if (previewUrls[index]?.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrls[index]);
+      }
+
+      setFiles(prev => prev.filter((_, i) => i !== index));
+      setPreviewUrls(prev => prev.filter((_, i) => i !== index));
+
+      // Lösche Fehler wenn alle Bilder entfernt wurden
+      if (files.length === 1) {
+        setError(null);
+      }
+    },
+    [files.length, previewUrls]
+  );
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +132,7 @@ export function useValidatedImageUpload(
       const selectedFiles = Array.from(e.target.files);
       const currentFileCount = files.length;
       const availableSlots = maxImages ? maxImages - currentFileCount : selectedFiles.length;
-      
+
       // Prüfe ob noch Platz für weitere Bilder ist
       if (maxImages && selectedFiles.length > availableSlots) {
         const friendlyError: ImageValidationError = {
@@ -177,7 +176,7 @@ export function useValidatedImageUpload(
         reader.onloadend = () => {
           const previewUrl = reader.result as string;
           validPreviews.push(previewUrl);
-          
+
           // Aktualisiere Previews wenn alle Reader fertig sind
           if (validPreviews.length === validFiles.length) {
             setPreviewUrls(prev => [...prev, ...validPreviews]);
@@ -197,7 +196,7 @@ export function useValidatedImageUpload(
       // Füge nur gültige Dateien hinzu
       if (validFiles.length > 0) {
         setFiles(prev => [...prev, ...validFiles]);
-        
+
         // Callback aufrufen wenn vorhanden
         if (onImagesValidated) {
           onImagesValidated(validFiles);
@@ -221,4 +220,3 @@ export function useValidatedImageUpload(
     resetFileInput,
   };
 }
-

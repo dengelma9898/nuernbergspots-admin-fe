@@ -153,7 +153,6 @@ export function EditBusinessUser() {
               </Card>
             </motion.div>
           ) : (
-
             <motion.div
               className="space-y-6 max-w-6xl mx-auto"
               variants={staggerContainer}
@@ -164,7 +163,9 @@ export function EditBusinessUser() {
               <motion.div variants={fadeInUp}>
                 <Card className={cn(glassCard, 'overflow-hidden')}>
                   <div className="p-6 border-b border-secondary">
-                    <h2 className="text-lg font-semibold text-foreground">Business-User Informationen</h2>
+                    <h2 className="text-lg font-semibold text-foreground">
+                      Business-User Informationen
+                    </h2>
                   </div>
                   <div className="p-6">
                     <div className="space-y-4">
@@ -203,134 +204,162 @@ export function EditBusinessUser() {
                   businessUser.businessIds.includes(business.id)
                 );
 
-                const unassignedBusinesses = availableBusinesses.filter(business => !business.hasAccount);
+                const unassignedBusinesses = availableBusinesses.filter(
+                  business => !business.hasAccount
+                );
 
                 return (
                   <>
                     {/* Zugewiesene Geschäfte */}
                     <motion.div variants={fadeInUp}>
-                {/* Mobile Card Layout */}
-                <div className="md:hidden space-y-2">
-                  <Card className={cn(glassCard, 'p-4')}>
-                    <div className="text-lg font-semibold text-foreground mb-4">Zugewiesene Geschäfte</div>
-                    {assignedBusinesses.length === 0 ? (
-                      <div className="text-muted-foreground text-sm">Keine zugewiesenen Geschäfte</div>
-                    ) : (
-                      <div className="space-y-3">
-                        {assignedBusinesses.map(business => (
-                          <Card key={business.id} className={cn(glassCard, 'p-3')}>
-                            <div className="font-medium text-foreground">{business.name}</div>
-                            <div className="text-xs text-muted-foreground break-all mt-1">{business.id}</div>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-                  </Card>
-                </div>
-
-                {/* Desktop Table Layout */}
-                <Card
-                  className={cn(glassCard, 'hidden md:block overflow-hidden')}
-                  data-slot="card"
-                >
-                  <div className="p-6 border-b border-secondary">
-                    <h2 className="text-lg font-semibold text-foreground">Zugewiesene Geschäfte</h2>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-secondary hover:bg-muted/50">
-                          <TableHead className="text-foreground font-medium">Name</TableHead>
-                          <TableHead className="text-foreground font-medium">ID</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {assignedBusinesses.map(business => (
-                          <TableRow
-                            key={business.id}
-                            className="border-secondary hover:bg-muted/50 transition-colors duration-200"
-                          >
-                            <TableCell className="text-foreground font-medium">{business.name}</TableCell>
-                            <TableCell className="text-muted-foreground">{business.id}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Verfügbare Geschäfte */}
-              <motion.div variants={fadeInUp}>
-                {/* Mobile Card Layout */}
-                <div className="md:hidden space-y-4">
-                  <Card className={cn(glassCard, 'p-4')}>
-                    <div className="text-lg font-semibold text-foreground mb-4">Verfügbare Geschäfte</div>
-                    {unassignedBusinesses.length === 0 ? (
-                      <div className="text-muted-foreground text-sm">Keine verfügbaren Geschäfte</div>
-                    ) : (
-                      <div className="space-y-3">
-                        {unassignedBusinesses.map(business => (
-                          <Card key={business.id} className={cn(glassCard, 'p-3')}>
-                            <div className="font-medium text-foreground">{business.name}</div>
-                            <div className="text-xs text-muted-foreground break-all mt-1">{business.id}</div>
-                            <div className="flex justify-end mt-3">
-                              <AnimatedButton
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleAddBusiness(business)}
-                                className={cn(glassButton)}
-                              >
-                                <Plus className="mr-1 h-4 w-4" /> Hinzufügen
-                              </AnimatedButton>
+                      {/* Mobile Card Layout */}
+                      <div className="md:hidden space-y-2">
+                        <Card className={cn(glassCard, 'p-4')}>
+                          <div className="text-lg font-semibold text-foreground mb-4">
+                            Zugewiesene Geschäfte
+                          </div>
+                          {assignedBusinesses.length === 0 ? (
+                            <div className="text-muted-foreground text-sm">
+                              Keine zugewiesenen Geschäfte
                             </div>
-                          </Card>
-                        ))}
+                          ) : (
+                            <div className="space-y-3">
+                              {assignedBusinesses.map(business => (
+                                <Card key={business.id} className={cn(glassCard, 'p-3')}>
+                                  <div className="font-medium text-foreground">{business.name}</div>
+                                  <div className="text-xs text-muted-foreground break-all mt-1">
+                                    {business.id}
+                                  </div>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </Card>
                       </div>
-                    )}
-                  </Card>
-                </div>
 
-                {/* Desktop Table Layout */}
-                <Card className={cn(glassCard, 'hidden md:block overflow-hidden')}>
-                  <div className="p-6 border-b border-secondary">
-                    <h2 className="text-lg font-semibold text-foreground">Verfügbare Geschäfte</h2>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="border-secondary hover:bg-muted/50">
-                          <TableHead className="text-foreground font-medium">Name</TableHead>
-                          <TableHead className="text-foreground font-medium">ID</TableHead>
-                          <TableHead className="text-foreground font-medium">Aktionen</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {unassignedBusinesses.map(business => (
-                          <TableRow
-                            key={business.id}
-                            className="border-secondary hover:bg-muted/50 transition-colors duration-200"
-                          >
-                            <TableCell className="text-foreground font-medium">{business.name}</TableCell>
-                            <TableCell className="text-muted-foreground">{business.id}</TableCell>
-                            <TableCell>
-                              <AnimatedButton
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleAddBusiness(business)}
-                                className={cn(glassButton)}
-                              >
-                                <Plus className="h-4 w-4 mr-2" />
-                                Hinzufügen
-                              </AnimatedButton>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                    </Card>
-                  </motion.div>
+                      {/* Desktop Table Layout */}
+                      <Card
+                        className={cn(glassCard, 'hidden md:block overflow-hidden')}
+                        data-slot="card"
+                      >
+                        <div className="p-6 border-b border-secondary">
+                          <h2 className="text-lg font-semibold text-foreground">
+                            Zugewiesene Geschäfte
+                          </h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="border-secondary hover:bg-muted/50">
+                                <TableHead className="text-foreground font-medium">Name</TableHead>
+                                <TableHead className="text-foreground font-medium">ID</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {assignedBusinesses.map(business => (
+                                <TableRow
+                                  key={business.id}
+                                  className="border-secondary hover:bg-muted/50 transition-colors duration-200"
+                                >
+                                  <TableCell className="text-foreground font-medium">
+                                    {business.name}
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground">
+                                    {business.id}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </Card>
+                    </motion.div>
+
+                    {/* Verfügbare Geschäfte */}
+                    <motion.div variants={fadeInUp}>
+                      {/* Mobile Card Layout */}
+                      <div className="md:hidden space-y-4">
+                        <Card className={cn(glassCard, 'p-4')}>
+                          <div className="text-lg font-semibold text-foreground mb-4">
+                            Verfügbare Geschäfte
+                          </div>
+                          {unassignedBusinesses.length === 0 ? (
+                            <div className="text-muted-foreground text-sm">
+                              Keine verfügbaren Geschäfte
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {unassignedBusinesses.map(business => (
+                                <Card key={business.id} className={cn(glassCard, 'p-3')}>
+                                  <div className="font-medium text-foreground">{business.name}</div>
+                                  <div className="text-xs text-muted-foreground break-all mt-1">
+                                    {business.id}
+                                  </div>
+                                  <div className="flex justify-end mt-3">
+                                    <AnimatedButton
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleAddBusiness(business)}
+                                      className={cn(glassButton)}
+                                    >
+                                      <Plus className="mr-1 h-4 w-4" /> Hinzufügen
+                                    </AnimatedButton>
+                                  </div>
+                                </Card>
+                              ))}
+                            </div>
+                          )}
+                        </Card>
+                      </div>
+
+                      {/* Desktop Table Layout */}
+                      <Card className={cn(glassCard, 'hidden md:block overflow-hidden')}>
+                        <div className="p-6 border-b border-secondary">
+                          <h2 className="text-lg font-semibold text-foreground">
+                            Verfügbare Geschäfte
+                          </h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="border-secondary hover:bg-muted/50">
+                                <TableHead className="text-foreground font-medium">Name</TableHead>
+                                <TableHead className="text-foreground font-medium">ID</TableHead>
+                                <TableHead className="text-foreground font-medium">
+                                  Aktionen
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {unassignedBusinesses.map(business => (
+                                <TableRow
+                                  key={business.id}
+                                  className="border-secondary hover:bg-muted/50 transition-colors duration-200"
+                                >
+                                  <TableCell className="text-foreground font-medium">
+                                    {business.name}
+                                  </TableCell>
+                                  <TableCell className="text-muted-foreground">
+                                    {business.id}
+                                  </TableCell>
+                                  <TableCell>
+                                    <AnimatedButton
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => handleAddBusiness(business)}
+                                      className={cn(glassButton)}
+                                    >
+                                      <Plus className="h-4 w-4 mr-2" />
+                                      Hinzufügen
+                                    </AnimatedButton>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </Card>
+                    </motion.div>
                   </>
                 );
               })()}

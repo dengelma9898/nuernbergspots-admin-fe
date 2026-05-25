@@ -206,10 +206,7 @@ describe('Easter Egg Service', () => {
 
       const result = await easterEggService.drawWinners('abc-123');
 
-      expect(mockApi.post).toHaveBeenCalledWith(
-        '/easter-egg-hunt/eggs/abc-123/draw-winners',
-        {}
-      );
+      expect(mockApi.post).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/draw-winners', {});
       expect(result).toEqual(mockEgg);
     });
   });

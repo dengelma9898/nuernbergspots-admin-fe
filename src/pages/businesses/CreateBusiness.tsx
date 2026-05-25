@@ -7,7 +7,11 @@ import { useBusinessService } from '@/services/businessService';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
 import { useKeywordService } from '@/services/keywordService';
 import { toast } from 'sonner';
-import { showUserFriendlyError, showSuccessMessage, getUserFriendlyError } from '@/utils/errorUtils';
+import {
+  showUserFriendlyError,
+  showSuccessMessage,
+  getUserFriendlyError,
+} from '@/utils/errorUtils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -45,7 +49,6 @@ interface TimeSlot {
   closeTime: string;
   days: WeekdayKey[];
 }
-
 
 export const CreateBusiness: React.FC = () => {
   const navigate = useNavigate();
@@ -111,9 +114,9 @@ export const CreateBusiness: React.FC = () => {
   useEffect(() => {
     if (validationErrors.length > 0 && validationErrorsRef.current) {
       setTimeout(() => {
-        validationErrorsRef.current?.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
+        validationErrorsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
         });
       }, 100); // Kleine Verzögerung, damit das Element gerendert ist
     }
@@ -149,7 +152,12 @@ export const CreateBusiness: React.FC = () => {
       setKeywords(fetchedKeywords);
     } catch (error) {
       console.error('Fehler beim Laden der Keywords:', error);
-      showUserFriendlyError(error, toast, () => loadKeywordsForCategories(categoryIds), 'load-categories');
+      showUserFriendlyError(
+        error,
+        toast,
+        () => loadKeywordsForCategories(categoryIds),
+        'load-categories'
+      );
     }
   };
 
@@ -214,10 +222,12 @@ export const CreateBusiness: React.FC = () => {
 
   const addTimeSlot = () => {
     if (newTimeSlot.days.length === 0) {
-      setValidationErrors(['Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.']);
+      setValidationErrors([
+        'Bitte wählen Sie mindestens einen Tag aus. Ein Zeitraum muss für mindestens einen Tag gelten.',
+      ]);
       return;
     }
-    
+
     setValidationErrors([]);
 
     const id = Date.now().toString();
@@ -249,7 +259,6 @@ export const CreateBusiness: React.FC = () => {
       return { ...prev, days };
     });
   };
-
 
   const handleSubmit = async () => {
     try {
@@ -317,16 +326,13 @@ export const CreateBusiness: React.FC = () => {
       showSuccessMessage(toast, {
         title: 'Geschäft erstellt',
         description: `"${newBusiness.name}" wurde erfolgreich erstellt.`,
-        nextSteps: [
-          'Du kannst jetzt weitere Details hinzufügen',
-          'Oder Bilder hochladen'
-        ]
+        nextSteps: ['Du kannst jetzt weitere Details hinzufügen', 'Oder Bilder hochladen'],
       });
       navigate('/businesses');
     } catch (error) {
       console.error('Fehler beim Erstellen des Geschäfts:', error);
       const friendlyError = getUserFriendlyError(error, 'save-business');
-      
+
       // Wenn Validierungsfehler vorhanden sind, zeige sie im Dialog
       if (friendlyError.validationMessages && friendlyError.validationMessages.length > 0) {
         setValidationErrors(friendlyError.validationMessages);
@@ -363,9 +369,7 @@ export const CreateBusiness: React.FC = () => {
                   <ArrowLeft className="h-5 w-5" />
                   <span className="sr-only">Zurück zur Übersicht</span>
                 </AnimatedButton>
-                <h1 className="text-2xl font-bold text-foreground">
-                  Neues Geschäft erstellen
-                </h1>
+                <h1 className="text-2xl font-bold text-foreground">Neues Geschäft erstellen</h1>
               </div>
             </motion.div>
 
@@ -380,15 +384,16 @@ export const CreateBusiness: React.FC = () => {
                 <CardHeader>
                   <CardTitle className="text-foreground">Geschäftsdetails</CardTitle>
                   <CardDescription className="text-muted-foreground">
-                    Füllen Sie alle notwendigen Informationen aus, um ein neues Geschäft zu erstellen.
+                    Füllen Sie alle notwendigen Informationen aus, um ein neues Geschäft zu
+                    erstellen.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   {/* Validierungsfehler */}
                   {validationErrors.length > 0 && (
-                    <Alert 
+                    <Alert
                       ref={validationErrorsRef}
-                      variant="destructive" 
+                      variant="destructive"
                       className={cn(glassCard, 'border-destructive/50')}
                     >
                       <AlertCircle className="h-4 w-4" />
@@ -402,7 +407,7 @@ export const CreateBusiness: React.FC = () => {
                       </AlertDescription>
                     </Alert>
                   )}
-                  
+
                   {/* Business Name */}
                   <motion.div
                     className={cn(glassCard, 'p-4 space-y-3')}
@@ -426,425 +431,419 @@ export const CreateBusiness: React.FC = () => {
                     </p>
                   </motion.div>
 
-              {/* Description */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-3')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.2 }}
-              >
-                <Label htmlFor="description" className="text-foreground">
-                  Beschreibung
-                </Label>
-                <Textarea
-                  id="description"
-                  value={newBusiness.description}
-                  onChange={e => handleInputChange('description', e.target.value)}
-                  placeholder="Beschreiben Sie das Geschäft im Detail..."
-                  className={cn(glassInput, 'min-h-[100px]')}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie
-                  Angebot, Besonderheiten oder Geschichte.
-                </p>
-              </motion.div>
-
-              {/* Categories */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-3')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.3 }}
-              >
-                <Label className="text-foreground">Kategorien (max. 3)</Label>
-                <div className="flex flex-wrap gap-2">
-                  {categories.map(category => (
-                    <SelectableBadge
-                      key={category.id}
-                      isSelected={newBusiness.categoryIds.includes(category.id)}
-                      onClick={() => toggleCategory(category.id)}
-                    >
-                      {category.name}
-                    </SelectableBadge>
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
-                </p>
-              </motion.div>
-
-              {/* Keywords */}
-              {keywords.length > 0 && (
-                <motion.div
-                  className={cn(glassCard, 'p-4 space-y-3')}
-                  variants={fadeInUp}
-                  initial="initial"
-                  animate="animate"
-                  transition={{ ...defaultTransition, delay: 0.4 }}
-                >
-                  <Label className="text-foreground">Keywords</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {keywords.map(keyword => (
-                      <SelectableBadge
-                        key={keyword.id}
-                        isSelected={selectedKeywords.includes(keyword.id)}
-                        onClick={() => toggleKeyword(keyword.id)}
-                      >
-                        {keyword.name}
-                      </SelectableBadge>
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu machen.
-                  </p>
-                </motion.div>
-              )}
-
-              {/* Benefit */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-3')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.5 }}
-              >
-                <Label htmlFor="benefit" className="text-foreground">
-                  Benefit für Nutzer
-                </Label>
-                <Input
-                  id="benefit"
-                  value={newBusiness.benefit}
-                  onChange={e => {
-                    const value = e.target.value.slice(0, 100);
-                    handleInputChange('benefit', value);
-                  }}
-                  placeholder="z.B. 10% Rabatt auf alle Getränke"
-                  maxLength={100}
-                  className={cn(glassInput)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  Beschreiben Sie kurz (max. 100 Zeichen), welchen Vorteil Nutzer in diesem Geschäft
-                  erhalten.
-                  <span className="ml-2 text-xs">{newBusiness.benefit.length}/100 Zeichen</span>
-                </p>
-              </motion.div>
-
-              {/* Address */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-3')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.6 }}
-              >
-                <Label className="text-foreground">Adresse</Label>
-                <LocationSearch
-                  value={searchValue}
-                  onChange={handleLocationSelect}
-                  placeholder="Adresse suchen..."
-                  debounce={1000}
-                />
-                {newBusiness.address && (
-                  <div className="text-sm text-muted-foreground mt-2">
-                    Ausgewählte Adresse: {newBusiness.address}
-                  </div>
-                )}
-                <p className="text-sm text-muted-foreground">
-                  Suchen Sie die Adresse. Die Koordinaten werden automatisch ermittelt.
-                </p>
-              </motion.div>
-
-              {/* Contact Information */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-4')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.7 }}
-              >
-                <h3 className="text-lg font-medium text-foreground">
-                  Kontaktinformationen
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Diese Informationen sind optional und können später vom Geschäftsinhaber ergänzt
-                  werden.
-                </p>
-
-                <div className={cn(glassCard, 'p-3')}>
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="isPromoted"
-                      checked={newBusiness.isPromoted}
-                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
-                    />
-                    <div className="space-y-1">
-                      <Label htmlFor="isPromoted" className="text-foreground">
-                        Als "Highlight" markieren
-                      </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {newBusiness.isPromoted
-                          ? 'Dieser Partner wird als Highlight angezeigt ✨'
-                          : 'Markiere diesen Partner als Highlight'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-foreground">
-                      E-Mail (optional)
+                  {/* Description */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-3')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.2 }}
+                  >
+                    <Label htmlFor="description" className="text-foreground">
+                      Beschreibung
                     </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={newBusiness.contact.email}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, email: e.target.value },
-                        })
-                      }
-                      placeholder="kontakt@beispiel.de"
-                      className={cn(glassInput)}
+                    <Textarea
+                      id="description"
+                      value={newBusiness.description}
+                      onChange={e => handleInputChange('description', e.target.value)}
+                      placeholder="Beschreiben Sie das Geschäft im Detail..."
+                      className={cn(glassInput, 'min-h-[100px]')}
                     />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-foreground">
-                      Telefon (optional)
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={newBusiness.contact.phoneNumber}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, phoneNumber: e.target.value },
-                        })
-                      }
-                      placeholder="+49 123 456789"
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="website" className="text-foreground">
-                      Website (optional)
-                    </Label>
-                    <Input
-                      id="website"
-                      type="url"
-                      value={newBusiness.contact.website}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, website: e.target.value },
-                        })
-                      }
-                      placeholder="https://www.beispiel.de"
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram" className="text-foreground">
-                      Instagram (optional)
-                    </Label>
-                    <Input
-                      id="instagram"
-                      value={newBusiness.contact.instagram}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, instagram: e.target.value },
-                        })
-                      }
-                      placeholder="@beispiel"
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="facebook" className="text-foreground">
-                      Facebook (optional)
-                    </Label>
-                    <Input
-                      id="facebook"
-                      value={newBusiness.contact.facebook}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, facebook: e.target.value },
-                        })
-                      }
-                      placeholder="beispiel"
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="tiktok" className="text-foreground">
-                      TikTok (optional)
-                    </Label>
-                    <Input
-                      id="tiktok"
-                      value={newBusiness.contact.tiktok}
-                      onChange={e =>
-                        setNewBusiness({
-                          ...newBusiness,
-                          contact: { ...newBusiness.contact, tiktok: e.target.value },
-                        })
-                      }
-                      placeholder="@beispiel"
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                </div>
-              </motion.div>
+                    <p className="text-sm text-muted-foreground">
+                      Eine ausführliche Beschreibung des Geschäfts. Nennen Sie wichtige Details wie
+                      Angebot, Besonderheiten oder Geschichte.
+                    </p>
+                  </motion.div>
 
-              {/* Opening Hours */}
-              <motion.div
-                className={cn(glassCard, 'p-4 space-y-4')}
-                variants={fadeInUp}
-                initial="initial"
-                animate="animate"
-                transition={{ ...defaultTransition, delay: 0.8 }}
-              >
-                <div className="mb-2">
-                  <h3 className="text-lg font-medium text-foreground">
-                    Öffnungszeiten
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten
-                    sollen. Sie können mehrere Zeiträume für den gleichen Tag hinzufügen.
-                  </p>
-                </div>
-                <div className="space-y-4">
-                  {timeSlots.map(slot => (
-                    <div
-                      key={slot.id}
-                      className={cn(glassCard, 'p-4 space-y-4')}
-                    >
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium text-foreground">Zeitraum</h4>
-                        <AnimatedButton
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeTimeSlot(slot.id)}
-                          className="text-destructive hover:text-destructive/80"
+                  {/* Categories */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-3')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.3 }}
+                  >
+                    <Label className="text-foreground">Kategorien (max. 3)</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {categories.map(category => (
+                        <SelectableBadge
+                          key={category.id}
+                          isSelected={newBusiness.categoryIds.includes(category.id)}
+                          onClick={() => toggleCategory(category.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </AnimatedButton>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-foreground">Von</Label>
-                          <Input
-                            type="time"
-                            value={slot.openTime}
-                            onChange={e =>
-                              handleTimeSlotChange(slot.id, 'openTime', e.target.value)
-                            }
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label className="text-foreground">Bis</Label>
-                          <Input
-                            type="time"
-                            value={slot.closeTime}
-                            onChange={e =>
-                              handleTimeSlotChange(slot.id, 'closeTime', e.target.value)
-                            }
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-foreground">Gültig an</Label>
-                        <div className="flex flex-wrap gap-2">
-                          {Object.entries(WEEKDAYS).map(([day, dayName]) => (
-                            <SelectableBadge
-                              key={day}
-                              isSelected={slot.days.includes(day as WeekdayKey)}
-                              onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
-                            >
-                              {dayName}
-                            </SelectableBadge>
-                          ))}
-                        </div>
-                      </div>
+                          {category.name}
+                        </SelectableBadge>
+                      ))}
                     </div>
-                  ))}
-                  <div className={cn(glassCard, 'p-4 space-y-4')}>
-                    <h4 className="font-medium text-foreground">Neuer Zeitraum</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-foreground">Von</Label>
-                        <Input
-                          type="time"
-                          value={newTimeSlot.openTime}
-                          onChange={e =>
-                            setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-foreground">Bis</Label>
-                        <Input
-                          type="time"
-                          value={newTimeSlot.closeTime}
-                          onChange={e =>
-                            setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Gültig an</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Wählen Sie bis zu 3 passende Kategorien für das Geschäft aus.
+                    </p>
+                  </motion.div>
+
+                  {/* Keywords */}
+                  {keywords.length > 0 && (
+                    <motion.div
+                      className={cn(glassCard, 'p-4 space-y-3')}
+                      variants={fadeInUp}
+                      initial="initial"
+                      animate="animate"
+                      transition={{ ...defaultTransition, delay: 0.4 }}
+                    >
+                      <Label className="text-foreground">Keywords</Label>
                       <div className="flex flex-wrap gap-2">
-                        {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                        {keywords.map(keyword => (
                           <SelectableBadge
-                            key={day}
-                            isSelected={newTimeSlot.days.includes(day as WeekdayKey)}
-                            onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
+                            key={keyword.id}
+                            isSelected={selectedKeywords.includes(keyword.id)}
+                            onClick={() => toggleKeyword(keyword.id)}
                           >
-                            {dayName}
+                            {keyword.name}
                           </SelectableBadge>
                         ))}
                       </div>
-                    </div>
-                    <AnimatedButton
-                      onClick={addTimeSlot}
-                      disabled={newTimeSlot.days.length === 0}
-                      className="w-full"
-                    >
-                      Zeitraum hinzufügen
-                    </AnimatedButton>
-                  </div>
-                </div>
-              </motion.div>
+                      <p className="text-sm text-muted-foreground">
+                        Wählen Sie passende Keywords aus, um das Geschäft besser auffindbar zu
+                        machen.
+                      </p>
+                    </motion.div>
+                  )}
 
-              {/* Action Buttons */}
-              <div className="flex flex-row items-center justify-end gap-4 pt-4 border-t border-secondary">
-                <AnimatedButton
-                  variant="ghost"
-                  onClick={() => navigate('/businesses')}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
-                >
-                  Abbrechen
-                </AnimatedButton>
-                <LoadingButton
-                  variant="outline"
-                  onClick={handleSubmit}
-                  isLoading={loading}
-                  loadingText="Wird erstellt..."
-                  className={cn(glassButton, 'flex items-center')}
-                >
-                  Geschäft erstellen
-                </LoadingButton>
-              </div>
+                  {/* Benefit */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-3')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.5 }}
+                  >
+                    <Label htmlFor="benefit" className="text-foreground">
+                      Benefit für Nutzer
+                    </Label>
+                    <Input
+                      id="benefit"
+                      value={newBusiness.benefit}
+                      onChange={e => {
+                        const value = e.target.value.slice(0, 100);
+                        handleInputChange('benefit', value);
+                      }}
+                      placeholder="z.B. 10% Rabatt auf alle Getränke"
+                      maxLength={100}
+                      className={cn(glassInput)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Beschreiben Sie kurz (max. 100 Zeichen), welchen Vorteil Nutzer in diesem
+                      Geschäft erhalten.
+                      <span className="ml-2 text-xs">{newBusiness.benefit.length}/100 Zeichen</span>
+                    </p>
+                  </motion.div>
+
+                  {/* Address */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-3')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.6 }}
+                  >
+                    <Label className="text-foreground">Adresse</Label>
+                    <LocationSearch
+                      value={searchValue}
+                      onChange={handleLocationSelect}
+                      placeholder="Adresse suchen..."
+                      debounce={1000}
+                    />
+                    {newBusiness.address && (
+                      <div className="text-sm text-muted-foreground mt-2">
+                        Ausgewählte Adresse: {newBusiness.address}
+                      </div>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                      Suchen Sie die Adresse. Die Koordinaten werden automatisch ermittelt.
+                    </p>
+                  </motion.div>
+
+                  {/* Contact Information */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-4')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.7 }}
+                  >
+                    <h3 className="text-lg font-medium text-foreground">Kontaktinformationen</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Diese Informationen sind optional und können später vom Geschäftsinhaber
+                      ergänzt werden.
+                    </p>
+
+                    <div className={cn(glassCard, 'p-3')}>
+                      <div className="flex items-center space-x-3">
+                        <Switch
+                          id="isPromoted"
+                          checked={newBusiness.isPromoted}
+                          onCheckedChange={checked => handleInputChange('isPromoted', checked)}
+                        />
+                        <div className="space-y-1">
+                          <Label htmlFor="isPromoted" className="text-foreground">
+                            Als "Highlight" markieren
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
+                            {newBusiness.isPromoted
+                              ? 'Dieser Partner wird als Highlight angezeigt ✨'
+                              : 'Markiere diesen Partner als Highlight'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="email" className="text-foreground">
+                          E-Mail (optional)
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newBusiness.contact.email}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, email: e.target.value },
+                            })
+                          }
+                          placeholder="kontakt@beispiel.de"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone" className="text-foreground">
+                          Telefon (optional)
+                        </Label>
+                        <Input
+                          id="phone"
+                          type="tel"
+                          value={newBusiness.contact.phoneNumber}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, phoneNumber: e.target.value },
+                            })
+                          }
+                          placeholder="+49 123 456789"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="website" className="text-foreground">
+                          Website (optional)
+                        </Label>
+                        <Input
+                          id="website"
+                          type="url"
+                          value={newBusiness.contact.website}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, website: e.target.value },
+                            })
+                          }
+                          placeholder="https://www.beispiel.de"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram" className="text-foreground">
+                          Instagram (optional)
+                        </Label>
+                        <Input
+                          id="instagram"
+                          value={newBusiness.contact.instagram}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, instagram: e.target.value },
+                            })
+                          }
+                          placeholder="@beispiel"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook" className="text-foreground">
+                          Facebook (optional)
+                        </Label>
+                        <Input
+                          id="facebook"
+                          value={newBusiness.contact.facebook}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, facebook: e.target.value },
+                            })
+                          }
+                          placeholder="beispiel"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tiktok" className="text-foreground">
+                          TikTok (optional)
+                        </Label>
+                        <Input
+                          id="tiktok"
+                          value={newBusiness.contact.tiktok}
+                          onChange={e =>
+                            setNewBusiness({
+                              ...newBusiness,
+                              contact: { ...newBusiness.contact, tiktok: e.target.value },
+                            })
+                          }
+                          placeholder="@beispiel"
+                          className={cn(glassInput)}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Opening Hours */}
+                  <motion.div
+                    className={cn(glassCard, 'p-4 space-y-4')}
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.8 }}
+                  >
+                    <div className="mb-2">
+                      <h3 className="text-lg font-medium text-foreground">Öffnungszeiten</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Fügen Sie Zeiträume hinzu und wählen Sie die Tage aus, an denen diese gelten
+                        sollen. Sie können mehrere Zeiträume für den gleichen Tag hinzufügen.
+                      </p>
+                    </div>
+                    <div className="space-y-4">
+                      {timeSlots.map(slot => (
+                        <div key={slot.id} className={cn(glassCard, 'p-4 space-y-4')}>
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-foreground">Zeitraum</h4>
+                            <AnimatedButton
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeTimeSlot(slot.id)}
+                              className="text-destructive hover:text-destructive/80"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </AnimatedButton>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label className="text-foreground">Von</Label>
+                              <Input
+                                type="time"
+                                value={slot.openTime}
+                                onChange={e =>
+                                  handleTimeSlotChange(slot.id, 'openTime', e.target.value)
+                                }
+                                className={cn(glassInput)}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-foreground">Bis</Label>
+                              <Input
+                                type="time"
+                                value={slot.closeTime}
+                                onChange={e =>
+                                  handleTimeSlotChange(slot.id, 'closeTime', e.target.value)
+                                }
+                                className={cn(glassInput)}
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-foreground">Gültig an</Label>
+                            <div className="flex flex-wrap gap-2">
+                              {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                                <SelectableBadge
+                                  key={day}
+                                  isSelected={slot.days.includes(day as WeekdayKey)}
+                                  onClick={() => toggleDayForTimeSlot(day as WeekdayKey, slot.id)}
+                                >
+                                  {dayName}
+                                </SelectableBadge>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <div className={cn(glassCard, 'p-4 space-y-4')}>
+                        <h4 className="font-medium text-foreground">Neuer Zeitraum</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-foreground">Von</Label>
+                            <Input
+                              type="time"
+                              value={newTimeSlot.openTime}
+                              onChange={e =>
+                                setNewTimeSlot({ ...newTimeSlot, openTime: e.target.value })
+                              }
+                              className={cn(glassInput)}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-foreground">Bis</Label>
+                            <Input
+                              type="time"
+                              value={newTimeSlot.closeTime}
+                              onChange={e =>
+                                setNewTimeSlot({ ...newTimeSlot, closeTime: e.target.value })
+                              }
+                              className={cn(glassInput)}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-foreground">Gültig an</Label>
+                          <div className="flex flex-wrap gap-2">
+                            {Object.entries(WEEKDAYS).map(([day, dayName]) => (
+                              <SelectableBadge
+                                key={day}
+                                isSelected={newTimeSlot.days.includes(day as WeekdayKey)}
+                                onClick={() => toggleDayForNewTimeSlot(day as WeekdayKey)}
+                              >
+                                {dayName}
+                              </SelectableBadge>
+                            ))}
+                          </div>
+                        </div>
+                        <AnimatedButton
+                          onClick={addTimeSlot}
+                          disabled={newTimeSlot.days.length === 0}
+                          className="w-full"
+                        >
+                          Zeitraum hinzufügen
+                        </AnimatedButton>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-row items-center justify-end gap-4 pt-4 border-t border-secondary">
+                    <AnimatedButton
+                      variant="ghost"
+                      onClick={() => navigate('/businesses')}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
+                    >
+                      Abbrechen
+                    </AnimatedButton>
+                    <LoadingButton
+                      variant="outline"
+                      onClick={handleSubmit}
+                      isLoading={loading}
+                      loadingText="Wird erstellt..."
+                      className={cn(glassButton, 'flex items-center')}
+                    >
+                      Geschäft erstellen
+                    </LoadingButton>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

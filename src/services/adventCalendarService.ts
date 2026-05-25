@@ -1,4 +1,10 @@
-import { AdventCalendarEntry, CreateAdventCalendarEntryDto, UpdateAdventCalendarEntryDto, AddWinnerDto, AdventCalendarFeatureStatus } from '../models/advent-calendar';
+import {
+  AdventCalendarEntry,
+  CreateAdventCalendarEntryDto,
+  UpdateAdventCalendarEntryDto,
+  AddWinnerDto,
+  AdventCalendarFeatureStatus,
+} from '../models/advent-calendar';
 import { useApi } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
@@ -34,7 +40,10 @@ export function useAdventCalendarService() {
     /**
      * Aktualisiert einen Adventskalender-Eintrag
      */
-    update: async (id: string, entry: UpdateAdventCalendarEntryDto): Promise<AdventCalendarEntry> => {
+    update: async (
+      id: string,
+      entry: UpdateAdventCalendarEntryDto
+    ): Promise<AdventCalendarEntry> => {
       const response = await api.patch<ApiResponse<AdventCalendarEntry>>(`${baseUrl}/${id}`, entry);
       return unwrapData(response);
     },
@@ -95,4 +104,3 @@ export function useAdventCalendarService() {
     },
   };
 }
-

@@ -14,18 +14,18 @@ interface AnimatedCardProps extends CardProps {
 
 /**
  * AnimatedCard-Komponente mit Stagger-Animation
- * 
+ *
  * Features:
  * - Stagger-Animation für List-Items
  * - Sanfte Hover-Effekte
  * - Konfigurierbare Delay für Stagger-Effekt
  */
-export function AnimatedCard({ 
-  children, 
+export function AnimatedCard({
+  children,
   index = 0,
   delay = 0,
   className,
-  ...props 
+  ...props
 }: AnimatedCardProps) {
   return (
     <motion.div
@@ -34,11 +34,11 @@ export function AnimatedCard({
       variants={staggerItem}
       transition={{
         ...fastTransition,
-        delay: delay + (index * 0.05)
+        delay: delay + index * 0.05,
       }}
-      whileHover={{ 
+      whileHover={{
         scale: 1.02,
-        transition: fastTransition
+        transition: fastTransition,
       }}
     >
       <Card className={cn(className)} {...props}>
@@ -47,4 +47,3 @@ export function AnimatedCard({
     </motion.div>
   );
 }
-

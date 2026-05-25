@@ -25,4 +25,3 @@ export interface CreateChangelogDto {
 export interface UpdateChangelogDto {
   content: string; // Markdown content
 }
-

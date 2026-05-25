@@ -15,8 +15,7 @@ export function getSpecialPollStatusDisplayLabel(status: SpecialPollStatus): str
 export function getSpecialPollStatusBadgeVariant(
   status: SpecialPollStatus
 ): 'default' | 'secondary' | 'destructive' | 'outline' {
-  const effective =
-    status === SpecialPollStatus.PENDING ? SpecialPollStatus.ACTIVE : status;
+  const effective = status === SpecialPollStatus.PENDING ? SpecialPollStatus.ACTIVE : status;
   switch (effective) {
     case SpecialPollStatus.ACTIVE:
       return 'default';

@@ -1,13 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -169,7 +163,9 @@ export function EasterEggDetail() {
     try {
       setIsAddingWinner(true);
       setValidationErrors([]);
-      const updatedEgg = await easterEggService.addWinner(id, { userId: manualWinnerUserId.trim() });
+      const updatedEgg = await easterEggService.addWinner(id, {
+        userId: manualWinnerUserId.trim(),
+      });
       setEgg(updatedEgg);
       setManualWinnerUserId('');
       showSuccessMessage(toast, {
@@ -246,7 +242,12 @@ export function EasterEggDetail() {
               <Card className={cn(glassCard)}>
                 <CardContent className="p-4 sm:p-6 space-y-4">
                   {egg.imageUrl && (
-                    <div className={cn(glassCard, 'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2')}>
+                    <div
+                      className={cn(
+                        glassCard,
+                        'relative w-full h-48 sm:h-64 rounded-lg overflow-hidden p-2'
+                      )}
+                    >
                       <img
                         src={egg.imageUrl}
                         alt={egg.title}
@@ -339,7 +340,8 @@ export function EasterEggDetail() {
                       <div>
                         <Label className="text-foreground font-medium">Zufällig auslosen</Label>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Wählt zufällig bis zu {egg.numberOfWinners} Gewinner aus den Teilnehmern (ohne bereits vorhandene Gewinner).
+                          Wählt zufällig bis zu {egg.numberOfWinners} Gewinner aus den Teilnehmern
+                          (ohne bereits vorhandene Gewinner).
                         </p>
                       </div>
                       <LoadingButton
@@ -358,7 +360,9 @@ export function EasterEggDetail() {
 
                   {/* Manuell hinzufügen */}
                   <div className={cn(glassCard, 'p-4')}>
-                    <Label className="text-foreground font-medium">Gewinner manuell hinzufügen</Label>
+                    <Label className="text-foreground font-medium">
+                      Gewinner manuell hinzufügen
+                    </Label>
                     <p className="text-xs text-muted-foreground mt-1 mb-3">
                       Geben Sie die Firebase User-ID des Gewinners ein.
                     </p>

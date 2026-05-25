@@ -322,13 +322,7 @@ describe('Dialog Components', () => {
 
       const footer = screen.getByTestId('footer');
       expect(footer).toHaveAttribute('data-slot', 'dialog-footer');
-      expect(footer).toHaveClass(
-        'flex',
-        'flex-row',
-        'items-center',
-        'justify-end',
-        'gap-3'
-      );
+      expect(footer).toHaveClass('flex', 'flex-row', 'items-center', 'justify-end', 'gap-3');
     });
 
     it('sollte custom className akzeptieren', () => {

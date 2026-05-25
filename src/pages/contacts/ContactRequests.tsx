@@ -3,7 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, ArrowLeft, Clock, CheckCircle2, MessageSquare, RefreshCcw } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowLeft,
+  Clock,
+  CheckCircle2,
+  MessageSquare,
+  RefreshCcw,
+} from 'lucide-react';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
@@ -41,7 +48,12 @@ export function ContactRequests() {
         }
       } catch (error) {
         console.error('Fehler beim Laden der Kontaktanfragen:', error);
-        showUserFriendlyError(error, toast, () => fetchContactRequests(showSuccessToast), 'load-contact-requests');
+        showUserFriendlyError(
+          error,
+          toast,
+          () => fetchContactRequests(showSuccessToast),
+          'load-contact-requests'
+        );
       } finally {
         setLoading(false);
         setIsRefreshing(false);
@@ -63,11 +75,13 @@ export function ContactRequests() {
     const typeConfig = {
       [ContactRequestType.GENERAL]: {
         label: 'Allgemein',
-        className: 'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
+        className:
+          'bg-blue-600/20 text-blue-600 dark:text-blue-400 border-blue-600 dark:border-blue-400',
       },
       [ContactRequestType.FEEDBACK]: {
         label: 'Feedback',
-        className: 'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
+        className:
+          'bg-purple-600/20 text-purple-600 dark:text-purple-400 border-purple-600 dark:border-purple-400',
       },
       [ContactRequestType.BUSINESS_CLAIM]: {
         label: 'Geschäft beanspruchen',
@@ -75,7 +89,8 @@ export function ContactRequests() {
       },
       [ContactRequestType.BUSINESS_REQUEST]: {
         label: 'Geschäftsanfrage',
-        className: 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
+        className:
+          'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400',
       },
     };
 
@@ -241,7 +256,9 @@ export function ContactRequests() {
                             {getStatusBadge(request)}
                           </div>
                           <span className="text-xs md:text-sm text-muted-foreground font-medium">
-                            {format(new Date(request.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                            {format(new Date(request.createdAt), 'dd.MM.yyyy HH:mm', {
+                              locale: de,
+                            })}
                           </span>
                         </div>
 

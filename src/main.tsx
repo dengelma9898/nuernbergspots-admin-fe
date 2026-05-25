@@ -8,17 +8,17 @@ import '@/assets/fonts/fonts.css';
 const setPageTitleAndFavicon = () => {
   const mode = import.meta.env.MODE;
   const isDev = mode === 'dev' || mode === 'dev-local';
-  
+
   // Setze Titel
   const titleElement = document.getElementById('app-title') || document.querySelector('title');
   const title = isDev ? 'DEV - Admin Nürnbergspots' : 'Admin Nürnbergspots';
-  
+
   if (titleElement) {
     titleElement.textContent = title;
   } else {
     document.title = title;
   }
-  
+
   // Setze Favicon
   const faviconElement = document.getElementById('app-favicon') as HTMLLinkElement | null;
   if (faviconElement) {

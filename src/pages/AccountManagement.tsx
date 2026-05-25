@@ -146,7 +146,9 @@ export function AccountManagement() {
           <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Zurück zum Dashboard</span>
         </AnimatedButton>
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">Account-Management</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
+          Account-Management
+        </h1>
       </motion.div>
 
       <motion.div
@@ -178,7 +180,9 @@ export function AccountManagement() {
                     <Users className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
                       <div className="text-xs sm:text-sm text-muted-foreground">Gesamt</div>
-                      <div className="text-lg sm:text-2xl font-bold text-foreground">{stats.total}</div>
+                      <div className="text-lg sm:text-2xl font-bold text-foreground">
+                        {stats.total}
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -188,7 +192,9 @@ export function AccountManagement() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">Älter als 5 Tage</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">
+                        Älter als 5 Tage
+                      </div>
                       <div className="text-lg sm:text-2xl font-bold text-foreground">
                         {stats.oldAccounts}
                       </div>
@@ -201,7 +207,9 @@ export function AccountManagement() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
-                      <div className="text-xs sm:text-sm text-muted-foreground">Alle Accounts älter als</div>
+                      <div className="text-xs sm:text-sm text-muted-foreground">
+                        Alle Accounts älter als
+                      </div>
                       <div className="text-lg sm:text-2xl font-bold text-foreground">
                         {stats.cutoffDate
                           ? format(new Date(stats.cutoffDate), 'dd.MM.yyyy', { locale: de })
@@ -222,9 +230,7 @@ export function AccountManagement() {
                   className="min-w-fit px-6 py-3 whitespace-nowrap flex items-center justify-center gap-2"
                 >
                   {isCleaning ? (
-                    <>
-                      Bereinigung läuft...
-                    </>
+                    <>Bereinigung läuft...</>
                   ) : (
                     <>
                       <Trash2 className="h-4 w-4 flex-shrink-0" />
@@ -239,14 +245,12 @@ export function AccountManagement() {
                     Anonyme Accounts bereinigen
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-muted-foreground">
-                    Möchten Sie wirklich alle anonymen Accounts löschen, die älter als 5 Tage
-                    sind? Diese Aktion kann nicht rückgängig gemacht werden.
+                    Möchten Sie wirklich alle anonymen Accounts löschen, die älter als 5 Tage sind?
+                    Diese Aktion kann nicht rückgängig gemacht werden.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className={cn(glassButton)}>
-                    Abbrechen
-                  </AlertDialogCancel>
+                  <AlertDialogCancel className={cn(glassButton)}>Abbrechen</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleCleanup}
                     className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
@@ -258,7 +262,9 @@ export function AccountManagement() {
             </AlertDialog>
           </>
         ) : (
-          <div className="text-center py-4 text-muted-foreground text-base">Keine Daten verfügbar</div>
+          <div className="text-center py-4 text-muted-foreground text-base">
+            Keine Daten verfügbar
+          </div>
         )}
       </motion.div>
     </div>

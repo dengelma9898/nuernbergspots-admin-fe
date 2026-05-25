@@ -8,7 +8,7 @@ interface PageTransitionProps {
 
 /**
  * PageTransition-Komponente für flüssige Übergänge zwischen Seiten
- * 
+ *
  * Features:
  * - Fade-In + Slide-Up Animation beim Laden
  * - Smooth Exit-Animation beim Verlassen
@@ -27,4 +27,3 @@ export function PageTransition({ children }: PageTransitionProps) {
     </motion.div>
   );
 }
-

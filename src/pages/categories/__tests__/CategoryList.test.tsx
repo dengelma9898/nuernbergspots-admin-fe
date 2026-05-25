@@ -352,8 +352,9 @@ describe('CategoryList Component', () => {
         // Prüfe auf verschiedene Datumsformate
         const dateElements = screen.queryAllByText((content, element) => {
           const text = content || '';
-          return /^\d{1,2}[./]\d{1,2}[./]\d{4}$/.test(text) || 
-                 /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(text);
+          return (
+            /^\d{1,2}[./]\d{1,2}[./]\d{4}$/.test(text) || /^\d{1,2}\.\d{1,2}\.\d{4}$/.test(text)
+          );
         });
         expect(dateElements.length).toBeGreaterThan(0);
       });

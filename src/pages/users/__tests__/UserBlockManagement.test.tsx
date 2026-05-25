@@ -190,7 +190,9 @@ describe('UserBlockManagement', () => {
 
       await waitFor(() => {
         expect(screen.getByText('User blockieren')).toBeInTheDocument();
-        expect(screen.getByPlaceholderText('z.B. Verstoß gegen Nutzungsbedingungen')).toBeInTheDocument();
+        expect(
+          screen.getByPlaceholderText('z.B. Verstoß gegen Nutzungsbedingungen')
+        ).toBeInTheDocument();
       });
     });
 
@@ -313,13 +315,14 @@ describe('UserBlockManagement', () => {
       const dialogButtons = screen.getAllByText('Blockieren');
       // Der Dialog-Button sollte der letzte sein (nach dem Öffnen des Dialogs)
       const confirmButton = dialogButtons[dialogButtons.length - 1];
-      
+
       // Prüfe ob der Button disabled ist (kann als disabled-Attribut oder aria-disabled sein)
       // Oder prüfe ob der Button nicht klickbar ist
-      const isDisabled = confirmButton.hasAttribute('disabled') || 
-                        confirmButton.getAttribute('aria-disabled') === 'true' ||
-                        confirmButton.closest('button')?.hasAttribute('disabled');
-      
+      const isDisabled =
+        confirmButton.hasAttribute('disabled') ||
+        confirmButton.getAttribute('aria-disabled') === 'true' ||
+        confirmButton.closest('button')?.hasAttribute('disabled');
+
       expect(isDisabled || confirmButton.closest('button[disabled]')).toBeTruthy();
     });
   });
@@ -399,4 +402,3 @@ describe('UserBlockManagement', () => {
     });
   });
 });
-

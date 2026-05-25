@@ -27,7 +27,11 @@ interface LocationSelectorProps {
   defaultTab?: 'partner' | 'search';
 }
 
-export function LocationSelector({ value, onChange, defaultTab = 'partner' }: LocationSelectorProps) {
+export function LocationSelector({
+  value,
+  onChange,
+  defaultTab = 'partner',
+}: LocationSelectorProps) {
   const [tab, setTab] = useState<string>(defaultTab);
   const [businesses, setBusinesses] = useState<BusinessResponse[]>([]);
   const [loadingBusinesses, setLoadingBusinesses] = useState(false);
@@ -86,10 +90,7 @@ export function LocationSelector({ value, onChange, defaultTab = 'partner' }: Lo
     const query = businessSearchQuery.toLowerCase();
     const addr = b.address;
     const fullAddress = `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`;
-    return (
-      b.name.toLowerCase().includes(query) ||
-      fullAddress.toLowerCase().includes(query)
-    );
+    return b.name.toLowerCase().includes(query) || fullAddress.toLowerCase().includes(query);
   });
 
   return (
@@ -152,9 +153,7 @@ export function LocationSelector({ value, onChange, defaultTab = 'partner' }: Lo
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
                               <Store className="h-4 w-4 text-muted-foreground shrink-0" />
-                              <span className="font-medium text-sm truncate">
-                                {business.name}
-                              </span>
+                              <span className="font-medium text-sm truncate">{business.name}</span>
                             </div>
                             <div className="flex items-center gap-1.5 mt-1 ml-6">
                               <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
@@ -163,9 +162,7 @@ export function LocationSelector({ value, onChange, defaultTab = 'partner' }: Lo
                               </span>
                             </div>
                           </div>
-                          {isSelected && (
-                            <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                          )}
+                          {isSelected && <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />}
                         </div>
                       </div>
                     );

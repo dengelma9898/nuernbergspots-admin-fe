@@ -3,13 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Plus,
-  CheckCircle2,
-  AlertCircle,
-  XCircle,
-  ArrowLeft,
-} from 'lucide-react';
+import { Plus, CheckCircle2, AlertCircle, XCircle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Business, BusinessStatus } from '@/models/business';
@@ -84,7 +78,6 @@ export const BusinessList: React.FC = () => {
     };
     loadCategories();
   }, []);
-
 
   const handleEditClick = (business: Business) => {
     navigate(`/businesses/${business.id}/edit`);
@@ -338,10 +331,7 @@ export const BusinessList: React.FC = () => {
             )}
 
             {filteredBusinesses.length === 0 && (
-              <motion.div
-                variants={fadeInUp}
-                className={cn(glassCard, 'p-8 text-center')}
-              >
+              <motion.div variants={fadeInUp} className={cn(glassCard, 'p-8 text-center')}>
                 <div className="text-muted-foreground text-lg">Keine Partner gefunden.</div>
               </motion.div>
             )}

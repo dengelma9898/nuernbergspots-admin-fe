@@ -169,12 +169,8 @@ export default function MittmachMittwoch() {
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     };
 
-    const highlighted = polls
-      .filter(p => p.isHighlighted ?? false)
-      .sort(byLatestAnswerThenUpdated);
-    const others = polls
-      .filter(p => !(p.isHighlighted ?? false))
-      .sort(byLatestAnswerThenUpdated);
+    const highlighted = polls.filter(p => p.isHighlighted ?? false).sort(byLatestAnswerThenUpdated);
+    const others = polls.filter(p => !(p.isHighlighted ?? false)).sort(byLatestAnswerThenUpdated);
 
     return [
       { key: 'highlighted', heading: 'Hervorgehobene Aktionen', list: highlighted },
@@ -212,7 +208,10 @@ export default function MittmachMittwoch() {
                     'flex flex-row items-center justify-between gap-3 rounded-md px-3 py-2 w-full sm:w-auto sm:min-w-[220px]'
                   )}
                 >
-                  <Label htmlFor="highlight-only" className="text-sm text-foreground cursor-pointer">
+                  <Label
+                    htmlFor="highlight-only"
+                    className="text-sm text-foreground cursor-pointer"
+                  >
                     Nur hervorgehoben
                   </Label>
                   <Switch
@@ -233,7 +232,9 @@ export default function MittmachMittwoch() {
                     </DialogTrigger>
                     <DialogContent className={cn(glassCard, 'sm:max-w-[425px]')}>
                       <DialogHeader>
-                        <DialogTitle className="text-foreground">Neue Aktion/Poll erstellen</DialogTitle>
+                        <DialogTitle className="text-foreground">
+                          Neue Aktion/Poll erstellen
+                        </DialogTitle>
                       </DialogHeader>
                       <div className="py-4 space-y-4">
                         <Input
@@ -311,8 +312,8 @@ export default function MittmachMittwoch() {
             </p>
             <p className="text-xs text-muted-foreground mt-2">
               Innerhalb der Bereiche stehen Umfragen mit der letzten Antwort zuerst; ohne Antworten
-              unten. Oben zuerst weiterhin die hervorgehobenen Umfragen. Der Status auf den Karten zeigt
-              „ACTIVE“ auch wenn die API noch „PENDING“ liefert.
+              unten. Oben zuerst weiterhin die hervorgehobenen Umfragen. Der Status auf den Karten
+              zeigt „ACTIVE“ auch wenn die API noch „PENDING“ liefert.
             </p>
           </motion.div>
 
@@ -358,61 +359,66 @@ export default function MittmachMittwoch() {
                       initial="initial"
                       animate="animate"
                     >
-                      <h2 className="text-lg md:text-xl font-semibold text-foreground">{heading}</h2>
+                      <h2 className="text-lg md:text-xl font-semibold text-foreground">
+                        {heading}
+                      </h2>
                     </motion.div>
                     {list.map(pollItem => (
-                        <motion.div key={pollItem.id} variants={fadeInUp}>
-                          <Card
-                            className={cn(
-                              glassCard,
-                              'cursor-pointer rounded-2xl',
-                              (pollItem.isHighlighted ?? false) &&
-                                'border-2 border-red-500 ring-2 ring-red-500/40'
-                            )}
-                            onClick={() => navigate(`/mittmach-mittwoch/${pollItem.id}`)}
-                          >
-                            <CardHeader className="p-4 md:p-6">
-                              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
-                                <CardTitle className="text-foreground text-lg md:text-xl font-semibold leading-tight flex-1">
-                                  {pollItem.title}
-                                </CardTitle>
-                                <div className="flex flex-wrap gap-2 justify-end">
-                                  {pollItem.isHighlighted && (
-                                    <Badge variant="outline" className={specialPollHighlightBadgeClassName}>
-                                      <Star className="h-3 w-3 shrink-0" aria-hidden />
-                                      Hervorgehoben
-                                    </Badge>
-                                  )}
+                      <motion.div key={pollItem.id} variants={fadeInUp}>
+                        <Card
+                          className={cn(
+                            glassCard,
+                            'cursor-pointer rounded-2xl',
+                            (pollItem.isHighlighted ?? false) &&
+                              'border-2 border-red-500 ring-2 ring-red-500/40'
+                          )}
+                          onClick={() => navigate(`/mittmach-mittwoch/${pollItem.id}`)}
+                        >
+                          <CardHeader className="p-4 md:p-6">
+                            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                              <CardTitle className="text-foreground text-lg md:text-xl font-semibold leading-tight flex-1">
+                                {pollItem.title}
+                              </CardTitle>
+                              <div className="flex flex-wrap gap-2 justify-end">
+                                {pollItem.isHighlighted && (
                                   <Badge
-                                    variant={getSpecialPollStatusBadgeVariant(pollItem.status)}
-                                    className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                                    variant="outline"
+                                    className={specialPollHighlightBadgeClassName}
                                   >
-                                    {getSpecialPollStatusDisplayLabel(pollItem.status)}
+                                    <Star className="h-3 w-3 shrink-0" aria-hidden />
+                                    Hervorgehoben
                                   </Badge>
-                                </div>
+                                )}
+                                <Badge
+                                  variant={getSpecialPollStatusBadgeVariant(pollItem.status)}
+                                  className="px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                                >
+                                  {getSpecialPollStatusDisplayLabel(pollItem.status)}
+                                </Badge>
                               </div>
-                              <CardDescription className="text-muted-foreground text-sm mt-2">
-                                Erstellt am{' '}
-                                {format(new Date(pollItem.createdAt), 'dd.MM.yyyy', { locale: de })}
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-4 md:p-6 pt-0">
-                              <div className="text-sm text-foreground mb-3 font-medium">
-                                {pollItem.responses.length} Antwort
-                                {pollItem.responses.length === 1 ? '' : 'en'}
+                            </div>
+                            <CardDescription className="text-muted-foreground text-sm mt-2">
+                              Erstellt am{' '}
+                              {format(new Date(pollItem.createdAt), 'dd.MM.yyyy', { locale: de })}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-4 md:p-6 pt-0">
+                            <div className="text-sm text-foreground mb-3 font-medium">
+                              {pollItem.responses.length} Antwort
+                              {pollItem.responses.length === 1 ? '' : 'en'}
+                            </div>
+                            {pollItem.responses.length > 0 && (
+                              <div className="text-xs text-muted-foreground italic leading-relaxed line-clamp-2">
+                                Letzte Antwort von{' '}
+                                <span className="text-foreground font-medium">
+                                  {pollItem.responses[pollItem.responses.length - 1].userName}
+                                </span>
+                                : "{pollItem.responses[pollItem.responses.length - 1].response}"
                               </div>
-                              {pollItem.responses.length > 0 && (
-                                <div className="text-xs text-muted-foreground italic leading-relaxed line-clamp-2">
-                                  Letzte Antwort von{' '}
-                                  <span className="text-foreground font-medium">
-                                    {pollItem.responses[pollItem.responses.length - 1].userName}
-                                  </span>
-                                  : "{pollItem.responses[pollItem.responses.length - 1].response}"
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </motion.div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </motion.div>
                     ))}
                   </React.Fragment>
                 ) : null

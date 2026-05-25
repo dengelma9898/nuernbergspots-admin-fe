@@ -106,9 +106,7 @@ export function Profile() {
                   <ArrowLeft className="h-5 w-5" />
                   <span className="sr-only">Zurück</span>
                 </AnimatedButton>
-                <h1 className="text-3xl font-bold text-foreground">
-                  Mein Profil
-                </h1>
+                <h1 className="text-3xl font-bold text-foreground">Mein Profil</h1>
               </div>
             </motion.div>
 
@@ -157,7 +155,9 @@ export function Profile() {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">E-Mail</p>
-                          <p className="text-lg font-bold text-foreground">{currentUser?.email || '-'}</p>
+                          <p className="text-lg font-bold text-foreground">
+                            {currentUser?.email || '-'}
+                          </p>
                           <p className="text-xs text-muted-foreground">Hauptkontakt</p>
                         </div>
                       </div>
@@ -211,9 +211,7 @@ export function Profile() {
               transition={{ ...defaultTransition, delay: 0.2 }}
             >
               <Card className={cn(glassCard, 'p-4 mb-6')}>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Statistiken
-                </h2>
+                <h2 className="text-2xl font-bold text-foreground">Statistiken</h2>
               </Card>
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
@@ -269,9 +267,7 @@ export function Profile() {
                     <div className={cn(glassCard, 'p-2')}>
                       <History className="h-5 w-5 text-foreground" />
                     </div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      Letzte Aktivitäten
-                    </h2>
+                    <h2 className="text-xl font-bold text-foreground">Letzte Aktivitäten</h2>
                   </div>
                 </div>
                 <div className="p-4 sm:p-6">
@@ -292,7 +288,9 @@ export function Profile() {
                           <div className="flex justify-between items-start">
                             <div className="space-y-1">
                               <p className="font-medium text-foreground">{visit.businessName}</p>
-                              <p className="text-sm text-muted-foreground">Benefit: {visit.benefit}</p>
+                              <p className="text-sm text-muted-foreground">
+                                Benefit: {visit.benefit}
+                              </p>
                             </div>
                             <p className="text-sm text-muted-foreground">
                               {new Date(visit.visitedAt).toLocaleDateString()}
@@ -301,7 +299,8 @@ export function Profile() {
                         </Card>
                       </motion.div>
                     ))}
-                    {(!currentUser?.businessHistory || currentUser.businessHistory.length === 0) && (
+                    {(!currentUser?.businessHistory ||
+                      currentUser.businessHistory.length === 0) && (
                       <Card className={cn(glassCard, 'p-8 text-center')}>
                         <p className="text-muted-foreground">Keine Aktivitäten vorhanden</p>
                       </Card>
@@ -325,9 +324,7 @@ export function Profile() {
                       <div className={cn(glassCard, 'p-2')}>
                         <Settings className="h-5 w-5 text-foreground" />
                       </div>
-                      <h2 className="text-xl font-bold text-foreground">
-                        Präferenzen
-                      </h2>
+                      <h2 className="text-xl font-bold text-foreground">Präferenzen</h2>
                     </div>
                   </div>
                   <div className="p-4 sm:p-6">

@@ -57,10 +57,7 @@ const AnalyticsCard = ({
   trendDescription?: string;
   isLoading?: boolean;
 }) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={defaultTransition}
-  >
+  <motion.div whileHover={{ scale: 1.02 }} transition={defaultTransition}>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
       <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
         <div className="flex items-center justify-between">
@@ -71,8 +68,14 @@ const AnalyticsCard = ({
             <h3 className="text-sm font-medium text-foreground">{title}</h3>
           </div>
           {trend !== undefined && !isLoading && (
-            <div className={`flex items-center ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}>
-              {trend >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            <div
+              className={`flex items-center ${trend >= 0 ? 'text-green-600 dark:text-green-400' : 'text-destructive'}`}
+            >
+              {trend >= 0 ? (
+                <TrendingUp className="h-4 w-4" />
+              ) : (
+                <TrendingDown className="h-4 w-4" />
+              )}
               <span className="ml-1 text-sm">{Math.abs(trend).toFixed(1)}%</span>
             </div>
           )}
@@ -83,15 +86,15 @@ const AnalyticsCard = ({
           {isLoading ? (
             <>
               <Skeleton className="h-8 w-24 rounded" />
-              {description && (
-                <Skeleton className="h-4 w-32 rounded" />
-              )}
+              {description && <Skeleton className="h-4 w-32 rounded" />}
             </>
           ) : (
             <>
               <div className="text-2xl font-bold text-foreground">{value}</div>
               {description && <p className="text-sm text-muted-foreground">{description}</p>}
-              {trendDescription && <p className="text-xs text-muted-foreground">{trendDescription}</p>}
+              {trendDescription && (
+                <p className="text-xs text-muted-foreground">{trendDescription}</p>
+              )}
             </>
           )}
         </div>
@@ -107,10 +110,7 @@ const BusinessAnalyticsCard = ({
   business: BusinessAnalytics;
   isLoading?: boolean;
 }) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={defaultTransition}
-  >
+  <motion.div whileHover={{ scale: 1.02 }} transition={defaultTransition}>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
       <CardHeader className="!px-4 !pt-4 !pb-2 border-b border-secondary gap-0">
         <div className="flex items-center justify-between">
@@ -196,11 +196,15 @@ const BusinessAnalyticsCard = ({
               <div className="mb-1">Beliebteste Zeiten:</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <span className="font-medium text-foreground">{business.peakTimes.dayOfWeek}</span>
+                  <span className="font-medium text-foreground">
+                    {business.peakTimes.dayOfWeek}
+                  </span>
                   <span className="block">Tag</span>
                 </div>
                 <div>
-                  <span className="font-medium text-foreground">{business.peakTimes.timeOfDay}</span>
+                  <span className="font-medium text-foreground">
+                    {business.peakTimes.timeOfDay}
+                  </span>
                   <span className="block">Uhrzeit</span>
                 </div>
               </div>
@@ -219,15 +223,9 @@ const TimeAnalysisCard = ({
   analytics: DashboardAnalytics | null;
   isLoading: boolean;
 }) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={defaultTransition}
-    className="space-y-4"
-  >
+  <motion.div whileHover={{ scale: 1.02 }} transition={defaultTransition} className="space-y-4">
     <div>
-      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
-        Zeitanalyse
-      </h3>
+      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">Zeitanalyse</h3>
       <p className="text-sm text-muted-foreground">Besuchermuster und Stoßzeiten</p>
     </div>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
@@ -272,7 +270,9 @@ const TimeAnalysisCard = ({
             </div>
             <div className="pt-4 border-t border-secondary">
               <div className="flex items-center justify-between mb-2">
-                <h4 className="text-sm font-medium text-foreground">Durchschnittliche Besuche pro Tag</h4>
+                <h4 className="text-sm font-medium text-foreground">
+                  Durchschnittliche Besuche pro Tag
+                </h4>
                 <span className="text-lg font-bold text-foreground">
                   {analytics?.categoryAnalysis.averageVisitsPerDay.toFixed(1)}
                 </span>
@@ -292,15 +292,9 @@ const CustomerRetentionCard = ({
   analytics: DashboardAnalytics | null;
   isLoading: boolean;
 }) => (
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    transition={defaultTransition}
-    className="space-y-4"
-  >
+  <motion.div whileHover={{ scale: 1.02 }} transition={defaultTransition} className="space-y-4">
     <div>
-      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
-        Kundenbindung
-      </h3>
+      <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">Kundenbindung</h3>
       <p className="text-sm text-muted-foreground">Analyse der Kundenbeziehungen</p>
     </div>
     <Card className={cn(glassCardHover, 'gap-0 !py-0 !px-0 overflow-hidden')}>
@@ -360,40 +354,42 @@ const BusinessDetails = ({
         <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
           Detaillierte Business-Analyse
         </h3>
-        <p className="text-sm text-muted-foreground">Ausführliche Statistiken für {business.businessName}</p>
+        <p className="text-sm text-muted-foreground">
+          Ausführliche Statistiken für {business.businessName}
+        </p>
       </div>
       <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
         <CardContent className="!px-4 !py-4 gap-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <h3 className="font-medium text-foreground">Scans</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Gesamt</p>
-                <p className="text-lg font-bold text-foreground">{business.totalScans}</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <h3 className="font-medium text-foreground">Scans</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Gesamt</p>
+                  <p className="text-lg font-bold text-foreground">{business.totalScans}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Diese Woche</p>
+                  <p className="text-lg font-bold text-foreground">{business.weeklyScans}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Diese Woche</p>
-                <p className="text-lg font-bold text-foreground">{business.weeklyScans}</p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-medium text-foreground">Kunden</h3>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Unique Kunden</p>
+                  <p className="text-lg font-bold text-foreground">{business.uniqueCustomers}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Ø Scans/Kunde</p>
+                  <p className="text-lg font-bold text-foreground">
+                    {business.totalScans / business.uniqueCustomers}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-          <div className="space-y-2">
-            <h3 className="font-medium text-foreground">Kunden</h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Unique Kunden</p>
-                <p className="text-lg font-bold text-foreground">{business.uniqueCustomers}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Ø Scans/Kunde</p>
-                <p className="text-lg font-bold text-foreground">
-                  {business.totalScans / business.uniqueCustomers}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
         </CardContent>
       </Card>
     </div>
@@ -483,38 +479,36 @@ export function Analytics() {
 
             {/* Overview Cards */}
             <motion.div variants={fadeInUp}>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
-                Übersicht
-              </h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Übersicht</h2>
               <motion.div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6"
                 variants={staggerContainer}
                 initial="initial"
                 animate="animate"
               >
-              <AnalyticsCard
-                icon={Scan}
-                title="Gesamtscans"
-                value={analytics?.totalScans || 0}
-                trend={analytics?.monthlyTrend}
-                description={`${analytics?.customerData.total || 0} unique Kunden`}
-                trendDescription="Veränderung zum Vormonat"
-                isLoading={isLoading}
-              />
-              <AnalyticsCard
-                icon={Euro}
-                title="Umsatz (30 Tage)"
-                value={`${analytics?.revenueData.monthly.toFixed(2) || '0'}€`}
-                description={`${analytics?.revenueData.weekly.toFixed(2) || '0'}€ diese Woche`}
-                isLoading={isLoading}
-              />
-              <AnalyticsCard
-                icon={UserCheck}
-                title="Kundenbindung"
-                value={`${analytics?.customerData.returningCustomersRate.toFixed(1) || '0'}%`}
-                description={`${analytics?.customerData.newCustomersThisMonth || 0} neue Kunden diesen Monat`}
-                isLoading={isLoading}
-              />
+                <AnalyticsCard
+                  icon={Scan}
+                  title="Gesamtscans"
+                  value={analytics?.totalScans || 0}
+                  trend={analytics?.monthlyTrend}
+                  description={`${analytics?.customerData.total || 0} unique Kunden`}
+                  trendDescription="Veränderung zum Vormonat"
+                  isLoading={isLoading}
+                />
+                <AnalyticsCard
+                  icon={Euro}
+                  title="Umsatz (30 Tage)"
+                  value={`${analytics?.revenueData.monthly.toFixed(2) || '0'}€`}
+                  description={`${analytics?.revenueData.weekly.toFixed(2) || '0'}€ diese Woche`}
+                  isLoading={isLoading}
+                />
+                <AnalyticsCard
+                  icon={UserCheck}
+                  title="Kundenbindung"
+                  value={`${analytics?.customerData.returningCustomersRate.toFixed(1) || '0'}%`}
+                  description={`${analytics?.customerData.newCustomersThisMonth || 0} neue Kunden diesen Monat`}
+                  isLoading={isLoading}
+                />
                 <motion.div variants={fadeInUp}>
                   <AnalyticsCard
                     icon={Store}
@@ -537,17 +531,16 @@ export function Analytics() {
                 <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
                   Umsatzverteilung
                 </h3>
-                <p className="text-sm text-muted-foreground">Einnahmen über verschiedene Zeiträume</p>
+                <p className="text-sm text-muted-foreground">
+                  Einnahmen über verschiedene Zeiträume
+                </p>
               </div>
               <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden mb-6')}>
                 <CardContent className="!px-4 !py-4 gap-0">
                   {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                       {[...Array(4)].map((_, i) => (
-                        <Skeleton
-                          key={i}
-                          className="h-16 w-full rounded"
-                        />
+                        <Skeleton key={i} className="h-16 w-full rounded" />
                       ))}
                     </div>
                   ) : (
@@ -600,9 +593,7 @@ export function Analytics() {
             {/* Top Performing Businesses */}
             <motion.div variants={fadeInUp}>
               <Card className={cn(glassCard, 'p-4 mb-6')}>
-                <h2 className="text-2xl font-bold text-foreground">
-                  Top Partner
-                </h2>
+                <h2 className="text-2xl font-bold text-foreground">Top Partner</h2>
               </Card>
               {isLoading ? (
                 <motion.div
@@ -613,10 +604,7 @@ export function Analytics() {
                 >
                   {[...Array(3)].map((_, i) => (
                     <motion.div key={i} variants={fadeInUp}>
-                      <BusinessAnalyticsCard
-                        business={{} as BusinessAnalytics}
-                        isLoading={true}
-                      />
+                      <BusinessAnalyticsCard business={{} as BusinessAnalytics} isLoading={true} />
                     </motion.div>
                   ))}
                 </motion.div>
@@ -629,16 +617,15 @@ export function Analytics() {
                 >
                   {analytics.topBusinesses.map((business, index) => (
                     <motion.div key={business.businessName} variants={fadeInUp}>
-                      <BusinessAnalyticsCard
-                        business={business}
-                        isLoading={false}
-                      />
+                      <BusinessAnalyticsCard business={business} isLoading={false} />
                     </motion.div>
                   ))}
                 </motion.div>
               ) : (
                 <Card className={cn(glassCard, 'py-8 px-4')}>
-                  <p className="text-center text-muted-foreground">Noch keine Partner-Daten verfügbar</p>
+                  <p className="text-center text-muted-foreground">
+                    Noch keine Partner-Daten verfügbar
+                  </p>
                 </Card>
               )}
             </motion.div>
@@ -646,9 +633,7 @@ export function Analytics() {
             {/* Pricing Calculator */}
             {!isLoading && analytics?.businesses && (
               <motion.div variants={fadeInUp} className="space-y-4">
-                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
-                  Preiskalkulator
-                </h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">Preiskalkulator</h2>
                 <Card className={cn(glassCard, 'gap-0 !py-0 !px-0 overflow-hidden')}>
                   <CardContent className="!px-4 !py-4 gap-0">
                     <PricingCalculator analytics={analytics.businesses} />
@@ -661,9 +646,7 @@ export function Analytics() {
             <motion.div className="space-y-4" variants={fadeInUp}>
               <Card className={cn(glassCard, 'p-4')}>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <h2 className="text-2xl font-bold text-foreground">
-                    Business-Details
-                  </h2>
+                  <h2 className="text-2xl font-bold text-foreground">Business-Details</h2>
                   <Select value={selectedBusiness} onValueChange={setSelectedBusiness}>
                     <SelectTrigger className={cn(glassInput, 'w-full sm:w-[200px]')}>
                       <SelectValue placeholder="Business auswählen" />
@@ -706,10 +689,7 @@ export function Analytics() {
               >
                 {analytics?.businesses.map((business, index) => (
                   <motion.div key={business.businessName} variants={fadeInUp}>
-                    <BusinessAnalyticsCard
-                      business={business}
-                      isLoading={isLoading}
-                    />
+                    <BusinessAnalyticsCard business={business} isLoading={isLoading} />
                   </motion.div>
                 ))}
               </motion.div>

@@ -197,7 +197,12 @@ export function EasterEggManagement() {
       }
     } catch (error) {
       console.error('Fehler beim Aktualisieren des Feature-Status:', error);
-      showUserFriendlyError(error, toast, () => handleFeatureStatusToggle(newValue), 'save-easter-egg');
+      showUserFriendlyError(
+        error,
+        toast,
+        () => handleFeatureStatusToggle(newValue),
+        'save-easter-egg'
+      );
     } finally {
       setIsUpdatingFeatureStatus(false);
     }
@@ -357,14 +362,19 @@ export function EasterEggManagement() {
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-2">
                         <Settings className="h-5 w-5 text-foreground" />
-                        <Label htmlFor="feature-status" className="text-foreground text-lg font-semibold">
+                        <Label
+                          htmlFor="feature-status"
+                          className="text-foreground text-lg font-semibold"
+                        >
                           Feature-Status
                         </Label>
-                        <Badge className={cn(
-                          featureStatus.isFeatureActive
-                            ? 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400'
-                            : 'bg-destructive/20 text-destructive border-destructive'
-                        )}>
+                        <Badge
+                          className={cn(
+                            featureStatus.isFeatureActive
+                              ? 'bg-green-600/20 text-green-600 dark:text-green-400 border-green-600 dark:border-green-400'
+                              : 'bg-destructive/20 text-destructive border-destructive'
+                          )}
+                        >
                           {featureStatus.isFeatureActive ? 'Aktiviert' : 'Deaktiviert'}
                         </Badge>
                       </div>
@@ -411,7 +421,10 @@ export function EasterEggManagement() {
                       variant="outline"
                       size="sm"
                       onClick={handleStartDateSave}
-                      disabled={isUpdatingFeatureStatus || startDateInput === (featureStatus.startDate || '')}
+                      disabled={
+                        isUpdatingFeatureStatus ||
+                        startDateInput === (featureStatus.startDate || '')
+                      }
                       className={cn(glassButton)}
                     >
                       Datum speichern
@@ -450,7 +463,9 @@ export function EasterEggManagement() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Teilnehmer</span>
                 </div>
-                <div className="text-2xl font-bold text-foreground">{statistics.totalParticipants}</div>
+                <div className="text-2xl font-bold text-foreground">
+                  {statistics.totalParticipants}
+                </div>
               </Card>
               <Card className={cn(glassCard, 'p-4')}>
                 <div className="flex items-center gap-2 mb-1">
@@ -472,9 +487,12 @@ export function EasterEggManagement() {
             >
               <Alert className={cn(glassCard, 'mb-6 border-amber-500/50')}>
                 <AlertCircle className="h-4 w-4 text-amber-500" />
-                <AlertTitle className="text-foreground">Ostereiersuche ist derzeit deaktiviert</AlertTitle>
+                <AlertTitle className="text-foreground">
+                  Ostereiersuche ist derzeit deaktiviert
+                </AlertTitle>
                 <AlertDescription className="text-muted-foreground">
-                  Die Ostereier-Liste kann nicht geladen werden, solange das Feature deaktiviert ist.
+                  Die Ostereier-Liste kann nicht geladen werden, solange das Feature deaktiviert
+                  ist.
                   {isAdminOrSuperAdmin && (
                     <span> Bitte aktivieren Sie das Feature oben in den Einstellungen.</span>
                   )}
@@ -607,7 +625,10 @@ const EasterEggCard: React.FC<EasterEggCardProps> = ({ egg, onDelete }) => {
           </div>
           <div className="flex items-center text-xs text-muted-foreground">
             <Calendar className="h-3 w-3 mr-1 shrink-0" />
-            <span>{formatDate(egg.startDate)}{egg.endDate ? ` – ${formatDate(egg.endDate)}` : ''}</span>
+            <span>
+              {formatDate(egg.startDate)}
+              {egg.endDate ? ` – ${formatDate(egg.endDate)}` : ''}
+            </span>
           </div>
           <div className="flex items-center gap-3 text-xs">
             <span className="flex items-center text-muted-foreground">
@@ -645,11 +666,7 @@ const EasterEggCard: React.FC<EasterEggCardProps> = ({ egg, onDelete }) => {
             >
               <Edit className="h-4 w-4" />
             </AnimatedButton>
-            <AnimatedButton
-              variant="destructive"
-              size="sm"
-              onClick={() => onDelete(egg.id)}
-            >
+            <AnimatedButton variant="destructive" size="sm" onClick={() => onDelete(egg.id)}>
               <Trash2 className="h-4 w-4" />
             </AnimatedButton>
           </div>
@@ -685,7 +702,10 @@ const EasterEggCardMobile: React.FC<EasterEggCardMobileProps> = ({ egg, onDelete
         </div>
         <div className="flex items-center text-xs text-muted-foreground">
           <Calendar className="h-3 w-3 mr-1 shrink-0" />
-          <span>{formatDate(egg.startDate)}{egg.endDate ? ` – ${formatDate(egg.endDate)}` : ''}</span>
+          <span>
+            {formatDate(egg.startDate)}
+            {egg.endDate ? ` – ${formatDate(egg.endDate)}` : ''}
+          </span>
         </div>
 
         <div className="flex items-center gap-3 text-xs">

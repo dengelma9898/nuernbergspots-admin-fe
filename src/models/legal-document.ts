@@ -93,4 +93,3 @@ export function transformBackendDtoToFrontendModel(
     updatedAt: sortedDocuments[0].createdAt, // Neueste Version
   };
 }
-

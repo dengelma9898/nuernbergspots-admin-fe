@@ -264,19 +264,40 @@ describe('errorUtils', () => {
           { context: 'save-category', expectedPrefix: 'Fehler beim Speichern der Kategorie' },
           { context: 'delete-category', expectedPrefix: 'Fehler beim Löschen der Kategorie' },
           { context: 'load-job-offer', expectedPrefix: 'Fehler beim Laden des Stellenangebots' },
-          { context: 'save-job-offer', expectedPrefix: 'Fehler beim Speichern des Stellenangebots' },
-          { context: 'delete-job-offer', expectedPrefix: 'Fehler beim Löschen des Stellenangebots' },
-          { context: 'load-advent-calendar', expectedPrefix: 'Fehler beim Laden des Adventskalenders' },
-          { context: 'save-advent-calendar', expectedPrefix: 'Fehler beim Speichern des Adventskalenders' },
-          { context: 'delete-advent-calendar', expectedPrefix: 'Fehler beim Löschen des Adventskalenders' },
+          {
+            context: 'save-job-offer',
+            expectedPrefix: 'Fehler beim Speichern des Stellenangebots',
+          },
+          {
+            context: 'delete-job-offer',
+            expectedPrefix: 'Fehler beim Löschen des Stellenangebots',
+          },
+          {
+            context: 'load-advent-calendar',
+            expectedPrefix: 'Fehler beim Laden des Adventskalenders',
+          },
+          {
+            context: 'save-advent-calendar',
+            expectedPrefix: 'Fehler beim Speichern des Adventskalenders',
+          },
+          {
+            context: 'delete-advent-calendar',
+            expectedPrefix: 'Fehler beim Löschen des Adventskalenders',
+          },
           { context: 'load-news', expectedPrefix: 'Fehler beim Laden der News' },
           { context: 'save-news', expectedPrefix: 'Fehler beim Speichern der News' },
           { context: 'delete-news', expectedPrefix: 'Fehler beim Löschen der News' },
           { context: 'load-users', expectedPrefix: 'Fehler beim Laden der Benutzer' },
           { context: 'block-user', expectedPrefix: 'Fehler beim Blockieren des Benutzers' },
           { context: 'unblock-user', expectedPrefix: 'Fehler beim Entsperren des Benutzers' },
-          { context: 'load-contact-requests', expectedPrefix: 'Fehler beim Laden der Kontaktanfragen' },
-          { context: 'respond-contact-request', expectedPrefix: 'Fehler beim Beantworten der Kontaktanfrage' },
+          {
+            context: 'load-contact-requests',
+            expectedPrefix: 'Fehler beim Laden der Kontaktanfragen',
+          },
+          {
+            context: 'respond-contact-request',
+            expectedPrefix: 'Fehler beim Beantworten der Kontaktanfrage',
+          },
           { context: 'load-keywords', expectedPrefix: 'Fehler beim Laden der Keywords' },
           { context: 'save-keyword', expectedPrefix: 'Fehler beim Speichern des Keywords' },
           { context: 'delete-keyword', expectedPrefix: 'Fehler beim Löschen des Keywords' },
@@ -323,7 +344,9 @@ describe('errorUtils', () => {
       });
 
       it('sollte technische String-Fehler als Standard-Fehler behandeln', () => {
-        const result = getUserFriendlyError('Some technical error message with undefined and failed');
+        const result = getUserFriendlyError(
+          'Some technical error message with undefined and failed'
+        );
 
         expect(result.title).toBe('Ein Fehler ist aufgetreten');
         expect(result.isPersistent).toBe(true);
@@ -452,7 +475,9 @@ describe('errorUtils', () => {
       const result = getUserFriendlyError(error);
       // Simuliere Fehler ohne actionHint
       const errorWithoutHint = { ...result, actionHint: undefined };
-      jest.spyOn(require('../errorUtils'), 'getUserFriendlyError').mockReturnValue(errorWithoutHint);
+      jest
+        .spyOn(require('../errorUtils'), 'getUserFriendlyError')
+        .mockReturnValue(errorWithoutHint);
 
       showUserFriendlyError(error, mockToast);
 
@@ -575,4 +600,3 @@ describe('errorUtils', () => {
     });
   });
 });
-

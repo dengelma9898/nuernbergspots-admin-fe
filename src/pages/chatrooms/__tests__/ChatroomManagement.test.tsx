@@ -416,7 +416,10 @@ describe('ChatroomManagement', () => {
         });
       });
 
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich aktualisiert');
+      expectToastSuccessTitle(
+        toast.success as jest.Mock,
+        'Chatroom wurde erfolgreich aktualisiert'
+      );
     });
 
     it('sollte Fehler bei Chatroom-Aktualisierung handhaben', async () => {

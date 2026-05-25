@@ -502,7 +502,10 @@ describe('EditBusinessUser', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expectToastErrorTitleContains(toast.error as jest.Mock, 'Fehler beim Speichern des Geschäfts');
+        expectToastErrorTitleContains(
+          toast.error as jest.Mock,
+          'Fehler beim Speichern des Geschäfts'
+        );
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(
