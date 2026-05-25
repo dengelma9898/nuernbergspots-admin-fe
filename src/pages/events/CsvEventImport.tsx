@@ -694,7 +694,7 @@ export const CsvEventImport: React.FC = () => {
                           })
                           .map(row => {
                             // Extrahiere Titel für verschiedene Fälle
-                            let eventTitle: string | null = null;
+                            let eventTitle: string | null;
                             if (row.success && row.eventId) {
                               eventTitle = eventTitles.get(row.eventId) || null;
                             } else if (row.skipped && row.duplicateEventId) {

@@ -82,7 +82,9 @@ const urlToFile = async (url: string, filename: string): Promise<File> => {
     // Falls direkter Zugriff fehlschlägt (CORS), verwende einen Proxy-Ansatz
     // TODO: Backend-Endpoint implementieren: GET /api/images/proxy?url=<encoded-url>
     // Für jetzt: Wir kopieren die URLs direkt
-    throw new Error('CORS_ERROR: Image cannot be loaded directly. Backend proxy needed.');
+    throw new Error('CORS_ERROR: Image cannot be loaded directly. Backend proxy needed.', {
+      cause: error,
+    });
   }
 };
 

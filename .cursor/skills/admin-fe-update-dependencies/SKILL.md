@@ -15,7 +15,7 @@ Skill für das **nuernbergspots-admin-fe** Repository. Folgt `.cursorrules`, `do
 | Minor-Updates (`x.Y.z`)                              | Neue/geänderte `overrides` oder `resolutions`                         |
 | Lockfile-Updates via `npm update` / `--target minor` | `--force`, `--legacy-peer-deps`, manuelle Version-Pinning-Workarounds |
 | Bestehende `overrides` unverändert lassen            | E2E-Tests in diesem Skill (nur `validate` + Build)                    |
-| Lint-/Test-Fixes für grünes `validate`               | React-Compiler-ESLint-Regeln aktivieren ohne Migration                  |
+| Lint-/Test-Fixes für grünes `validate`               | React-Compiler-ESLint-Regeln aktivieren ohne Migration                |
 
 ## Pflicht: Tests und validate müssen grün sein
 
@@ -23,12 +23,12 @@ Skill für das **nuernbergspots-admin-fe** Repository. Folgt `.cursorrules`, `do
 
 Reihenfolge in `validate`: `type-check` → `lint` → `format:check` → `test` (Jest).
 
-| Schritt | Pflicht | Bei Fehler |
-| ------- | ------- | ---------- |
+| Schritt                         | Pflicht        | Bei Fehler                                                         |
+| ------------------------------- | -------------- | ------------------------------------------------------------------ |
 | `npm test` / `validate` (Tests) | **Ja — immer** | Tests fixen (nicht aussetzen), ggf. betroffenes Paket zurücksetzen |
-| `npm run lint` (Errors) | **Ja** | Code oder ESLint-Config anpassen |
-| `npm run format:check` | **Ja** | `npm run format` ausführen |
-| `npm run build` | **Ja** | TypeScript-/Build-Fehler beheben |
+| `npm run lint` (Errors)         | **Ja**         | Code oder ESLint-Config anpassen                                   |
+| `npm run format:check`          | **Ja**         | `npm run format` ausführen                                         |
+| `npm run build`                 | **Ja**         | TypeScript-/Build-Fehler beheben                                   |
 
 Lint-Warnungen (`warn`-Level) blockieren `validate` nicht. ESLint-**Errors** müssen behoben werden — nicht pauschal per `ignore` aushebeln.
 

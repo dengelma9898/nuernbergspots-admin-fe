@@ -15,7 +15,7 @@ class ApiClient {
   }
 
   private async getHeaders(contentType?: string): Promise<Headers> {
-    let token: string | null = null;
+    let token: string | null;
 
     // Prüfe zuerst, ob ein gültiger Token im Cache ist
     if (this.tokenCache && this.tokenCache.expiry > Date.now()) {
