@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EventList, EventCard } from '../EventList';
+import * as eventFilterUtils from '@/utils/eventFilterUtils';
 import { useEventService } from '../../../services/eventService';
 import { useEventCategoryService } from '../../../services/eventCategoryService';
 import { useUserService } from '../../../services/userService';
@@ -163,8 +164,11 @@ jest.mock('sonner', () => ({
 }));
 
 // Mock date-fns functions
-jest.mock('date-fns', () => ({
-  format: (date: Date, formatString: string, options?: any) => {
+jest.mock('date-fns', () => {
+  const actual = jest.requireActual<typeof import('date-fns')>('date-fns');
+  return {
+    ...actual,
+    format: (date: Date, formatString: string, options?: any) => {
     if (formatString === 'dd. MMMM yyyy') {
       return '15. Januar 2024';
     }
@@ -191,7 +195,8 @@ jest.mock('date-fns', () => ({
     d.setHours(0, 0, 0, 0);
     return d;
   }),
-}));
+  };
+});
 
 // Mock color utils
 jest.mock('@/utils/colorUtils', () => ({
@@ -462,7 +467,7 @@ describe('EventList Component', () => {
       // Nach dem Klick sollte der Auswahlmodus aktiv sein
       await waitFor(() => {
         expect(
-          screen.getByText('Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen')
+          screen.getByText('Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar')
         ).toBeInTheDocument();
         expect(screen.getByText('Alle auswählen')).toBeInTheDocument();
         expect(screen.getByText('Auswahl aufheben')).toBeInTheDocument();
@@ -483,6 +488,30 @@ describe('EventList Component', () => {
       await waitFor(() => {
         expect(screen.getByText(/Kategorie setzen/)).toBeInTheDocument();
       });
+    });
+
+    it('sollte vergangene Events im Auswahlmodus ausblenden', async () => {
+      const isEventPastSpy = jest
+        .spyOn(eventFilterUtils, 'isEventPast')
+        .mockImplementation(event => event.id === 'event-past');
+
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+        expect(screen.getByText('Vergangenes Event')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('Mehrfachauswahl'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('Vergangenes Event')).not.toBeInTheDocument();
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+        expect(screen.getByText('Zukünftiges Event')).toBeInTheDocument();
+        expect(screen.getByText('Laufendes Event')).toBeInTheDocument();
+      });
+
+      isEventPastSpy.mockRestore();
     });
 
     it('sollte Auswahlmodus beenden beim Klick auf Abbrechen', async () => {
@@ -506,7 +535,7 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText('Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen')
+          screen.queryByText('Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar')
         ).not.toBeInTheDocument();
       });
     });

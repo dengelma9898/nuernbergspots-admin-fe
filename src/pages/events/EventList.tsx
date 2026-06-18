@@ -64,7 +64,7 @@ import {
 } from '@/utils/eventBulkUtils';
 import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-fns';
 import { formatMonthYear, monthYearToDate, hasDateInfo } from '@/utils/eventFormatters';
-import { matchesCategoryFilter } from '@/utils/eventFilterUtils';
+import { matchesCategoryFilter, isEventPast } from '@/utils/eventFilterUtils';
 import { de } from 'date-fns/locale';
 import { convertFFToHex } from '@/utils/colorUtils';
 import {
@@ -535,7 +535,12 @@ export const EventList: React.FC = () => {
       }
     }
 
-    const finalResult = matchesSearch && matchesStatus && matchesCategory && matchesTime;
+    const finalResult =
+      matchesSearch &&
+      matchesStatus &&
+      matchesCategory &&
+      matchesTime &&
+      (!isSelectionMode || !isEventPast(event));
     return finalResult;
   });
 
@@ -927,7 +932,7 @@ export const EventList: React.FC = () => {
                 <div className="flex items-center gap-3 text-foreground">
                   <CheckSquare className="h-5 w-5 text-primary" />
                   <span className="font-medium">
-                    Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen
+                    Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar
                   </span>
                   <span className="ml-auto text-sm opacity-80">
                     {selectedEventIds.size} von {filteredEvents.length} ausgewählt
@@ -1422,19 +1427,6 @@ export const EventCard: React.FC<EventCardProps> = ({
       )}
       onClick={isSelectionMode ? handleCardClick : undefined}
     >
-      {/* Auswahlmodus Checkbox-Overlay */}
-      {isSelectionMode && (
-        <div
-          className={cn(
-            'absolute top-4 left-4 z-20 rounded-lg p-2 transition-all duration-300',
-            isSelected
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-white/80 text-foreground backdrop-blur-sm'
-          )}
-        >
-          {isSelected ? <CheckSquare className="h-6 w-6" /> : <Square className="h-6 w-6" />}
-        </div>
-      )}
       {event.titleImageUrl ? (
         <div className="relative h-48 w-full">
           <img src={event.titleImageUrl} alt={event.title} className="object-cover w-full h-full" />
@@ -1485,17 +1477,40 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       ) : null}
       <CardHeader>
-        <div className="flex flex-col gap-1">
-          <div className="flex flex-wrap items-center gap-2 w-full">
-            <div className="flex items-center gap-1 min-w-0">
-              <CardTitle className="text-xl text-foreground whitespace-nowrap">
-                {event.title}
-              </CardTitle>
-              {event.isPromoted && <Star className="h-4 w-4 text-tertiary fill-current" />}
+        {isSelectionMode ? (
+          <div className="flex items-center gap-2 pb-2 mb-1 border-b border-white/10">
+            <div
+              className={cn(
+                'rounded-lg p-1.5 transition-all duration-300 shrink-0',
+                isSelected
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-white/80 text-foreground backdrop-blur-sm border border-white/20'
+              )}
+              aria-hidden="true"
+            >
+              {isSelected ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
             </div>
+            <span className="text-sm text-muted-foreground">
+              {isSelected ? 'Ausgewählt' : 'Zum Auswählen tippen'}
+            </span>
+          </div>
+        ) : null}
+        <div className="flex flex-col gap-2 w-full min-w-0">
+          <div className="flex items-start gap-1 min-w-0">
+            <CardTitle className="text-xl text-foreground break-words">
+              {event.title}
+            </CardTitle>
+            {event.isPromoted && (
+              <Star className="h-4 w-4 text-tertiary fill-current shrink-0 mt-1" />
+            )}
+          </div>
+          <CardDescription className="text-muted-foreground">
+            {getEventDateTime(event)}
+          </CardDescription>
+          <div className="flex flex-wrap items-center gap-2">
             {category ? (
               <Badge
-                className="text-xs flex items-center max-w-[60%] truncate border-secondary"
+                className="text-xs flex items-center max-w-full truncate border-secondary"
                 style={{
                   backgroundColor: convertFFToHex(category.colorCode),
                   color: '#fff',
@@ -1510,7 +1525,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             ) : (
               <Badge
                 variant="outline"
-                className="text-xs flex items-center max-w-[60%] truncate border-secondary"
+                className="text-xs flex items-center max-w-full truncate border-secondary"
               >
                 <Tag className="w-3 h-3 mr-1" />
                 Keine Kategorie
@@ -1525,14 +1540,11 @@ export const EventCard: React.FC<EventCardProps> = ({
                 Ausstehend
               </Badge>
             ) : null}
-            <Badge variant={status.variant} className="ml-auto mt-1 sm:mt-0 border-secondary">
+            <Badge variant={status.variant} className="border-secondary">
               {status.icon}
               <span className="ml-1">{status.label}</span>
             </Badge>
           </div>
-          <CardDescription className="mt-1 text-muted-foreground">
-            {getEventDateTime(event)}
-          </CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-grow">

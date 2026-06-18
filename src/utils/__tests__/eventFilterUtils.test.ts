@@ -1,4 +1,4 @@
-import { matchesCategoryFilter } from '../eventFilterUtils';
+import { matchesCategoryFilter, isEventPast } from '../eventFilterUtils';
 import { Event } from '@/models/events';
 
 const createMockEvent = (overrides: Partial<Event> = {}): Event =>
@@ -54,5 +54,66 @@ describe('matchesCategoryFilter', () => {
         false
       );
     });
+  });
+});
+
+describe('isEventPast', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2024-06-15T12:00:00'));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('sollte Events mit vergangenem letztem Termin als vergangen markieren', () => {
+    expect(
+      isEventPast(
+        createMockEvent({
+          dailyTimeSlots: [{ date: '2024-06-01', from: '14:00', to: '18:00' }],
+        })
+      )
+    ).toBe(true);
+  });
+
+  it('sollte Events mit heutigem oder zukünftigem letztem Termin nicht als vergangen markieren', () => {
+    expect(
+      isEventPast(
+        createMockEvent({
+          dailyTimeSlots: [{ date: '2024-06-15', from: '14:00', to: '18:00' }],
+        })
+      )
+    ).toBe(false);
+
+    expect(
+      isEventPast(
+        createMockEvent({
+          dailyTimeSlots: [{ date: '2024-07-01', from: '14:00', to: '18:00' }],
+        })
+      )
+    ).toBe(false);
+  });
+
+  it('sollte Events mit vergangenem monthYear als vergangen markieren', () => {
+    expect(
+      isEventPast(
+        createMockEvent({
+          dailyTimeSlots: [],
+          monthYear: '05.2024',
+        })
+      )
+    ).toBe(true);
+  });
+
+  it('sollte Events ohne Datum nicht als vergangen markieren', () => {
+    expect(
+      isEventPast(
+        createMockEvent({
+          dailyTimeSlots: [],
+          monthYear: undefined,
+        })
+      )
+    ).toBe(false);
   });
 });
