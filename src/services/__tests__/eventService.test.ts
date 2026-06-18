@@ -211,6 +211,35 @@ describe('Event Service', () => {
     });
   });
 
+  describe('bulkUpdateCategory', () => {
+    it('should bulk update event categories', async () => {
+      const payload = { eventIds: ['abc', 'def'], categoryId: 'cat-1' };
+      const mockResult = {
+        total: 2,
+        successful: 2,
+        failed: 0,
+        results: [
+          { eventId: 'abc', success: true, event: { id: 'abc', categoryId: 'cat-1' } },
+          { eventId: 'def', success: true, event: { id: 'def', categoryId: 'cat-1' } },
+        ],
+      };
+      mockApi.patch.mockResolvedValue({ data: mockResult });
+
+      const result = await eventService.bulkUpdateCategory(payload);
+
+      expect(mockApi.patch).toHaveBeenCalledWith('/events/bulk/category', payload);
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should handle API errors', async () => {
+      mockApi.patch.mockRejectedValue(new Error('Forbidden'));
+
+      await expect(
+        eventService.bulkUpdateCategory({ eventIds: ['abc'], categoryId: 'cat-1' })
+      ).rejects.toThrow('Forbidden');
+    });
+  });
+
   describe('uploadEventImages', () => {
     it('should upload event images', async () => {
       const mockFiles = [

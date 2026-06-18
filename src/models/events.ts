@@ -48,3 +48,25 @@ export interface Event {
    */
   startDate?: string;
 }
+
+/** Request-Body für PATCH /events/bulk/category */
+export interface BulkUpdateEventCategoryRequest {
+  eventIds: string[];
+  categoryId: string;
+}
+
+/** Einzelergebnis pro Event beim Bulk-Kategorie-Update */
+export interface BulkUpdateEventCategoryItemResult {
+  eventId: string;
+  success: boolean;
+  event?: Event;
+  message?: string;
+}
+
+/** Gesamtergebnis des Bulk-Kategorie-Updates */
+export interface BulkUpdateEventCategoryResult {
+  total: number;
+  successful: number;
+  failed: number;
+  results: BulkUpdateEventCategoryItemResult[];
+}

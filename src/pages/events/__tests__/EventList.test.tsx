@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { EventList, EventCard } from '../EventList';
 import { useEventService } from '../../../services/eventService';
 import { useEventCategoryService } from '../../../services/eventCategoryService';
+import { useUserService } from '../../../services/userService';
+import { useAuth } from '../../../contexts/AuthContext';
 import { Event } from '../../../models/events';
 import { EventCategory } from '../../../models/event-category';
 import '@testing-library/jest-dom';
@@ -14,6 +16,10 @@ jest.mock('../../../lib/api', () => ({
 }));
 jest.mock('../../../services/eventService');
 jest.mock('../../../services/eventCategoryService');
+jest.mock('../../../services/userService');
+jest.mock('../../../contexts/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: jest.fn(),
@@ -207,6 +213,9 @@ const mockEventService = {
 const mockEventCategoryService = {
   getCategories: jest.fn(),
 };
+const mockUserService = {
+  getUserProfile: jest.fn(),
+};
 
 // Mock-Daten
 const mockEventCategory: EventCategory = {
@@ -313,6 +322,9 @@ describe('EventList Component', () => {
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useEventService as jest.Mock).mockReturnValue(mockEventService);
     (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
+    (useUserService as jest.Mock).mockReturnValue(mockUserService);
+    (useAuth as jest.Mock).mockReturnValue({ getUserId: () => 'user-1' });
+    mockUserService.getUserProfile.mockResolvedValue({ userType: 'user' });
 
     // Standard mock setup
     mockEventService.getEvents.mockResolvedValue([
@@ -381,7 +393,7 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(screen.getAllByText('Zurück zum Dashboard')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Bild generieren')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Mehrfachauswahl')[0]).toBeInTheDocument();
         expect(screen.getAllByText('CSV Import')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Event hinzufügen')[0]).toBeInTheDocument();
       });
@@ -437,24 +449,39 @@ describe('EventList Component', () => {
       });
     });
 
-    it('sollte Auswahlmodus aktivieren beim Klick auf Bild generieren', async () => {
+    it('sollte Auswahlmodus aktivieren beim Klick auf Mehrfachauswahl', async () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
       });
 
-      const generateButton = screen.getByText('Bild generieren');
-      fireEvent.click(generateButton);
+      const selectionButton = screen.getByText('Mehrfachauswahl');
+      fireEvent.click(selectionButton);
 
       // Nach dem Klick sollte der Auswahlmodus aktiv sein
       await waitFor(() => {
         expect(
-          screen.getByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')
+          screen.getByText('Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen')
         ).toBeInTheDocument();
         expect(screen.getByText('Alle auswählen')).toBeInTheDocument();
         expect(screen.getByText('Auswahl aufheben')).toBeInTheDocument();
         expect(screen.getByText('Abbrechen')).toBeInTheDocument();
+      });
+    });
+
+    it('sollte Kategorie-setzen-Button für Admins im Auswahlmodus anzeigen', async () => {
+      mockUserService.getUserProfile.mockResolvedValue({ userType: 'admin' });
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('Mehrfachauswahl'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Kategorie setzen/)).toBeInTheDocument();
       });
     });
 
@@ -466,8 +493,8 @@ describe('EventList Component', () => {
       });
 
       // Auswahlmodus aktivieren
-      const generateButton = screen.getByText('Bild generieren');
-      fireEvent.click(generateButton);
+      const selectionButton = screen.getByText('Mehrfachauswahl');
+      fireEvent.click(selectionButton);
 
       await waitFor(() => {
         expect(screen.getByText('Abbrechen')).toBeInTheDocument();
@@ -479,7 +506,7 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText('Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus')
+          screen.queryByText('Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen')
         ).not.toBeInTheDocument();
       });
     });

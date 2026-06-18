@@ -1,4 +1,8 @@
-import { Event } from '../models/events';
+import {
+  Event,
+  BulkUpdateEventCategoryRequest,
+  BulkUpdateEventCategoryResult,
+} from '../models/events';
 import { useApi, endpoints } from '../lib/api';
 import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
@@ -203,6 +207,19 @@ export function useEventService() {
       await api.patch(`${endpoints.events}/${eventId}/images/remove`, {
         imageUrl,
       });
+    },
+
+    /**
+     * Weist mehreren Events dieselbe Kategorie zu (nur admin / super_admin).
+     */
+    bulkUpdateCategory: async (
+      payload: BulkUpdateEventCategoryRequest
+    ): Promise<BulkUpdateEventCategoryResult> => {
+      const response = await api.patch<ApiResponse<BulkUpdateEventCategoryResult>>(
+        `${endpoints.events}/bulk/category`,
+        payload
+      );
+      return unwrapData(response);
     },
 
     /**

@@ -45,13 +45,23 @@ import {
   Pencil,
   RefreshCw,
   BadgeCheck,
+  Tags,
+  XCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
-import { Event } from '@/models/events';
+import { Event, BulkUpdateEventCategoryResult } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
+import { useUserService } from '@/services/userService';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserType } from '@/models/users';
+import { BulkCategoryDialog } from '@/components/events/BulkCategoryDialog';
+import {
+  applyBulkCategoryResult,
+  BULK_CATEGORY_MAX_EVENTS,
+} from '@/utils/eventBulkUtils';
 import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-fns';
 import { formatMonthYear, monthYearToDate, hasDateInfo } from '@/utils/eventFormatters';
 import { matchesCategoryFilter } from '@/utils/eventFilterUtils';
@@ -141,10 +151,26 @@ export const EventList: React.FC = () => {
   // State für den Auswahlmodus
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedEventIds, setSelectedEventIds] = useState<Set<string>>(new Set());
+  const [bulkCategoryDialogOpen, setBulkCategoryDialogOpen] = useState(false);
+  const [bulkSubmitting, setBulkSubmitting] = useState(false);
+  const [bulkPartialResult, setBulkPartialResult] = useState<BulkUpdateEventCategoryResult | null>(
+    null
+  );
+  const [bulkPartialDialogOpen, setBulkPartialDialogOpen] = useState(false);
+  const [userRole, setUserRole] = useState<UserType | null>(null);
   const isLoadingRef = useRef(false);
   const eventService = useEventService();
+  const eventServiceRef = useRef(eventService);
+  eventServiceRef.current = eventService;
   const eventCategoryService = useEventCategoryService();
+  const userService = useUserService();
+  const userServiceRef = useRef(userService);
+  userServiceRef.current = userService;
+  const { getUserId } = useAuth();
   const navigate = useNavigate();
+
+  const isAdminOrSuperAdmin =
+    userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
 
   const updateEventListCache = (
     nextEvents: Event[],
@@ -233,6 +259,20 @@ export const EventList: React.FC = () => {
     }
     loadData(true);
   }, []);
+
+  useEffect(() => {
+    const loadUserRole = async () => {
+      const userId = getUserId();
+      if (!userId) return;
+      try {
+        const profile = await userServiceRef.current.getUserProfile(userId);
+        setUserRole(profile.userType);
+      } catch (error) {
+        console.error('Fehler beim Laden der Benutzerrolle:', error);
+      }
+    };
+    void loadUserRole();
+  }, [getUserId]);
 
   useEffect(() => {
     if (timeFilter !== 'week' && selectedWeek) {
@@ -576,6 +616,12 @@ export const EventList: React.FC = () => {
       if (newSet.has(eventId)) {
         newSet.delete(eventId);
       } else {
+        if (newSet.size >= BULK_CATEGORY_MAX_EVENTS) {
+          toast.warning('Auswahllimit erreicht', {
+            description: `Maximal ${BULK_CATEGORY_MAX_EVENTS} Events pro Bulk-Aktion.`,
+          });
+          return prev;
+        }
         newSet.add(eventId);
       }
       return newSet;
@@ -583,7 +629,15 @@ export const EventList: React.FC = () => {
   };
 
   const selectAllVisibleEvents = () => {
-    setSelectedEventIds(new Set(filteredEvents.map(e => e.id)));
+    const visibleIds = filteredEvents.map(e => e.id);
+    if (visibleIds.length > BULK_CATEGORY_MAX_EVENTS) {
+      toast.warning('Auswahllimit', {
+        description: `Es wurden nur die ersten ${BULK_CATEGORY_MAX_EVENTS} von ${visibleIds.length} Events ausgewählt.`,
+      });
+      setSelectedEventIds(new Set(visibleIds.slice(0, BULK_CATEGORY_MAX_EVENTS)));
+      return;
+    }
+    setSelectedEventIds(new Set(visibleIds));
   };
 
   const deselectAllEvents = () => {
@@ -611,6 +665,70 @@ export const EventList: React.FC = () => {
     setIsSelectionMode(false);
     setSelectedEventIds(new Set());
   };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedEventIds(new Set());
+  };
+
+  const handleBulkCategorySubmit = async (categoryId: string) => {
+    if (bulkSubmitting || selectedEventIds.size === 0) return;
+    if (selectedEventIds.size > BULK_CATEGORY_MAX_EVENTS) {
+      toast.error('Zu viele Events ausgewählt', {
+        description: `Maximal ${BULK_CATEGORY_MAX_EVENTS} Events pro Bulk-Aktion.`,
+      });
+      return;
+    }
+    setBulkSubmitting(true);
+    try {
+      const result = await eventServiceRef.current.bulkUpdateCategory({
+        eventIds: [...selectedEventIds],
+        categoryId,
+      });
+      const nextEvents = applyBulkCategoryResult(events, result);
+      setEvents(nextEvents);
+      updateEventListCache(nextEvents, categories, pendingAccess);
+
+      if (result.failed === 0) {
+        showSuccessMessage(toast, {
+          title: 'Kategorien aktualisiert',
+          description: `${result.successful} Event${result.successful === 1 ? '' : 's'} wurde${result.successful === 1 ? '' : 'n'} aktualisiert.`,
+        });
+        setBulkCategoryDialogOpen(false);
+        exitSelectionMode();
+      } else {
+        setBulkPartialResult(result);
+        setBulkPartialDialogOpen(true);
+        setBulkCategoryDialogOpen(false);
+        toast.warning('Teilweise erfolgreich', {
+          description: `${result.successful} von ${result.total} Events aktualisiert, ${result.failed} fehlgeschlagen.`,
+        });
+      }
+    } catch (error) {
+      console.error('Fehler beim Bulk-Kategorie-Update:', error);
+      showUserFriendlyError(
+        error,
+        toast,
+        () => void handleBulkCategorySubmit(categoryId),
+        'bulk-category'
+      );
+    } finally {
+      setBulkSubmitting(false);
+    }
+  };
+
+  const handleBulkPartialDialogClose = (open: boolean) => {
+    setBulkPartialDialogOpen(open);
+    if (!open) {
+      setBulkPartialResult(null);
+      exitSelectionMode();
+    }
+  };
+
+  const selectedEventsForBulk = useMemo(
+    () => filteredEvents.filter(e => selectedEventIds.has(e.id)),
+    [filteredEvents, selectedEventIds]
+  );
 
   if (loading) {
     return (
@@ -731,6 +849,17 @@ export const EventList: React.FC = () => {
                       <Square className="h-4 w-4" />
                       Auswahl aufheben
                     </AnimatedButton>
+                    {isAdminOrSuperAdmin ? (
+                      <AnimatedButton
+                        variant="outline"
+                        onClick={() => setBulkCategoryDialogOpen(true)}
+                        disabled={selectedEventIds.size === 0}
+                        className={cn(glassButton, 'w-full sm:w-auto gap-2')}
+                      >
+                        <Tags className="h-4 w-4" />
+                        Kategorie setzen ({selectedEventIds.size})
+                      </AnimatedButton>
+                    ) : null}
                     <AnimatedButton
                       onClick={handleGenerateImage}
                       disabled={selectedEventIds.size === 0}
@@ -756,7 +885,7 @@ export const EventList: React.FC = () => {
                       className={cn(glassButton, 'w-full sm:w-auto gap-2')}
                     >
                       <ImageIcon className="h-4 w-4" />
-                      Bild generieren
+                      Mehrfachauswahl
                     </AnimatedButton>
                     <AnimatedButton
                       variant="outline"
@@ -798,7 +927,7 @@ export const EventList: React.FC = () => {
                 <div className="flex items-center gap-3 text-foreground">
                   <CheckSquare className="h-5 w-5 text-primary" />
                   <span className="font-medium">
-                    Auswahlmodus aktiv – Wählen Sie die Events für das Bild aus
+                    Auswahlmodus aktiv – Wählen Sie Events für Bulk-Aktionen
                   </span>
                   <span className="ml-auto text-sm opacity-80">
                     {selectedEventIds.size} von {filteredEvents.length} ausgewählt
@@ -1033,6 +1162,70 @@ export const EventList: React.FC = () => {
                   </LoadingButton>
                 </DialogFooter>
               </motion.div>
+            </DialogContent>
+          </Dialog>
+
+          <BulkCategoryDialog
+            open={bulkCategoryDialogOpen}
+            onOpenChange={setBulkCategoryDialogOpen}
+            selectedEvents={selectedEventsForBulk}
+            categories={categories}
+            onConfirm={handleBulkCategorySubmit}
+            submitting={bulkSubmitting}
+          />
+
+          <Dialog open={bulkPartialDialogOpen} onOpenChange={handleBulkPartialDialogClose}>
+            <DialogContent className={cn(glassCard, 'max-h-[85vh] overflow-y-auto')}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Teilerfolg bei Kategorie-Zuweisung</DialogTitle>
+                <DialogDescription className="text-muted-foreground">
+                  {bulkPartialResult
+                    ? `${bulkPartialResult.successful} von ${bulkPartialResult.total} Events aktualisiert, ${bulkPartialResult.failed} fehlgeschlagen.`
+                    : null}
+                </DialogDescription>
+              </DialogHeader>
+              {bulkPartialResult ? (
+                <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+                  {bulkPartialResult.results.map(item => {
+                    const eventTitle =
+                      events.find(e => e.id === item.eventId)?.title ?? item.eventId;
+                    return (
+                      <div
+                        key={item.eventId}
+                        className="flex flex-col sm:flex-row sm:items-center gap-2 p-3 rounded-xl border border-white/10 bg-white/5"
+                      >
+                        <span className="text-foreground font-medium flex-1 truncate">
+                          {eventTitle}
+                        </span>
+                        {item.success ? (
+                          <Badge variant="default" className="bg-green-600 text-white shrink-0">
+                            <CheckCircle2 className="h-3 w-3 mr-1" />
+                            Erfolg
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive" className="shrink-0">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Fehler
+                          </Badge>
+                        )}
+                        {!item.success && item.message ? (
+                          <span className="text-sm text-muted-foreground sm:max-w-[40%]">
+                            {item.message}
+                          </span>
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+              <DialogFooter>
+                <AnimatedButton
+                  onClick={() => handleBulkPartialDialogClose(false)}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Schließen
+                </AnimatedButton>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         </div>
