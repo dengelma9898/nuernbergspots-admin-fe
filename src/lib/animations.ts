@@ -114,25 +114,6 @@ export const slideInRight: Variants = {
 };
 
 /**
- * Slide-In von links
- * Verwendet für: Navigation, Menüs
- */
-export const slideInLeft: Variants = {
-  initial: {
-    opacity: 0,
-    x: -100,
-  },
-  animate: {
-    opacity: 1,
-    x: 0,
-  },
-  exit: {
-    opacity: 0,
-    x: -100,
-  },
-};
-
-/**
  * Shake Animation für Error-States
  * Verwendet für: Formular-Fehler, Validierungs-Fehler
  */
@@ -150,21 +131,6 @@ export const shake: Variants = {
 };
 
 /**
- * Pulse Animation für Loading-States
- * Verwendet für: Loading-Indikatoren, Skeleton-Loading
- */
-export const pulse: Variants = {
-  animate: {
-    opacity: [0.5, 1, 0.5],
-    transition: {
-      duration: 2,
-      repeat: Infinity,
-      ease: 'easeInOut',
-    },
-  },
-};
-
-/**
  * Standard Transition-Einstellungen
  */
 export const defaultTransition = {
@@ -175,47 +141,4 @@ export const defaultTransition = {
 export const fastTransition = {
   duration: 0.2,
   ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-};
-
-export const slowTransition = {
-  duration: 0.5,
-  ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-};
-
-/**
- * Expand/Collapse Animation für Filter-Dropdowns
- * Verwendet für: Filter-Bereiche, Accordions
- */
-export const expandCollapse: Variants = {
-  initial: {
-    height: 0,
-    opacity: 0,
-  },
-  animate: {
-    height: 'auto',
-    opacity: 1,
-    transition: {
-      height: {
-        duration: 0.3,
-        ease: [0.22, 1, 0.36, 1],
-      },
-      opacity: {
-        duration: 0.2,
-        delay: 0.1,
-      },
-    },
-  },
-  exit: {
-    height: 0,
-    opacity: 0,
-    transition: {
-      height: {
-        duration: 0.3,
-        ease: [0.22, 1, 0.36, 1],
-      },
-      opacity: {
-        duration: 0.15,
-      },
-    },
-  },
 };

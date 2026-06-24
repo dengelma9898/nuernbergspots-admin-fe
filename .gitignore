@@ -31,3 +31,6 @@ coverage/
 # Playwright
 playwright-report/
 test-results/
+
+# Build artifacts (Vite output goes to dist/)
+public/assets/

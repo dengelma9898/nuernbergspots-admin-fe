@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import 'material-icons/iconfont/material-icons.css';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';

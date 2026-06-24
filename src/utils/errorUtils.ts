@@ -680,31 +680,6 @@ export function showUserFriendlyError(
 }
 
 /**
- * Erstellt eine benutzerfreundliche Fehlermeldung für einen spezifischen Kontext
- * Kann für spezifischere Fehlermeldungen verwendet werden
- */
-export function createContextualError(context: string, error: unknown): UserFriendlyError {
-  const baseError = getUserFriendlyError(error);
-
-  // Kontext-spezifische Anpassungen
-  if (context === 'image-upload') {
-    const statusCode = extractStatusCode(error);
-    if (statusCode === 413) {
-      return {
-        title: 'Bild ist zu groß',
-        message:
-          'Das Bild, das du hochladen möchtest, ist zu groß. Bitte wähle ein kleineres Bild aus oder komprimiere es vorher.',
-        isPersistent: true,
-        actionHint:
-          'Versuche ein Bild mit weniger als 5 MB oder verwende ein Bildbearbeitungsprogramm, um die Größe zu reduzieren.',
-      };
-    }
-  }
-
-  return baseError;
-}
-
-/**
  * Optionen für Erfolgsmeldungen
  */
 export interface SuccessMessageOptions {

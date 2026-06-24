@@ -18,19 +18,6 @@ export function useApi() {
   );
 }
 
-export interface Business {
-  id: string;
-  name: string;
-  description: string;
-  // Weitere Business-Eigenschaften hier
-}
-
-export interface City {
-  id: string;
-  name: string;
-  // Weitere City-Eigenschaften hier
-}
-
 // API-Endpoints
 export const endpoints = {
   // User endpoints
