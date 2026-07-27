@@ -17,10 +17,11 @@ import {
 import { AnimatedButton } from '@/components/AnimatedButton';
 import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
 import { cn } from '@/lib/utils';
-import { convertFFToHex } from '@/utils/colorUtils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
 import { Euro, Star, Tag, AlertCircle } from 'lucide-react';
+
+const convertFFToHex = (ffColor: string): string => `#${ffColor.replace('0x', '').slice(-6)}`;
 
 interface EventInfoCardProps {
   event: Event;

@@ -66,7 +66,6 @@ import { format, isPast, isFuture, isWithinInterval, startOfMonth } from 'date-f
 import { formatMonthYear, monthYearToDate, hasDateInfo } from '@/utils/eventFormatters';
 import { matchesCategoryFilter, isEventPast } from '@/utils/eventFilterUtils';
 import { de } from 'date-fns/locale';
-import { convertFFToHex } from '@/utils/colorUtils';
 import {
   Select,
   SelectContent,
@@ -86,6 +85,8 @@ import {
 } from '@/components/ui/dialog';
 import { LoadingButton } from '@/components/LoadingButton';
 import { scaleIn } from '@/lib/animations';
+
+const convertFFToHex = (ffColor: string): string => `#${ffColor.replace('0x', '').slice(-6)}`;
 
 function mergeAdminEvents(activeFromApi: Event[], pendingFromApi: Event[]): Event[] {
   const activeIds = new Set(activeFromApi.map(e => e.id));

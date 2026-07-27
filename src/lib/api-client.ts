@@ -3,6 +3,13 @@ interface ApiClientConfig {
   getToken: () => Promise<string | null>;
 }
 
+interface RequestOptions {
+  body?: BodyInit;
+  contentType?: string;
+  isFormData?: boolean;
+  emptyOnNoContent?: boolean;
+}
+
 class ApiClient {
   private baseUrl: string;
   private getToken: () => Promise<string | null>;
@@ -64,13 +71,21 @@ class ApiClient {
     return headers;
   }
 
-  async get<T>(endpoint: string): Promise<T> {
+  private async request<T>(
+    method: string,
+    endpoint: string,
+    options?: RequestOptions
+  ): Promise<T> {
     try {
-      const headers = await this.getHeaders();
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'GET',
-        headers,
-      });
+      const { body, contentType, isFormData, emptyOnNoContent } = options ?? {};
+      const headers = await this.getHeaders(isFormData ? undefined : contentType);
+
+      const fetchOptions: RequestInit = { method, headers };
+      if (body !== undefined) {
+        fetchOptions.body = body;
+      }
+
+      const response = await fetch(`${this.baseUrl}${endpoint}`, fetchOptions);
 
       if (!response.ok) {
         const { message, data } = await this.extractErrorMessage(response, response.status);
@@ -83,144 +98,7 @@ class ApiClient {
         throw error;
       }
 
-      return response.json();
-    } catch (error) {
-      // Wenn es ein Netzwerkfehler ist (z.B. CORS, Failed to fetch)
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError = new Error(error.message);
-        (networkError as any).isNetworkError = true;
-        throw networkError;
-      }
-      throw error;
-    }
-  }
-
-  async post<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
-    try {
-      const headers = await this.getHeaders(options.isFormData ? undefined : 'application/json');
-      const body = options.isFormData ? data : JSON.stringify(data);
-
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'POST',
-        headers,
-        body,
-      });
-
-      if (!response.ok) {
-        const { message, data } = await this.extractErrorMessage(response, response.status);
-        const error = new Error(message);
-        (error as any).status = response.status;
-        // Speichere die vollständige Response-Struktur für Validierungsfehler
-        if (data) {
-          (error as any).response = { data };
-        }
-        throw error;
-      }
-
-      return response.json();
-    } catch (error) {
-      // Wenn es ein Netzwerkfehler ist (z.B. CORS, Failed to fetch)
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError = new Error(error.message);
-        (networkError as any).isNetworkError = true;
-        throw networkError;
-      }
-      throw error;
-    }
-  }
-
-  async put<T>(endpoint: string, data: any): Promise<T> {
-    try {
-      const headers = await this.getHeaders('application/json');
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const { message, data } = await this.extractErrorMessage(response, response.status);
-        const error = new Error(message);
-        (error as any).status = response.status;
-        // Speichere die vollständige Response-Struktur für Validierungsfehler
-        if (data) {
-          (error as any).response = { data };
-        }
-        throw error;
-      }
-
-      return response.json();
-    } catch (error) {
-      // Wenn es ein Netzwerkfehler ist (z.B. CORS, Failed to fetch)
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError = new Error(error.message);
-        (networkError as any).isNetworkError = true;
-        throw networkError;
-      }
-      throw error;
-    }
-  }
-
-  async patch<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
-    const headers = await this.getHeaders(options.isFormData ? undefined : 'application/json');
-    const body = options.isFormData ? data : JSON.stringify(data);
-
-    try {
-      const response = await fetch(`${this.baseUrl}${endpoint}`, {
-        method: 'PATCH',
-        headers,
-        body,
-      });
-
-      if (!response.ok) {
-        const { message, data } = await this.extractErrorMessage(response, response.status);
-        const error = new Error(message);
-        (error as any).status = response.status;
-        // Speichere die vollständige Response-Struktur für Validierungsfehler
-        if (data) {
-          (error as any).response = { data };
-        }
-        throw error;
-      }
-
-      return response.json();
-    } catch (error) {
-      // Wenn es ein Netzwerkfehler ist (z.B. CORS, Failed to fetch)
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        const networkError = new Error(error.message);
-        (networkError as any).isNetworkError = true;
-        throw networkError;
-      }
-      throw error;
-    }
-  }
-
-  async delete<T = void>(endpoint: string, data?: any): Promise<T> {
-    try {
-      const headers = await this.getHeaders();
-      const options: RequestInit = {
-        method: 'DELETE',
-        headers,
-      };
-
-      if (data) {
-        options.body = JSON.stringify(data);
-      }
-
-      const response = await fetch(`${this.baseUrl}${endpoint}`, options);
-
-      if (!response.ok) {
-        const { message, data } = await this.extractErrorMessage(response, response.status);
-        const error = new Error(message);
-        (error as any).status = response.status;
-        // Speichere die vollständige Response-Struktur für Validierungsfehler
-        if (data) {
-          (error as any).response = { data };
-        }
-        throw error;
-      }
-
-      if (response.status === 204) {
+      if (emptyOnNoContent && response.status === 204) {
         return {} as T;
       }
 
@@ -234,6 +112,42 @@ class ApiClient {
       }
       throw error;
     }
+  }
+
+  async get<T>(endpoint: string): Promise<T> {
+    return this.request<T>('GET', endpoint);
+  }
+
+  async post<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
+    const body = options.isFormData ? data : JSON.stringify(data);
+    return this.request<T>('POST', endpoint, {
+      body,
+      contentType: 'application/json',
+      isFormData: options.isFormData,
+    });
+  }
+
+  async put<T>(endpoint: string, data: any): Promise<T> {
+    return this.request<T>('PUT', endpoint, {
+      body: JSON.stringify(data),
+      contentType: 'application/json',
+    });
+  }
+
+  async patch<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
+    const body = options.isFormData ? data : JSON.stringify(data);
+    return this.request<T>('PATCH', endpoint, {
+      body,
+      contentType: 'application/json',
+      isFormData: options.isFormData,
+    });
+  }
+
+  async delete<T = void>(endpoint: string, data?: any): Promise<T> {
+    return this.request<T>('DELETE', endpoint, {
+      body: data ? JSON.stringify(data) : undefined,
+      emptyOnNoContent: true,
+    });
   }
 
   private async extractErrorMessage(

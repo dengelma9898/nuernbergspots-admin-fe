@@ -199,10 +199,6 @@ jest.mock('date-fns', () => {
 });
 
 // Mock color utils
-jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn(color => color || '#000000'),
-}));
-
 // Mock icon utils
 jest.mock('@/utils/iconUtils', () => ({
   getIconComponent: jest.fn(() => <div data-testid="icon-component">Icon</div>),

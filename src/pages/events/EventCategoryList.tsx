@@ -36,7 +36,6 @@ import { EventCategory, EventCategoryCreation } from '@/models/event-category';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
 import { IconPicker } from '@/components/ui/icon-picker';
-import { convertFFToHex, convertHexToFF } from '@/utils/colorUtils';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
 import { AnimatedButton } from '@/components/AnimatedButton';
@@ -49,6 +48,9 @@ import { cn } from '@/lib/utils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+
+const convertFFToHex = (ffColor: string): string => `#${ffColor.replace('0x', '').slice(-6)}`;
+const convertHexToFF = (hexColor: string): string => `0xff${hexColor.replace('#', '')}`;
 
 const toSnakeCase = (str: string): string => {
   return str

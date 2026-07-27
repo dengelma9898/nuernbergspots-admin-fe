@@ -1,22 +1,22 @@
 ---
 name: Ponytail Phase 2 — Ungenutzte Dependencies
-overview: 'Entfernt date-fns-tz und die Legacy-PostCSS7-Tailwind-Pipeline. Vite nutzt bereits @tailwindcss/vite. Voraussetzung: Phase 1 abgeschlossen. Verifikation: npm run test && npm run build && npm run start:dev.'
+overview: "Entfernt date-fns-tz und die Legacy-PostCSS7-Tailwind-Pipeline. Vite nutzt bereits @tailwindcss/vite. Voraussetzung: Phase 1 abgeschlossen. Verifikation: npm run test && npm run build && npm run start:dev."
 todos:
   - id: uninstall-date-fns-tz
-    content: 'npm uninstall date-fns-tz — kein Import in src/'
-    status: pending
+    content: npm uninstall date-fns-tz — kein Import in src/
+    status: completed
   - id: postcss-config-cleanup
-    content: 'postcss.config.cjs: @tailwindcss/postcss7-compat entfernen oder Datei löschen wenn obsolet'
-    status: pending
+    content: "postcss.config.cjs: @tailwindcss/postcss7-compat entfernen oder Datei löschen wenn obsolet"
+    status: completed
   - id: uninstall-postcss7-compat
-    content: 'npm uninstall @tailwindcss/postcss7-compat'
-    status: pending
+    content: npm uninstall @tailwindcss/postcss7-compat
+    status: completed
   - id: visual-smoke-check
-    content: 'Login + eine Listen-Seite visuell prüfen (Tailwind/Glass-Layout intakt)'
-    status: pending
+    content: Login + eine Listen-Seite visuell prüfen (Tailwind/Glass-Layout intakt)
+    status: completed
   - id: verify-phase2
-    content: 'npm run test && npm run build && npm run start:dev'
-    status: pending
+    content: npm run test && npm run build && npm run start:dev
+    status: completed
 isProject: false
 ---
 

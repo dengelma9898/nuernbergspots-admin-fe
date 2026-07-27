@@ -184,11 +184,6 @@ jest.mock('@/components/ui/skeleton', () => ({
 }));
 
 // Mock color utils
-jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn(color => color || '#000000'),
-  convertHexToFF: jest.fn(color => color || '#000000'),
-}));
-
 // Mock URL methods
 global.URL.createObjectURL = jest.fn(() => 'mock-url');
 global.URL.revokeObjectURL = jest.fn();

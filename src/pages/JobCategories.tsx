@@ -30,7 +30,6 @@ import { JobCategory, JobCategoryCreation } from '@/models/job-category';
 import { useJobCategoryService } from '@/services/jobCategoryService';
 import { getIconComponent } from '@/utils/iconUtils';
 import { IconPicker } from '@/components/ui/icon-picker';
-import { convertFFToHex, convertHexToFF } from '@/utils/colorUtils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
@@ -44,6 +43,9 @@ import { cn } from '@/lib/utils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+
+const convertFFToHex = (ffColor: string): string => `#${ffColor.replace('0x', '').slice(-6)}`;
+const convertHexToFF = (hexColor: string): string => `0xff${hexColor.replace('#', '')}`;
 
 const toSnakeCase = (str: string): string => {
   return str

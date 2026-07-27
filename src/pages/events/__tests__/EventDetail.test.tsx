@@ -27,10 +27,6 @@ jest.mock('@/services/eventCategoryService', () => ({
   useEventCategoryService: jest.fn(),
 }));
 
-jest.mock('@/utils/colorUtils', () => ({
-  convertFFToHex: jest.fn(color => `#${color}`),
-}));
-
 jest.mock('@/utils/iconUtils', () => ({
   getIconComponent: jest.fn(() => <span data-testid="mock-icon">Icon</span>),
 }));
