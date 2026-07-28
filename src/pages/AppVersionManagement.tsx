@@ -7,14 +7,11 @@ import { ArrowLeft, Info, Save, RefreshCw, Plus, Trash2, FileText } from 'lucide
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { useAppVersionService } from '@/services/appVersionService';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassButton, glassInput } from '@/lib/glassmorphism';
+import { cardPreset, buttonPreset, inputPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +51,7 @@ const compareVersions = (a: string, b: string): number => {
 const AppVersionManagementSkeleton = () => (
   <div className="container mx-auto max-w-full p-4 sm:p-6 lg:p-8 px-4 sm:px-6 lg:px-8 overflow-x-hidden relative z-10">
     {/* Header Skeleton */}
-    <Card className={cn(glassCard, 'p-4 sm:p-6 mb-6')}>
+    <Card className={cn(cardPreset, 'p-4 sm:p-6 mb-6')}>
       <div className="flex flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 sm:gap-4">
           <Skeleton className="h-10 w-10 rounded-full" />
@@ -67,7 +64,7 @@ const AppVersionManagementSkeleton = () => (
     {/* Content Skeleton */}
     <div className="space-y-6">
       {/* Current Version Card Skeleton */}
-      <Card className={cn(glassCard)}>
+      <Card className={cn(cardPreset)}>
         <CardHeader>
           <Skeleton className="h-6 w-48 rounded" />
           <Skeleton className="h-4 w-72 rounded mt-2" />
@@ -81,7 +78,7 @@ const AppVersionManagementSkeleton = () => (
       </Card>
 
       {/* Set Version Card Skeleton */}
-      <Card className={cn(glassCard)}>
+      <Card className={cn(cardPreset)}>
         <CardHeader>
           <Skeleton className="h-6 w-56 rounded" />
           <Skeleton className="h-4 w-80 rounded mt-2" />
@@ -95,7 +92,7 @@ const AppVersionManagementSkeleton = () => (
       </Card>
 
       {/* Changelog Card Skeleton */}
-      <Card className={cn(glassCard)}>
+      <Card className={cn(cardPreset)}>
         <CardHeader>
           <Skeleton className="h-6 w-52 rounded" />
           <Skeleton className="h-4 w-96 rounded mt-2" />
@@ -386,7 +383,7 @@ export function AppVersionManagement() {
     <div className="container mx-auto max-w-full p-4 sm:p-6 lg:p-8 px-4 sm:px-6 lg:px-8 overflow-x-hidden relative z-10">
       {/* Header Section */}
       <motion.div
-        className={cn(glassCard, 'p-4 sm:p-6 mb-6')}
+        className={cn(cardPreset, 'p-4 sm:p-6 mb-6')}
         variants={fadeInUp}
         initial="initial"
         animate="animate"
@@ -394,32 +391,32 @@ export function AppVersionManagement() {
       >
         <div className="flex flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2 sm:gap-4">
-            <AnimatedButton
+            <LoadingButton
               variant="ghost"
               size="icon"
               onClick={() => navigate('/dashboard')}
-              className={cn(glassButton, 'rounded-full')}
+              className={cn(buttonPreset, 'rounded-full')}
             >
               <ArrowLeft className="h-5 w-5" />
               <span className="sr-only">Zurück zum Dashboard</span>
-            </AnimatedButton>
+            </LoadingButton>
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground break-words">
               App-Version-Verwaltung
             </h1>
           </div>
-          <AnimatedButton
+          <LoadingButton
             variant="ghost"
             size="icon"
             onClick={loadInitialData}
             disabled={isLoading || isLoadingChangelogs}
-            className={cn(glassButton, 'rounded-full')}
+            className={cn(buttonPreset, 'rounded-full')}
             title="Aktualisieren"
           >
             <RefreshCw
               className={cn('h-5 w-5', (isLoading || isLoadingChangelogs) && 'animate-spin')}
             />
             <span className="sr-only">Aktualisieren</span>
-          </AnimatedButton>
+          </LoadingButton>
         </div>
       </motion.div>
 
@@ -431,7 +428,7 @@ export function AppVersionManagement() {
         className="space-y-6"
       >
         {/* Aktuelle Version Card */}
-        <Card className={cn(glassCard)}>
+        <Card className={cn(cardPreset)}>
           <CardHeader>
             <CardTitle className="text-foreground">Aktuelle Mindestversion</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -467,7 +464,7 @@ export function AppVersionManagement() {
         </Card>
 
         {/* Version setzen Card */}
-        <Card className={cn(glassCard)}>
+        <Card className={cn(cardPreset)}>
           <CardHeader>
             <CardTitle className="text-foreground">Mindestversion setzen</CardTitle>
             <CardDescription className="text-muted-foreground">
@@ -488,7 +485,7 @@ export function AppVersionManagement() {
                   value={versionInput}
                   onChange={e => setVersionInput(e.target.value)}
                   disabled={isLoading || isSaving}
-                  className={cn(glassInput)}
+                  className={cn(inputPreset)}
                   pattern="^\d+\.\d+\.\d+$"
                 />
                 <p className="text-xs text-muted-foreground">
@@ -502,7 +499,7 @@ export function AppVersionManagement() {
                   disabled={isLoading || isSaving || !versionInput.trim()}
                   loading={isSaving}
                   className={cn(
-                    glassButton,
+                    buttonPreset,
                     'bg-green-600 hover:bg-green-700 text-white disabled:opacity-50'
                   )}
                 >
@@ -515,7 +512,7 @@ export function AppVersionManagement() {
                     variant="outline"
                     onClick={() => setVersionInput(currentVersion)}
                     disabled={isLoading || isSaving}
-                    className={cn(glassButton)}
+                    className={cn(buttonPreset)}
                   >
                     Aktuelle Version verwenden
                   </Button>
@@ -526,7 +523,7 @@ export function AppVersionManagement() {
         </Card>
 
         {/* Changelog-Verwaltung Card */}
-        <Card className={cn(glassCard)}>
+        <Card className={cn(cardPreset)}>
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -551,7 +548,7 @@ export function AppVersionManagement() {
                         onValueChange={handleVersionSelect}
                         disabled={isLoadingChangelogs || isSavingChangelog}
                       >
-                        <SelectTrigger className={cn(glassInput, 'w-full')}>
+                        <SelectTrigger className={cn(inputPreset, 'w-full')}>
                           <SelectValue placeholder="Version wählen..." />
                         </SelectTrigger>
                         <SelectContent>
@@ -573,14 +570,14 @@ export function AppVersionManagement() {
                       </Select>
                     </div>
                     <div className="flex items-end">
-                      <AnimatedButton
+                      <LoadingButton
                         onClick={handleCreateNewMode}
                         disabled={isLoadingChangelogs || isSavingChangelog}
-                        className={cn(glassButton)}
+                        className={cn(buttonPreset)}
                       >
                         <Plus className="h-4 w-4 mr-2" />
                         Neuer Changelog
-                      </AnimatedButton>
+                      </LoadingButton>
                     </div>
                   </>
                 ) : (
@@ -596,7 +593,7 @@ export function AppVersionManagement() {
                         value={newVersionInput}
                         onChange={e => setNewVersionInput(e.target.value)}
                         disabled={isSavingChangelog}
-                        className={cn(glassInput)}
+                        className={cn(inputPreset)}
                         pattern="^\d+\.\d+\.\d+$"
                       />
                       <p className="text-xs text-muted-foreground mt-1">
@@ -608,7 +605,7 @@ export function AppVersionManagement() {
                         variant="outline"
                         onClick={handleCancelNewMode}
                         disabled={isSavingChangelog}
-                        className={cn(glassButton)}
+                        className={cn(buttonPreset)}
                       >
                         Abbrechen
                       </Button>
@@ -664,7 +661,7 @@ export function AppVersionManagement() {
                     disabled={!canSaveChangelog || isSavingChangelog}
                     loading={isSavingChangelog}
                     className={cn(
-                      glassButton,
+                      buttonPreset,
                       'bg-green-600 hover:bg-green-700 text-white disabled:opacity-50'
                     )}
                   >
@@ -673,7 +670,7 @@ export function AppVersionManagement() {
                   </LoadingButton>
 
                   {!isCreatingNew && selectedVersion && (
-                    <AnimatedButton
+                    <LoadingButton
                       variant="destructive"
                       onClick={() => setDeleteDialogOpen(true)}
                       disabled={isSavingChangelog || isDeletingChangelog}
@@ -681,7 +678,7 @@ export function AppVersionManagement() {
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
                       Changelog löschen
-                    </AnimatedButton>
+                    </LoadingButton>
                   )}
 
                   {hasChangelogChanges && !isCreatingNew && (
@@ -689,7 +686,7 @@ export function AppVersionManagement() {
                       variant="outline"
                       onClick={() => setChangelogContent(originalContent)}
                       disabled={isSavingChangelog}
-                      className={cn(glassButton)}
+                      className={cn(buttonPreset)}
                     >
                       Änderungen verwerfen
                     </Button>
@@ -701,7 +698,7 @@ export function AppVersionManagement() {
         </Card>
 
         {/* Info Card */}
-        <Card className={cn(glassCard, 'border-blue-500/50 bg-blue-500/5')}>
+        <Card className={cn(cardPreset, 'border-blue-500/50 bg-blue-500/5')}>
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
               <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
@@ -730,7 +727,7 @@ export function AppVersionManagement() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent className={cn(glassCard)}>
+        <AlertDialogContent className={cn(cardPreset)}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground">Changelog löschen</AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
@@ -739,7 +736,7 @@ export function AppVersionManagement() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn(glassButton)} disabled={isDeletingChangelog}>
+            <AlertDialogCancel className={cn(buttonPreset)} disabled={isDeletingChangelog}>
               Abbrechen
             </AlertDialogCancel>
             <AlertDialogAction
@@ -760,21 +757,11 @@ export function AppVersionManagement() {
 
   if (isLoading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <AppVersionManagementSkeleton />
-        </div>
-      </PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <AppVersionManagementSkeleton />
+      </div>
     );
   }
 
-  return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {pageContent}
-      </div>
-    </PageTransition>
-  );
+  return <div className="min-h-screen relative overflow-hidden">{pageContent}</div>;
 }

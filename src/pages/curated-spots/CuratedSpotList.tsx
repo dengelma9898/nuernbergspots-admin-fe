@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
 import { AdminRatingStars } from '@/components/curated-spots/AdminRatingStars';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,7 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 import { cn } from '@/lib/utils';
-import { glassCard, glassCardHover, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, cardPresetHover, buttonPreset } from '@/lib/designTokens';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 
@@ -31,7 +29,7 @@ import { UserType } from '@/models/users';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import {
   AlertCircle,
   ArrowLeft,
@@ -45,7 +43,7 @@ import {
 
 function CuratedSpotCardSkeleton() {
   return (
-    <Card className={cn(glassCard, 'p-4 flex flex-col justify-between h-full')}>
+    <Card className={cn(cardPreset, 'p-4 flex flex-col justify-between h-full')}>
       <CardHeader>
         <Skeleton className="h-6 w-3/4 rounded" />
         <Skeleton className="h-4 w-1/2 rounded mt-2" />
@@ -170,197 +168,194 @@ export function CuratedSpotList() {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
-          <div className="max-w-5xl mx-auto space-y-6">
-            <motion.div
-              initial="initial"
-              animate="animate"
-              variants={fadeInUp}
-              transition={defaultTransition}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <AnimatedButton
-                  variant="outline"
-                  size="icon"
-                  onClick={() => navigate('/')}
-                  className={cn(glassButton)}
-                  aria-label="Zurück zum Dashboard"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                </AnimatedButton>
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-                    <MapPin className="h-7 w-7 shrink-0" />
-                    Kuratierte Spots
-                  </h1>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Verwaltung inkl. Freigabe (ACTIVE) und Soft-Delete — siehe Backend-Doku
-                    curated-spots-admin-integration.
-                  </p>
-                </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <motion.div
+            initial="initial"
+            animate="animate"
+            variants={fadeInUp}
+            transition={defaultTransition}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <LoadingButton
+                variant="outline"
+                size="icon"
+                onClick={() => navigate('/')}
+                className={cn(buttonPreset)}
+                aria-label="Zurück zum Dashboard"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </LoadingButton>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+                  <MapPin className="h-7 w-7 shrink-0" />
+                  Kuratierte Spots
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Verwaltung inkl. Freigabe (ACTIVE) und Soft-Delete — siehe Backend-Doku
+                  curated-spots-admin-integration.
+                </p>
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:shrink-0">
-                <AnimatedButton
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:shrink-0">
+              <LoadingButton
+                onClick={() => navigate('/curated-spots/new')}
+                className={cn(buttonPreset, 'w-full sm:w-auto')}
+                disabled={!isAdminOrSuperAdmin}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Neuer Spot
+              </LoadingButton>
+              <LoadingButton
+                variant="outline"
+                onClick={() => navigate('/curated-spots/settings')}
+                className={cn(buttonPreset, 'w-full sm:w-auto')}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Community-Bewertungen
+              </LoadingButton>
+            </div>
+          </motion.div>
+
+          {!isAdminOrSuperAdmin && userRole !== null && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Berechtigung</AlertTitle>
+              <AlertDescription>
+                Nur Admin oder Super-Admin können Spots anlegen oder bearbeiten. Die Liste kann je
+                nach Backend dennoch sichtbar sein.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[0, 1, 2, 3].map(i => (
+                <CuratedSpotCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : spots.length === 0 ? (
+            <Card className={cn(cardPreset)}>
+              <CardHeader>
+                <CardTitle className="text-foreground">Keine Spots</CardTitle>
+                <CardDescription>Lege den ersten kuratierten Spot an.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LoadingButton
                   onClick={() => navigate('/curated-spots/new')}
-                  className={cn(glassButton, 'w-full sm:w-auto')}
+                  className={cn(buttonPreset)}
                   disabled={!isAdminOrSuperAdmin}
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Neuer Spot
-                </AnimatedButton>
-                <AnimatedButton
-                  variant="outline"
-                  onClick={() => navigate('/curated-spots/settings')}
-                  className={cn(glassButton, 'w-full sm:w-auto')}
+                  Spot erstellen
+                </LoadingButton>
+              </CardContent>
+            </Card>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 gap-4"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {spots.map((spot, index) => (
+                <motion.div
+                  key={spot.id}
+                  variants={fadeInUp}
+                  transition={{ ...defaultTransition, delay: index * 0.04 }}
                 >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Community-Bewertungen
-                </AnimatedButton>
-              </div>
-            </motion.div>
-
-            {!isAdminOrSuperAdmin && userRole !== null && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Berechtigung</AlertTitle>
-                <AlertDescription>
-                  Nur Admin oder Super-Admin können Spots anlegen oder bearbeiten. Die Liste kann je
-                  nach Backend dennoch sichtbar sein.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[0, 1, 2, 3].map(i => (
-                  <CuratedSpotCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : spots.length === 0 ? (
-              <Card className={cn(glassCard)}>
-                <CardHeader>
-                  <CardTitle className="text-foreground">Keine Spots</CardTitle>
-                  <CardDescription>Lege den ersten kuratierten Spot an.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <AnimatedButton
-                    onClick={() => navigate('/curated-spots/new')}
-                    className={cn(glassButton)}
-                    disabled={!isAdminOrSuperAdmin}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Spot erstellen
-                  </AnimatedButton>
-                </CardContent>
-              </Card>
-            ) : (
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
-              >
-                {spots.map((spot, index) => (
-                  <motion.div
-                    key={spot.id}
-                    variants={fadeInUp}
-                    transition={{ ...defaultTransition, delay: index * 0.04 }}
-                  >
-                    <Card className={cn(glassCardHover, 'h-full flex flex-col')}>
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-2">
-                          <CardTitle className="text-lg text-foreground line-clamp-2">
-                            {spot.name}
-                          </CardTitle>
-                          <Badge variant={statusBadgeVariant(spot.status)}>{spot.status}</Badge>
-                        </div>
-                        <CardDescription className="text-muted-foreground">
-                          {spot.address?.street?.trim()
-                            ? `${spot.address.street} ${spot.address.houseNumber}, ${spot.address.postalCode} ${spot.address.city}`
-                            : 'Keine Adresse hinterlegt'}{' '}
-                          · {spot.keywordIds.length} Spot-Keyword(s) · {spot.imageUrls.length}{' '}
-                          Bild(er)
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex-grow space-y-3 text-sm text-muted-foreground">
-                        <div className="space-y-1">
-                          <p className="text-xs font-medium text-foreground/90">Redaktion</p>
-                          {spot.adminRating != null &&
-                          spot.adminRating >= 1 &&
-                          spot.adminRating <= 5 ? (
-                            <AdminRatingStars value={spot.adminRating} readOnly />
-                          ) : (
-                            <div className="flex flex-col gap-1">
-                              <span className="text-xs text-muted-foreground">
-                                Noch nicht vergeben
-                              </span>
-                              <AdminRatingStars value={null} readOnly />
-                            </div>
-                          )}
-                          {formatAdminRatedAt(spot.adminRatedAt) && (
-                            <p className="text-xs opacity-80">
-                              Vergeben am {formatAdminRatedAt(spot.adminRatedAt)}
-                            </p>
-                          )}
-                        </div>
-                        {spot.userRatingCount != null &&
-                          spot.userRatingCount > 0 &&
-                          spot.userRatingAverage != null && (
-                            <p className="text-xs">
-                              Nutzer: Ø {spot.userRatingAverage.toFixed(1)} ({spot.userRatingCount}{' '}
-                              {spot.userRatingCount === 1 ? 'Stimme' : 'Stimmen'})
-                            </p>
-                          )}
-                        <p className="line-clamp-3 font-mono text-xs opacity-80">
-                          {spot.descriptionMarkdown.slice(0, 160)}
-                          {spot.descriptionMarkdown.length > 160 ? '…' : ''}
-                        </p>
-                      </CardContent>
-                      <CardFooter className="flex flex-wrap gap-2">
-                        <AnimatedButton
-                          size="sm"
-                          variant="outline"
-                          className={cn(glassButton)}
-                          onClick={() => navigate(`/curated-spots/${spot.id}/edit`)}
-                          disabled={!isAdminOrSuperAdmin}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Bearbeiten
-                        </AnimatedButton>
-                        {spot.status === 'PENDING' && (
-                          <AnimatedButton
-                            size="sm"
-                            className={cn(glassButton)}
-                            onClick={() => handleActivate(spot.id)}
-                            disabled={!isAdminOrSuperAdmin || actionSpotId === spot.id}
-                          >
-                            <ShieldCheck className="h-4 w-4 mr-1" />
-                            Freigeben
-                          </AnimatedButton>
+                  <Card className={cn(cardPresetHover, 'h-full flex flex-col')}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2">
+                        <CardTitle className="text-lg text-foreground line-clamp-2">
+                          {spot.name}
+                        </CardTitle>
+                        <Badge variant={statusBadgeVariant(spot.status)}>{spot.status}</Badge>
+                      </div>
+                      <CardDescription className="text-muted-foreground">
+                        {spot.address?.street?.trim()
+                          ? `${spot.address.street} ${spot.address.houseNumber}, ${spot.address.postalCode} ${spot.address.city}`
+                          : 'Keine Adresse hinterlegt'}{' '}
+                        · {spot.keywordIds.length} Spot-Keyword(s) · {spot.imageUrls.length}{' '}
+                        Bild(er)
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow space-y-3 text-sm text-muted-foreground">
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-foreground/90">Redaktion</p>
+                        {spot.adminRating != null &&
+                        spot.adminRating >= 1 &&
+                        spot.adminRating <= 5 ? (
+                          <AdminRatingStars value={spot.adminRating} readOnly />
+                        ) : (
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs text-muted-foreground">
+                              Noch nicht vergeben
+                            </span>
+                            <AdminRatingStars value={null} readOnly />
+                          </div>
                         )}
-                        <AnimatedButton
+                        {formatAdminRatedAt(spot.adminRatedAt) && (
+                          <p className="text-xs opacity-80">
+                            Vergeben am {formatAdminRatedAt(spot.adminRatedAt)}
+                          </p>
+                        )}
+                      </div>
+                      {spot.userRatingCount != null &&
+                        spot.userRatingCount > 0 &&
+                        spot.userRatingAverage != null && (
+                          <p className="text-xs">
+                            Nutzer: Ø {spot.userRatingAverage.toFixed(1)} ({spot.userRatingCount}{' '}
+                            {spot.userRatingCount === 1 ? 'Stimme' : 'Stimmen'})
+                          </p>
+                        )}
+                      <p className="line-clamp-3 font-mono text-xs opacity-80">
+                        {spot.descriptionMarkdown.slice(0, 160)}
+                        {spot.descriptionMarkdown.length > 160 ? '…' : ''}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="flex flex-wrap gap-2">
+                      <LoadingButton
+                        size="sm"
+                        variant="outline"
+                        className={cn(buttonPreset)}
+                        onClick={() => navigate(`/curated-spots/${spot.id}/edit`)}
+                        disabled={!isAdminOrSuperAdmin}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        Bearbeiten
+                      </LoadingButton>
+                      {spot.status === 'PENDING' && (
+                        <LoadingButton
                           size="sm"
-                          variant="destructive"
-                          className="shrink-0"
-                          onClick={() => handleDelete(spot.id)}
+                          className={cn(buttonPreset)}
+                          onClick={() => handleActivate(spot.id)}
                           disabled={!isAdminOrSuperAdmin || actionSpotId === spot.id}
                         >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Löschen
-                        </AnimatedButton>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </div>
+                          <ShieldCheck className="h-4 w-4 mr-1" />
+                          Freigeben
+                        </LoadingButton>
+                      )}
+                      <LoadingButton
+                        size="sm"
+                        variant="destructive"
+                        className="shrink-0"
+                        onClick={() => handleDelete(spot.id)}
+                        disabled={!isAdminOrSuperAdmin || actionSpotId === spot.id}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Löschen
+                      </LoadingButton>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }

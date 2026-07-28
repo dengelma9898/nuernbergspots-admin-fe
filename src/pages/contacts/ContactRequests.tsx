@@ -17,14 +17,11 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassCardHover, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, cardPresetHover, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 export function ContactRequests() {
@@ -120,7 +117,7 @@ export function ContactRequests() {
   };
 
   const ContactRequestSkeleton = () => (
-    <Card className={cn(glassCard, 'p-4 md:p-6')}>
+    <Card className={cn(cardPreset, 'p-4 md:p-6')}>
       {/* Header Row Skeleton */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
         <div className="flex flex-wrap items-center gap-2">
@@ -152,148 +149,145 @@ export function ContactRequests() {
   );
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {/* Main Content */}
-        <motion.div
-          className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          <div className="space-y-6 flex flex-col items-start">
-            {/* Hidden compatibility container for tests */}
-            <div className="max-w-2xl mx-auto hidden"></div>
-            <div className="w-full min-h-screen bg-white p-4 md:p-8 absolute -z-10 opacity-0 pointer-events-none"></div>
-            {/* Header */}
-            <motion.div
-              className={cn(glassCard, 'p-6 md:p-8 mb-6')}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <div className="flex flex-row items-start justify-between gap-4">
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/')}
-                  className={cn(glassButton, 'rounded-full shrink-0')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zum Dashboard</span>
-                </AnimatedButton>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-                    Kontaktanfragen
-                  </h1>
-                  <p className="text-muted-foreground mt-2 text-sm md:text-base">
-                    Verwalten Sie alle eingehenden Kundenanfragen und Nachrichten
-                  </p>
-                </div>
-                <LoadingButton
-                  onClick={() => fetchContactRequests(true)}
-                  disabled={isRefreshing}
-                  size="icon"
-                  className={cn(glassButton, 'shrink-0 rounded-full')}
-                >
-                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span className="sr-only">Aktualisieren</span>
-                </LoadingButton>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Main Content */}
+      <motion.div
+        className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="space-y-6 flex flex-col items-start">
+          {/* Hidden compatibility container for tests */}
+          <div className="max-w-2xl mx-auto hidden"></div>
+          <div className="w-full min-h-screen bg-white p-4 md:p-8 absolute -z-10 opacity-0 pointer-events-none"></div>
+          {/* Header */}
+          <motion.div
+            className={cn(cardPreset, 'p-6 md:p-8 mb-6')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <div className="flex flex-row items-start justify-between gap-4">
+              <LoadingButton
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className={cn(buttonPreset, 'rounded-full shrink-0')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </LoadingButton>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                  Kontaktanfragen
+                </h1>
+                <p className="text-muted-foreground mt-2 text-sm md:text-base">
+                  Verwalten Sie alle eingehenden Kundenanfragen und Nachrichten
+                </p>
               </div>
-            </motion.div>
+              <LoadingButton
+                onClick={() => fetchContactRequests(true)}
+                disabled={isRefreshing}
+                size="icon"
+                className={cn(buttonPreset, 'shrink-0 rounded-full')}
+              >
+                <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="sr-only">Aktualisieren</span>
+              </LoadingButton>
+            </div>
+          </motion.div>
 
-            {/* Contact Requests Grid */}
-            <motion.div
-              className="grid gap-4 md:gap-6"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-              key="contact-requests-list"
-            >
-              {loading ? (
-                // Show skeleton cards while loading
-                Array.from({ length: 3 }, (_, index) => (
-                  <ContactRequestSkeleton key={`skeleton-${index}`} />
-                ))
-              ) : contactRequests.length === 0 ? (
+          {/* Contact Requests Grid */}
+          <motion.div
+            className="grid gap-4 md:gap-6"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            key="contact-requests-list"
+          >
+            {loading ? (
+              // Show skeleton cards while loading
+              Array.from({ length: 3 }, (_, index) => (
+                <ContactRequestSkeleton key={`skeleton-${index}`} />
+              ))
+            ) : contactRequests.length === 0 ? (
+              <motion.div
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={{ ...defaultTransition, delay: 0.1 }}
+              >
+                <Card className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+                  <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                  <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+                    Keine Kontaktanfragen
+                  </h3>
+                  <p className="text-muted-foreground text-sm md:text-base">
+                    Es gibt aktuell keine offenen Kontaktanfragen.
+                  </p>
+                </Card>
+              </motion.div>
+            ) : (
+              contactRequests.map((request, index) => (
                 <motion.div
+                  key={request.id}
                   variants={fadeInUp}
                   initial="initial"
                   animate="animate"
-                  transition={{ ...defaultTransition, delay: 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  transition={defaultTransition}
                 >
-                  <Card className={cn(glassCard, 'p-8 md:p-12 text-center')}>
-                    <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
-                      Keine Kontaktanfragen
-                    </h3>
-                    <p className="text-muted-foreground text-sm md:text-base">
-                      Es gibt aktuell keine offenen Kontaktanfragen.
-                    </p>
-                  </Card>
-                </motion.div>
-              ) : (
-                contactRequests.map((request, index) => (
-                  <motion.div
-                    key={request.id}
-                    variants={fadeInUp}
-                    initial="initial"
-                    animate="animate"
-                    whileHover={{ scale: 1.02 }}
-                    transition={defaultTransition}
+                  <Card
+                    className={cn(cardPresetHover, 'p-0 group cursor-pointer')}
+                    onClick={() => navigate(`/contacts/${request.id}`)}
                   >
-                    <Card
-                      className={cn(glassCardHover, 'p-0 group cursor-pointer')}
-                      onClick={() => navigate(`/contacts/${request.id}`)}
-                    >
-                      <div className="p-4 md:p-6">
-                        {/* Header Row */}
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
-                          <div className="flex flex-wrap items-center gap-2">
-                            {getRequestTypeBadge(request.type)}
-                            {getStatusBadge(request)}
-                          </div>
-                          <span className="text-xs md:text-sm text-muted-foreground font-medium">
-                            {format(new Date(request.createdAt), 'dd.MM.yyyy HH:mm', {
-                              locale: de,
-                            })}
+                    <div className="p-4 md:p-6">
+                      {/* Header Row */}
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
+                        <div className="flex flex-wrap items-center gap-2">
+                          {getRequestTypeBadge(request.type)}
+                          {getStatusBadge(request)}
+                        </div>
+                        <span className="text-xs md:text-sm text-muted-foreground font-medium">
+                          {format(new Date(request.createdAt), 'dd.MM.yyyy HH:mm', {
+                            locale: de,
+                          })}
+                        </span>
+                      </div>
+
+                      {/* Message Preview */}
+                      {request.message && (
+                        <div className="mb-4">
+                          <p className="text-foreground text-sm md:text-base leading-relaxed break-words line-clamp-3">
+                            {request.message}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Footer Row */}
+                      <div className="flex items-center justify-between pt-2 border-t border-secondary">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-xs md:text-sm text-muted-foreground">
+                            {request.messages.length}{' '}
+                            {request.messages.length === 1 ? 'Nachricht' : 'Nachrichten'}
                           </span>
                         </div>
-
-                        {/* Message Preview */}
-                        {request.message && (
-                          <div className="mb-4">
-                            <p className="text-foreground text-sm md:text-base leading-relaxed break-words line-clamp-3">
-                              {request.message}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Footer Row */}
-                        <div className="flex items-center justify-between pt-2 border-t border-secondary">
-                          <div className="flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-xs md:text-sm text-muted-foreground">
-                              {request.messages.length}{' '}
-                              {request.messages.length === 1 ? 'Nachricht' : 'Nachrichten'}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                            <span className="text-sm font-medium">Details anzeigen</span>
-                            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                          </div>
+                        <div className="flex items-center gap-2 text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <span className="text-sm font-medium">Details anzeigen</span>
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </div>
-                    </Card>
-                  </motion.div>
-                ))
-              )}
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </PageTransition>
+                    </div>
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
   );
 }

@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { LocationSelector, LocationData } from '@/components/ui/LocationSelector';
 
 import { cn } from '@/lib/utils';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 
@@ -24,58 +24,52 @@ import {
   getUserFriendlyError,
 } from '@/utils/errorUtils';
 
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { ArrowLeft, AlertCircle } from 'lucide-react';
 
 function TaxiStandFormSkeleton() {
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <Card className={cn(glassCard)}>
-              <CardHeader>
-                <Skeleton className="h-10 w-44 rounded-xl mb-2" />
-                <Skeleton className="h-6 w-64 rounded" />
-              </CardHeader>
-            </Card>
-            <Card className={cn(glassCard)}>
-              <CardContent className="p-4 sm:p-6 space-y-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24 rounded" />
-                  <Skeleton className="h-10 w-full rounded-lg" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-40 rounded" />
-                  <Skeleton className="h-10 w-full rounded-lg" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32 rounded" />
-                  <Skeleton className="h-32 w-full rounded-lg" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24 rounded" />
-                  <Skeleton className="h-10 w-full rounded-lg" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32 rounded" />
-                  <Skeleton className="h-48 w-full rounded-lg" />
-                </div>
-                <div className="flex gap-4">
-                  <Skeleton className="h-10 w-32 rounded-xl" />
-                  <Skeleton className="h-10 w-32 rounded-xl" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <Card className={cn(cardPreset)}>
+            <CardHeader>
+              <Skeleton className="h-10 w-44 rounded-xl mb-2" />
+              <Skeleton className="h-6 w-64 rounded" />
+            </CardHeader>
+          </Card>
+          <Card className={cn(cardPreset)}>
+            <CardContent className="p-4 sm:p-6 space-y-6">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-40 rounded" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-32 w-full rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-48 w-full rounded-lg" />
+              </div>
+              <div className="flex gap-4">
+                <Skeleton className="h-10 w-32 rounded-xl" />
+                <Skeleton className="h-10 w-32 rounded-xl" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }
 
@@ -235,178 +229,171 @@ export function TaxiStandForm() {
   }
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <motion.div
-          className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          <div className="max-w-4xl mx-auto space-y-6">
-            {/* Header */}
-            <motion.div
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <Card className={cn(glassCard)}>
-                <CardHeader>
-                  <div className="flex flex-row items-center gap-4">
-                    <AnimatedButton
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => navigate('/taxi-stands')}
-                      className={cn(glassButton, 'rounded-full')}
-                    >
-                      <ArrowLeft className="h-5 w-5" />
-                      <span className="sr-only">Zurück</span>
-                    </AnimatedButton>
-                    <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
-                      {id ? 'Taxistandort bearbeiten' : 'Neuen Taxistandort erstellen'}
-                    </CardTitle>
-                  </div>
-                </CardHeader>
-              </Card>
-            </motion.div>
+    <div className="min-h-screen relative overflow-hidden">
+      <motion.div
+        className="relative z-10 min-h-screen bg-muted !bg-transparent px-2 sm:px-4 py-4 sm:py-6 overflow-x-hidden"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* Header */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <Card className={cn(cardPreset)}>
+              <CardHeader>
+                <div className="flex flex-row items-center gap-4">
+                  <LoadingButton
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/taxi-stands')}
+                    className={cn(buttonPreset, 'rounded-full')}
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                    <span className="sr-only">Zurück</span>
+                  </LoadingButton>
+                  <CardTitle className="text-xl sm:text-2xl font-bold text-foreground">
+                    {id ? 'Taxistandort bearbeiten' : 'Neuen Taxistandort erstellen'}
+                  </CardTitle>
+                </div>
+              </CardHeader>
+            </Card>
+          </motion.div>
 
-            {/* Form */}
-            <motion.form
-              onSubmit={handleSubmit}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={{ ...defaultTransition, delay: 0.1 }}
-            >
-              <Card className={cn(glassCard)}>
-                <CardContent className="p-4 sm:p-6 space-y-6">
-                  {/* Validierungsfehler */}
-                  {validationErrors.length > 0 && (
-                    <Alert
-                      ref={validationErrorsRef}
-                      variant="destructive"
-                      className={cn(glassCard, 'border-destructive/50')}
-                    >
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                      <AlertDescription className="mt-2">
-                        <ul className="list-disc list-inside space-y-1">
-                          {validationErrors.map((error, index) => (
-                            <li key={index}>{error}</li>
-                          ))}
-                        </ul>
-                      </AlertDescription>
-                    </Alert>
-                  )}
+          {/* Form */}
+          <motion.form
+            onSubmit={handleSubmit}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.1 }}
+          >
+            <Card className={cn(cardPreset)}>
+              <CardContent className="p-4 sm:p-6 space-y-6">
+                {/* Validierungsfehler */}
+                {validationErrors.length > 0 && (
+                  <Alert
+                    ref={validationErrorsRef}
+                    variant="destructive"
+                    className={cn(cardPreset, 'border-destructive/50')}
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                    <AlertDescription className="mt-2">
+                      <ul className="list-disc list-inside space-y-1">
+                        {validationErrors.map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-                  {/* Telefonnummer */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phoneNumber" className="text-foreground">
-                      Telefonnummer *
-                    </Label>
-                    <Input
-                      id="phoneNumber"
-                      type="tel"
-                      value={formData.phoneNumber}
-                      onChange={e =>
-                        setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))
-                      }
-                      placeholder="z.B. +49 911 19410"
-                      className={cn(glassInput)}
-                      required
-                    />
-                  </div>
+                {/* Telefonnummer */}
+                <div className="space-y-2">
+                  <Label htmlFor="phoneNumber" className="text-foreground">
+                    Telefonnummer *
+                  </Label>
+                  <Input
+                    id="phoneNumber"
+                    type="tel"
+                    value={formData.phoneNumber}
+                    onChange={e => setFormData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                    placeholder="z.B. +49 911 19410"
+                    className={cn(inputPreset)}
+                    required
+                  />
+                </div>
 
-                  {/* Titel */}
-                  <div className="space-y-2">
-                    <Label htmlFor="title" className="text-foreground">
-                      Titel (optional)
-                    </Label>
-                    <Input
-                      id="title"
-                      type="text"
-                      value={formData.title}
-                      onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="z.B. Hauptbahnhof Nürnberg"
-                      className={cn(glassInput)}
-                    />
-                  </div>
+                {/* Titel */}
+                <div className="space-y-2">
+                  <Label htmlFor="title" className="text-foreground">
+                    Titel (optional)
+                  </Label>
+                  <Input
+                    id="title"
+                    type="text"
+                    value={formData.title}
+                    onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="z.B. Hauptbahnhof Nürnberg"
+                    className={cn(inputPreset)}
+                  />
+                </div>
 
-                  {/* Beschreibung */}
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-foreground">
-                      Beschreibung (optional)
-                    </Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={e =>
-                        setFormData(prev => ({ ...prev, description: e.target.value }))
-                      }
-                      placeholder="z.B. Vor dem Haupteingang"
-                      className={cn(glassInput, 'min-h-[80px]')}
-                    />
-                  </div>
+                {/* Beschreibung */}
+                <div className="space-y-2">
+                  <Label htmlFor="description" className="text-foreground">
+                    Beschreibung (optional)
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="z.B. Vor dem Haupteingang"
+                    className={cn(inputPreset, 'min-h-[80px]')}
+                  />
+                </div>
 
-                  {/* Anzahl Taxis */}
-                  <div className="space-y-2">
-                    <Label htmlFor="numberOfTaxis" className="text-foreground">
-                      Anzahl Taxis (optional)
-                    </Label>
-                    <Input
-                      id="numberOfTaxis"
-                      type="number"
-                      min="0"
-                      value={formData.numberOfTaxis}
-                      onChange={e =>
-                        setFormData(prev => ({ ...prev, numberOfTaxis: e.target.value }))
-                      }
-                      placeholder="z.B. 10"
-                      className={cn(glassInput)}
-                    />
-                  </div>
+                {/* Anzahl Taxis */}
+                <div className="space-y-2">
+                  <Label htmlFor="numberOfTaxis" className="text-foreground">
+                    Anzahl Taxis (optional)
+                  </Label>
+                  <Input
+                    id="numberOfTaxis"
+                    type="number"
+                    min="0"
+                    value={formData.numberOfTaxis}
+                    onChange={e =>
+                      setFormData(prev => ({ ...prev, numberOfTaxis: e.target.value }))
+                    }
+                    placeholder="z.B. 10"
+                    className={cn(inputPreset)}
+                  />
+                </div>
 
-                  {/* Standort */}
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Standort *</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Wähle einen Partner-Standort aus oder suche nach einer Adresse.
-                    </p>
-                    <LocationSelector
-                      value={locationData}
-                      onChange={setLocationData}
-                      defaultTab="search"
-                    />
-                  </div>
+                {/* Standort */}
+                <div className="space-y-2">
+                  <Label className="text-foreground">Standort *</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Wähle einen Partner-Standort aus oder suche nach einer Adresse.
+                  </p>
+                  <LocationSelector
+                    value={locationData}
+                    onChange={setLocationData}
+                    defaultTab="search"
+                  />
+                </div>
 
-                  {/* Submit Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <LoadingButton
-                      type="submit"
-                      disabled={isSaving}
-                      isLoading={isSaving}
-                      loadingText={id ? 'Wird aktualisiert...' : 'Wird erstellt...'}
-                      className="flex-1"
-                    >
-                      {id ? 'Taxistandort aktualisieren' : 'Taxistandort erstellen'}
-                    </LoadingButton>
-                    <AnimatedButton
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate('/taxi-stands')}
-                      className={cn(glassButton, 'flex-1')}
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.form>
-          </div>
-        </motion.div>
-      </div>
-    </PageTransition>
+                {/* Submit Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <LoadingButton
+                    type="submit"
+                    disabled={isSaving}
+                    isLoading={isSaving}
+                    loadingText={id ? 'Wird aktualisiert...' : 'Wird erstellt...'}
+                    className="flex-1"
+                  >
+                    {id ? 'Taxistandort aktualisieren' : 'Taxistandort erstellen'}
+                  </LoadingButton>
+                  <LoadingButton
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate('/taxi-stands')}
+                    className={cn(buttonPreset, 'flex-1')}
+                  >
+                    Abbrechen
+                  </LoadingButton>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.form>
+        </div>
+      </motion.div>
+    </div>
   );
 }

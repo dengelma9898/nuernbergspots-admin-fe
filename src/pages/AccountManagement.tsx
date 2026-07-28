@@ -20,14 +20,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassCardHover, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, cardPresetHover, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 // Skeleton Components
@@ -50,7 +47,7 @@ const AccountManagementSkeleton = () => (
       {/* Stats Grid Skeleton */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
         {/* Stats Card 1 */}
-        <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+        <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
           <Skeleton className="h-6 w-6 sm:h-8 sm:w-8 rounded" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-12 rounded" />
@@ -59,7 +56,7 @@ const AccountManagementSkeleton = () => (
         </Card>
 
         {/* Stats Card 2 */}
-        <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+        <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
           <Skeleton className="h-6 w-6 sm:h-8 sm:w-8 rounded" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-24 rounded" />
@@ -68,7 +65,7 @@ const AccountManagementSkeleton = () => (
         </Card>
 
         {/* Stats Card 3 */}
-        <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+        <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
           <Skeleton className="h-6 w-6 sm:h-8 sm:w-8 rounded" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-32 rounded" />
@@ -137,15 +134,15 @@ export function AccountManagement() {
         animate="animate"
         transition={defaultTransition}
       >
-        <AnimatedButton
+        <LoadingButton
           variant="ghost"
           size="icon"
           onClick={() => navigate('/dashboard')}
-          className={cn(glassButton, 'rounded-full')}
+          className={cn(buttonPreset, 'rounded-full')}
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Zurück zum Dashboard</span>
-        </AnimatedButton>
+        </LoadingButton>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
           Account-Management
         </h1>
@@ -175,7 +172,7 @@ export function AccountManagement() {
               animate="animate"
             >
               <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCardHover, 'p-4 sm:p-6')}>
+                <Card className={cn(cardPresetHover, 'p-4 sm:p-6')}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Users className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
@@ -188,7 +185,7 @@ export function AccountManagement() {
                 </Card>
               </motion.div>
               <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCardHover, 'p-4 sm:p-6')}>
+                <Card className={cn(cardPresetHover, 'p-4 sm:p-6')}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
@@ -203,7 +200,7 @@ export function AccountManagement() {
                 </Card>
               </motion.div>
               <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCardHover, 'p-4 sm:p-6')}>
+                <Card className={cn(cardPresetHover, 'p-4 sm:p-6')}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
                     <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-foreground" />
                     <div>
@@ -239,7 +236,7 @@ export function AccountManagement() {
                   )}
                 </LoadingButton>
               </AlertDialogTrigger>
-              <AlertDialogContent className={cn(glassCard)}>
+              <AlertDialogContent className={cn(cardPreset)}>
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-foreground">
                     Anonyme Accounts bereinigen
@@ -250,7 +247,7 @@ export function AccountManagement() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className={cn(glassButton)}>Abbrechen</AlertDialogCancel>
+                  <AlertDialogCancel className={cn(buttonPreset)}>Abbrechen</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleCleanup}
                     className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
@@ -272,21 +269,11 @@ export function AccountManagement() {
 
   if (isLoading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <AccountManagementSkeleton />
-        </div>
-      </PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <AccountManagementSkeleton />
+      </div>
     );
   }
 
-  return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {pageContent}
-      </div>
-    </PageTransition>
-  );
+  return <div className="min-h-screen relative overflow-hidden">{pageContent}</div>;
 }

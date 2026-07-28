@@ -27,14 +27,11 @@ import { useJobCategoryService } from '@/services/jobCategoryService';
 import { JobCategory } from '@/models/job-category';
 import { getIconComponent } from '@/utils/iconUtils';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -54,188 +51,185 @@ function BrandIcon({ path, className }: { path: string; className?: string }) {
 
 function JobOfferFormSkeleton() {
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-          {/* Glass Header Skeleton */}
-          <Card className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-10 w-44 rounded-xl" />
-                <Skeleton className="h-8 w-64 rounded" />
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+        {/* Glass Header Skeleton */}
+        <Card className={cn(cardPreset, 'p-4 sm:p-6 mb-6 sm:mb-8')}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-10 w-44 rounded-xl" />
+              <Skeleton className="h-8 w-64 rounded" />
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+          {/* Allgemeine Informationen Card Skeleton */}
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <div className="p-4 sm:p-6 border-b border-secondary">
+              <Skeleton className="h-6 w-48 rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Title field */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
+              </div>
+
+              {/* Highlight toggle */}
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-10 rounded-full" />
+                <Skeleton className="h-4 w-40 rounded" />
+              </div>
+
+              {/* Company logo */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <Skeleton className="h-32 w-full rounded-lg" />
+              </div>
+
+              {/* Description fields */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-36 rounded" />
+                <Skeleton className="h-24 w-full rounded" />
+              </div>
+
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-24 w-full rounded" />
+              </div>
+
+              {/* Tasks list */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 rounded" />
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Skeleton className="h-10 flex-1 rounded" />
+                    <Skeleton className="h-10 w-10 rounded" />
+                  </div>
+                ))}
+                <Skeleton className="h-10 w-40 rounded" />
+              </div>
+
+              {/* Benefits list */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 rounded" />
+                {Array.from({ length: 3 }).map((_, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Skeleton className="h-10 flex-1 rounded" />
+                    <Skeleton className="h-10 w-10 rounded" />
+                  </div>
+                ))}
+                <Skeleton className="h-10 w-36 rounded" />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
               </div>
             </div>
           </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {/* Allgemeine Informationen Card Skeleton */}
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <div className="p-4 sm:p-6 border-b border-secondary">
-                <Skeleton className="h-6 w-48 rounded" />
+          {/* Details Card Skeleton */}
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <div className="p-4 sm:p-6 border-b border-secondary">
+              <Skeleton className="h-6 w-16 rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {/* Location */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
               </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {/* Title field */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-12 rounded" />
-                  <Skeleton className="h-10 w-full rounded" />
-                </div>
 
-                {/* Highlight toggle */}
-                <div className="flex items-center space-x-2">
-                  <Skeleton className="h-6 w-10 rounded-full" />
-                  <Skeleton className="h-4 w-40 rounded" />
-                </div>
+              {/* Employment type */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
+              </div>
 
-                {/* Company logo */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-24 rounded" />
-                  <Skeleton className="h-32 w-full rounded-lg" />
-                </div>
+              {/* Additional notes */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-56 rounded" />
+                <Skeleton className="h-24 w-full rounded" />
+              </div>
 
-                {/* Description fields */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-36 rounded" />
-                  <Skeleton className="h-24 w-full rounded" />
-                </div>
+              {/* Home office toggle */}
+              <div className="flex items-center space-x-2">
+                <Skeleton className="h-6 w-10 rounded-full" />
+                <Skeleton className="h-4 w-36 rounded" />
+              </div>
 
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32 rounded" />
-                  <Skeleton className="h-24 w-full rounded" />
-                </div>
+              {/* Wage */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-12 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
+              </div>
 
-                {/* Tasks list */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-16 rounded" />
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Skeleton className="h-10 flex-1 rounded" />
-                      <Skeleton className="h-10 w-10 rounded" />
-                    </div>
-                  ))}
-                  <Skeleton className="h-10 w-40 rounded" />
-                </div>
+              {/* Start date */}
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20 rounded" />
+                <Skeleton className="h-10 w-full rounded" />
+              </div>
+            </div>
+          </Card>
 
-                {/* Benefits list */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-16 rounded" />
-                  {Array.from({ length: 3 }).map((_, index) => (
-                    <div key={index} className="flex gap-2">
-                      <Skeleton className="h-10 flex-1 rounded" />
-                      <Skeleton className="h-10 w-10 rounded" />
-                    </div>
-                  ))}
-                  <Skeleton className="h-10 w-36 rounded" />
-                </div>
-
-                {/* Category */}
-                <div className="space-y-2">
+          {/* Contact Card Skeleton */}
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <div className="p-4 sm:p-6 border-b border-secondary">
+              <Skeleton className="h-6 w-24 rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
                   <Skeleton className="h-4 w-20 rounded" />
                   <Skeleton className="h-10 w-full rounded" />
                 </div>
-              </div>
-            </Card>
+              ))}
+            </div>
+          </Card>
 
-            {/* Details Card Skeleton */}
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <div className="p-4 sm:p-6 border-b border-secondary">
-                <Skeleton className="h-6 w-16 rounded" />
-              </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {/* Location */}
-                <div className="space-y-2">
+          {/* Social Media Card Skeleton */}
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <div className="p-4 sm:p-6 border-b border-secondary">
+              <Skeleton className="h-6 w-28 rounded" />
+            </div>
+            <div className="p-4 sm:p-6 space-y-4">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-2">
                   <Skeleton className="h-4 w-16 rounded" />
-                  <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-
-                {/* Employment type */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-32 bg-white/10 backdrop-blur-xl rounded" />
-                  <Skeleton className="h-10 w-full bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-
-                {/* Additional notes */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-56 bg-white/10 backdrop-blur-xl rounded" />
-                  <Skeleton className="h-24 w-full bg-white/10 backdrop-blur-xl rounded" />
-                </div>
-
-                {/* Home office toggle */}
-                <div className="flex items-center space-x-2">
-                  <Skeleton className="h-6 w-10 rounded-full" />
-                  <Skeleton className="h-4 w-36 rounded" />
-                </div>
-
-                {/* Wage */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-12 rounded" />
-                  <Skeleton className="h-10 w-full rounded" />
-                </div>
-
-                {/* Start date */}
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-20 rounded" />
-                  <Skeleton className="h-10 w-full rounded" />
-                </div>
-              </div>
-            </Card>
-
-            {/* Contact Card Skeleton */}
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <div className="p-4 sm:p-6 border-b border-secondary">
-                <Skeleton className="h-6 w-24 rounded" />
-              </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="space-y-2">
-                    <Skeleton className="h-4 w-20 rounded" />
-                    <Skeleton className="h-10 w-full rounded" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-4 w-4 mt-2 rounded" />
+                    <Skeleton className="h-10 flex-1 rounded" />
                   </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Images Card Skeleton */}
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <div className="p-4 sm:p-6 border-b border-secondary">
+              <Skeleton className="h-6 w-12 rounded" />
+            </div>
+            <div className="p-4 sm:p-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Skeleton key={index} className="h-32 w-full rounded-lg" />
                 ))}
               </div>
-            </Card>
+            </div>
+          </Card>
+        </div>
 
-            {/* Social Media Card Skeleton */}
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <div className="p-4 sm:p-6 border-b border-secondary">
-                <Skeleton className="h-6 w-28 rounded" />
-              </div>
-              <div className="p-4 sm:p-6 space-y-4">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="space-y-2">
-                    <Skeleton className="h-4 w-16 rounded" />
-                    <div className="flex gap-2">
-                      <Skeleton className="h-4 w-4 mt-2 rounded" />
-                      <Skeleton className="h-10 flex-1 rounded" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-
-            {/* Images Card Skeleton */}
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <div className="p-4 sm:p-6 border-b border-secondary">
-                <Skeleton className="h-6 w-12 rounded" />
-              </div>
-              <div className="p-4 sm:p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-32 w-full rounded-lg" />
-                  ))}
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Action Buttons Skeleton */}
-          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
-            <Skeleton className="h-10 w-24 rounded" />
-            <Skeleton className="h-10 w-28 rounded" />
-          </div>
+        {/* Action Buttons Skeleton */}
+        <div className="mt-6 flex flex-col sm:flex-row justify-end gap-4">
+          <Skeleton className="h-10 w-24 rounded" />
+          <Skeleton className="h-10 w-28 rounded" />
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }
 
@@ -497,634 +491,104 @@ export function JobOfferForm() {
   }
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
-          {/* Glass Header */}
-          <motion.div
-            className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex items-center gap-3">
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/job-offers')}
-                  className={cn(glassButton, 'rounded-full')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zur Übersicht</span>
-                </AnimatedButton>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                  {id ? 'Stellenangebot bearbeiten' : 'Neues Stellenangebot'}
-                </h1>
-              </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 min-h-screen bg-muted !bg-transparent px-4 py-6 sm:px-8">
+        {/* Glass Header */}
+        <motion.div
+          className={cn(cardPreset, 'p-4 sm:p-6 mb-6 sm:mb-8')}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-center gap-3">
+              <LoadingButton
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/job-offers')}
+                className={cn(buttonPreset, 'rounded-full')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
+              </LoadingButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                {id ? 'Stellenangebot bearbeiten' : 'Neues Stellenangebot'}
+              </h1>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          <motion.form
-            onSubmit={handleSubmit}
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-              {/* Allgemeine Informationen Card */}
-              <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCard, 'overflow-hidden')}>
-                  <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">Allgemeine Informationen</h2>
+        <motion.form
+          onSubmit={handleSubmit}
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {/* Allgemeine Informationen Card */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(cardPreset, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <h2 className="text-xl font-bold text-foreground">Allgemeine Informationen</h2>
+                </div>
+                <div className="p-4 sm:p-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="title" className="text-foreground">
+                      Titel
+                    </Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                      required
+                      className={cn(inputPreset)}
+                    />
                   </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title" className="text-foreground">
-                        Titel
-                      </Label>
-                      <Input
-                        id="title"
-                        value={formData.title}
-                        onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="isHighlight"
-                        checked={formData.isHighlight}
-                        onCheckedChange={checked =>
-                          setFormData(prev => ({ ...prev, isHighlight: checked }))
-                        }
-                      />
-                      <Label htmlFor="isHighlight" className="text-foreground">
-                        Als Highlight markieren
-                      </Label>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Firmenlogo</Label>
-                      <div className="grid grid-cols-1 gap-4">
-                        {companyLogoPreview ? (
-                          <div className="relative group">
-                            <img
-                              src={companyLogoPreview}
-                              alt="Firmenlogo Vorschau"
-                              className={cn(glassCard, 'w-full h-32 object-contain p-4')}
-                            />
-                            <AnimatedButton
-                              type="button"
-                              size="icon"
-                              onClick={removeCompanyLogo}
-                              className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            >
-                              <X className="h-4 w-4" />
-                            </AnimatedButton>
-                          </div>
-                        ) : (
-                          <label
-                            className={cn(
-                              glassCard,
-                              'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300'
-                            )}
-                          >
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleCompanyLogoSelect}
-                              className="hidden"
-                            />
-                            <ImagePlus className="h-6 w-6 text-muted-foreground" />
-                          </label>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="generalDescription" className="text-foreground">
-                        Allgemeine Beschreibung
-                      </Label>
-                      <Textarea
-                        id="generalDescription"
-                        value={formData.generalDescription}
-                        onChange={e =>
-                          setFormData(prev => ({ ...prev, generalDescription: e.target.value }))
-                        }
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="neededProfile" className="text-foreground">
-                        Benötigtes Profil
-                      </Label>
-                      <Textarea
-                        id="neededProfile"
-                        value={formData.neededProfile}
-                        onChange={e =>
-                          setFormData(prev => ({ ...prev, neededProfile: e.target.value }))
-                        }
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Aufgaben</Label>
-                      {formData.tasks.map((task, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={task}
-                            onChange={e => updateArrayItem('tasks', index, e.target.value)}
-                            required
-                            className={cn(glassInput)}
-                          />
-                          <AnimatedButton
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeArrayItem('tasks', index)}
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </AnimatedButton>
-                        </div>
-                      ))}
-                      <AnimatedButton
-                        type="button"
-                        variant="outline"
-                        onClick={() => addArrayItem('tasks')}
-                        className={cn(glassButton)}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Aufgabe hinzufügen
-                      </AnimatedButton>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Vorteile</Label>
-                      {formData.benefits.map((benefit, index) => (
-                        <div key={index} className="flex gap-2">
-                          <Input
-                            value={benefit}
-                            onChange={e => updateArrayItem('benefits', index, e.target.value)}
-                            required
-                            className={cn(glassInput)}
-                          />
-                          <AnimatedButton
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeArrayItem('benefits', index)}
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </AnimatedButton>
-                        </div>
-                      ))}
-                      <AnimatedButton
-                        type="button"
-                        variant="outline"
-                        onClick={() => addArrayItem('benefits')}
-                        className={cn(glassButton)}
-                      >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Vorteil hinzufügen
-                      </AnimatedButton>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="jobOfferCategoryId" className="text-foreground">
-                        Kategorie
-                      </Label>
-                      <Select
-                        value={formData.jobOfferCategoryId}
-                        onValueChange={value =>
-                          setFormData(prev => ({ ...prev, jobOfferCategoryId: value }))
-                        }
-                        required
-                      >
-                        <SelectTrigger className={cn(glassInput)}>
-                          <SelectValue placeholder="Kategorie auswählen" />
-                        </SelectTrigger>
-                        <SelectContent className={cn(glassCard)}>
-                          {categories.map(cat => (
-                            <SelectItem key={cat.id} value={cat.id} className="cursor-pointer">
-                              <span className="flex items-center gap-2">
-                                {getIconComponent?.(cat.iconName)}
-                                {cat.name}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isHighlight"
+                      checked={formData.isHighlight}
+                      onCheckedChange={checked =>
+                        setFormData(prev => ({ ...prev, isHighlight: checked }))
+                      }
+                    />
+                    <Label htmlFor="isHighlight" className="text-foreground">
+                      Als Highlight markieren
+                    </Label>
                   </div>
-                </Card>
-              </motion.div>
 
-              {/* Details Card */}
-              <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCard, 'overflow-hidden')}>
-                  <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">Details</h2>
-                  </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-foreground">Adresse</Label>
-                      <LocationSearch
-                        value={searchValue}
-                        onChange={handleLocationSelect}
-                        placeholder="Adresse suchen..."
-                        debounce={1000}
-                      />
-                      {formData.location.address && (
-                        <div className="text-sm text-muted-foreground">
-                          Ausgewählte Adresse: {formData.location.address}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="typeOfEmployment" className="text-foreground">
-                        Beschäftigungsart
-                      </Label>
-                      <Select
-                        value={formData.typeOfEmployment}
-                        onValueChange={value =>
-                          setFormData(prev => ({ ...prev, typeOfEmployment: value }))
-                        }
-                      >
-                        <SelectTrigger className={cn(glassInput)}>
-                          <SelectValue placeholder="Beschäftigungsart auswählen" />
-                        </SelectTrigger>
-                        <SelectContent className={cn(glassCard)}>
-                          <SelectItem value="Vollzeit" className="cursor-pointer">
-                            Vollzeit
-                          </SelectItem>
-                          <SelectItem value="Teilzeit" className="cursor-pointer">
-                            Teilzeit
-                          </SelectItem>
-                          <SelectItem value="Ausbildung" className="cursor-pointer">
-                            Ausbildung
-                          </SelectItem>
-                          <SelectItem value="Praktikum" className="cursor-pointer">
-                            Praktikum
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="additionalNotesForTypeOfEmployment"
-                        className="text-foreground"
-                      >
-                        Zusätzliche Notizen zur Beschäftigungsart
-                      </Label>
-                      <Textarea
-                        id="additionalNotesForTypeOfEmployment"
-                        value={formData.additionalNotesForTypeOfEmployment || ''}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            additionalNotesForTypeOfEmployment: e.target.value || null,
-                          }))
-                        }
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        id="homeOffice"
-                        checked={formData.homeOffice}
-                        onCheckedChange={checked =>
-                          setFormData(prev => ({ ...prev, homeOffice: checked }))
-                        }
-                      />
-                      <Label htmlFor="homeOffice" className="text-foreground">
-                        Home Office möglich
-                      </Label>
-                    </div>
-
-                    {formData.homeOffice && (
-                      <div className="space-y-2">
-                        <Label htmlFor="additionalNotesHomeOffice" className="text-foreground">
-                          Zusätzliche Notizen zum Home Office
-                        </Label>
-                        <Textarea
-                          id="additionalNotesHomeOffice"
-                          value={formData.additionalNotesHomeOffice || ''}
-                          onChange={e =>
-                            setFormData(prev => ({
-                              ...prev,
-                              additionalNotesHomeOffice: e.target.value || null,
-                            }))
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label htmlFor="wage" className="text-foreground">
-                        Gehalt
-                      </Label>
-                      <Input
-                        id="wage"
-                        value={formData.wage || ''}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            wage: e.target.value || null,
-                          }))
-                        }
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="startDate" className="text-foreground">
-                        Startdatum
-                      </Label>
-                      <Input
-                        id="startDate"
-                        type="date"
-                        value={formData.startDate}
-                        onChange={e =>
-                          setFormData(prev => ({ ...prev, startDate: e.target.value }))
-                        }
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Kontaktdaten Card */}
-              <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCard, 'overflow-hidden')}>
-                  <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">Kontaktdaten</h2>
-                  </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="contactPerson" className="text-foreground">
-                        Kontaktperson
-                      </Label>
-                      <Input
-                        id="contactPerson"
-                        value={formData.contactData.person}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            contactData: { ...prev.contactData, person: e.target.value },
-                          }))
-                        }
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="contactEmail" className="text-foreground">
-                        E-Mail
-                      </Label>
-                      <Input
-                        id="contactEmail"
-                        type="email"
-                        value={formData.contactData.email}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            contactData: { ...prev.contactData, email: e.target.value },
-                          }))
-                        }
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="contactPhone" className="text-foreground">
-                        Telefon
-                      </Label>
-                      <Input
-                        id="contactPhone"
-                        value={formData.contactData.phone}
-                        onChange={e =>
-                          setFormData(prev => ({
-                            ...prev,
-                            contactData: { ...prev.contactData, phone: e.target.value },
-                          }))
-                        }
-                        className={cn(glassInput)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="link" className="text-foreground">
-                        Bewerbungslink
-                      </Label>
-                      <Input
-                        id="link"
-                        type="url"
-                        value={formData.link}
-                        onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
-                        required
-                        className={cn(glassInput)}
-                      />
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Social Media Card */}
-              <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCard, 'overflow-hidden')}>
-                  <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">Social Media</h2>
-                  </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="linkedin" className="text-foreground">
-                        LinkedIn
-                      </Label>
-                      <div className="flex gap-2">
-                        <LinkIcon className="h-4 w-4 mt-2 shrink-0 text-muted-foreground" />
-                        <Input
-                          id="linkedin"
-                          type="url"
-                          value={formData.socialMedia?.linkedin || ''}
-                          onChange={e =>
-                            setFormData(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                linkedin: e.target.value || null,
-                              },
-                            }))
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="xing" className="text-foreground">
-                        Xing
-                      </Label>
-                      <div className="flex gap-2">
-                        <LinkIcon className="h-4 w-4 mt-2 text-muted-foreground" />
-                        <Input
-                          id="xing"
-                          type="url"
-                          value={formData.socialMedia?.xing || ''}
-                          onChange={e =>
-                            setFormData(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                xing: e.target.value || null,
-                              },
-                            }))
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="instagram" className="text-foreground">
-                        Instagram
-                      </Label>
-                      <div className="flex gap-2">
-                        <BrandIcon path={siInstagram.path} className="mt-2 text-muted-foreground" />
-                        <Input
-                          id="instagram"
-                          type="url"
-                          value={formData.socialMedia?.instagram || ''}
-                          onChange={e =>
-                            setFormData(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                instagram: e.target.value || null,
-                              },
-                            }))
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="facebook" className="text-foreground">
-                        Facebook
-                      </Label>
-                      <div className="flex gap-2">
-                        <BrandIcon path={siFacebook.path} className="mt-2 text-muted-foreground" />
-                        <Input
-                          id="facebook"
-                          type="url"
-                          value={formData.socialMedia?.facebook || ''}
-                          onChange={e =>
-                            setFormData(prev => ({
-                              ...prev,
-                              socialMedia: {
-                                ...prev.socialMedia,
-                                facebook: e.target.value || null,
-                              },
-                            }))
-                          }
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Bilder Card */}
-              <motion.div variants={fadeInUp}>
-                <Card className={cn(glassCard, 'overflow-hidden')}>
-                  <div className="p-4 sm:p-6 border-b border-secondary">
-                    <h2 className="text-xl font-bold text-foreground">Bilder</h2>
-                  </div>
-                  <div className="p-4 sm:p-6 space-y-4">
-                    {imageUpload.error && (
-                      <Alert
-                        variant="destructive"
-                        className={cn(glassCard, 'border-destructive/50')}
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>{imageUpload.error.title}</AlertTitle>
-                        <AlertDescription className="mt-2">
-                          <p>{imageUpload.error.message}</p>
-                          {imageUpload.error.actionHint && (
-                            <p className="mt-2 text-sm opacity-90">
-                              {imageUpload.error.actionHint}
-                            </p>
-                          )}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {/* Bestehende Bilder */}
-                      {existingImageUrls.map((url, index) => (
-                        <div key={`existing-${index}`} className="relative group">
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Firmenlogo</Label>
+                    <div className="grid grid-cols-1 gap-4">
+                      {companyLogoPreview ? (
+                        <div className="relative group">
                           <img
-                            src={url}
-                            alt={`Bild ${index + 1}`}
-                            className={cn(glassCard, 'w-full h-32 object-cover')}
+                            src={companyLogoPreview}
+                            alt="Firmenlogo Vorschau"
+                            className={cn(cardPreset, 'w-full h-32 object-contain p-4')}
                           />
-                          <button
+                          <LoadingButton
                             type="button"
-                            onClick={() => removeImage(index, true)}
+                            size="icon"
+                            onClick={removeCompanyLogo}
                             className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            aria-label="Bild entfernen"
                           >
                             <X className="h-4 w-4" />
-                          </button>
+                          </LoadingButton>
                         </div>
-                      ))}
-                      {/* Neue Bilder */}
-                      {imageUpload.previewUrls.map((url, index) => (
-                        <div key={`new-${index}`} className="relative group">
-                          <img
-                            src={url}
-                            alt={`Preview ${index + 1}`}
-                            className={cn(glassCard, 'w-full h-32 object-cover')}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index, false)}
-                            className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
-                            aria-label="Bild entfernen"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                      {existingImageUrls.length + imageUpload.previewUrls.length < 10 && (
+                      ) : (
                         <label
                           className={cn(
-                            glassCard,
+                            cardPreset,
                             'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300'
                           )}
                         >
                           <input
                             type="file"
                             accept="image/*"
-                            multiple
-                            onChange={handleImageSelect}
+                            onChange={handleCompanyLogoSelect}
                             className="hidden"
                           />
                           <ImagePlus className="h-6 w-6 text-muted-foreground" />
@@ -1132,43 +596,563 @@ export function JobOfferForm() {
                       )}
                     </div>
                   </div>
-                </Card>
-              </motion.div>
-            </div>
 
-            {/* Action Buttons */}
-            <motion.div
-              className="mt-6 flex flex-row items-center justify-end gap-4"
-              variants={fadeInUp}
-            >
-              <AnimatedButton
-                type="button"
-                variant="ghost"
-                onClick={() => navigate('/job-offers')}
-                disabled={isSaving}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
-              >
-                Abbrechen
-              </AnimatedButton>
-              <LoadingButton
-                type="submit"
-                variant="outline"
-                disabled={isSaving}
-                className={cn(glassButton, 'flex items-center')}
-              >
-                {isSaving ? (
-                  <>{id ? 'Wird gespeichert...' : 'Wird erstellt...'}</>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4" />
-                    {id ? 'Speichern' : 'Erstellen'}
-                  </>
-                )}
-              </LoadingButton>
+                  <div className="space-y-2">
+                    <Label htmlFor="generalDescription" className="text-foreground">
+                      Allgemeine Beschreibung
+                    </Label>
+                    <Textarea
+                      id="generalDescription"
+                      value={formData.generalDescription}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, generalDescription: e.target.value }))
+                      }
+                      required
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="neededProfile" className="text-foreground">
+                      Benötigtes Profil
+                    </Label>
+                    <Textarea
+                      id="neededProfile"
+                      value={formData.neededProfile}
+                      onChange={e =>
+                        setFormData(prev => ({ ...prev, neededProfile: e.target.value }))
+                      }
+                      required
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Aufgaben</Label>
+                    {formData.tasks.map((task, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={task}
+                          onChange={e => updateArrayItem('tasks', index, e.target.value)}
+                          required
+                          className={cn(inputPreset)}
+                        />
+                        <LoadingButton
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeArrayItem('tasks', index)}
+                          className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </LoadingButton>
+                      </div>
+                    ))}
+                    <LoadingButton
+                      type="button"
+                      variant="outline"
+                      onClick={() => addArrayItem('tasks')}
+                      className={cn(buttonPreset)}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Aufgabe hinzufügen
+                    </LoadingButton>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Vorteile</Label>
+                    {formData.benefits.map((benefit, index) => (
+                      <div key={index} className="flex gap-2">
+                        <Input
+                          value={benefit}
+                          onChange={e => updateArrayItem('benefits', index, e.target.value)}
+                          required
+                          className={cn(inputPreset)}
+                        />
+                        <LoadingButton
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeArrayItem('benefits', index)}
+                          className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </LoadingButton>
+                      </div>
+                    ))}
+                    <LoadingButton
+                      type="button"
+                      variant="outline"
+                      onClick={() => addArrayItem('benefits')}
+                      className={cn(buttonPreset)}
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Vorteil hinzufügen
+                    </LoadingButton>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="jobOfferCategoryId" className="text-foreground">
+                      Kategorie
+                    </Label>
+                    <Select
+                      value={formData.jobOfferCategoryId}
+                      onValueChange={value =>
+                        setFormData(prev => ({ ...prev, jobOfferCategoryId: value }))
+                      }
+                      required
+                    >
+                      <SelectTrigger className={cn(inputPreset)}>
+                        <SelectValue placeholder="Kategorie auswählen" />
+                      </SelectTrigger>
+                      <SelectContent className={cn(cardPreset)}>
+                        {categories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id} className="cursor-pointer">
+                            <span className="flex items-center gap-2">
+                              {getIconComponent?.(cat.iconName)}
+                              {cat.name}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </Card>
             </motion.div>
-          </motion.form>
-        </div>
+
+            {/* Details Card */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(cardPreset, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <h2 className="text-xl font-bold text-foreground">Details</h2>
+                </div>
+                <div className="p-4 sm:p-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-foreground">Adresse</Label>
+                    <LocationSearch
+                      value={searchValue}
+                      onChange={handleLocationSelect}
+                      placeholder="Adresse suchen..."
+                      debounce={1000}
+                    />
+                    {formData.location.address && (
+                      <div className="text-sm text-muted-foreground">
+                        Ausgewählte Adresse: {formData.location.address}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="typeOfEmployment" className="text-foreground">
+                      Beschäftigungsart
+                    </Label>
+                    <Select
+                      value={formData.typeOfEmployment}
+                      onValueChange={value =>
+                        setFormData(prev => ({ ...prev, typeOfEmployment: value }))
+                      }
+                    >
+                      <SelectTrigger className={cn(inputPreset)}>
+                        <SelectValue placeholder="Beschäftigungsart auswählen" />
+                      </SelectTrigger>
+                      <SelectContent className={cn(cardPreset)}>
+                        <SelectItem value="Vollzeit" className="cursor-pointer">
+                          Vollzeit
+                        </SelectItem>
+                        <SelectItem value="Teilzeit" className="cursor-pointer">
+                          Teilzeit
+                        </SelectItem>
+                        <SelectItem value="Ausbildung" className="cursor-pointer">
+                          Ausbildung
+                        </SelectItem>
+                        <SelectItem value="Praktikum" className="cursor-pointer">
+                          Praktikum
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="additionalNotesForTypeOfEmployment" className="text-foreground">
+                      Zusätzliche Notizen zur Beschäftigungsart
+                    </Label>
+                    <Textarea
+                      id="additionalNotesForTypeOfEmployment"
+                      value={formData.additionalNotesForTypeOfEmployment || ''}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          additionalNotesForTypeOfEmployment: e.target.value || null,
+                        }))
+                      }
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="homeOffice"
+                      checked={formData.homeOffice}
+                      onCheckedChange={checked =>
+                        setFormData(prev => ({ ...prev, homeOffice: checked }))
+                      }
+                    />
+                    <Label htmlFor="homeOffice" className="text-foreground">
+                      Home Office möglich
+                    </Label>
+                  </div>
+
+                  {formData.homeOffice && (
+                    <div className="space-y-2">
+                      <Label htmlFor="additionalNotesHomeOffice" className="text-foreground">
+                        Zusätzliche Notizen zum Home Office
+                      </Label>
+                      <Textarea
+                        id="additionalNotesHomeOffice"
+                        value={formData.additionalNotesHomeOffice || ''}
+                        onChange={e =>
+                          setFormData(prev => ({
+                            ...prev,
+                            additionalNotesHomeOffice: e.target.value || null,
+                          }))
+                        }
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="wage" className="text-foreground">
+                      Gehalt
+                    </Label>
+                    <Input
+                      id="wage"
+                      value={formData.wage || ''}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          wage: e.target.value || null,
+                        }))
+                      }
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate" className="text-foreground">
+                      Startdatum
+                    </Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate}
+                      onChange={e => setFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                      required
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Kontaktdaten Card */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(cardPreset, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <h2 className="text-xl font-bold text-foreground">Kontaktdaten</h2>
+                </div>
+                <div className="p-4 sm:p-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="contactPerson" className="text-foreground">
+                      Kontaktperson
+                    </Label>
+                    <Input
+                      id="contactPerson"
+                      value={formData.contactData.person}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          contactData: { ...prev.contactData, person: e.target.value },
+                        }))
+                      }
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="contactEmail" className="text-foreground">
+                      E-Mail
+                    </Label>
+                    <Input
+                      id="contactEmail"
+                      type="email"
+                      value={formData.contactData.email}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          contactData: { ...prev.contactData, email: e.target.value },
+                        }))
+                      }
+                      required
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="contactPhone" className="text-foreground">
+                      Telefon
+                    </Label>
+                    <Input
+                      id="contactPhone"
+                      value={formData.contactData.phone}
+                      onChange={e =>
+                        setFormData(prev => ({
+                          ...prev,
+                          contactData: { ...prev.contactData, phone: e.target.value },
+                        }))
+                      }
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="link" className="text-foreground">
+                      Bewerbungslink
+                    </Label>
+                    <Input
+                      id="link"
+                      type="url"
+                      value={formData.link}
+                      onChange={e => setFormData(prev => ({ ...prev, link: e.target.value }))}
+                      required
+                      className={cn(inputPreset)}
+                    />
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Social Media Card */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(cardPreset, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <h2 className="text-xl font-bold text-foreground">Social Media</h2>
+                </div>
+                <div className="p-4 sm:p-6 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="linkedin" className="text-foreground">
+                      LinkedIn
+                    </Label>
+                    <div className="flex gap-2">
+                      <LinkIcon className="h-4 w-4 mt-2 shrink-0 text-muted-foreground" />
+                      <Input
+                        id="linkedin"
+                        type="url"
+                        value={formData.socialMedia?.linkedin || ''}
+                        onChange={e =>
+                          setFormData(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              linkedin: e.target.value || null,
+                            },
+                          }))
+                        }
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="xing" className="text-foreground">
+                      Xing
+                    </Label>
+                    <div className="flex gap-2">
+                      <LinkIcon className="h-4 w-4 mt-2 text-muted-foreground" />
+                      <Input
+                        id="xing"
+                        type="url"
+                        value={formData.socialMedia?.xing || ''}
+                        onChange={e =>
+                          setFormData(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              xing: e.target.value || null,
+                            },
+                          }))
+                        }
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="instagram" className="text-foreground">
+                      Instagram
+                    </Label>
+                    <div className="flex gap-2">
+                      <BrandIcon path={siInstagram.path} className="mt-2 text-muted-foreground" />
+                      <Input
+                        id="instagram"
+                        type="url"
+                        value={formData.socialMedia?.instagram || ''}
+                        onChange={e =>
+                          setFormData(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              instagram: e.target.value || null,
+                            },
+                          }))
+                        }
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="facebook" className="text-foreground">
+                      Facebook
+                    </Label>
+                    <div className="flex gap-2">
+                      <BrandIcon path={siFacebook.path} className="mt-2 text-muted-foreground" />
+                      <Input
+                        id="facebook"
+                        type="url"
+                        value={formData.socialMedia?.facebook || ''}
+                        onChange={e =>
+                          setFormData(prev => ({
+                            ...prev,
+                            socialMedia: {
+                              ...prev.socialMedia,
+                              facebook: e.target.value || null,
+                            },
+                          }))
+                        }
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+
+            {/* Bilder Card */}
+            <motion.div variants={fadeInUp}>
+              <Card className={cn(cardPreset, 'overflow-hidden')}>
+                <div className="p-4 sm:p-6 border-b border-secondary">
+                  <h2 className="text-xl font-bold text-foreground">Bilder</h2>
+                </div>
+                <div className="p-4 sm:p-6 space-y-4">
+                  {imageUpload.error && (
+                    <Alert
+                      variant="destructive"
+                      className={cn(cardPreset, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>{imageUpload.error.title}</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <p>{imageUpload.error.message}</p>
+                        {imageUpload.error.actionHint && (
+                          <p className="mt-2 text-sm opacity-90">{imageUpload.error.actionHint}</p>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {/* Bestehende Bilder */}
+                    {existingImageUrls.map((url, index) => (
+                      <div key={`existing-${index}`} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Bild ${index + 1}`}
+                          className={cn(cardPreset, 'w-full h-32 object-cover')}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index, true)}
+                          className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          aria-label="Bild entfernen"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {/* Neue Bilder */}
+                    {imageUpload.previewUrls.map((url, index) => (
+                      <div key={`new-${index}`} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className={cn(cardPreset, 'w-full h-32 object-cover')}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index, false)}
+                          className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
+                          aria-label="Bild entfernen"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
+                    {existingImageUrls.length + imageUpload.previewUrls.length < 10 && (
+                      <label
+                        className={cn(
+                          cardPreset,
+                          'flex items-center justify-center h-32 border-2 border-dashed cursor-pointer hover:border-secondary/50 transition-all duration-300'
+                        )}
+                      >
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={handleImageSelect}
+                          className="hidden"
+                        />
+                        <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                      </label>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Action Buttons */}
+          <motion.div
+            className="mt-6 flex flex-row items-center justify-end gap-4"
+            variants={fadeInUp}
+          >
+            <LoadingButton
+              type="button"
+              variant="ghost"
+              onClick={() => navigate('/job-offers')}
+              disabled={isSaving}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
+            >
+              Abbrechen
+            </LoadingButton>
+            <LoadingButton
+              type="submit"
+              variant="outline"
+              disabled={isSaving}
+              className={cn(buttonPreset, 'flex items-center')}
+            >
+              {isSaving ? (
+                <>{id ? 'Wird gespeichert...' : 'Wird erstellt...'}</>
+              ) : (
+                <>
+                  <Check className="h-4 w-4" />
+                  {id ? 'Speichern' : 'Erstellen'}
+                </>
+              )}
+            </LoadingButton>
+          </motion.div>
+        </motion.form>
       </div>
-    </PageTransition>
+    </div>
   );
 }

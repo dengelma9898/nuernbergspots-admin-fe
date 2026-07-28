@@ -494,7 +494,7 @@ describe('JobOfferForm', () => {
         expect(screen.getByText('Neues Stellenangebot')).toBeInTheDocument();
       });
 
-      // Test für glassmorphism Layout-Container
+      // Test für Layout-Container mit cardPreset
       const mainContainer = document.querySelector('.min-h-screen.relative.overflow-hidden');
       expect(mainContainer).toBeInTheDocument();
 

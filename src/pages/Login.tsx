@@ -5,14 +5,14 @@ import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from '@/components/motion';
 import { Background } from '@/components/Background';
 import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { fadeInUp, shake, fadeIn, scaleIn } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton, glassBadge } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset, badgePreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 /**
@@ -73,7 +73,7 @@ export function Login() {
           transition={defaultTransition}
         >
           <motion.div
-            className={cn(glassCard, 'overflow-hidden')}
+            className={cn(cardPreset, 'overflow-hidden')}
             variants={scaleIn}
             initial="initial"
             animate="animate"
@@ -119,7 +119,7 @@ export function Login() {
                     htmlFor="email"
                     className="text-foreground font-medium flex items-center gap-2"
                   >
-                    <div className={glassBadge}>
+                    <div className={badgePreset}>
                       <User className="h-4 w-4 text-foreground/80" />
                     </div>
                     E-Mail
@@ -138,14 +138,14 @@ export function Login() {
                         required
                         placeholder="admin@nuernbergspots.de"
                         className={cn(
-                          glassInput,
+                          inputPreset,
                           'pl-12 pr-4 py-3',
                           hasError &&
                             'border-destructive/50 focus:border-destructive/70 focus:ring-destructive/20'
                         )}
                       />
                     </motion.div>
-                    <div className={cn(glassBadge, 'absolute left-3 top-1/2 -translate-y-1/2')}>
+                    <div className={cn(badgePreset, 'absolute left-3 top-1/2 -translate-y-1/2')}>
                       <User className="h-4 w-4 text-muted-foreground" />
                     </div>
                   </motion.div>
@@ -163,7 +163,7 @@ export function Login() {
                     htmlFor="password"
                     className="text-foreground font-medium flex items-center gap-2"
                   >
-                    <div className={glassBadge}>
+                    <div className={badgePreset}>
                       <Lock className="h-4 w-4 text-foreground/80" />
                     </div>
                     Passwort
@@ -182,14 +182,14 @@ export function Login() {
                         required
                         placeholder="••••••••"
                         className={cn(
-                          glassInput,
+                          inputPreset,
                           'pl-12 pr-12 py-3',
                           hasError &&
                             'border-destructive/50 focus:border-destructive/70 focus:ring-destructive/20'
                         )}
                       />
                     </motion.div>
-                    <div className={cn(glassBadge, 'absolute left-3 top-1/2 -translate-y-1/2')}>
+                    <div className={cn(badgePreset, 'absolute left-3 top-1/2 -translate-y-1/2')}>
                       <Lock className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <motion.button
@@ -198,7 +198,10 @@ export function Login() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       transition={defaultTransition}
-                      className={cn(glassButton, 'absolute right-3 top-1/2 -translate-y-1/2 p-1.5')}
+                      className={cn(
+                        buttonPreset,
+                        'absolute right-3 top-1/2 -translate-y-1/2 p-1.5'
+                      )}
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4 text-muted-foreground" />
@@ -213,7 +216,7 @@ export function Login() {
                 <AnimatePresence>
                   {isLoading && (
                     <motion.div
-                      className={cn(glassCard, 'p-4')}
+                      className={cn(cardPreset, 'p-4')}
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
@@ -236,11 +239,11 @@ export function Login() {
                   animate="animate"
                   transition={{ ...defaultTransition, delay: 0.5 }}
                 >
-                  <AnimatedButton
+                  <LoadingButton
                     type="submit"
                     disabled={isLoading}
                     className={cn(
-                      glassButton,
+                      buttonPreset,
                       'w-full py-3 font-medium text-base disabled:opacity-50'
                     )}
                   >
@@ -252,7 +255,7 @@ export function Login() {
                     ) : (
                       'Anmelden'
                     )}
-                  </AnimatedButton>
+                  </LoadingButton>
                 </motion.div>
               </form>
 

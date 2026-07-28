@@ -9,13 +9,11 @@ import { useBusinessEventsSettingsService } from '@/services/businessEventsSetti
 import { UserType } from '@/models/users';
 import { useUserService } from '@/services/userService';
 import { useAuth } from '@/contexts/AuthContext';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
-import { motion } from 'framer-motion';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -134,15 +132,15 @@ export function FeatureFlagsManagement() {
         animate="animate"
         transition={defaultTransition}
       >
-        <AnimatedButton
+        <LoadingButton
           variant="ghost"
           size="icon"
           onClick={() => navigate('/dashboard')}
-          className={cn(glassButton, 'rounded-full')}
+          className={cn(buttonPreset, 'rounded-full')}
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Zurück zum Dashboard</span>
-        </AnimatedButton>
+        </LoadingButton>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
           Feature Flags Verwaltung
         </h1>
@@ -165,7 +163,7 @@ export function FeatureFlagsManagement() {
         </div>
 
         {/* Business Events Feature Flag */}
-        <Card className={cn(glassCard, 'p-4 sm:p-6')}>
+        <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -219,7 +217,7 @@ export function FeatureFlagsManagement() {
         </Card>
 
         {/* Placeholder für zukünftige Feature Flags */}
-        <Card className={cn(glassCard, 'p-4 sm:p-6 opacity-60')}>
+        <Card className={cn(cardPreset, 'p-4 sm:p-6 opacity-60')}>
           <CardHeader>
             <div className="flex items-center gap-3">
               <Settings className="h-6 w-6 text-muted-foreground" />
@@ -240,21 +238,11 @@ export function FeatureFlagsManagement() {
 
   if (isLoading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <FeatureFlagsManagementSkeleton />
-        </div>
-      </PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <FeatureFlagsManagementSkeleton />
+      </div>
     );
   }
 
-  return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {pageContent}
-      </div>
-    </PageTransition>
-  );
+  return <div className="min-h-screen relative overflow-hidden">{pageContent}</div>;
 }

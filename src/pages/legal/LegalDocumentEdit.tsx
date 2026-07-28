@@ -21,13 +21,10 @@ import { useLegalDocumentService } from '@/services/legalDocumentService';
 import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { MarkdownEditor } from '@/components/ui/markdown-editor';
 
@@ -54,36 +51,33 @@ const getDocumentTitle = (type: LegalDocumentType): string => {
 
 function LegalDocumentEditSkeleton() {
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-4xl">
-          {/* Header Skeleton */}
-          <div className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4">
-              <Skeleton className="h-10 w-44 rounded-xl" />
-              <Skeleton className="h-8 w-64 rounded" />
-            </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-4xl">
+        {/* Header Skeleton */}
+        <div className={cn(cardPreset, 'p-4 sm:p-6 mb-6 sm:mb-8')}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4">
+            <Skeleton className="h-10 w-44 rounded-xl" />
+            <Skeleton className="h-8 w-64 rounded" />
           </div>
+        </div>
 
-          {/* Version Selector Skeleton */}
-          <div className={cn(glassCard, 'p-4 sm:p-6 mb-6')}>
-            <Skeleton className="h-10 w-full sm:w-64 rounded-lg mb-4" />
-            <Skeleton className="h-4 w-48 rounded" />
-          </div>
+        {/* Version Selector Skeleton */}
+        <div className={cn(cardPreset, 'p-4 sm:p-6 mb-6')}>
+          <Skeleton className="h-10 w-full sm:w-64 rounded-lg mb-4" />
+          <Skeleton className="h-4 w-48 rounded" />
+        </div>
 
-          {/* Editor Skeleton */}
-          <div className={cn(glassCard, 'p-4 sm:p-6')}>
-            <Skeleton className="h-6 w-32 rounded mb-4" />
-            <Skeleton className="h-96 w-full rounded-lg" />
-            <div className="flex gap-2 mt-4">
-              <Skeleton className="h-10 w-32 rounded-xl" />
-              <Skeleton className="h-10 w-32 rounded-xl" />
-            </div>
+        {/* Editor Skeleton */}
+        <div className={cn(cardPreset, 'p-4 sm:p-6')}>
+          <Skeleton className="h-6 w-32 rounded mb-4" />
+          <Skeleton className="h-96 w-full rounded-lg" />
+          <div className="flex gap-2 mt-4">
+            <Skeleton className="h-10 w-32 rounded-xl" />
+            <Skeleton className="h-10 w-32 rounded-xl" />
           </div>
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }
 
@@ -260,208 +254,205 @@ export function LegalDocumentEdit() {
     : currentContent.trim().length > 0;
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-4xl">
-          {/* Header */}
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6 px-4 sm:px-6 lg:px-8 max-w-4xl">
+        {/* Header */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className={cn(cardPreset, 'p-4 sm:p-6 mb-6 sm:mb-8')}
+        >
+          <div className="flex flex-row items-center gap-4">
+            <LoadingButton
+              onClick={() => navigate('/legal')}
+              variant="outline"
+              size="icon"
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück</span>
+            </LoadingButton>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+                {getDocumentTitle(type)}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                {isNewDocument
+                  ? 'Noch kein Dokument vorhanden - erstelle das erste Dokument'
+                  : `Aktuelle Version: ${document.currentVersion.version}`}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Version Selector - nur anzeigen wenn Dokument existiert */}
+        {!isNewDocument && document && (
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
-            className={cn(glassCard, 'p-4 sm:p-6 mb-6 sm:mb-8')}
+            className={cn(cardPreset, 'p-4 sm:p-6 mb-6')}
           >
-            <div className="flex flex-row items-center gap-4">
-              <AnimatedButton
-                onClick={() => navigate('/legal')}
-                variant="outline"
-                size="icon"
-                className={cn(glassButton, 'rounded-full')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Zurück</span>
-              </AnimatedButton>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-                  {getDocumentTitle(type)}
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  {isNewDocument
-                    ? 'Noch kein Dokument vorhanden - erstelle das erste Dokument'
-                    : `Aktuelle Version: ${document.currentVersion.version}`}
-                </p>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Version Selector - nur anzeigen wenn Dokument existiert */}
-          {!isNewDocument && document && (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              className={cn(glassCard, 'p-4 sm:p-6 mb-6')}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4">
-                <div className="flex-1">
-                  <label className="text-sm font-medium text-foreground mb-2 block">
-                    Version auswählen
-                  </label>
-                  <Select value={selectedVersionId || ''} onValueChange={handleVersionChange}>
-                    <SelectTrigger className={cn(glassInput, 'w-full sm:w-64')}>
-                      <SelectValue placeholder="Version auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={document.currentVersion.id}>
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4" />
-                          <span>Version {document.currentVersion.version} (Aktuell)</span>
-                        </div>
-                      </SelectItem>
-                      {document.versions
-                        .filter(v => v.id !== document.currentVersion.id)
-                        .sort((a, b) => b.version - a.version)
-                        .map(version => (
-                          <SelectItem key={version.id} value={version.id}>
-                            <div className="flex items-center gap-2">
-                              <History className="h-4 w-4" />
-                              <span>Version {version.version}</span>
-                              <span className="text-xs text-muted-foreground">
-                                ({formatDate(version.createdAt)})
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {isViewingOldVersion && (
-                  <div className="flex items-center gap-2">
-                    <AnimatedButton
-                      onClick={handleBackToCurrent}
-                      variant="outline"
-                      className={cn(glassButton)}
-                    >
-                      Zur aktuellen Version
-                    </AnimatedButton>
-                  </div>
-                )}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4">
+              <div className="flex-1">
+                <label className="text-sm font-medium text-foreground mb-2 block">
+                  Version auswählen
+                </label>
+                <Select value={selectedVersionId || ''} onValueChange={handleVersionChange}>
+                  <SelectTrigger className={cn(inputPreset, 'w-full sm:w-64')}>
+                    <SelectValue placeholder="Version auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={document.currentVersion.id}>
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        <span>Version {document.currentVersion.version} (Aktuell)</span>
+                      </div>
+                    </SelectItem>
+                    {document.versions
+                      .filter(v => v.id !== document.currentVersion.id)
+                      .sort((a, b) => b.version - a.version)
+                      .map(version => (
+                        <SelectItem key={version.id} value={version.id}>
+                          <div className="flex items-center gap-2">
+                            <History className="h-4 w-4" />
+                            <span>Version {version.version}</span>
+                            <span className="text-xs text-muted-foreground">
+                              ({formatDate(version.createdAt)})
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
               {isViewingOldVersion && (
-                <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                  <p className="text-sm text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Du siehst eine alte Version. Diese kann nicht bearbeitet werden.
-                  </p>
+                <div className="flex items-center gap-2">
+                  <LoadingButton
+                    onClick={handleBackToCurrent}
+                    variant="outline"
+                    className={cn(buttonPreset)}
+                  >
+                    Zur aktuellen Version
+                  </LoadingButton>
                 </div>
               )}
-            </motion.div>
-          )}
+            </div>
+            {isViewingOldVersion && (
+              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                <p className="text-sm text-yellow-700 dark:text-yellow-400 flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Du siehst eine alte Version. Diese kann nicht bearbeitet werden.
+                </p>
+              </div>
+            )}
+          </motion.div>
+        )}
 
-          {/* Info-Banner für neues Dokument */}
-          {isNewDocument && (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              className={cn(glassCard, 'p-4 sm:p-6 mb-6 bg-blue-500/10 border border-blue-500/30')}
-            >
-              <p className="text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Noch kein Dokument vorhanden. Gib den Inhalt ein und speichere, um das erste
-                Dokument zu erstellen.
-              </p>
-            </motion.div>
-          )}
-
-          {/* Editor */}
+        {/* Info-Banner für neues Dokument */}
+        {isNewDocument && (
           <motion.div
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
-            className={cn(glassCard, 'p-4 sm:p-6')}
+            className={cn(cardPreset, 'p-4 sm:p-6 mb-6 bg-blue-500/10 border border-blue-500/30')}
           >
-            <div className="mb-4">
-              <h2 className="text-lg font-semibold text-foreground mb-2">
-                Inhalt {isViewingOldVersion && `(Version ${viewingVersion?.version})`}
-              </h2>
-              {!isViewingOldVersion && (
-                <p className="text-sm text-muted-foreground">
-                  {isNewDocument
-                    ? 'Gib den Inhalt im Markdown-Format ein. Beim Speichern wird das erste Dokument erstellt.'
-                    : 'Bearbeite den Inhalt im Markdown-Format. Beim Speichern wird automatisch eine neue Version erstellt.'}
-                </p>
+            <p className="text-sm text-blue-700 dark:text-blue-400 flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Noch kein Dokument vorhanden. Gib den Inhalt ein und speichere, um das erste Dokument
+              zu erstellen.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Editor */}
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+          className={cn(cardPreset, 'p-4 sm:p-6')}
+        >
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-foreground mb-2">
+              Inhalt {isViewingOldVersion && `(Version ${viewingVersion?.version})`}
+            </h2>
+            {!isViewingOldVersion && (
+              <p className="text-sm text-muted-foreground">
+                {isNewDocument
+                  ? 'Gib den Inhalt im Markdown-Format ein. Beim Speichern wird das erste Dokument erstellt.'
+                  : 'Bearbeite den Inhalt im Markdown-Format. Beim Speichern wird automatisch eine neue Version erstellt.'}
+              </p>
+            )}
+          </div>
+
+          {/* Validierungsfehler */}
+          {validationErrors.length > 0 && (
+            <Alert
+              ref={validationErrorsRef}
+              variant="destructive"
+              className={cn(cardPreset, 'border-destructive/50 mb-6')}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+              <AlertDescription className="mt-2">
+                <ul className="list-disc list-inside space-y-1">
+                  {validationErrors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="mb-6">
+            <MarkdownEditor
+              value={currentContent}
+              onChange={value => {
+                setCurrentContent(value);
+                // Fehler zurücksetzen, wenn Wert geändert wird
+                if (validationErrors.length > 0) {
+                  setValidationErrors([]);
+                }
+              }}
+              placeholder="Markdown-Text eingeben..."
+              minHeight="min-h-[500px]"
+              required
+              className={isViewingOldVersion ? 'opacity-75 pointer-events-none' : ''}
+            />
+          </div>
+
+          {!isViewingOldVersion && (
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <LoadingButton
+                onClick={handleSave}
+                disabled={!hasChanges || saving}
+                loading={saving}
+                className={cn(buttonPreset, 'flex-1 sm:flex-none')}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isNewDocument
+                  ? 'Dokument erstellen'
+                  : hasChanges
+                    ? 'Neue Version speichern'
+                    : 'Speichern'}
+              </LoadingButton>
+              {hasChanges && document && (
+                <LoadingButton
+                  onClick={() => {
+                    setCurrentContent(document.currentVersion.content);
+                    toast.info('Änderungen verworfen');
+                  }}
+                  variant="outline"
+                  className={cn(buttonPreset, 'flex-1 sm:flex-none')}
+                >
+                  Änderungen verwerfen
+                </LoadingButton>
               )}
             </div>
-
-            {/* Validierungsfehler */}
-            {validationErrors.length > 0 && (
-              <Alert
-                ref={validationErrorsRef}
-                variant="destructive"
-                className={cn(glassCard, 'border-destructive/50 mb-6')}
-              >
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                <AlertDescription className="mt-2">
-                  <ul className="list-disc list-inside space-y-1">
-                    {validationErrors.map((error, index) => (
-                      <li key={index}>{error}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="mb-6">
-              <MarkdownEditor
-                value={currentContent}
-                onChange={value => {
-                  setCurrentContent(value);
-                  // Fehler zurücksetzen, wenn Wert geändert wird
-                  if (validationErrors.length > 0) {
-                    setValidationErrors([]);
-                  }
-                }}
-                placeholder="Markdown-Text eingeben..."
-                minHeight="min-h-[500px]"
-                required
-                className={isViewingOldVersion ? 'opacity-75 pointer-events-none' : ''}
-              />
-            </div>
-
-            {!isViewingOldVersion && (
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <LoadingButton
-                  onClick={handleSave}
-                  disabled={!hasChanges || saving}
-                  loading={saving}
-                  className={cn(glassButton, 'flex-1 sm:flex-none')}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  {isNewDocument
-                    ? 'Dokument erstellen'
-                    : hasChanges
-                      ? 'Neue Version speichern'
-                      : 'Speichern'}
-                </LoadingButton>
-                {hasChanges && document && (
-                  <AnimatedButton
-                    onClick={() => {
-                      setCurrentContent(document.currentVersion.content);
-                      toast.info('Änderungen verworfen');
-                    }}
-                    variant="outline"
-                    className={cn(glassButton, 'flex-1 sm:flex-none')}
-                  >
-                    Änderungen verwerfen
-                  </AnimatedButton>
-                )}
-              </div>
-            )}
-          </motion.div>
-        </div>
+          )}
+        </motion.div>
       </div>
-    </PageTransition>
+    </div>
   );
 }

@@ -124,17 +124,17 @@ export function MarkdownEditor({
     <div className={cn('space-y-2', className)}>
       <Tabs value={activeTab} onValueChange={v => setActiveTab(v as 'edit' | 'preview')}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <TabsList className="backdrop-blur-2xl bg-white/10 dark:bg-white/10 border-white/20 dark:border-white/20">
+          <TabsList className="bg-muted border border-secondary">
             <TabsTrigger
               value="edit"
-              className="data-[state=active]:bg-white/20 dark:data-[state=active]:bg-white/20 data-[state=active]:text-foreground text-foreground/70"
+              className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
             >
               <Edit className="h-4 w-4 mr-2" />
               Bearbeiten
             </TabsTrigger>
             <TabsTrigger
               value="preview"
-              className="data-[state=active]:bg-white/20 dark:data-[state=active]:bg-white/20 data-[state=active]:text-foreground text-foreground/70"
+              className="data-[state=active]:bg-background data-[state=active]:text-foreground text-muted-foreground"
             >
               <Eye className="h-4 w-4 mr-2" />
               Vorschau
@@ -143,7 +143,7 @@ export function MarkdownEditor({
 
           {/* Toolbar - nur im Edit-Modus anzeigen */}
           {activeTab === 'edit' && (
-            <div className="flex flex-wrap gap-1 p-2 backdrop-blur-2xl bg-white/5 dark:bg-white/5 rounded-lg border border-white/10 dark:border-white/10">
+            <div className="flex flex-wrap gap-1 p-2 bg-muted rounded-lg border border-secondary">
               {toolbarButtons.map(button => {
                 const Icon = button.icon;
                 return (
@@ -153,7 +153,7 @@ export function MarkdownEditor({
                     variant="ghost"
                     size="sm"
                     onClick={button.onClick}
-                    className="h-8 w-8 p-0 text-foreground/70 hover:text-foreground hover:bg-white/10 dark:hover:bg-white/10 rounded-md"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-background rounded-md"
                     title={button.label}
                   >
                     <Icon className="h-4 w-4" />
@@ -187,11 +187,9 @@ export function MarkdownEditor({
         <TabsContent value="preview" className="mt-2">
           <div
             className={cn(
-              'backdrop-blur-2xl bg-white/10 dark:bg-white/10 border border-white/20 dark:border-white/20 rounded-lg p-4 text-foreground overflow-auto',
+              'bg-card border border-secondary rounded-lg p-4 text-foreground overflow-auto',
               minHeight,
-              // Prose-Klassen für Markdown-Rendering - angepasst für Dark/Light Mode
               'prose dark:prose-invert prose-sm max-w-none',
-              // Überschreibungen für Glassmorphism-Design mit Dark/Light Mode Support
               '[&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mt-4 [&_h1]:mb-2 [&_h1]:text-foreground',
               '[&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-3 [&_h2]:mb-2 [&_h2]:text-foreground',
               '[&_h3]:text-lg [&_h3]:font-bold [&_h3]:mt-2 [&_h3]:mb-1 [&_h3]:text-foreground',

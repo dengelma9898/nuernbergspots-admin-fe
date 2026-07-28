@@ -8,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { LocationSearch, LocationResult } from '@/components/ui/LocationSearch';
 
 import { cn } from '@/lib/utils';
-import { glassCard, glassInput } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset } from '@/lib/designTokens';
 
 import { useBusinessService } from '@/services/businessService';
 import { BusinessResponse } from '@/models/business';
@@ -116,7 +116,7 @@ export function LocationSelector({
                 value={businessSearchQuery}
                 onChange={e => setBusinessSearchQuery(e.target.value)}
                 placeholder="Partner suchen..."
-                className={cn(glassInput, 'w-full pl-9 pr-3 py-2 text-sm')}
+                className={cn(inputPreset, 'w-full pl-9 pr-3 py-2 text-sm')}
               />
             </div>
 
@@ -185,7 +185,7 @@ export function LocationSelector({
 
       {/* Ausgewählte Location anzeigen */}
       {value && (
-        <Card className={cn(glassCard, 'mt-3')}>
+        <Card className={cn(cardPreset, 'mt-3')}>
           <CardContent className="p-3">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary shrink-0" />

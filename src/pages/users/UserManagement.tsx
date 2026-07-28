@@ -30,14 +30,11 @@ import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer, staggerItem } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassCardHover, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, cardPresetHover, buttonPreset, listSectionPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 interface UserStatistics {
@@ -207,7 +204,7 @@ export function UserManagement() {
         delay: index * 0.05,
       }}
     >
-      <Card className={cn(glassCardHover, 'p-4')}>
+      <Card className={cn(cardPresetHover, 'p-4')}>
         <CardContent className="p-0">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -246,7 +243,7 @@ export function UserManagement() {
         delay: index * 0.05,
       }}
     >
-      <Card className={cn(glassCardHover, 'p-4')}>
+      <Card className={cn(cardPresetHover, 'p-4')}>
         <CardContent className="p-0">
           <div className="flex items-center justify-between mb-2">
             <Skeleton className="h-5 w-24 rounded" />
@@ -260,7 +257,7 @@ export function UserManagement() {
   );
 
   const TableSkeleton = () => (
-    <Card className={cn(glassCard, 'p-4 md:p-6')}>
+    <Card className={cn(cardPreset, 'p-4 md:p-6')}>
       <Table>
         <TableHeader>
           <TableRow>
@@ -307,162 +304,159 @@ export function UserManagement() {
   );
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {/* Main Content */}
-        <motion.div
-          className="container mx-auto p-4 md:p-8 max-w-7xl relative z-10"
-          variants={staggerContainer}
-          initial="initial"
-          animate="animate"
-        >
-          <div className="space-y-6">
-            {/* Header */}
-            <motion.div
-              className={cn(glassCard, 'p-6 md:p-8')}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <div className="flex flex-row items-start justify-between gap-4">
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/')}
-                  className={cn(glassButton, 'rounded-full shrink-0')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zum Dashboard</span>
-                </AnimatedButton>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-                    User-Verwaltung
-                  </h1>
-                  <p className="text-muted-foreground mt-2 text-sm md:text-base">
-                    Übersicht aller registrierten Benutzer und Statistiken
-                  </p>
-                </div>
-                <LoadingButton
-                  onClick={() => fetchUsers(true)}
-                  disabled={isRefreshing}
-                  size="icon"
-                  className={cn(glassButton, 'shrink-0 rounded-full')}
-                >
-                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span className="sr-only">Aktualisieren</span>
-                </LoadingButton>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Main Content */}
+      <motion.div
+        className="container mx-auto p-4 md:p-8 max-w-7xl relative z-10"
+        variants={staggerContainer}
+        initial="initial"
+        animate="animate"
+      >
+        <div className="space-y-6">
+          {/* Header */}
+          <motion.div
+            className={listSectionPreset}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <div className="flex flex-row items-start justify-between gap-4">
+              <LoadingButton
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/')}
+                className={cn(buttonPreset, 'rounded-full shrink-0')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </LoadingButton>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                  User-Verwaltung
+                </h1>
+                <p className="text-muted-foreground mt-2 text-sm md:text-base">
+                  Übersicht aller registrierten Benutzer und Statistiken
+                </p>
               </div>
-            </motion.div>
+              <LoadingButton
+                onClick={() => fetchUsers(true)}
+                disabled={isRefreshing}
+                size="icon"
+                className={cn(buttonPreset, 'shrink-0 rounded-full')}
+              >
+                <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="sr-only">Aktualisieren</span>
+              </LoadingButton>
+            </div>
+          </motion.div>
 
-            {/* Statistics Cards */}
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {loading ? (
-                Array.from({ length: 3 }, (_, index) => (
-                  <StatCardSkeleton key={`stat-skeleton-${index}`} index={index} />
-                ))
-              ) : (
-                <>
-                  <StatCard
-                    icon={Users}
-                    title="Gesamt User"
-                    value={statistics.totalUsers}
-                    subtitle="Alle registrierten Benutzer"
-                    index={0}
-                  />
-                  <StatCard
-                    icon={UserPlus}
-                    title="Neue User"
-                    value={statistics.newUsersThisMonth}
-                    subtitle={`Dieser Monat (${format(new Date(), 'MMMM', { locale: de })})`}
-                    trend={statistics.growthFromLastMonth}
-                    index={1}
-                  />
-                  <StatCard
-                    icon={UserX}
-                    title="Blockierte User"
-                    value={statistics.blockedUsers}
-                    subtitle={`${statistics.totalUsers > 0 ? ((statistics.blockedUsers / statistics.totalUsers) * 100).toFixed(1) : 0}% aller User`}
-                    index={2}
-                  />
-                </>
-              )}
-            </motion.div>
+          {/* Statistics Cards */}
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {loading ? (
+              Array.from({ length: 3 }, (_, index) => (
+                <StatCardSkeleton key={`stat-skeleton-${index}`} index={index} />
+              ))
+            ) : (
+              <>
+                <StatCard
+                  icon={Users}
+                  title="Gesamt User"
+                  value={statistics.totalUsers}
+                  subtitle="Alle registrierten Benutzer"
+                  index={0}
+                />
+                <StatCard
+                  icon={UserPlus}
+                  title="Neue User"
+                  value={statistics.newUsersThisMonth}
+                  subtitle={`Dieser Monat (${format(new Date(), 'MMMM', { locale: de })})`}
+                  trend={statistics.growthFromLastMonth}
+                  index={1}
+                />
+                <StatCard
+                  icon={UserX}
+                  title="Blockierte User"
+                  value={statistics.blockedUsers}
+                  subtitle={`${statistics.totalUsers > 0 ? ((statistics.blockedUsers / statistics.totalUsers) * 100).toFixed(1) : 0}% aller User`}
+                  index={2}
+                />
+              </>
+            )}
+          </motion.div>
 
-            {/* User Table */}
-            <motion.div
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={{ ...defaultTransition, delay: 0.2 }}
-            >
-              {loading ? (
-                <TableSkeleton />
-              ) : users.length === 0 ? (
-                <Card className={cn(glassCard, 'p-8 md:p-12 text-center')}>
-                  <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-                  <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
-                    Keine User gefunden
-                  </h3>
-                  <p className="text-muted-foreground text-sm md:text-base">
-                    Es gibt aktuell keine registrierten Benutzer.
-                  </p>
-                </Card>
-              ) : (
-                <Card className={cn(glassCard, 'p-4 md:p-6 overflow-x-auto')}>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="text-foreground">E-Mail</TableHead>
-                        <TableHead className="text-foreground">Name</TableHead>
-                        <TableHead className="text-foreground">Typ</TableHead>
-                        <TableHead className="text-foreground">Status</TableHead>
-                        <TableHead className="text-foreground">Erstellt am</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users.map((user, index) => (
-                        <TableRow
-                          key={user.id || `${user.email}-${index}` || `user-${index}`}
-                          className="border-b border-secondary/50 hover:bg-white/5 transition-colors"
-                        >
-                          <TableCell className="font-medium text-foreground">
+          {/* User Table */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={{ ...defaultTransition, delay: 0.2 }}
+          >
+            {loading ? (
+              <TableSkeleton />
+            ) : users.length === 0 ? (
+              <Card className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+                <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+                  Keine User gefunden
+                </h3>
+                <p className="text-muted-foreground text-sm md:text-base">
+                  Es gibt aktuell keine registrierten Benutzer.
+                </p>
+              </Card>
+            ) : (
+              <Card className={cn(cardPreset, 'p-4 md:p-6 overflow-x-auto')}>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-foreground">E-Mail</TableHead>
+                      <TableHead className="text-foreground">Name</TableHead>
+                      <TableHead className="text-foreground">Typ</TableHead>
+                      <TableHead className="text-foreground">Status</TableHead>
+                      <TableHead className="text-foreground">Erstellt am</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user, index) => (
+                      <TableRow
+                        key={user.id || `${user.email}-${index}` || `user-${index}`}
+                        className="border-b border-secondary/50 hover:bg-white/5 transition-colors"
+                      >
+                        <TableCell className="font-medium text-foreground">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            {user.email}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-foreground">{user.name || '-'}</TableCell>
+                        <TableCell>{getUserTypeBadge(user.userType)}</TableCell>
+                        <TableCell>{getStatusBadge(user)}</TableCell>
+                        <TableCell className="text-muted-foreground">
+                          {user.createdAt ? (
                             <div className="flex items-center gap-2">
-                              <Mail className="h-4 w-4 text-muted-foreground" />
-                              {user.email}
+                              <Calendar className="h-4 w-4" />
+                              {format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm', {
+                                locale: de,
+                              })}
                             </div>
-                          </TableCell>
-                          <TableCell className="text-foreground">{user.name || '-'}</TableCell>
-                          <TableCell>{getUserTypeBadge(user.userType)}</TableCell>
-                          <TableCell>{getStatusBadge(user)}</TableCell>
-                          <TableCell className="text-muted-foreground">
-                            {user.createdAt ? (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                {format(new Date(user.createdAt), 'dd.MM.yyyy HH:mm', {
-                                  locale: de,
-                                })}
-                              </div>
-                            ) : (
-                              '-'
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </Card>
-              )}
-            </motion.div>
-          </div>
-        </motion.div>
-      </div>
-    </PageTransition>
+                          ) : (
+                            '-'
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </motion.div>
+        </div>
+      </motion.div>
+    </div>
   );
 }

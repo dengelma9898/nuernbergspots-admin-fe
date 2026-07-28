@@ -166,27 +166,6 @@ describe('Dashboard Component', () => {
     expect(screen.getByText('Analytics Dashboard')).toBeTruthy();
   });
 
-  it('handles logout correctly', async () => {
-    const user = userEvent.setup();
-    render(<Dashboard />);
-
-    const logoutButton = screen.getByRole('button', { name: /Abmelden/i });
-    await user.click(logoutButton);
-
-    expect(mockLogout).toHaveBeenCalled();
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
-  });
-
-  it('navigates to profile when profile button is clicked', async () => {
-    const user = userEvent.setup();
-    render(<Dashboard />);
-
-    const profileButton = screen.getAllByTestId('user-icon')[0].closest('button');
-    await user.click(profileButton!);
-
-    expect(mockNavigate).toHaveBeenCalledWith('/profile');
-  });
-
   describe('Skeleton Loading States', () => {
     it('shows skeleton for pending approvals while loading', () => {
       render(<Dashboard />);

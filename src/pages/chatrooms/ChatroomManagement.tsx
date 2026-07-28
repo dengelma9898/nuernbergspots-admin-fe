@@ -53,20 +53,18 @@ import {
   type UserFriendlyError,
 } from '@/utils/errorUtils';
 import { AlertCircle } from 'lucide-react';
-import { Background } from '@/components/Background';
 import { useValidatedImageUpload } from '@/hooks/useValidatedImageUpload';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
-import { motion } from 'framer-motion';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 function ChatroomSkeleton() {
   return (
-    <Card className={cn(glassCard, 'rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}>
+    <Card className={cn(cardPreset, 'rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full')}>
       <CardHeader className="pb-2">
         <div className="space-y-1">
           <CardTitle className="flex items-center gap-2">
@@ -337,449 +335,444 @@ export function ChatroomManagement() {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {/* Main Content */}
-        <div className="container mx-auto p-4 sm:p-8 max-w-7xl relative z-10">
-          <div className="space-y-6 sm:space-y-8">
-            <motion.div
-              className={cn(glassCard, 'p-6')}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <div className="flex flex-row items-center justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <AnimatedButton
-                    variant="ghost"
-                    size="icon"
-                    className={cn(glassButton, 'rounded-full mb-2 sm:mb-0')}
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                    <span className="sr-only">Zurück zum Dashboard</span>
-                  </AnimatedButton>
-                  <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
-                    Chatroom Management
-                  </h1>
-                  <div className="text-base sm:text-lg text-muted-foreground max-w-md">
-                    Verwalten Sie hier alle Chatrooms und deren Einstellungen
-                  </div>
-                </div>
-                <Dialog
-                  open={isCreateDialogOpen}
-                  onOpenChange={open => {
-                    setIsCreateDialogOpen(open);
-                    if (!open) {
-                      setCreateError(null);
-                    }
-                  }}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Main Content */}
+      <div className="container mx-auto p-4 sm:p-8 max-w-7xl relative z-10">
+        <div className="space-y-6 sm:space-y-8">
+          <motion.div
+            className={cn(cardPreset, 'p-6')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <div className="flex flex-row items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <LoadingButton
+                  variant="ghost"
+                  size="icon"
+                  className={cn(buttonPreset, 'rounded-full mb-2 sm:mb-0')}
+                  onClick={() => navigate('/dashboard')}
                 >
-                  <DialogTrigger asChild>
-                    <AnimatedButton className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
-                      <Plus className="mr-2 h-4 w-4" />
-                      Neuer Chatroom
-                    </AnimatedButton>
-                  </DialogTrigger>
-                  <DialogContent className={cn(glassCard)}>
-                    <DialogHeader>
-                      <DialogTitle className="text-foreground">
-                        Neuen Chatroom erstellen
-                      </DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
-                      </DialogDescription>
-                    </DialogHeader>
-                    {(createError || createImageUpload.error) && (
-                      <Alert
-                        variant="destructive"
-                        className={cn(glassCard, 'border-destructive/50')}
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>
-                          {createImageUpload.error?.title || createError?.title}
-                        </AlertTitle>
-                        <AlertDescription className="mt-2">
-                          <p>{createImageUpload.error?.message || createError?.message}</p>
-                          {(createImageUpload.error?.actionHint || createError?.actionHint) && (
-                            <p className="mt-2 text-sm opacity-90">
-                              {createImageUpload.error?.actionHint || createError?.actionHint}
-                            </p>
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="sr-only">Zurück zum Dashboard</span>
+                </LoadingButton>
+                <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-foreground">
+                  Chatroom Management
+                </h1>
+                <div className="text-base sm:text-lg text-muted-foreground max-w-md">
+                  Verwalten Sie hier alle Chatrooms und deren Einstellungen
+                </div>
+              </div>
+              <Dialog
+                open={isCreateDialogOpen}
+                onOpenChange={open => {
+                  setIsCreateDialogOpen(open);
+                  if (!open) {
+                    setCreateError(null);
+                  }
+                }}
+              >
+                <DialogTrigger asChild>
+                  <LoadingButton className="w-full sm:w-auto cursor-pointer text-base font-semibold px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Neuer Chatroom
+                  </LoadingButton>
+                </DialogTrigger>
+                <DialogContent className={cn(cardPreset)}>
+                  <DialogHeader>
+                    <DialogTitle className="text-foreground">Neuen Chatroom erstellen</DialogTitle>
+                    <DialogDescription className="text-muted-foreground">
+                      Erstellen Sie einen neuen Chatroom mit den gewünschten Einstellungen.
+                    </DialogDescription>
+                  </DialogHeader>
+                  {(createError || createImageUpload.error) && (
+                    <Alert
+                      variant="destructive"
+                      className={cn(cardPreset, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>
+                        {createImageUpload.error?.title || createError?.title}
+                      </AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <p>{createImageUpload.error?.message || createError?.message}</p>
+                        {(createImageUpload.error?.actionHint || createError?.actionHint) && (
+                          <p className="mt-2 text-sm opacity-90">
+                            {createImageUpload.error?.actionHint || createError?.actionHint}
+                          </p>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title" className="text-foreground">
+                        Titel
+                      </Label>
+                      <Input
+                        id="title"
+                        value={newChatroom.title}
+                        onChange={e => setNewChatroom({ ...newChatroom, title: e.target.value })}
+                        placeholder="Chatroom Titel"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="description" className="text-foreground">
+                        Beschreibung
+                      </Label>
+                      <Textarea
+                        id="description"
+                        value={newChatroom.description}
+                        onChange={e =>
+                          setNewChatroom({ ...newChatroom, description: e.target.value })
+                        }
+                        placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-foreground">Chatroom Bild</Label>
+                      <div className="flex items-center gap-4">
+                        <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
+                          {createImageUpload.previewUrls.length > 0 ? (
+                            <>
+                              <img
+                                src={createImageUpload.previewUrls[0]}
+                                alt="Vorschau"
+                                className="w-full h-full object-cover"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => createImageUpload.removeImage(0)}
+                                className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
+                                aria-label="Bild entfernen"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-muted">
+                              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                            </div>
                           )}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="title" className="text-foreground">
-                          Titel
-                        </Label>
-                        <Input
-                          id="title"
-                          value={newChatroom.title}
-                          onChange={e => setNewChatroom({ ...newChatroom, title: e.target.value })}
-                          placeholder="Chatroom Titel"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="description" className="text-foreground">
-                          Beschreibung
-                        </Label>
-                        <Textarea
-                          id="description"
-                          value={newChatroom.description}
-                          onChange={e =>
-                            setNewChatroom({ ...newChatroom, description: e.target.value })
-                          }
-                          placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label className="text-foreground">Chatroom Bild</Label>
-                        <div className="flex items-center gap-4">
-                          <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
-                            {createImageUpload.previewUrls.length > 0 ? (
-                              <>
-                                <img
-                                  src={createImageUpload.previewUrls[0]}
-                                  alt="Vorschau"
-                                  className="w-full h-full object-cover"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => createImageUpload.removeImage(0)}
-                                  className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
-                                  aria-label="Bild entfernen"
-                                >
-                                  <X className="h-4 w-4" />
-                                </button>
-                              </>
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-muted">
-                                <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                              </div>
+                        </div>
+                        <div className="flex-1">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleCreateImageSelect}
+                            className="hidden"
+                            id="image-upload"
+                          />
+                          <Label
+                            htmlFor="image-upload"
+                            className={cn(
+                              buttonPreset,
+                              'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
                             )}
-                          </div>
-                          <div className="flex-1">
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleCreateImageSelect}
-                              className="hidden"
-                              id="image-upload"
-                            />
-                            <Label
-                              htmlFor="image-upload"
-                              className={cn(
-                                glassButton,
-                                'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
-                              )}
-                            >
-                              Bild auswählen
-                            </Label>
-                          </div>
+                          >
+                            Bild auswählen
+                          </Label>
                         </div>
                       </div>
                     </div>
-                    <DialogFooter>
-                      <AnimatedButton
-                        variant="ghost"
-                        onClick={() => {
-                          setIsCreateDialogOpen(false);
-                          createImageUpload.clearImages();
-                          setCreateError(null);
-                        }}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                      >
-                        Abbrechen
-                      </AnimatedButton>
-                      <AnimatedButton
-                        variant="outline"
-                        onClick={handleCreateChatroom}
-                        className={cn(glassButton, 'rounded-xl')}
-                      >
-                        Erstellen
-                      </AnimatedButton>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </motion.div>
+                  </div>
+                  <DialogFooter>
+                    <LoadingButton
+                      variant="ghost"
+                      onClick={() => {
+                        setIsCreateDialogOpen(false);
+                        createImageUpload.clearImages();
+                        setCreateError(null);
+                      }}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
+                    >
+                      Abbrechen
+                    </LoadingButton>
+                    <LoadingButton
+                      variant="outline"
+                      onClick={handleCreateChatroom}
+                      className={cn(buttonPreset, 'rounded-xl')}
+                    >
+                      Erstellen
+                    </LoadingButton>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </motion.div>
 
-            <Dialog
-              open={isEditDialogOpen}
-              onOpenChange={open => {
-                setIsEditDialogOpen(open);
-                if (!open) {
-                  setEditError(null);
-                  editImageUpload.clearImages();
-                  setOriginalImageUrl(null);
-                }
-              }}
-            >
-              <DialogContent className={cn(glassCard)}>
-                <DialogHeader>
-                  <DialogTitle className="text-foreground">Chatroom bearbeiten</DialogTitle>
-                  <DialogDescription className="text-muted-foreground">
-                    Bearbeiten Sie die Einstellungen des Chatrooms.
-                  </DialogDescription>
-                </DialogHeader>
-                {(editError || editImageUpload.error) && (
-                  <Alert variant="destructive" className={cn(glassCard, 'border-destructive/50')}>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>{editImageUpload.error?.title || editError?.title}</AlertTitle>
-                    <AlertDescription className="mt-2">
-                      <p>{editImageUpload.error?.message || editError?.message}</p>
-                      {(editImageUpload.error?.actionHint || editError?.actionHint) && (
-                        <p className="mt-2 text-sm opacity-90">
-                          {editImageUpload.error?.actionHint || editError?.actionHint}
-                        </p>
+          <Dialog
+            open={isEditDialogOpen}
+            onOpenChange={open => {
+              setIsEditDialogOpen(open);
+              if (!open) {
+                setEditError(null);
+                editImageUpload.clearImages();
+                setOriginalImageUrl(null);
+              }
+            }}
+          >
+            <DialogContent className={cn(cardPreset)}>
+              <DialogHeader>
+                <DialogTitle className="text-foreground">Chatroom bearbeiten</DialogTitle>
+                <DialogDescription className="text-muted-foreground">
+                  Bearbeiten Sie die Einstellungen des Chatrooms.
+                </DialogDescription>
+              </DialogHeader>
+              {(editError || editImageUpload.error) && (
+                <Alert variant="destructive" className={cn(cardPreset, 'border-destructive/50')}>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>{editImageUpload.error?.title || editError?.title}</AlertTitle>
+                  <AlertDescription className="mt-2">
+                    <p>{editImageUpload.error?.message || editError?.message}</p>
+                    {(editImageUpload.error?.actionHint || editError?.actionHint) && (
+                      <p className="mt-2 text-sm opacity-90">
+                        {editImageUpload.error?.actionHint || editError?.actionHint}
+                      </p>
+                    )}
+                  </AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-title" className="text-foreground">
+                    Titel
+                  </Label>
+                  <Input
+                    id="edit-title"
+                    value={selectedChatroom?.title || ''}
+                    onChange={e =>
+                      setSelectedChatroom(prev =>
+                        prev ? { ...prev, title: e.target.value } : null
+                      )
+                    }
+                    placeholder="Chatroom Titel"
+                    className={cn(inputPreset)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description" className="text-foreground">
+                    Beschreibung
+                  </Label>
+                  <Textarea
+                    id="edit-description"
+                    value={selectedChatroom?.description || ''}
+                    onChange={e =>
+                      setSelectedChatroom(prev =>
+                        prev ? { ...prev, description: e.target.value } : null
+                      )
+                    }
+                    placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
+                    className={cn(inputPreset)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-foreground">Chatroom Bild</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
+                      {editImageUpload.previewUrls.length > 0 || originalImageUrl ? (
+                        <>
+                          <img
+                            src={editImageUpload.previewUrls[0] || originalImageUrl || ''}
+                            alt="Vorschau"
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (editImageUpload.previewUrls.length > 0) {
+                                // Neues Bild entfernen
+                                editImageUpload.removeImage(0);
+                              } else if (originalImageUrl) {
+                                // Ursprüngliches Bild markieren zum Löschen
+                                setOriginalImageUrl(null);
+                              }
+                            }}
+                            className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
+                            aria-label="Bild entfernen"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted">
+                          <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                        </div>
                       )}
-                    </AlertDescription>
-                  </Alert>
-                )}
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-title" className="text-foreground">
-                      Titel
-                    </Label>
-                    <Input
-                      id="edit-title"
-                      value={selectedChatroom?.title || ''}
-                      onChange={e =>
-                        setSelectedChatroom(prev =>
-                          prev ? { ...prev, title: e.target.value } : null
-                        )
-                      }
-                      placeholder="Chatroom Titel"
-                      className={cn(glassInput)}
-                    />
+                    </div>
+                    <div className="flex-1">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleEditImageSelect}
+                        className="hidden"
+                        id="edit-image-upload"
+                      />
+                      <Label
+                        htmlFor="edit-image-upload"
+                        className={cn(
+                          buttonPreset,
+                          'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
+                        )}
+                      >
+                        Bild auswählen
+                      </Label>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-description" className="text-foreground">
-                      Beschreibung
-                    </Label>
-                    <Textarea
-                      id="edit-description"
-                      value={selectedChatroom?.description || ''}
-                      onChange={e =>
-                        setSelectedChatroom(prev =>
-                          prev ? { ...prev, description: e.target.value } : null
-                        )
-                      }
-                      placeholder="Beschreiben Sie den Zweck dieses Chatrooms"
-                      className={cn(glassInput)}
-                    />
+                </div>
+              </div>
+              <DialogFooter>
+                <LoadingButton
+                  variant="ghost"
+                  onClick={() => setIsEditDialogOpen(false)}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
+                >
+                  Abbrechen
+                </LoadingButton>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleEditChatroom}
+                  className={cn(buttonPreset, 'rounded-xl')}
+                >
+                  Speichern
+                </LoadingButton>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent className={cn(cardPreset)}>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-foreground">Chatroom löschen</AlertDialogTitle>
+                <AlertDialogDescription className="text-muted-foreground">
+                  Möchten Sie den Chatroom "{selectedChatroom?.title}" wirklich löschen? Diese
+                  Aktion kann nicht rückgängig gemacht werden.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className={cn(buttonPreset)}>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteChatroom}
+                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
+                >
+                  Löschen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <motion.div
+            key={`chatrooms-${chatrooms.length}-${isLoading}`}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {isLoading ? (
+              // Show 6 skeleton chatroom cards
+              Array.from({ length: 6 }).map((_, index) => (
+                <motion.div key={index} variants={fadeInUp}>
+                  <ChatroomSkeleton />
+                </motion.div>
+              ))
+            ) : chatrooms.length === 0 ? (
+              <motion.div
+                className="col-span-full"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={defaultTransition}
+              >
+                <Card className={cn(cardPreset, 'p-8 text-center')}>
+                  <div className="text-muted-foreground text-lg">
+                    Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!
                   </div>
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Chatroom Bild</Label>
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-32 h-32 border-2 border-dashed border-secondary rounded-lg overflow-hidden">
-                        {editImageUpload.previewUrls.length > 0 || originalImageUrl ? (
-                          <>
+                </Card>
+              </motion.div>
+            ) : (
+              chatrooms.map(chatroom => (
+                <motion.div key={chatroom.id} variants={fadeInUp}>
+                  <Card
+                    className={cn(
+                      cardPreset,
+                      'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full'
+                    )}
+                    onClick={() => handleChatroomClick(chatroom.id)}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="space-y-1">
+                        <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
+                          <MessageCircle className="h-5 w-5 text-muted-foreground" />
+                          {chatroom.title}
+                        </CardTitle>
+                        <CardDescription className="text-sm sm:text-base text-muted-foreground">
+                          {chatroom.description}
+                        </CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        {chatroom.imageUrl && (
+                          <div className="relative aspect-video rounded-lg overflow-hidden">
                             <img
-                              src={editImageUpload.previewUrls[0] || originalImageUrl || ''}
-                              alt="Vorschau"
-                              className="w-full h-full object-cover"
+                              src={chatroom.imageUrl}
+                              alt={chatroom.title}
+                              className="w-full h-full object-cover border border-secondary"
                             />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (editImageUpload.previewUrls.length > 0) {
-                                  // Neues Bild entfernen
-                                  editImageUpload.removeImage(0);
-                                } else if (originalImageUrl) {
-                                  // Ursprüngliches Bild markieren zum Löschen
-                                  setOriginalImageUrl(null);
-                                }
-                              }}
-                              className="absolute top-1 right-1 p-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-full transition-colors"
-                              aria-label="Bild entfernen"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          </>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-muted">
-                            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          {chatroom.participants?.length ?? 0} Teilnehmer
+                        </div>
+                        {chatroom.lastMessage && (
+                          <div className="text-xs text-muted-foreground">
+                            Letzte Nachricht: {chatroom.lastMessage.content}
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleEditImageSelect}
-                          className="hidden"
-                          id="edit-image-upload"
-                        />
-                        <Label
-                          htmlFor="edit-image-upload"
+                    </CardContent>
+                    <CardFooter className="flex flex-col gap-2 pt-4 border-t border-secondary mt-2">
+                      <div className="text-xs text-muted-foreground w-full text-center">
+                        Erstellt am{' '}
+                        {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-2 w-full">
+                        <LoadingButton
+                          variant="outline"
+                          onClick={e => {
+                            e.stopPropagation();
+                            openEditDialog(chatroom, e);
+                          }}
                           className={cn(
-                            glassButton,
-                            'cursor-pointer inline-flex items-center justify-center text-sm font-medium h-10 px-4 py-2'
+                            buttonPreset,
+                            'w-full sm:w-auto flex items-center justify-center'
                           )}
                         >
-                          Bild auswählen
-                        </Label>
+                          <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
+                        </LoadingButton>
+                        <LoadingButton
+                          variant="destructive"
+                          onClick={e => {
+                            e.stopPropagation();
+                            openDeleteDialog(chatroom, e);
+                          }}
+                          className="w-full sm:w-auto flex items-center justify-center"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" /> Löschen
+                        </LoadingButton>
                       </div>
-                    </div>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <AnimatedButton
-                    variant="ghost"
-                    onClick={() => setIsEditDialogOpen(false)}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0 rounded-xl"
-                  >
-                    Abbrechen
-                  </AnimatedButton>
-                  <AnimatedButton
-                    variant="outline"
-                    onClick={handleEditChatroom}
-                    className={cn(glassButton, 'rounded-xl')}
-                  >
-                    Speichern
-                  </AnimatedButton>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-              <AlertDialogContent className={cn(glassCard)}>
-                <AlertDialogHeader>
-                  <AlertDialogTitle className="text-foreground">Chatroom löschen</AlertDialogTitle>
-                  <AlertDialogDescription className="text-muted-foreground">
-                    Möchten Sie den Chatroom "{selectedChatroom?.title}" wirklich löschen? Diese
-                    Aktion kann nicht rückgängig gemacht werden.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel className={cn(glassButton)}>Abbrechen</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={handleDeleteChatroom}
-                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl"
-                  >
-                    Löschen
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <motion.div
-              key={`chatrooms-${chatrooms.length}-${isLoading}`}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {isLoading ? (
-                // Show 6 skeleton chatroom cards
-                Array.from({ length: 6 }).map((_, index) => (
-                  <motion.div key={index} variants={fadeInUp}>
-                    <ChatroomSkeleton />
-                  </motion.div>
-                ))
-              ) : chatrooms.length === 0 ? (
-                <motion.div
-                  className="col-span-full"
-                  variants={fadeInUp}
-                  initial="initial"
-                  animate="animate"
-                  transition={defaultTransition}
-                >
-                  <Card className={cn(glassCard, 'p-8 text-center')}>
-                    <div className="text-muted-foreground text-lg">
-                      Keine Chatrooms vorhanden. Erstellen Sie einen neuen Chatroom!
-                    </div>
+                    </CardFooter>
                   </Card>
                 </motion.div>
-              ) : (
-                chatrooms.map(chatroom => (
-                  <motion.div key={chatroom.id} variants={fadeInUp}>
-                    <Card
-                      className={cn(
-                        glassCard,
-                        'cursor-pointer rounded-2xl p-2 sm:p-4 flex flex-col justify-between h-full'
-                      )}
-                      onClick={() => handleChatroomClick(chatroom.id)}
-                    >
-                      <CardHeader className="pb-2">
-                        <div className="space-y-1">
-                          <CardTitle className="flex items-center gap-2 text-lg sm:text-xl text-foreground">
-                            <MessageCircle className="h-5 w-5 text-muted-foreground" />
-                            {chatroom.title}
-                          </CardTitle>
-                          <CardDescription className="text-sm sm:text-base text-muted-foreground">
-                            {chatroom.description}
-                          </CardDescription>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <div className="space-y-3">
-                          {chatroom.imageUrl && (
-                            <div className="relative aspect-video rounded-lg overflow-hidden">
-                              <img
-                                src={chatroom.imageUrl}
-                                alt={chatroom.title}
-                                className="w-full h-full object-cover border border-secondary"
-                              />
-                            </div>
-                          )}
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Users className="h-4 w-4" />
-                            {chatroom.participants?.length ?? 0} Teilnehmer
-                          </div>
-                          {chatroom.lastMessage && (
-                            <div className="text-xs text-muted-foreground">
-                              Letzte Nachricht: {chatroom.lastMessage.content}
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                      <CardFooter className="flex flex-col gap-2 pt-4 border-t border-secondary mt-2">
-                        <div className="text-xs text-muted-foreground w-full text-center">
-                          Erstellt am{' '}
-                          {format(new Date(chatroom.createdAt), 'dd.MM.yyyy', { locale: de })}
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-2 w-full">
-                          <AnimatedButton
-                            variant="outline"
-                            onClick={e => {
-                              e.stopPropagation();
-                              openEditDialog(chatroom, e);
-                            }}
-                            className={cn(
-                              glassButton,
-                              'w-full sm:w-auto flex items-center justify-center'
-                            )}
-                          >
-                            <Edit2 className="h-4 w-4 mr-2" /> Bearbeiten
-                          </AnimatedButton>
-                          <AnimatedButton
-                            variant="destructive"
-                            onClick={e => {
-                              e.stopPropagation();
-                              openDeleteDialog(chatroom, e);
-                            }}
-                            className="w-full sm:w-auto flex items-center justify-center"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" /> Löschen
-                          </AnimatedButton>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-              )}
-            </motion.div>
-          </div>
+              ))
+            )}
+          </motion.div>
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }

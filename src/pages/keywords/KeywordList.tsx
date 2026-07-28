@@ -42,14 +42,11 @@ import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Keyword } from '@/models/keyword';
 import { useKeywordService } from '@/services/keywordService';
 import { useNavigate } from 'react-router-dom';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset, listSectionPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 export function KeywordList() {
@@ -175,323 +172,316 @@ export function KeywordList() {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6">
-          {/* Header */}
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6">
+        {/* Header */}
+        <motion.div
+          className={listSectionPreset}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          {/* Header und Button */}
+          <div className="flex flex-row items-center justify-between gap-4">
+            <div className="flex flex-row items-center gap-4">
+              <LoadingButton
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+                className={cn(buttonPreset, 'rounded-full')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </LoadingButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                Keywords verwalten
+              </h1>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
+              <DialogTrigger asChild>
+                <LoadingButton
+                  onClick={resetModalState}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Neues Keyword
+                </LoadingButton>
+              </DialogTrigger>
+              <DialogContent className={cn(cardPreset, 'max-w-2xl')}>
+                <DialogHeader>
+                  <DialogTitle className="text-foreground">
+                    {editingKeyword ? 'Keyword bearbeiten' : 'Neues Keyword'}
+                  </DialogTitle>
+                  <DialogDescription className="text-muted-foreground">
+                    {editingKeyword
+                      ? 'Bearbeiten Sie das Keyword'
+                      : 'Erstellen Sie ein neues Keyword'}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {/* Validierungsfehler */}
+                  {validationErrors.length > 0 && (
+                    <Alert
+                      variant="destructive"
+                      className={cn(cardPreset, 'border-destructive/50')}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                      <AlertDescription className="mt-2">
+                        <ul className="list-disc list-inside space-y-1">
+                          {validationErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
+                          ))}
+                        </ul>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <motion.div
+                    className="space-y-2"
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.1 }}
+                  >
+                    <Label className="text-foreground">Name</Label>
+                    <Input
+                      value={newKeyword.name}
+                      onChange={e => {
+                        setNewKeyword({ ...newKeyword, name: e.target.value });
+                        // Fehler zurücksetzen, wenn Wert geändert wird
+                        if (validationErrors.length > 0) {
+                          setValidationErrors([]);
+                        }
+                      }}
+                      placeholder="Keyword Name"
+                      className={cn(inputPreset)}
+                    />
+                  </motion.div>
+                  <motion.div
+                    className="space-y-2"
+                    variants={fadeInUp}
+                    initial="initial"
+                    animate="animate"
+                    transition={{ ...defaultTransition, delay: 0.2 }}
+                  >
+                    <Label className="text-foreground">Beschreibung</Label>
+                    <Input
+                      value={newKeyword.description}
+                      onChange={e => setNewKeyword({ ...newKeyword, description: e.target.value })}
+                      placeholder="Beschreibung"
+                      className={cn(inputPreset)}
+                    />
+                  </motion.div>
+                </div>
+                <DialogFooter>
+                  <LoadingButton
+                    variant="ghost"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
+                  >
+                    Abbrechen
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={editingKeyword ? handleUpdateKeyword : handleAddKeyword}
+                    isLoading={false}
+                    className={cn(buttonPreset)}
+                  >
+                    <Check className="h-4 w-4" />
+                    {editingKeyword ? 'Aktualisieren' : 'Hinzufügen'}
+                  </LoadingButton>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </motion.div>
+
+        {/* Mobile Card-Ansicht */}
+        {isLoading ? (
           <motion.div
-            className={cn(glassCard, 'p-6 mb-8')}
+            className="block md:hidden space-y-4"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {[...Array(4)].map((_, index) => (
+              <motion.div key={index} variants={fadeInUp}>
+                <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
+                  {/* Header */}
+                  <Skeleton className="h-6 w-3/4 mb-2 rounded" />
+
+                  {/* Description */}
+                  <Skeleton className="h-4 w-full mb-3 rounded" />
+
+                  {/* Dates */}
+                  <div className="space-y-1 mb-4">
+                    <Skeleton className="h-3 w-1/2 rounded" />
+                    <Skeleton className="h-3 w-1/2 rounded" />
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
+                    <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : keywords.length === 0 ? (
+          <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
             transition={defaultTransition}
           >
-            {/* Header und Button */}
-            <div className="flex flex-row items-center justify-between gap-4">
-              <div className="flex flex-row items-center gap-4">
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/dashboard')}
-                  className={cn(glassButton, 'rounded-full')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zum Dashboard</span>
-                </AnimatedButton>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                  Keywords verwalten
-                </h1>
-              </div>
-              <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
-                <DialogTrigger asChild>
-                  <AnimatedButton
-                    onClick={resetModalState}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Neues Keyword
-                  </AnimatedButton>
-                </DialogTrigger>
-                <DialogContent className={cn(glassCard, 'max-w-2xl')}>
-                  <DialogHeader>
-                    <DialogTitle className="text-foreground">
-                      {editingKeyword ? 'Keyword bearbeiten' : 'Neues Keyword'}
-                    </DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                      {editingKeyword
-                        ? 'Bearbeiten Sie das Keyword'
-                        : 'Erstellen Sie ein neues Keyword'}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    {/* Validierungsfehler */}
-                    {validationErrors.length > 0 && (
-                      <Alert
-                        variant="destructive"
-                        className={cn(glassCard, 'border-destructive/50')}
-                      >
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                        <AlertDescription className="mt-2">
-                          <ul className="list-disc list-inside space-y-1">
-                            {validationErrors.map((error, index) => (
-                              <li key={index}>{error}</li>
-                            ))}
-                          </ul>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    <motion.div
-                      className="space-y-2"
-                      variants={fadeInUp}
-                      initial="initial"
-                      animate="animate"
-                      transition={{ ...defaultTransition, delay: 0.1 }}
-                    >
-                      <Label className="text-foreground">Name</Label>
-                      <Input
-                        value={newKeyword.name}
-                        onChange={e => {
-                          setNewKeyword({ ...newKeyword, name: e.target.value });
-                          // Fehler zurücksetzen, wenn Wert geändert wird
-                          if (validationErrors.length > 0) {
-                            setValidationErrors([]);
-                          }
-                        }}
-                        placeholder="Keyword Name"
-                        className={cn(glassInput)}
-                      />
-                    </motion.div>
-                    <motion.div
-                      className="space-y-2"
-                      variants={fadeInUp}
-                      initial="initial"
-                      animate="animate"
-                      transition={{ ...defaultTransition, delay: 0.2 }}
-                    >
-                      <Label className="text-foreground">Beschreibung</Label>
-                      <Input
-                        value={newKeyword.description}
-                        onChange={e =>
-                          setNewKeyword({ ...newKeyword, description: e.target.value })
-                        }
-                        placeholder="Beschreibung"
-                        className={cn(glassInput)}
-                      />
-                    </motion.div>
-                  </div>
-                  <DialogFooter>
-                    <AnimatedButton
-                      variant="ghost"
-                      onClick={() => setIsDialogOpen(false)}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
-                    >
-                      Abbrechen
-                    </AnimatedButton>
-                    <LoadingButton
-                      variant="outline"
-                      onClick={editingKeyword ? handleUpdateKeyword : handleAddKeyword}
-                      isLoading={false}
-                      className={cn(glassButton)}
-                    >
-                      <Check className="h-4 w-4" />
-                      {editingKeyword ? 'Aktualisieren' : 'Hinzufügen'}
-                    </LoadingButton>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </motion.div>
-
-          {/* Mobile Card-Ansicht */}
-          {isLoading ? (
-            <motion.div
-              className="block md:hidden space-y-4"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {[...Array(4)].map((_, index) => (
-                <motion.div key={index} variants={fadeInUp}>
-                  <Card className={cn(glassCard, 'p-4 sm:p-6')}>
-                    {/* Header */}
-                    <Skeleton className="h-6 w-3/4 mb-2 rounded" />
-
-                    {/* Description */}
-                    <Skeleton className="h-4 w-full mb-3 rounded" />
-
-                    {/* Dates */}
-                    <div className="space-y-1 mb-4">
-                      <Skeleton className="h-3 w-1/2 rounded" />
-                      <Skeleton className="h-3 w-1/2 rounded" />
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
-                      <Skeleton className="h-8 w-full sm:flex-1 rounded-xl" />
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : keywords.length === 0 ? (
-            <motion.div
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <Card className={cn(glassCard, 'block md:hidden p-6 text-center')}>
-                <div className="text-muted-foreground">Keine Keywords vorhanden</div>
-              </Card>
-            </motion.div>
-          ) : (
-            <motion.div
-              className="block md:hidden space-y-4"
-              variants={staggerContainer}
-              initial="initial"
-              animate="animate"
-            >
-              {keywords.map((keyword, index) => (
-                <motion.div key={keyword.id} variants={fadeInUp}>
-                  <Card className={cn(glassCard, 'p-4 sm:p-6')}>
-                    <div className="font-bold text-lg mb-2 text-foreground">{keyword.name}</div>
-                    <div className="text-sm text-muted-foreground mb-3">
-                      {keyword.description || '-'}
-                    </div>
-                    <div className="text-xs text-muted-foreground mb-4 space-y-1">
-                      <div>Erstellt: {new Date(keyword.createdAt).toLocaleDateString()}</div>
-                      <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <AnimatedButton
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleEditKeyword(keyword)}
-                        className={cn(glassButton, 'flex-1')}
-                      >
-                        <Pencil className="mr-2 h-4 w-4" /> Bearbeiten
-                      </AnimatedButton>
-                      <AnimatedButton
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDeleteKeyword(keyword.id)}
-                        className="flex-1"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Löschen
-                      </AnimatedButton>
-                    </div>
-                  </Card>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-
-          {/* Desktop/Table Ansicht */}
-          <motion.div
-            className="hidden md:block"
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={{ ...defaultTransition, delay: 0.2 }}
-          >
-            <Card className={cn(glassCard, 'overflow-hidden')}>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-secondary hover:bg-muted/50">
-                    <TableHead className="text-foreground font-semibold">Name</TableHead>
-                    <TableHead className="text-foreground font-semibold">Beschreibung</TableHead>
-                    <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
-                    <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
-                    <TableHead className="text-foreground font-semibold w-[100px]">
-                      Aktionen
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    <>
-                      {[...Array(5)].map((_, index) => (
-                        <TableRow key={index} className="border-secondary hover:bg-muted/50">
-                          <TableCell className="py-4">
-                            <Skeleton className="h-4 w-24 rounded" />
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <Skeleton className="h-4 w-48 rounded" />
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <Skeleton className="h-4 w-20 rounded" />
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <Skeleton className="h-4 w-20 rounded" />
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <Skeleton className="h-8 w-8 rounded-lg" />
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </>
-                  ) : keywords.length === 0 ? (
-                    <TableRow className="border-secondary hover:bg-muted/50">
-                      <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                        Keine Keywords vorhanden
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    keywords.map((keyword, index) => (
-                      <TableRow
-                        key={keyword.id}
-                        className="border-secondary hover:bg-muted/50 transition-colors"
-                      >
-                        <TableCell className="font-medium text-foreground">
-                          {keyword.name}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {keyword.description || '-'}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(keyword.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground">
-                          {new Date(keyword.updatedAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <AnimatedButton variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </AnimatedButton>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className={cn(glassCard)}>
-                              <DropdownMenuItem
-                                onClick={() => handleEditKeyword(keyword)}
-                                className="cursor-pointer"
-                              >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Bearbeiten
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteKeyword(keyword.id)}
-                                className="text-destructive cursor-pointer"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Löschen
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
+            <Card className={cn(cardPreset, 'block md:hidden p-6 text-center')}>
+              <div className="text-muted-foreground">Keine Keywords vorhanden</div>
             </Card>
           </motion.div>
-        </div>
+        ) : (
+          <motion.div
+            className="block md:hidden space-y-4"
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+          >
+            {keywords.map((keyword, index) => (
+              <motion.div key={keyword.id} variants={fadeInUp}>
+                <Card className={cn(cardPreset, 'p-4 sm:p-6')}>
+                  <div className="font-bold text-lg mb-2 text-foreground">{keyword.name}</div>
+                  <div className="text-sm text-muted-foreground mb-3">
+                    {keyword.description || '-'}
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-4 space-y-1">
+                    <div>Erstellt: {new Date(keyword.createdAt).toLocaleDateString()}</div>
+                    <div>Aktualisiert: {new Date(keyword.updatedAt).toLocaleDateString()}</div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <LoadingButton
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditKeyword(keyword)}
+                      className={cn(buttonPreset, 'flex-1')}
+                    >
+                      <Pencil className="mr-2 h-4 w-4" /> Bearbeiten
+                    </LoadingButton>
+                    <LoadingButton
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteKeyword(keyword.id)}
+                      className="flex-1"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Löschen
+                    </LoadingButton>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+
+        {/* Desktop/Table Ansicht */}
+        <motion.div
+          className="hidden md:block"
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={{ ...defaultTransition, delay: 0.2 }}
+        >
+          <Card className={cn(cardPreset, 'overflow-hidden')}>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-secondary hover:bg-muted/50">
+                  <TableHead className="text-foreground font-semibold">Name</TableHead>
+                  <TableHead className="text-foreground font-semibold">Beschreibung</TableHead>
+                  <TableHead className="text-foreground font-semibold">Erstellt am</TableHead>
+                  <TableHead className="text-foreground font-semibold">Aktualisiert am</TableHead>
+                  <TableHead className="text-foreground font-semibold w-[100px]">
+                    Aktionen
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  <>
+                    {[...Array(5)].map((_, index) => (
+                      <TableRow key={index} className="border-secondary hover:bg-muted/50">
+                        <TableCell>
+                          <Skeleton className="h-4 w-24 rounded" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-48 rounded" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20 rounded" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-4 w-20 rounded" />
+                        </TableCell>
+                        <TableCell>
+                          <Skeleton className="h-8 w-8 rounded-lg" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : keywords.length === 0 ? (
+                  <TableRow className="border-secondary hover:bg-muted/50">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      Keine Keywords vorhanden
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  keywords.map((keyword, index) => (
+                    <TableRow
+                      key={keyword.id}
+                      className="border-secondary hover:bg-muted/50 transition-colors"
+                    >
+                      <TableCell className="font-medium text-foreground">{keyword.name}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {keyword.description || '-'}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(keyword.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {new Date(keyword.updatedAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <LoadingButton variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </LoadingButton>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className={cn(cardPreset)}>
+                            <DropdownMenuItem
+                              onClick={() => handleEditKeyword(keyword)}
+                              className="cursor-pointer"
+                            >
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Bearbeiten
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteKeyword(keyword.id)}
+                              className="text-destructive cursor-pointer"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Löschen
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </motion.div>
       </div>
-    </PageTransition>
+    </div>
   );
 }

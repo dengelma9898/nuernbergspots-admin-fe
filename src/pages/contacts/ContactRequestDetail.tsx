@@ -19,14 +19,11 @@ import { toast } from 'sonner';
 import { showSuccessMessage } from '@/utils/errorUtils';
 import { showUserFriendlyError } from '@/utils/errorUtils';
 import { Textarea } from '@/components/ui/textarea';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 export function ContactRequestDetail() {
@@ -152,7 +149,7 @@ export function ContactRequestDetail() {
       <div className={`flex ${isAdmin ? 'justify-end' : 'justify-start'} mb-6`}>
         <Card
           className={cn(
-            glassCard,
+            cardPreset,
             'max-w-[85%] sm:max-w-[70%] p-4',
             isAdmin ? 'bg-primary text-primary-foreground' : 'bg-muted'
           )}
@@ -200,148 +197,139 @@ export function ContactRequestDetail() {
 
   if (loading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <div className="relative z-10 p-4 md:p-8">
-            <Card className={cn(glassCard, 'p-8 text-center max-w-md mx-auto')}>
-              <div className="flex flex-col items-center gap-4">
-                <div className="animate-spin rounded-full h-12 w-12 border-2 border-secondary border-t-primary"></div>
-                <p className="text-foreground text-lg">Lade Kontaktanfrage...</p>
-              </div>
-            </Card>
-          </div>
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 p-4 md:p-8">
+          <Card className={cn(cardPreset, 'p-8 text-center max-w-md mx-auto')}>
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-2 border-secondary border-t-primary"></div>
+              <p className="text-foreground text-lg">Lade Kontaktanfrage...</p>
+            </div>
+          </Card>
         </div>
-      </PageTransition>
+      </div>
     );
   }
 
   if (!contactRequest) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <div className="relative z-10 p-4 md:p-8">
-            <Card className={cn(glassCard, 'p-8 md:p-12 text-center max-w-lg mx-auto')}>
-              <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
-              <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
-                Kontaktanfrage nicht gefunden
-              </h3>
-              <p className="text-muted-foreground text-sm md:text-base mb-6">
-                Die angeforderte Kontaktanfrage konnte nicht gefunden werden.
-              </p>
-              <AnimatedButton
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/contacts')}
-                className={cn(glassButton, 'rounded-full')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Zurück zur Übersicht</span>
-              </AnimatedButton>
-            </Card>
-          </div>
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 p-4 md:p-8">
+          <Card className={cn(cardPreset, 'p-8 md:p-12 text-center max-w-lg mx-auto')}>
+            <MessageSquare className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+              Kontaktanfrage nicht gefunden
+            </h3>
+            <p className="text-muted-foreground text-sm md:text-base mb-6">
+              Die angeforderte Kontaktanfrage konnte nicht gefunden werden.
+            </p>
+            <LoadingButton
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/contacts')}
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
+            </LoadingButton>
+          </Card>
         </div>
-      </PageTransition>
+      </div>
     );
   }
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10 min-h-screen flex flex-col items-start">
-          {/* Hidden compatibility element for tests */}
-          <div className="w-full min-h-screen bg-white absolute -z-10 opacity-0 pointer-events-none"></div>
-          <div className="w-full flex flex-col flex-1">
-            {/* Header */}
-            <motion.div
-              className={cn(glassCard, 'p-6 md:p-8 mb-6 w-full')}
-              variants={fadeInUp}
-              initial="initial"
-              animate="animate"
-              transition={defaultTransition}
-            >
-              <div className="flex flex-row items-start justify-between gap-4">
-                <AnimatedButton
-                  onClick={() => navigate('/contacts')}
-                  variant="ghost"
-                  size="icon"
-                  className={cn(glassButton, 'rounded-full shrink-0')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zur Übersicht</span>
-                </AnimatedButton>
-                <div className="flex-1 min-w-0">
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2">
-                    Kontaktanfrage Details
-                  </h1>
-                  <div className="flex flex-wrap items-center gap-3 mb-1">
-                    {getRequestTypeBadge(contactRequest.type)}
-                    {getStatusBadge(contactRequest)}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {format(new Date(contactRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
-                  </p>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10 min-h-screen flex flex-col items-start">
+        {/* Hidden compatibility element for tests */}
+        <div className="w-full min-h-screen bg-white absolute -z-10 opacity-0 pointer-events-none"></div>
+        <div className="w-full flex flex-col flex-1">
+          {/* Header */}
+          <motion.div
+            className={cn(cardPreset, 'p-6 md:p-8 mb-6 w-full')}
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            transition={defaultTransition}
+          >
+            <div className="flex flex-row items-start justify-between gap-4">
+              <LoadingButton
+                onClick={() => navigate('/contacts')}
+                variant="ghost"
+                size="icon"
+                className={cn(buttonPreset, 'rounded-full shrink-0')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zur Übersicht</span>
+              </LoadingButton>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-2">
+                  Kontaktanfrage Details
+                </h1>
+                <div className="flex flex-wrap items-center gap-3 mb-1">
+                  {getRequestTypeBadge(contactRequest.type)}
+                  {getStatusBadge(contactRequest)}
                 </div>
-                <LoadingButton
-                  onClick={() => fetchContactRequest(true)}
-                  disabled={isRefreshing}
-                  size="icon"
-                  className={cn(glassButton, 'shrink-0 rounded-full')}
-                >
-                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                  <span className="sr-only">Aktualisieren</span>
-                </LoadingButton>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(contactRequest.createdAt), 'dd.MM.yyyy HH:mm', { locale: de })}
+                </p>
               </div>
-            </motion.div>
-
-            {/* Konversation */}
-            <div className="flex-1 overflow-y-auto pb-40">
-              <Card className={cn(glassCard, 'p-6 mb-6')}>
-                <h2 className="text-lg md:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-muted-foreground" />
-                  Konversation
-                </h2>
-                <div className="space-y-4">
-                  {contactRequest.messages.map(message => (
-                    <MessageBubble
-                      key={`${message.createdAt}-${message.message.substring(0, 20)}`}
-                      message={message}
-                    />
-                  ))}
-                </div>
-              </Card>
+              <LoadingButton
+                onClick={() => fetchContactRequest(true)}
+                disabled={isRefreshing}
+                size="icon"
+                className={cn(buttonPreset, 'shrink-0 rounded-full')}
+              >
+                <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <span className="sr-only">Aktualisieren</span>
+              </LoadingButton>
             </div>
+          </motion.div>
 
-            {/* Floating Antwortfeld */}
-            <form
-              onSubmit={handleSubmitResponse}
-              className="fixed bottom-0 left-0 w-full z-30 border-t bg-background/95 backdrop-blur-sm p-4"
-              style={{ maxWidth: '100vw' }}
-            >
-              <div className="max-w-4xl mx-auto w-full flex flex-row gap-3 items-end">
-                <Textarea
-                  placeholder="Ihre Antwort..."
-                  value={responseMessage}
-                  onChange={e => setResponseMessage(e.target.value)}
-                  className={cn(glassInput, 'min-h-[80px] resize-none flex-1')}
-                  disabled={isSending}
-                />
-                <LoadingButton
-                  type="submit"
-                  disabled={isSending || !responseMessage.trim()}
-                  size="icon"
-                  className={cn(glassButton, 'shrink-0 h-[80px] w-[80px]')}
-                >
-                  <Send className={`h-5 w-5 ${isSending ? 'animate-pulse' : ''}`} />
-                  <span className="sr-only">Antwort senden</span>
-                </LoadingButton>
+          {/* Konversation */}
+          <div className="flex-1 overflow-y-auto pb-40">
+            <Card className={cn(cardPreset, 'p-6 mb-6')}>
+              <h2 className="text-lg md:text-xl font-bold text-foreground mb-6 flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                Konversation
+              </h2>
+              <div className="space-y-4">
+                {contactRequest.messages.map(message => (
+                  <MessageBubble
+                    key={`${message.createdAt}-${message.message.substring(0, 20)}`}
+                    message={message}
+                  />
+                ))}
               </div>
-            </form>
+            </Card>
           </div>
+
+          {/* Floating Antwortfeld */}
+          <form
+            onSubmit={handleSubmitResponse}
+            className="fixed bottom-0 left-0 w-full z-30 border-t border-secondary bg-background p-4"
+            style={{ maxWidth: '100vw' }}
+          >
+            <div className="max-w-4xl mx-auto w-full flex flex-row gap-3 items-end">
+              <Textarea
+                placeholder="Ihre Antwort..."
+                value={responseMessage}
+                onChange={e => setResponseMessage(e.target.value)}
+                className={cn(inputPreset, 'min-h-[80px] resize-none flex-1')}
+                disabled={isSending}
+              />
+              <LoadingButton
+                type="submit"
+                disabled={isSending || !responseMessage.trim()}
+                size="icon"
+                className={cn(buttonPreset, 'shrink-0 h-[80px] w-[80px]')}
+              >
+                <Send className={`h-5 w-5 ${isSending ? 'animate-pulse' : ''}`} />
+                <span className="sr-only">Antwort senden</span>
+              </LoadingButton>
+            </div>
+          </form>
         </div>
       </div>
-    </PageTransition>
+    </div>
   );
 }

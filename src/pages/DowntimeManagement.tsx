@@ -16,13 +16,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
-import { motion } from 'framer-motion';
+import { LoadingButton } from '@/components/LoadingButton';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 // Skeleton Component
@@ -139,15 +137,15 @@ export function DowntimeManagement() {
         animate="animate"
         transition={defaultTransition}
       >
-        <AnimatedButton
+        <LoadingButton
           variant="ghost"
           size="icon"
           onClick={() => navigate('/dashboard')}
-          className={cn(glassButton, 'rounded-full')}
+          className={cn(buttonPreset, 'rounded-full')}
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="sr-only">Zurück zum Dashboard</span>
-        </AnimatedButton>
+        </LoadingButton>
         <h1 className="text-xl sm:text-2xl font-bold text-foreground break-words">
           Downtime-Verwaltung
         </h1>
@@ -169,7 +167,7 @@ export function DowntimeManagement() {
         </div>
 
         {/* Toggle Section */}
-        <div className={cn(glassCard, 'p-4 sm:p-6')}>
+        <div className={cn(cardPreset, 'p-4 sm:p-6')}>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-2 flex-1">
               <div className="flex items-center gap-2">
@@ -198,7 +196,7 @@ export function DowntimeManagement() {
 
         {/* Warning Info */}
         {isDowntime && (
-          <div className={cn(glassCard, 'p-4 sm:p-6 border-yellow-500/50 bg-yellow-500/5')}>
+          <div className={cn(cardPreset, 'p-4 sm:p-6 border-yellow-500/50 bg-yellow-500/5')}>
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
               <div className="space-y-1">
@@ -214,7 +212,7 @@ export function DowntimeManagement() {
 
         {/* Confirmation Dialog */}
         <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <AlertDialogContent className={cn(glassCard)}>
+          <AlertDialogContent className={cn(cardPreset)}>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">{getDialogTitle()}</AlertDialogTitle>
               <AlertDialogDescription className="text-muted-foreground">
@@ -222,7 +220,7 @@ export function DowntimeManagement() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleCancelToggle} className={cn(glassButton)}>
+              <AlertDialogCancel onClick={handleCancelToggle} className={cn(buttonPreset)}>
                 Abbrechen
               </AlertDialogCancel>
               <AlertDialogAction
@@ -244,21 +242,11 @@ export function DowntimeManagement() {
 
   if (isLoading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <DowntimeManagementSkeleton />
-        </div>
-      </PageTransition>
+      <div className="min-h-screen relative overflow-hidden">
+        <DowntimeManagementSkeleton />
+      </div>
     );
   }
 
-  return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        {pageContent}
-      </div>
-    </PageTransition>
-  );
+  return <div className="min-h-screen relative overflow-hidden">{pageContent}</div>;
 }
