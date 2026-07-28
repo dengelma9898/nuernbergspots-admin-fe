@@ -165,4 +165,103 @@
   .font-more-sugar {
     font-family: 'More Sugar', sans-serif;
   }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes scale-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.02);
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes background-pulse {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 0.05;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.05);
+      opacity: 0.1;
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease both;
+  }
+
+  .motion-stagger-item {
+    animation: fade-in-up 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .motion-hover-scale {
+    transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .motion-hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .motion-tap-scale:active {
+    transform: scale(0.95);
+  }
+
+  .motion-loading-pulse {
+    animation: scale-pulse 1.5s ease-in-out infinite;
+  }
+
+  .motion-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  .motion-background-pulse {
+    animation: background-pulse 8s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in-up,
+    .animate-fade-in,
+    .motion-stagger-item,
+    .motion-loading-pulse,
+    .motion-background-pulse {
+      animation: none;
+    }
+
+    .motion-hover-scale:hover,
+    .motion-tap-scale:active {
+      transform: none;
+    }
+  }
 }
