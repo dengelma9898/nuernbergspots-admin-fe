@@ -31,29 +31,13 @@ jest.mock('@/utils/errorUtils', () => ({
   showUserFriendlyError: jest.fn(),
 }));
 
-jest.mock('framer-motion', () => ({
+jest.mock('@/components/motion', () => ({
   motion: {
     div: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
       <div {...props}>{children}</div>
     ),
   },
   AnimatePresence: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
-
-jest.mock('@/components/Background', () => ({
-  Background: () => <div data-testid="background" />,
-}));
-
-jest.mock('@/components/PageTransition', () => ({
-  PageTransition: ({ children }: React.PropsWithChildren) => <>{children}</>,
-}));
-
-jest.mock('@/components/AnimatedButton', () => ({
-  AnimatedButton: ({ children, onClick, disabled, ...props }: any) => (
-    <button onClick={onClick} disabled={disabled} {...props}>
-      {children}
-    </button>
-  ),
 }));
 
 jest.mock('@/components/LoadingButton', () => ({
@@ -93,7 +77,12 @@ const createCsvFile = (): File =>
     type: 'text/csv',
   });
 
-const renderPage = () => render(<BrowserRouter><CsvEventImport /></BrowserRouter>);
+const renderPage = () =>
+  render(
+    <BrowserRouter>
+      <CsvEventImport />
+    </BrowserRouter>
+  );
 
 describe('CsvEventImport', () => {
   beforeEach(() => {
@@ -124,8 +113,9 @@ describe('CsvEventImport', () => {
         },
       },
     ]);
-    (buildCsvFile as jest.Mock).mockImplementation((rows: unknown[], name: string) =>
-      new File(['filtered'], `${name}-auswahl.csv`, { type: 'text/csv' })
+    (buildCsvFile as jest.Mock).mockImplementation(
+      (rows: unknown[], name: string) =>
+        new File(['filtered'], `${name}-auswahl.csv`, { type: 'text/csv' })
     );
   });
 

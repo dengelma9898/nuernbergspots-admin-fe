@@ -26,14 +26,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 interface NewEvent {
@@ -481,253 +478,198 @@ export const CopyEvent: React.FC = () => {
 
   if (loadingEvent) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <div className="relative z-10 container mx-auto py-6">
-            <div className={cn(glassCard, 'p-6')}>
-              <Skeleton className="bg-muted h-10 w-64 mb-4 rounded-lg" />
-              <Skeleton className="bg-muted h-96 w-full rounded-lg" />
-            </div>
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 container mx-auto py-6">
+          <div className={cn(cardPreset, 'p-6')}>
+            <Skeleton className="bg-muted h-10 w-64 mb-4 rounded-lg" />
+            <Skeleton className="bg-muted h-96 w-full rounded-lg" />
           </div>
         </div>
-      </PageTransition>
+      </div>
     );
   }
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6">
-          {/* Header */}
-          <motion.div
-            className={cn(glassCard, 'p-6 mb-8')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <AnimatedButton
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/events')}
-                className={cn(glassButton, 'rounded-full')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Zurück zur Übersicht</span>
-              </AnimatedButton>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                Event kopieren
-              </h1>
-            </div>
-          </motion.div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6">
+        {/* Header */}
+        <motion.div
+          className={cn(cardPreset, 'p-6 mb-8')}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <LoadingButton
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/events')}
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
+            </LoadingButton>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+              Event kopieren
+            </h1>
+          </div>
+        </motion.div>
 
-          {/* Main Content Card */}
-          <motion.div
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <Card className={cn(glassCard)}>
-              <CardHeader>
-                <CardTitle className="text-foreground">Event Details</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Passe die Daten an und erstelle eine Kopie des Events.
-                </CardDescription>
-              </CardHeader>
+        {/* Main Content Card */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <Card className={cn(cardPreset)}>
+            <CardHeader>
+              <CardTitle className="text-foreground">Event Details</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Passe die Daten an und erstelle eine Kopie des Events.
+              </CardDescription>
+            </CardHeader>
 
-              <CardContent className="space-y-6">
-                {/* Bilder kopieren Option */}
-                <div className={cn(glassCard, 'p-4')}>
-                  <div className="flex items-center space-x-3">
-                    <Switch id="copyImages" checked={copyImages} onCheckedChange={setCopyImages} />
-                    <div className="space-y-1">
-                      <Label htmlFor="copyImages" className="text-foreground">
-                        Bilder mitkopieren
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Wenn aktiviert, werden alle Bilder des ursprünglichen Events mitkopiert.
-                        {imageUrlsToCopy.length > 0 || titleImageUrlToCopy ? (
-                          <span className="block mt-1 text-destructive">
-                            Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du
-                            das ursprüngliche Event oder dessen Bilder später löschst, sind die
-                            Bilder auch im kopierten Event nicht mehr verfügbar.
-                          </span>
-                        ) : null}
-                      </p>
-                    </div>
+            <CardContent className="space-y-6">
+              {/* Bilder kopieren Option */}
+              <div className={cn(cardPreset, 'p-4')}>
+                <div className="flex items-center space-x-3">
+                  <Switch id="copyImages" checked={copyImages} onCheckedChange={setCopyImages} />
+                  <div className="space-y-1">
+                    <Label htmlFor="copyImages" className="text-foreground">
+                      Bilder mitkopieren
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Wenn aktiviert, werden alle Bilder des ursprünglichen Events mitkopiert.
+                      {imageUrlsToCopy.length > 0 || titleImageUrlToCopy ? (
+                        <span className="block mt-1 text-destructive">
+                          Hinweis: Die Bilder werden mit dem kopierten Event verknüpft. Wenn du das
+                          ursprüngliche Event oder dessen Bilder später löschst, sind die Bilder
+                          auch im kopierten Event nicht mehr verfügbar.
+                        </span>
+                      ) : null}
+                    </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Titelbild Vorschau */}
-                {copyImages && titleImagePreview && (
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Titelbild (kopiert)</Label>
-                    <div className="relative inline-block">
-                      <img
-                        src={titleImagePreview}
-                        alt="Titelbild Vorschau"
-                        className="h-48 w-full object-cover rounded-lg border border-secondary bg-card"
-                      />
-                      <AnimatedButton
-                        variant="destructive"
-                        size="sm"
-                        onClick={removeTitleImagePreview}
-                        className="absolute top-2 right-2"
-                      >
-                        <X className="h-4 w-4" />
-                      </AnimatedButton>
-                    </div>
-                  </div>
-                )}
-
-                {/* Bilder Vorschau */}
-                {copyImages && imagePreviews.length > 0 && (
-                  <div className="space-y-2">
-                    <Label className="text-foreground">Bilder (kopiert)</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                      {imagePreviews.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={preview}
-                            alt={`Bild ${index + 1}`}
-                            className="h-32 w-full object-cover rounded-lg border border-secondary bg-card"
-                          />
-                          <AnimatedButton
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeImagePreview(index)}
-                            className="absolute top-1 right-1 h-6 w-6 p-0"
-                          >
-                            <X className="h-3 w-3" />
-                          </AnimatedButton>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Title */}
+              {/* Titelbild Vorschau */}
+              {copyImages && titleImagePreview && (
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="text-foreground">
-                    Titel
+                  <Label className="text-foreground">Titelbild (kopiert)</Label>
+                  <div className="relative inline-block">
+                    <img
+                      src={titleImagePreview}
+                      alt="Titelbild Vorschau"
+                      className="h-48 w-full object-cover rounded-lg border border-secondary bg-card"
+                    />
+                    <LoadingButton
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeTitleImagePreview}
+                      className="absolute top-2 right-2"
+                    >
+                      <X className="h-4 w-4" />
+                    </LoadingButton>
+                  </div>
+                </div>
+              )}
+
+              {/* Bilder Vorschau */}
+              {copyImages && imagePreviews.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-foreground">Bilder (kopiert)</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={preview}
+                          alt={`Bild ${index + 1}`}
+                          className="h-32 w-full object-cover rounded-lg border border-secondary bg-card"
+                        />
+                        <LoadingButton
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeImagePreview(index)}
+                          className="absolute top-1 right-1 h-6 w-6 p-0"
+                        >
+                          <X className="h-3 w-3" />
+                        </LoadingButton>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Title */}
+              <div className="space-y-2">
+                <Label htmlFor="title" className="text-foreground">
+                  Titel
+                </Label>
+                <Input
+                  id="title"
+                  value={newEvent.title}
+                  onChange={e => handleInputChange('title', e.target.value)}
+                  placeholder="z.B. Sommerfest 2024"
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ein prägnanter Titel, der das Event gut beschreibt.
+                </p>
+              </div>
+
+              {/* Description */}
+              <div className="space-y-2">
+                <Label htmlFor="description" className="text-foreground">
+                  Beschreibung
+                </Label>
+                <Textarea
+                  id="description"
+                  value={newEvent.description}
+                  onChange={e => handleInputChange('description', e.target.value)}
+                  placeholder="Beschreibe das Event im Detail..."
+                  className={cn(inputPreset, 'min-h-[100px]')}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie Programm,
+                  Highlights oder besondere Hinweise.
+                </p>
+              </div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-foreground">
+                    Startdatum
                   </Label>
                   <Input
-                    id="title"
-                    value={newEvent.title}
-                    onChange={e => handleInputChange('title', e.target.value)}
-                    placeholder="z.B. Sommerfest 2024"
-                    className={cn(glassInput)}
+                    id="startDate"
+                    type="date"
+                    value={newEvent.startDate.split('T')[0]}
+                    onChange={e => handleInputChange('startDate', e.target.value)}
+                    className={cn(inputPreset)}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Ein prägnanter Titel, der das Event gut beschreibt.
-                  </p>
                 </div>
-
-                {/* Description */}
                 <div className="space-y-2">
-                  <Label htmlFor="description" className="text-foreground">
-                    Beschreibung
+                  <Label htmlFor="endDate" className="text-foreground">
+                    Enddatum
                   </Label>
-                  <Textarea
-                    id="description"
-                    value={newEvent.description}
-                    onChange={e => handleInputChange('description', e.target.value)}
-                    placeholder="Beschreibe das Event im Detail..."
-                    className={cn(glassInput, 'min-h-[100px]')}
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={newEvent.endDate.split('T')[0]}
+                    onChange={e => handleInputChange('endDate', e.target.value)}
+                    className={cn(inputPreset)}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Eine ausführliche Beschreibung des Events. Nenne wichtige Details wie Programm,
-                    Highlights oder besondere Hinweise.
-                  </p>
                 </div>
+              </div>
 
-                {/* Date Range */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate" className="text-foreground">
-                      Startdatum
-                    </Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={newEvent.startDate.split('T')[0]}
-                      onChange={e => handleInputChange('startDate', e.target.value)}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-foreground">
-                      Enddatum
-                    </Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={newEvent.endDate.split('T')[0]}
-                      onChange={e => handleInputChange('endDate', e.target.value)}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                </div>
-
-                {/* Daily Time Slots */}
-                {newEvent.dailyTimeSlots.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            <p>
-                              Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
-                              sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
-                              &apos;Monat/Jahr&apos;.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-
-                    <div className="space-y-4">
-                      {newEvent.dailyTimeSlots.map(slot => (
-                        <div key={slot.date} className={cn(glassCard, 'p-4')}>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                            <div className="font-medium text-foreground">
-                              {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
-                            </div>
-                            <Input
-                              type="time"
-                              value={slot.from || ''}
-                              onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
-                              placeholder="Von"
-                              className={cn(glassInput)}
-                            />
-                            <Input
-                              type="time"
-                              value={slot.to || ''}
-                              onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
-                              placeholder="Bis"
-                              className={cn(glassInput)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Month/Year (Alternative to daily time slots) */}
-                <div className="space-y-2">
+              {/* Daily Time Slots */}
+              {newEvent.dailyTimeSlots.length > 0 && (
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="monthYear" className="text-foreground">
-                      Monat/Jahr (optional)
-                    </Label>
+                    <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -735,304 +677,352 @@ export const CopyEvent: React.FC = () => {
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
                           <p>
-                            Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen,
-                            ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig
-                            existieren.
+                            Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
+                            sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
+                            &apos;Monat/Jahr&apos;.
                           </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <MonthYearPicker
-                    id="monthYear"
-                    value={newEvent.monthYear}
-                    onChange={value => handleInputChange('monthYear', value || null)}
-                    className={cn(glassInput)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
-                    und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
-                  </p>
-                </div>
 
-                {/* Location */}
-                <div className="space-y-2">
-                  <Label className="text-foreground">Adresse</Label>
-                  {!hasValidLocation && (
-                    <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-2">
-                      <div className="text-sm text-destructive font-semibold mb-1">
-                        ⚠️ Adresse muss neu gesetzt werden
-                      </div>
-                      <p className="text-xs text-destructive/80">
-                        Die Adresse des kopierten Events ist nicht vollständig oder konnte nicht
-                        korrekt übertragen werden. Bitte suchen Sie die Adresse erneut über das
-                        Suchfeld und wählen Sie den passenden Eintrag aus.
-                      </p>
-                    </div>
-                  )}
-                  <LocationSearch
-                    value={searchValue}
-                    onChange={handleLocationSelect}
-                    placeholder="Adresse suchen..."
-                    debounce={1000}
-                  />
-                  {hasValidLocation && newEvent.address && (
-                    <div className={cn(glassCard, 'p-4')}>
-                      <div className="font-semibold mb-2 flex items-center gap-2 text-foreground">
-                        <span>📍</span>
-                        {newEvent.address}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <div>
-                          Latitude:
-                          <br />
-                          {newEvent.latitude}
-                        </div>
-                        <div>
-                          Longitude:
-                          <br />
-                          {newEvent.longitude}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den passenden
-                    Eintrag aus.
-                  </p>
-                </div>
-
-                {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="priceString" className="text-foreground">
-                    Preis
-                  </Label>
-                  <Input
-                    id="priceString"
-                    type="text"
-                    value={newEvent.priceString || ''}
-                    onChange={e => handleInputChange('priceString', e.target.value || null)}
-                    placeholder="z.B. 15€, Kostenlos, Spende, etc."
-                    className={cn(glassInput)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Der Eintrittspreis als Text. Lass das Feld leer für kostenlose Events.
-                  </p>
-                </div>
-
-                {/* Category */}
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="text-foreground">
-                    Kategorie
-                  </Label>
-                  <Select
-                    value={newEvent.categoryId || ''}
-                    onValueChange={value => handleInputChange('categoryId', value)}
-                  >
-                    <SelectTrigger className={cn(glassInput)}>
-                      <SelectValue placeholder="Kategorie auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <span className="flex items-center">
-                              {getIconComponent(category.iconName)}
-                            </span>
-                            {category.name}
+                  <div className="space-y-4">
+                    {newEvent.dailyTimeSlots.map(slot => (
+                      <div key={slot.date} className={cn(cardPreset, 'p-4')}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                          <div className="font-medium text-foreground">
+                            {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Wähle eine passende Kategorie für dein Event aus.
-                  </p>
-                </div>
-
-                {/* Switches */}
-                <div className="space-y-4">
-                  <div className={cn(glassCard, 'p-4')}>
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        id="ticketsNeeded"
-                        checked={newEvent.ticketsNeeded}
-                        onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="ticketsNeeded" className="text-foreground">
-                          Tickets erforderlich
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
-                        </p>
+                          <Input
+                            type="time"
+                            value={slot.from || ''}
+                            onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
+                            placeholder="Von"
+                            className={cn(inputPreset)}
+                          />
+                          <Input
+                            type="time"
+                            value={slot.to || ''}
+                            onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
+                            placeholder="Bis"
+                            className={cn(inputPreset)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className={cn(glassCard, 'p-4')}>
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        id="isPromoted"
-                        checked={newEvent.isPromoted}
-                        onCheckedChange={checked => handleInputChange('isPromoted', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="isPromoted" className="text-foreground">
-                          Als "Highlight" markieren
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
-                        </p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                {/* Contact Information */}
-                <div className="space-y-4">
-                  <Label className="text-foreground text-lg">Kontaktinformationen</Label>
+              {/* Month/Year (Alternative to daily time slots) */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="monthYear" className="text-foreground">
+                    Monat/Jahr (optional)
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>
+                          Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne
+                          Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <MonthYearPicker
+                  id="monthYear"
+                  value={newEvent.monthYear}
+                  onChange={value => handleInputChange('monthYear', value || null)}
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
+                  und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                </p>
+              </div>
 
-                  <div className={cn(glassCard, 'p-4 space-y-4')}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="contactEmail" className="text-muted-foreground">
-                          E-Mail
-                        </Label>
-                        <Input
-                          id="contactEmail"
-                          type="email"
-                          value={newEvent.contactEmail || ''}
-                          onChange={e => handleInputChange('contactEmail', e.target.value)}
-                          placeholder="kontakt@beispiel.de"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPhone" className="text-muted-foreground">
-                          Telefon
-                        </Label>
-                        <Input
-                          id="contactPhone"
-                          type="tel"
-                          value={newEvent.contactPhone || ''}
-                          onChange={e => handleInputChange('contactPhone', e.target.value)}
-                          placeholder="+49 123 4567890"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2 lg:col-span-2">
-                        <Label htmlFor="website" className="text-muted-foreground">
-                          Website
-                        </Label>
-                        <Input
-                          id="website"
-                          type="url"
-                          value={newEvent.website || ''}
-                          onChange={e => handleInputChange('website', e.target.value)}
-                          placeholder="https://www.beispiel.de"
-                          className={cn(glassInput)}
-                        />
-                      </div>
+              {/* Location */}
+              <div className="space-y-2">
+                <Label className="text-foreground">Adresse</Label>
+                {!hasValidLocation && (
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-2">
+                    <div className="text-sm text-destructive font-semibold mb-1">
+                      ⚠️ Adresse muss neu gesetzt werden
                     </div>
-
-                    <div className="mt-6">
-                      <Label className="text-muted-foreground text-base">Social Media</Label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="instagram" className="text-muted-foreground text-sm">
-                            Instagram
-                          </Label>
-                          <Input
-                            id="instagram"
-                            value={newEvent.socialMedia.instagram || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  instagram: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@benutzername"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="facebook" className="text-muted-foreground text-sm">
-                            Facebook
-                          </Label>
-                          <Input
-                            id="facebook"
-                            value={newEvent.socialMedia.facebook || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  facebook: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@seitename"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="tiktok" className="text-muted-foreground text-sm">
-                            TikTok
-                          </Label>
-                          <Input
-                            id="tiktok"
-                            value={newEvent.socialMedia.tiktok || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  tiktok: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@benutzername"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground mt-4">
-                      Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu, die
-                      du öffentlich teilen möchtest.
+                    <p className="text-xs text-destructive/80">
+                      Die Adresse des kopierten Events ist nicht vollständig oder konnte nicht
+                      korrekt übertragen werden. Bitte suchen Sie die Adresse erneut über das
+                      Suchfeld und wählen Sie den passenden Eintrag aus.
                     </p>
                   </div>
+                )}
+                <LocationSearch
+                  value={searchValue}
+                  onChange={handleLocationSelect}
+                  placeholder="Adresse suchen..."
+                  debounce={1000}
+                />
+                {hasValidLocation && newEvent.address && (
+                  <div className={cn(cardPreset, 'p-4')}>
+                    <div className="font-semibold mb-2 flex items-center gap-2 text-foreground">
+                      <span>📍</span>
+                      {newEvent.address}
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                      <div>
+                        Latitude:
+                        <br />
+                        {newEvent.latitude}
+                      </div>
+                      <div>
+                        Longitude:
+                        <br />
+                        {newEvent.longitude}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Der genaue Veranstaltungsort. Suche nach einer Adresse und wähle den passenden
+                  Eintrag aus.
+                </p>
+              </div>
+
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="priceString" className="text-foreground">
+                  Preis
+                </Label>
+                <Input
+                  id="priceString"
+                  type="text"
+                  value={newEvent.priceString || ''}
+                  onChange={e => handleInputChange('priceString', e.target.value || null)}
+                  placeholder="z.B. 15€, Kostenlos, Spende, etc."
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Der Eintrittspreis als Text. Lass das Feld leer für kostenlose Events.
+                </p>
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-foreground">
+                  Kategorie
+                </Label>
+                <Select
+                  value={newEvent.categoryId || ''}
+                  onValueChange={value => handleInputChange('categoryId', value)}
+                >
+                  <SelectTrigger className={cn(inputPreset)}>
+                    <SelectValue placeholder="Kategorie auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center">
+                            {getIconComponent(category.iconName)}
+                          </span>
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Wähle eine passende Kategorie für dein Event aus.
+                </p>
+              </div>
+
+              {/* Switches */}
+              <div className="space-y-4">
+                <div className={cn(cardPreset, 'p-4')}>
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="ticketsNeeded"
+                      checked={newEvent.ticketsNeeded}
+                      onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="ticketsNeeded" className="text-foreground">
+                        Tickets erforderlich
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Aktiviere diese Option, wenn Besucher Tickets im Voraus erwerben müssen.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-row items-center justify-end gap-4 pt-6 border-t border-secondary">
-                  <AnimatedButton
-                    variant="ghost"
-                    onClick={() => navigate('/events')}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
-                  >
-                    Abbrechen
-                  </AnimatedButton>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSubmit}
-                    isLoading={loading}
-                    loadingText="Wird kopiert..."
-                    className={cn(glassButton, 'flex items-center')}
-                  >
-                    Event kopieren
-                  </LoadingButton>
+                <div className={cn(cardPreset, 'p-4')}>
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="isPromoted"
+                      checked={newEvent.isPromoted}
+                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="isPromoted" className="text-foreground">
+                        Als "Highlight" markieren
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <Label className="text-foreground text-lg">Kontaktinformationen</Label>
+
+                <div className={cn(cardPreset, 'p-4 space-y-4')}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail" className="text-muted-foreground">
+                        E-Mail
+                      </Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={newEvent.contactEmail || ''}
+                        onChange={e => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="kontakt@beispiel.de"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone" className="text-muted-foreground">
+                        Telefon
+                      </Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={newEvent.contactPhone || ''}
+                        onChange={e => handleInputChange('contactPhone', e.target.value)}
+                        placeholder="+49 123 4567890"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2 lg:col-span-2">
+                      <Label htmlFor="website" className="text-muted-foreground">
+                        Website
+                      </Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={newEvent.website || ''}
+                        onChange={e => handleInputChange('website', e.target.value)}
+                        placeholder="https://www.beispiel.de"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Label className="text-muted-foreground text-base">Social Media</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram" className="text-muted-foreground text-sm">
+                          Instagram
+                        </Label>
+                        <Input
+                          id="instagram"
+                          value={newEvent.socialMedia.instagram || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                instagram: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@benutzername"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook" className="text-muted-foreground text-sm">
+                          Facebook
+                        </Label>
+                        <Input
+                          id="facebook"
+                          value={newEvent.socialMedia.facebook || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                facebook: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@seitename"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tiktok" className="text-muted-foreground text-sm">
+                          TikTok
+                        </Label>
+                        <Input
+                          id="tiktok"
+                          value={newEvent.socialMedia.tiktok || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                tiktok: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@benutzername"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Alle Kontaktinformationen sind optional. Füge nur die Informationen hinzu, die
+                    du öffentlich teilen möchtest.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-row items-center justify-end gap-4 pt-6 border-t border-secondary">
+                <LoadingButton
+                  variant="ghost"
+                  onClick={() => navigate('/events')}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
+                >
+                  Abbrechen
+                </LoadingButton>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSubmit}
+                  isLoading={loading}
+                  loadingText="Wird kopiert..."
+                  className={cn(buttonPreset, 'flex items-center')}
+                >
+                  Event kopieren
+                </LoadingButton>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </PageTransition>
+    </div>
   );
 };

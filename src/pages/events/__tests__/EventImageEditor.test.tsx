@@ -241,7 +241,10 @@ describe('EventImageEditor Component', () => {
     mockUseParams.mockReturnValue({});
     mockUseNavigate.mockReturnValue(mockNavigate);
     mockUseLocation.mockReturnValue({
-      state: null,
+      state: {
+        events: [mockEvent],
+        categoryName: 'Test Category',
+      },
       pathname: '/events/image-editor',
       search: '',
       hash: '',
@@ -312,6 +315,13 @@ describe('EventImageEditor Component', () => {
 
     it('sollte einzelnes Event über ID laden', async () => {
       mockUseParams.mockReturnValue({ id: 'event-1' });
+      mockUseLocation.mockReturnValue({
+        state: null,
+        pathname: '/events/image-editor/event-1',
+        search: '',
+        hash: '',
+        key: 'default',
+      });
 
       renderWithRouter(<EventImageEditor />);
 
@@ -319,10 +329,21 @@ describe('EventImageEditor Component', () => {
         expect(mockEventService.getEvent).toHaveBeenCalledWith('event-1');
         expect(mockEventCategoryService.getCategory).toHaveBeenCalledWith('category-1');
       });
+
+      await waitFor(() => {
+        expect(screen.getByText('Design-Einstellungen')).toBeInTheDocument();
+      });
     });
 
     it('sollte Fehler beim Laden behandeln', async () => {
       mockUseParams.mockReturnValue({ id: 'event-1' });
+      mockUseLocation.mockReturnValue({
+        state: null,
+        pathname: '/events/image-editor/event-1',
+        search: '',
+        hash: '',
+        key: 'default',
+      });
       mockEventService.getEvent.mockRejectedValue(new Error('API Error'));
       const mockToast = require('sonner').toast;
 
@@ -543,6 +564,8 @@ describe('EventImageEditor Component', () => {
       renderWithRouter(<EventImageEditor />);
 
       expect(screen.getByText('Event-Bild Editor')).toBeInTheDocument();
+      expect(screen.getByTestId('event-image-editor-issue')).toBeInTheDocument();
+      expect(screen.getByText('Keine Events für die Bildgenerierung')).toBeInTheDocument();
     });
 
     it('sollte mit fehlenden Location State umgehen', () => {
@@ -557,6 +580,36 @@ describe('EventImageEditor Component', () => {
       renderWithRouter(<EventImageEditor />);
 
       expect(screen.getByText('Event-Bild Editor')).toBeInTheDocument();
+      expect(screen.getByTestId('event-image-editor-issue')).toBeInTheDocument();
+    });
+
+    it('sollte Events ohne Tagesdatum mit Hinweis anzeigen statt zu crashen', () => {
+      mockUseLocation.mockReturnValue({
+        state: {
+          events: [
+            {
+              ...mockEvent,
+              id: 'month-only',
+              title: 'Nur Monat Event',
+              dailyTimeSlots: [],
+              monthYear: '07.2026',
+            },
+          ],
+          categoryName: 'Test Category',
+        },
+        pathname: '/events/image-editor',
+        search: '',
+        hash: '',
+        key: 'default',
+      });
+
+      renderWithRouter(<EventImageEditor />);
+
+      expect(screen.getByTestId('event-image-editor-issue')).toBeInTheDocument();
+      expect(
+        screen.getByText('Events können nicht als Bild dargestellt werden')
+      ).toBeInTheDocument();
+      expect(screen.getByText('Nur Monat Event')).toBeInTheDocument();
     });
   });
 

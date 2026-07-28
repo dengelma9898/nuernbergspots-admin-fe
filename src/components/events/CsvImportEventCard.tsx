@@ -2,20 +2,12 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { glassCard } from '@/lib/glassmorphism';
+import { cardPreset } from '@/lib/designTokens';
 import { CsvColumnName } from '@/utils/csvEventParser';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { formatDate } from '@/utils/eventFormatters';
-import {
-  CalendarDays,
-  MapPin,
-  Tag,
-  Euro,
-  ChevronDown,
-  ChevronUp,
-  Ticket,
-} from 'lucide-react';
+import { CalendarDays, MapPin, Tag, Euro, ChevronDown, ChevronUp, Ticket } from 'lucide-react';
 
 const EMPTY_VALUE = '—';
 
@@ -68,7 +60,7 @@ export const CsvImportEventCard: React.FC<CsvImportEventCardProps> = ({
   return (
     <Card
       className={cn(
-        glassCard,
+        cardPreset,
         'flex flex-col h-full transition-all duration-300',
         variantStyles[variant],
         selectable && !disabled && 'cursor-pointer hover:scale-[1.01]',
@@ -110,10 +102,7 @@ export const CsvImportEventCard: React.FC<CsvImportEventCardProps> = ({
 
             <div className="flex flex-col gap-1.5">
               {highlights.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-2 text-sm text-muted-foreground"
-                >
+                <div key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
                   <span className="mt-0.5 shrink-0 text-foreground/70">{item.icon}</span>
                   <span className="break-words">{item.value}</span>
                 </div>
@@ -262,8 +251,7 @@ export const buildEventHighlights = (
     });
   }
 
-  const price =
-    event.priceString || (event.price !== undefined ? `${event.price} €` : 'Kostenlos');
+  const price = event.priceString || (event.price !== undefined ? `${event.price} €` : 'Kostenlos');
   highlights.push({
     icon: <Euro className="h-4 w-4" />,
     value: price,

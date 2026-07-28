@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
 import { CsvImportDataGrid } from '@/components/events/CsvImportDataGrid';
 import {
   CsvImportEventCard,
@@ -14,8 +14,8 @@ import { EventCategory } from '@/models/event-category';
 import { CsvImportResult, CsvImportRowResult } from '@/services/eventService';
 import { csvDataFromImportErrors } from '@/utils/csvEventParser';
 import { cn } from '@/lib/utils';
-import { glassCard, glassInput } from '@/lib/glassmorphism';
-import { motion } from 'framer-motion';
+import { cardPreset, inputPreset } from '@/lib/designTokens';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer, staggerItem, defaultTransition } from '@/lib/animations';
 import { CheckCircle2, XCircle, AlertTriangle, Edit, ExternalLink } from 'lucide-react';
 
@@ -93,7 +93,7 @@ export const CsvImportResults: React.FC<CsvImportResultsProps> = ({
       transition={defaultTransition}
       className="space-y-6"
     >
-      <Card className={cn(glassCard)}>
+      <Card className={cn(cardPreset)}>
         <CardHeader>
           <CardTitle className="text-lg text-foreground">Import-Ergebnis</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -111,7 +111,9 @@ export const CsvImportResults: React.FC<CsvImportResultsProps> = ({
               <Card
                 className={cn(
                   'border transition-all duration-300',
-                  importResult.successful > 0 ? 'border-green-500/50 bg-green-500/5' : 'border-secondary'
+                  importResult.successful > 0
+                    ? 'border-green-500/50 bg-green-500/5'
+                    : 'border-secondary'
                 )}
               >
                 <CardContent className="pt-4 pb-4 flex items-center gap-3">
@@ -130,7 +132,9 @@ export const CsvImportResults: React.FC<CsvImportResultsProps> = ({
               <Card
                 className={cn(
                   'border transition-all duration-300',
-                  importResult.skipped > 0 ? 'border-yellow-500/50 bg-yellow-500/5' : 'border-secondary'
+                  importResult.skipped > 0
+                    ? 'border-yellow-500/50 bg-yellow-500/5'
+                    : 'border-secondary'
                 )}
               >
                 <CardContent className="pt-4 pb-4 flex items-center gap-3">
@@ -188,34 +192,31 @@ export const CsvImportResults: React.FC<CsvImportResultsProps> = ({
                 : undefined;
               const errorCsvData =
                 !row.success && !row.skipped ? csvDataFromImportErrors(row.errors) : undefined;
-              const title =
-                event?.title ||
-                errorCsvData?.Titel ||
-                `Event Zeile ${row.rowIndex}`;
+              const title = event?.title || errorCsvData?.Titel || `Event Zeile ${row.rowIndex}`;
 
               const actionButtons = (
                 <>
                   {row.success && row.eventId && (
-                    <AnimatedButton
+                    <LoadingButton
                       variant="outline"
                       size="sm"
                       onClick={() => navigate(`/events/${row.eventId}`)}
-                      className={cn(glassInput, 'gap-2')}
+                      className={cn(inputPreset, 'gap-2')}
                     >
                       <Edit className="h-4 w-4" />
                       Bearbeiten
-                    </AnimatedButton>
+                    </LoadingButton>
                   )}
                   {row.skipped && row.duplicateEventId && (
-                    <AnimatedButton
+                    <LoadingButton
                       variant="outline"
                       size="sm"
                       onClick={() => navigate(`/events/${row.duplicateEventId}`)}
-                      className={cn(glassInput, 'gap-2')}
+                      className={cn(inputPreset, 'gap-2')}
                     >
                       <ExternalLink className="h-4 w-4" />
                       Zum Event
-                    </AnimatedButton>
+                    </LoadingButton>
                   )}
                 </>
               );

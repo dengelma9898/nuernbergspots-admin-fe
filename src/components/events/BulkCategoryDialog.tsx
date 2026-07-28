@@ -27,9 +27,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { allSelectedHaveCategory } from '@/utils/eventBulkUtils';
@@ -64,10 +63,18 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
 
   const selectedCategory = categories.find(c => c.id === categoryId);
   const allAlreadyAssigned =
-    categoryId.length > 0 && allSelectedHaveCategory(selectedEvents, selectedEvents.map(e => e.id), categoryId);
+    categoryId.length > 0 &&
+    allSelectedHaveCategory(
+      selectedEvents,
+      selectedEvents.map(e => e.id),
+      categoryId
+    );
 
   const canSubmit =
-    categoryId.length > 0 && selectedEvents.length > 0 && selectedEvents.length <= 100 && !submitting;
+    categoryId.length > 0 &&
+    selectedEvents.length > 0 &&
+    selectedEvents.length <= 100 &&
+    !submitting;
 
   const handleAssignClick = () => {
     if (!canSubmit) return;
@@ -83,12 +90,12 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn(glassCard)}>
+        <DialogContent className={cn(cardPreset)}>
           <DialogHeader>
             <DialogTitle className="text-foreground">Kategorie zuweisen</DialogTitle>
             <DialogDescription className="text-muted-foreground">
-              {selectedEvents.length} Event{selectedEvents.length === 1 ? '' : 's'} erhalten dieselbe
-              Kategorie.
+              {selectedEvents.length} Event{selectedEvents.length === 1 ? '' : 's'} erhalten
+              dieselbe Kategorie.
             </DialogDescription>
           </DialogHeader>
 
@@ -116,7 +123,8 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
 
             {selectedCategory ? (
               <p className="text-sm text-muted-foreground">
-                Gewählt: <span className="text-foreground font-medium">{selectedCategory.name}</span>
+                Gewählt:{' '}
+                <span className="text-foreground font-medium">{selectedCategory.name}</span>
               </p>
             ) : null}
 
@@ -132,14 +140,14 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
           </div>
 
           <DialogFooter>
-            <AnimatedButton
+            <LoadingButton
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-              className={cn(glassButton)}
+              className={cn(buttonPreset)}
             >
               Abbrechen
-            </AnimatedButton>
+            </LoadingButton>
             <LoadingButton
               onClick={handleAssignClick}
               disabled={!canSubmit}
@@ -153,7 +161,7 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
       </Dialog>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent className={cn(glassCard)}>
+        <AlertDialogContent className={cn(cardPreset)}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground">Zuweisung bestätigen</AlertDialogTitle>
             <AlertDialogDescription className="text-muted-foreground">
@@ -162,7 +170,7 @@ export const BulkCategoryDialog: React.FC<BulkCategoryDialogProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className={cn(glassButton)} disabled={submitting}>
+            <AlertDialogCancel className={cn(buttonPreset)} disabled={submitting}>
               Abbrechen
             </AlertDialogCancel>
             <AlertDialogAction

@@ -2,9 +2,8 @@ import React from 'react';
 import { Event } from '@/models/events';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { Trash2 } from 'lucide-react';
 
@@ -38,7 +37,7 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
   onConfirmImages,
 }) => {
   return (
-    <Card className={cn(glassCard)}>
+    <Card className={cn(cardPreset)}>
       <CardHeader>
         <CardTitle className="text-foreground">Bilder</CardTitle>
       </CardHeader>
@@ -59,7 +58,7 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
                   asChild
                   isLoading={isUploadingTitleImage}
                   loadingText="Wird hochgeladen..."
-                  className={cn(glassButton)}
+                  className={cn(buttonPreset)}
                 >
                   <label htmlFor="title-image-upload" className="cursor-pointer m-0">
                     Titelbild auswählen
@@ -74,14 +73,14 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
                 className="object-cover w-full h-full"
               />
               {isEditing && (
-                <AnimatedButton
+                <LoadingButton
                   variant="destructive"
                   size="icon"
                   className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={() => onDeleteImage(event.titleImageUrl!)}
                 >
                   <Trash2 className="h-4 w-4" />
-                </AnimatedButton>
+                </LoadingButton>
               )}
             </div>
           </div>
@@ -105,7 +104,7 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
                   isLoading={isUploading}
                   loadingText="Wird hochgeladen..."
                   disabled={isUploading || (event.imageUrls?.length || 0) >= 5}
-                  className={cn(glassButton)}
+                  className={cn(buttonPreset)}
                 >
                   <label htmlFor="event-images-upload" className="cursor-pointer m-0">
                     Bilder auswählen
@@ -127,14 +126,14 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
                         alt={`Vorschau ${index + 1}`}
                         className="object-cover w-full h-full"
                       />
-                      <AnimatedButton
+                      <LoadingButton
                         variant="destructive"
                         size="icon"
                         className="absolute top-2 right-2"
                         onClick={() => onRemovePreview(index)}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </AnimatedButton>
+                      </LoadingButton>
                     </div>
                   ))}
                 </div>
@@ -153,14 +152,14 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
                   className="object-cover w-full h-48 rounded-lg border border-secondary"
                 />
                 {isEditing && (
-                  <AnimatedButton
+                  <LoadingButton
                     variant="destructive"
                     size="icon"
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
                     onClick={() => onDeleteImage(url)}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </AnimatedButton>
+                  </LoadingButton>
                 )}
               </div>
             ))}
@@ -173,12 +172,12 @@ export const EventImageCard: React.FC<EventImageCardProps> = ({
       </CardContent>
       {isEditing && imagesChanged && (
         <div className="flex justify-end gap-4 mt-8 mb-2 mr-4">
-          <AnimatedButton
+          <LoadingButton
             onClick={onConfirmImages}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Bestätigen
-          </AnimatedButton>
+          </LoadingButton>
         </div>
       )}
     </Card>

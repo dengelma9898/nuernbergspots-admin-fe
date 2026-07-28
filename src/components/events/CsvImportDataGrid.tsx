@@ -77,12 +77,7 @@ const buildEventFields = (event: Event, category?: EventCategory): DataField[] =
   },
   {
     label: 'Tickets',
-    value:
-      event.ticketsNeeded === undefined
-        ? EMPTY_VALUE
-        : event.ticketsNeeded
-          ? 'ja'
-          : 'nein',
+    value: event.ticketsNeeded === undefined ? EMPTY_VALUE : event.ticketsNeeded ? 'ja' : 'nein',
   },
   { label: 'E-Mail', value: event.contactEmail || EMPTY_VALUE },
   { label: 'Telefon', value: event.contactPhone || EMPTY_VALUE },

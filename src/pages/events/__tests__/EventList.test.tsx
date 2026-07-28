@@ -169,32 +169,32 @@ jest.mock('date-fns', () => {
   return {
     ...actual,
     format: (date: Date, formatString: string, options?: any) => {
-    if (formatString === 'dd. MMMM yyyy') {
+      if (formatString === 'dd. MMMM yyyy') {
+        return '15. Januar 2024';
+      }
+      if (formatString === 'dd. MMMM yyyy HH:mm') {
+        return '15. Januar 2024 14:00';
+      }
+      if (formatString === 'w') {
+        return '3';
+      }
+      if (formatString === 'yyyy-MM') {
+        return '2024-01';
+      }
+      if (formatString === 'MMMM yyyy') {
+        return 'Januar 2024';
+      }
       return '15. Januar 2024';
-    }
-    if (formatString === 'dd. MMMM yyyy HH:mm') {
-      return '15. Januar 2024 14:00';
-    }
-    if (formatString === 'w') {
-      return '3';
-    }
-    if (formatString === 'yyyy-MM') {
-      return '2024-01';
-    }
-    if (formatString === 'MMMM yyyy') {
-      return 'Januar 2024';
-    }
-    return '15. Januar 2024';
-  },
-  isPast: jest.fn(),
-  isFuture: jest.fn(),
-  isWithinInterval: jest.fn(),
-  startOfMonth: jest.fn((date: Date) => {
-    const d = new Date(date);
-    d.setDate(1);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }),
+    },
+    isPast: jest.fn(),
+    isFuture: jest.fn(),
+    isWithinInterval: jest.fn(),
+    startOfMonth: jest.fn((date: Date) => {
+      const d = new Date(date);
+      d.setDate(1);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }),
   };
 });
 

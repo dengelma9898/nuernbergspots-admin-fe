@@ -2,7 +2,7 @@ import React from 'react';
 import { Event } from '@/models/events';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { glassInput } from '@/lib/glassmorphism';
+import { inputPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 interface EventContactInfoProps {
@@ -34,7 +34,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. info@event.de"
                 value={editedEvent.contactEmail || ''}
                 onChange={e => onInputChange('contactEmail', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
             <div className="space-y-2">
@@ -45,7 +45,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. +49 911 123456"
                 value={editedEvent.contactPhone || ''}
                 onChange={e => onInputChange('contactPhone', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
             <div className="space-y-2">
@@ -56,7 +56,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. https://www.event.de"
                 value={editedEvent.website || ''}
                 onChange={e => onInputChange('website', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
           </div>
@@ -109,7 +109,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. @eventname oder eventname"
                 value={editedEvent.socialMedia?.instagram || ''}
                 onChange={e => onSocialMediaChange('instagram', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
             <div className="space-y-2">
@@ -119,7 +119,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. eventname oder https://facebook.com/eventname"
                 value={editedEvent.socialMedia?.facebook || ''}
                 onChange={e => onSocialMediaChange('facebook', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
             <div className="space-y-2">
@@ -129,7 +129,7 @@ export const EventContactInfo: React.FC<EventContactInfoProps> = ({
                 placeholder="z.B. @eventname oder eventname"
                 value={editedEvent.socialMedia?.tiktok || ''}
                 onChange={e => onSocialMediaChange('tiktok', e.target.value)}
-                className={cn(glassInput)}
+                className={cn(inputPreset)}
               />
             </div>
           </div>

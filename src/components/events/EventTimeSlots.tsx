@@ -2,10 +2,10 @@ import React from 'react';
 import { Event, DailyTimeSlot } from '@/models/events';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
 import { MonthYearPicker } from '@/components/ui/month-year-picker';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { glassInput, glassButton } from '@/lib/glassmorphism';
+import { inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { formatDate, formatMonthYear } from '@/utils/eventFormatters';
 import { Calendar, Trash2, Plus, Info, CalendarDays } from 'lucide-react';
@@ -64,7 +64,7 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                             newSlots[index] = { ...slot, date: e.target.value };
                             onInputChange('dailyTimeSlots', newSlots);
                           }}
-                          className={cn(glassInput)}
+                          className={cn(inputPreset)}
                         />
                       </div>
                       <div>
@@ -77,7 +77,7 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                             newSlots[index] = { ...slot, from: e.target.value };
                             onInputChange('dailyTimeSlots', newSlots);
                           }}
-                          className={cn(glassInput)}
+                          className={cn(inputPreset)}
                         />
                       </div>
                       <div>
@@ -90,11 +90,11 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                             newSlots[index] = { ...slot, to: e.target.value };
                             onInputChange('dailyTimeSlots', newSlots);
                           }}
-                          className={cn(glassInput)}
+                          className={cn(inputPreset)}
                         />
                       </div>
                     </div>
-                    <AnimatedButton
+                    <LoadingButton
                       variant="destructive"
                       size="sm"
                       onClick={() => {
@@ -113,12 +113,12 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                       title="Zeitfenster löschen"
                     >
                       <Trash2 className="h-4 w-4" />
-                    </AnimatedButton>
+                    </LoadingButton>
                   </div>
                 ))}
               </div>
             )}
-            <AnimatedButton
+            <LoadingButton
               variant="outline"
               size="sm"
               onClick={() => {
@@ -128,11 +128,11 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
                 ];
                 onInputChange('dailyTimeSlots', newSlots);
               }}
-              className={cn(glassButton)}
+              className={cn(buttonPreset)}
             >
               <Plus className="mr-2 h-4 w-4" />
               Zeitfenster hinzufügen
-            </AnimatedButton>
+            </LoadingButton>
           </div>
         ) : (
           <div className="space-y-2">
@@ -183,17 +183,17 @@ export const EventTimeSlots: React.FC<EventTimeSlotsProps> = ({
             <MonthYearPicker
               value={editedEvent.monthYear}
               onChange={value => onInputChange('monthYear', value || undefined)}
-              className={cn(glassInput, 'flex-1')}
+              className={cn(inputPreset, 'flex-1')}
             />
             {editedEvent.monthYear && (
-              <AnimatedButton
+              <LoadingButton
                 variant="destructive"
                 size="sm"
                 onClick={() => onInputChange('monthYear', undefined)}
                 title="Monat/Jahr entfernen"
               >
                 <Trash2 className="h-4 w-4" />
-              </AnimatedButton>
+              </LoadingButton>
             )}
           </div>
         ) : (

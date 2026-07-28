@@ -1,16 +1,12 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
 import { CsvImportDataGrid } from '@/components/events/CsvImportDataGrid';
-import {
-  CsvImportEventCard,
-  buildCsvHighlights,
-} from '@/components/events/CsvImportEventCard';
+import { CsvImportEventCard, buildCsvHighlights } from '@/components/events/CsvImportEventCard';
 import { CsvEventRow } from '@/utils/csvEventParser';
 import { cn } from '@/lib/utils';
-import { glassCard, glassInput } from '@/lib/glassmorphism';
-import { motion } from 'framer-motion';
+import { cardPreset, inputPreset } from '@/lib/designTokens';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer, staggerItem, defaultTransition } from '@/lib/animations';
 import { ArrowLeft, Upload } from 'lucide-react';
 
@@ -45,7 +41,7 @@ export const CsvImportPreview: React.FC<CsvImportPreviewProps> = ({
       transition={defaultTransition}
       className="space-y-6"
     >
-      <Card className={cn(glassCard)}>
+      <Card className={cn(cardPreset)}>
         <CardHeader>
           <CardTitle className="text-lg text-foreground">Vorschau</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -56,18 +52,33 @@ export const CsvImportPreview: React.FC<CsvImportPreviewProps> = ({
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-between">
             <div className="flex flex-wrap gap-2">
-              <AnimatedButton variant="outline" size="sm" onClick={onSelectAll} className={cn(glassInput)}>
+              <LoadingButton
+                variant="outline"
+                size="sm"
+                onClick={onSelectAll}
+                className={cn(inputPreset)}
+              >
                 Alle auswählen
-              </AnimatedButton>
-              <AnimatedButton variant="outline" size="sm" onClick={onDeselectAll} className={cn(glassInput)}>
+              </LoadingButton>
+              <LoadingButton
+                variant="outline"
+                size="sm"
+                onClick={onDeselectAll}
+                className={cn(inputPreset)}
+              >
                 Alle abwählen
-              </AnimatedButton>
+              </LoadingButton>
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
-              <AnimatedButton variant="outline" onClick={onBack} disabled={uploading} className={cn(glassInput)}>
+              <LoadingButton
+                variant="outline"
+                onClick={onBack}
+                disabled={uploading}
+                className={cn(inputPreset)}
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Zurück
-              </AnimatedButton>
+              </LoadingButton>
               <LoadingButton
                 onClick={onImport}
                 disabled={selectedCount === 0 || uploading}

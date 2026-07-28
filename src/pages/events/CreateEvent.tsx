@@ -31,14 +31,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
 import { LoadingButton } from '@/components/LoadingButton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 interface NewEvent {
@@ -224,198 +221,146 @@ export const CreateEvent: React.FC = () => {
   };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6">
-          {/* Header */}
-          <motion.div
-            className={cn(glassCard, 'p-6 mb-8')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
-              <AnimatedButton
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/events')}
-                className={cn(glassButton, 'rounded-full')}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="sr-only">Zurück zur Übersicht</span>
-              </AnimatedButton>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                Neues Event erstellen
-              </h1>
-            </div>
-          </motion.div>
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6">
+        {/* Header */}
+        <motion.div
+          className={cn(cardPreset, 'p-6 mb-8')}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-4">
+            <LoadingButton
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/events')}
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
+            </LoadingButton>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+              Neues Event erstellen
+            </h1>
+          </div>
+        </motion.div>
 
-          {/* Main Content Card */}
-          <motion.div
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <Card className={cn(glassCard)}>
-              <CardHeader>
-                <CardTitle className="text-foreground">Event Details</CardTitle>
-                <CardDescription className="text-muted-foreground">
-                  Füllen Sie alle notwendigen Informationen aus, um ein neues Event zu erstellen.
-                </CardDescription>
-              </CardHeader>
+        {/* Main Content Card */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <Card className={cn(cardPreset)}>
+            <CardHeader>
+              <CardTitle className="text-foreground">Event Details</CardTitle>
+              <CardDescription className="text-muted-foreground">
+                Füllen Sie alle notwendigen Informationen aus, um ein neues Event zu erstellen.
+              </CardDescription>
+            </CardHeader>
 
-              <CardContent className="space-y-6">
-                {/* Validierungsfehler */}
-                {validationErrors.length > 0 && (
-                  <Alert
-                    ref={validationErrorsRef}
-                    variant="destructive"
-                    className={cn(glassCard, 'border-destructive/50')}
-                  >
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
-                    <AlertDescription className="mt-2">
-                      <ul className="list-disc list-inside space-y-1">
-                        {validationErrors.map((error, index) => (
-                          <li key={index}>{error}</li>
-                        ))}
-                      </ul>
-                    </AlertDescription>
-                  </Alert>
-                )}
-                {/* Title */}
-                <motion.div
-                  className="space-y-2"
-                  variants={fadeInUp}
-                  initial="initial"
-                  animate="animate"
-                  transition={{ ...defaultTransition, delay: 0.1 }}
+            <CardContent className="space-y-6">
+              {/* Validierungsfehler */}
+              {validationErrors.length > 0 && (
+                <Alert
+                  ref={validationErrorsRef}
+                  variant="destructive"
+                  className={cn(cardPreset, 'border-destructive/50')}
                 >
-                  <Label htmlFor="title" className="text-foreground">
-                    Titel
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Bitte korrigiere die folgenden Fehler</AlertTitle>
+                  <AlertDescription className="mt-2">
+                    <ul className="list-disc list-inside space-y-1">
+                      {validationErrors.map((error, index) => (
+                        <li key={index}>{error}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+              {/* Title */}
+              <motion.div
+                className="space-y-2"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={{ ...defaultTransition, delay: 0.1 }}
+              >
+                <Label htmlFor="title" className="text-foreground">
+                  Titel
+                </Label>
+                <Input
+                  id="title"
+                  value={newEvent.title}
+                  onChange={e => handleInputChange('title', e.target.value)}
+                  placeholder="z.B. Sommerfest 2024"
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ein prägnanter Titel, der das Event gut beschreibt.
+                </p>
+              </motion.div>
+
+              {/* Description */}
+              <motion.div
+                className="space-y-2"
+                variants={fadeInUp}
+                initial="initial"
+                animate="animate"
+                transition={{ ...defaultTransition, delay: 0.2 }}
+              >
+                <Label htmlFor="description" className="text-foreground">
+                  Beschreibung
+                </Label>
+                <Textarea
+                  id="description"
+                  value={newEvent.description}
+                  onChange={e => handleInputChange('description', e.target.value)}
+                  placeholder="Beschreiben Sie das Event im Detail..."
+                  className={cn(inputPreset, 'min-h-[100px]')}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie
+                  Programm, Highlights oder besondere Hinweise.
+                </p>
+              </motion.div>
+
+              {/* Date Range */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate" className="text-foreground">
+                    Startdatum
                   </Label>
                   <Input
-                    id="title"
-                    value={newEvent.title}
-                    onChange={e => handleInputChange('title', e.target.value)}
-                    placeholder="z.B. Sommerfest 2024"
-                    className={cn(glassInput)}
+                    id="startDate"
+                    type="date"
+                    value={newEvent.startDate.split('T')[0]}
+                    onChange={e => handleInputChange('startDate', e.target.value)}
+                    className={cn(inputPreset)}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Ein prägnanter Titel, der das Event gut beschreibt.
-                  </p>
-                </motion.div>
-
-                {/* Description */}
-                <motion.div
-                  className="space-y-2"
-                  variants={fadeInUp}
-                  initial="initial"
-                  animate="animate"
-                  transition={{ ...defaultTransition, delay: 0.2 }}
-                >
-                  <Label htmlFor="description" className="text-foreground">
-                    Beschreibung
-                  </Label>
-                  <Textarea
-                    id="description"
-                    value={newEvent.description}
-                    onChange={e => handleInputChange('description', e.target.value)}
-                    placeholder="Beschreiben Sie das Event im Detail..."
-                    className={cn(glassInput, 'min-h-[100px]')}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Eine ausführliche Beschreibung des Events. Nennen Sie wichtige Details wie
-                    Programm, Highlights oder besondere Hinweise.
-                  </p>
-                </motion.div>
-
-                {/* Date Range */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate" className="text-foreground">
-                      Startdatum
-                    </Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={newEvent.startDate.split('T')[0]}
-                      onChange={e => handleInputChange('startDate', e.target.value)}
-                      className={cn(glassInput)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate" className="text-foreground">
-                      Enddatum
-                    </Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={newEvent.endDate.split('T')[0]}
-                      onChange={e => handleInputChange('endDate', e.target.value)}
-                      className={cn(glassInput)}
-                    />
-                  </div>
                 </div>
-
-                {/* Daily Time Slots */}
-                {newEvent.dailyTimeSlots.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            <p>
-                              Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
-                              sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
-                              &apos;Monat/Jahr&apos;.
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-
-                    <div className="space-y-4">
-                      {newEvent.dailyTimeSlots.map(slot => (
-                        <div key={slot.date} className={cn(glassCard, 'p-4')}>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                            <div className="font-medium text-foreground">
-                              {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
-                            </div>
-                            <Input
-                              type="time"
-                              value={slot.from || ''}
-                              onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
-                              placeholder="Von"
-                              className={cn(glassInput)}
-                            />
-                            <Input
-                              type="time"
-                              value={slot.to || ''}
-                              onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
-                              placeholder="Bis"
-                              className={cn(glassInput)}
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Month/Year (Alternative to daily time slots) */}
                 <div className="space-y-2">
+                  <Label htmlFor="endDate" className="text-foreground">
+                    Enddatum
+                  </Label>
+                  <Input
+                    id="endDate"
+                    type="date"
+                    value={newEvent.endDate.split('T')[0]}
+                    onChange={e => handleInputChange('endDate', e.target.value)}
+                    className={cn(inputPreset)}
+                  />
+                </div>
+              </div>
+
+              {/* Daily Time Slots */}
+              {newEvent.dailyTimeSlots.length > 0 && (
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="monthYear" className="text-foreground">
-                      Monat/Jahr (optional)
-                    </Label>
+                    <Label className="text-foreground">Tägliche Zeitangaben (optional)</Label>
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -423,273 +368,321 @@ export const CreateEvent: React.FC = () => {
                         </TooltipTrigger>
                         <TooltipContent className="max-w-xs">
                           <p>
-                            Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen,
-                            ohne Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig
-                            existieren.
+                            Beide Felder (Zeitfenster und Monat/Jahr) können gleichzeitig gesetzt
+                            sein. Bei der Anzeige hat &apos;Zeitfenster&apos; Priorität vor
+                            &apos;Monat/Jahr&apos;.
                           </p>
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
                   </div>
-                  <MonthYearPicker
-                    id="monthYear"
-                    value={newEvent.monthYear}
-                    onChange={value => handleInputChange('monthYear', value || null)}
-                    className={cn(glassInput)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
-                    und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
-                  </p>
-                </div>
 
-                {/* Location */}
-                <div className="space-y-2">
-                  <Label className="text-foreground">Adresse</Label>
-                  <LocationSearch
-                    value={searchValue}
-                    onChange={handleLocationSelect}
-                    placeholder="Adresse suchen..."
-                    debounce={1000}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den
-                    passenden Eintrag aus.
-                  </p>
-                </div>
-
-                {/* Price */}
-                <div className="space-y-2">
-                  <Label htmlFor="priceString" className="text-foreground">
-                    Preis
-                  </Label>
-                  <Input
-                    id="priceString"
-                    type="text"
-                    value={newEvent.priceString || ''}
-                    onChange={e => handleInputChange('priceString', e.target.value || null)}
-                    placeholder="z.B. 15€, Kostenlos, Spende, etc."
-                    className={cn(glassInput)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Der Eintrittspreis als Text. Lassen Sie das Feld leer für kostenlose Events.
-                  </p>
-                </div>
-
-                {/* Category */}
-                <div className="space-y-2">
-                  <Label htmlFor="category" className="text-foreground">
-                    Kategorie
-                  </Label>
-                  <Select
-                    value={newEvent.categoryId || ''}
-                    onValueChange={value => handleInputChange('categoryId', value)}
-                  >
-                    <SelectTrigger className={cn(glassInput)}>
-                      <SelectValue placeholder="Kategorie auswählen" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(category => (
-                        <SelectItem key={category.id} value={category.id}>
-                          <div className="flex items-center gap-2">
-                            <span className="flex items-center">
-                              {getIconComponent(category.iconName)}
-                            </span>
-                            {category.name}
+                  <div className="space-y-4">
+                    {newEvent.dailyTimeSlots.map(slot => (
+                      <div key={slot.date} className={cn(cardPreset, 'p-4')}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                          <div className="font-medium text-foreground">
+                            {format(parseISO(slot.date), 'EEEE, dd.MM.yyyy', { locale: de })}
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Wählen Sie eine passende Kategorie für Ihr Event aus.
+                          <Input
+                            type="time"
+                            value={slot.from || ''}
+                            onChange={e => updateTimeSlot(slot.date, 'from', e.target.value)}
+                            placeholder="Von"
+                            className={cn(inputPreset)}
+                          />
+                          <Input
+                            type="time"
+                            value={slot.to || ''}
+                            onChange={e => updateTimeSlot(slot.date, 'to', e.target.value)}
+                            placeholder="Bis"
+                            className={cn(inputPreset)}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Month/Year (Alternative to daily time slots) */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="monthYear" className="text-foreground">
+                    Monat/Jahr (optional)
+                  </Label>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p>
+                          Du kannst zuerst Monat/Jahr setzen und später Zeitfenster hinzufügen, ohne
+                          Monat/Jahr löschen zu müssen. Beide Felder können gleichzeitig existieren.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <MonthYearPicker
+                  id="monthYear"
+                  value={newEvent.monthYear}
+                  onChange={value => handleInputChange('monthYear', value || null)}
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Verwende dieses Feld, wenn das genaue Datum noch nicht feststeht. Sobald Start-
+                  und Enddatum bekannt sind, werden automatisch Zeitfenster generiert.
+                </p>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-2">
+                <Label className="text-foreground">Adresse</Label>
+                <LocationSearch
+                  value={searchValue}
+                  onChange={handleLocationSelect}
+                  placeholder="Adresse suchen..."
+                  debounce={1000}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Der genaue Veranstaltungsort. Suchen Sie nach einer Adresse und wählen Sie den
+                  passenden Eintrag aus.
+                </p>
+              </div>
+
+              {/* Price */}
+              <div className="space-y-2">
+                <Label htmlFor="priceString" className="text-foreground">
+                  Preis
+                </Label>
+                <Input
+                  id="priceString"
+                  type="text"
+                  value={newEvent.priceString || ''}
+                  onChange={e => handleInputChange('priceString', e.target.value || null)}
+                  placeholder="z.B. 15€, Kostenlos, Spende, etc."
+                  className={cn(inputPreset)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Der Eintrittspreis als Text. Lassen Sie das Feld leer für kostenlose Events.
+                </p>
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <Label htmlFor="category" className="text-foreground">
+                  Kategorie
+                </Label>
+                <Select
+                  value={newEvent.categoryId || ''}
+                  onValueChange={value => handleInputChange('categoryId', value)}
+                >
+                  <SelectTrigger className={cn(inputPreset)}>
+                    <SelectValue placeholder="Kategorie auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.id}>
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center">
+                            {getIconComponent(category.iconName)}
+                          </span>
+                          {category.name}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Wählen Sie eine passende Kategorie für Ihr Event aus.
+                </p>
+              </div>
+
+              {/* Switches */}
+              <div className="space-y-4">
+                <div className={cn(cardPreset, 'p-4')}>
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="ticketsNeeded"
+                      checked={newEvent.ticketsNeeded}
+                      onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="ticketsNeeded" className="text-foreground">
+                        Tickets erforderlich
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben
+                        müssen.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={cn(cardPreset, 'p-4')}>
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="isPromoted"
+                      checked={newEvent.isPromoted}
+                      onCheckedChange={checked => handleInputChange('isPromoted', checked)}
+                    />
+                    <div className="space-y-1">
+                      <Label htmlFor="isPromoted" className="text-foreground">
+                        Als "Highlight" markieren
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <Label className="text-foreground text-lg">Kontaktinformationen</Label>
+
+                <div className={cn(cardPreset, 'p-4 space-y-4')}>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contactEmail" className="text-muted-foreground">
+                        E-Mail
+                      </Label>
+                      <Input
+                        id="contactEmail"
+                        type="email"
+                        value={newEvent.contactEmail || ''}
+                        onChange={e => handleInputChange('contactEmail', e.target.value)}
+                        placeholder="kontakt@beispiel.de"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contactPhone" className="text-muted-foreground">
+                        Telefon
+                      </Label>
+                      <Input
+                        id="contactPhone"
+                        type="tel"
+                        value={newEvent.contactPhone || ''}
+                        onChange={e => handleInputChange('contactPhone', e.target.value)}
+                        placeholder="+49 123 4567890"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                    <div className="space-y-2 lg:col-span-2">
+                      <Label htmlFor="website" className="text-muted-foreground">
+                        Website
+                      </Label>
+                      <Input
+                        id="website"
+                        type="url"
+                        value={newEvent.website || ''}
+                        onChange={e => handleInputChange('website', e.target.value)}
+                        placeholder="https://www.beispiel.de"
+                        className={cn(inputPreset)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <Label className="text-muted-foreground text-base">Social Media</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="instagram" className="text-muted-foreground text-sm">
+                          Instagram
+                        </Label>
+                        <Input
+                          id="instagram"
+                          value={newEvent.socialMedia.instagram || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                instagram: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@benutzername"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="facebook" className="text-muted-foreground text-sm">
+                          Facebook
+                        </Label>
+                        <Input
+                          id="facebook"
+                          value={newEvent.socialMedia.facebook || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                facebook: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@seitename"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="tiktok" className="text-muted-foreground text-sm">
+                          TikTok
+                        </Label>
+                        <Input
+                          id="tiktok"
+                          value={newEvent.socialMedia.tiktok || ''}
+                          onChange={e =>
+                            setNewEvent(prev => ({
+                              ...prev,
+                              socialMedia: {
+                                ...prev.socialMedia,
+                                tiktok: e.target.value,
+                              },
+                            }))
+                          }
+                          placeholder="@benutzername"
+                          className={cn(inputPreset)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground mt-4">
+                    Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen hinzu,
+                    die Sie öffentlich teilen möchten.
                   </p>
                 </div>
+              </div>
 
-                {/* Switches */}
-                <div className="space-y-4">
-                  <div className={cn(glassCard, 'p-4')}>
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        id="ticketsNeeded"
-                        checked={newEvent.ticketsNeeded}
-                        onCheckedChange={checked => handleInputChange('ticketsNeeded', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="ticketsNeeded" className="text-foreground">
-                          Tickets erforderlich
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Aktivieren Sie diese Option, wenn Besucher Tickets im Voraus erwerben
-                          müssen.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={cn(glassCard, 'p-4')}>
-                    <div className="flex items-center space-x-3">
-                      <Switch
-                        id="isPromoted"
-                        checked={newEvent.isPromoted}
-                        onCheckedChange={checked => handleInputChange('isPromoted', checked)}
-                      />
-                      <div className="space-y-1">
-                        <Label htmlFor="isPromoted" className="text-foreground">
-                          Als "Highlight" markieren
-                        </Label>
-                        <p className="text-xs text-muted-foreground">
-                          Aktiviere diese Option, um das Event als "Highlight" zu kennzeichnen.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="space-y-4">
-                  <Label className="text-foreground text-lg">Kontaktinformationen</Label>
-
-                  <div className={cn(glassCard, 'p-4 space-y-4')}>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="contactEmail" className="text-muted-foreground">
-                          E-Mail
-                        </Label>
-                        <Input
-                          id="contactEmail"
-                          type="email"
-                          value={newEvent.contactEmail || ''}
-                          onChange={e => handleInputChange('contactEmail', e.target.value)}
-                          placeholder="kontakt@beispiel.de"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPhone" className="text-muted-foreground">
-                          Telefon
-                        </Label>
-                        <Input
-                          id="contactPhone"
-                          type="tel"
-                          value={newEvent.contactPhone || ''}
-                          onChange={e => handleInputChange('contactPhone', e.target.value)}
-                          placeholder="+49 123 4567890"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                      <div className="space-y-2 lg:col-span-2">
-                        <Label htmlFor="website" className="text-muted-foreground">
-                          Website
-                        </Label>
-                        <Input
-                          id="website"
-                          type="url"
-                          value={newEvent.website || ''}
-                          onChange={e => handleInputChange('website', e.target.value)}
-                          placeholder="https://www.beispiel.de"
-                          className={cn(glassInput)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mt-6">
-                      <Label className="text-muted-foreground text-base">Social Media</Label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="instagram" className="text-muted-foreground text-sm">
-                            Instagram
-                          </Label>
-                          <Input
-                            id="instagram"
-                            value={newEvent.socialMedia.instagram || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  instagram: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@benutzername"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="facebook" className="text-muted-foreground text-sm">
-                            Facebook
-                          </Label>
-                          <Input
-                            id="facebook"
-                            value={newEvent.socialMedia.facebook || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  facebook: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@seitename"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="tiktok" className="text-muted-foreground text-sm">
-                            TikTok
-                          </Label>
-                          <Input
-                            id="tiktok"
-                            value={newEvent.socialMedia.tiktok || ''}
-                            onChange={e =>
-                              setNewEvent(prev => ({
-                                ...prev,
-                                socialMedia: {
-                                  ...prev.socialMedia,
-                                  tiktok: e.target.value,
-                                },
-                              }))
-                            }
-                            placeholder="@benutzername"
-                            className={cn(glassInput)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-xs text-muted-foreground mt-4">
-                      Alle Kontaktinformationen sind optional. Fügen Sie nur die Informationen
-                      hinzu, die Sie öffentlich teilen möchten.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex flex-row items-center justify-end gap-4 pt-6 border-t border-secondary">
-                  <AnimatedButton
-                    variant="ghost"
-                    onClick={() => navigate('/events')}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
-                  >
-                    Abbrechen
-                  </AnimatedButton>
-                  <LoadingButton
-                    variant="outline"
-                    onClick={handleSubmit}
-                    isLoading={loading}
-                    loadingText="Wird erstellt..."
-                    className={cn(glassButton, 'flex items-center')}
-                  >
-                    Event erstellen
-                  </LoadingButton>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
+              {/* Action Buttons */}
+              <div className="flex flex-row items-center justify-end gap-4 pt-6 border-t border-secondary">
+                <LoadingButton
+                  variant="ghost"
+                  onClick={() => navigate('/events')}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-2 shadow-md hover:shadow-lg transition-all border-0"
+                >
+                  Abbrechen
+                </LoadingButton>
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleSubmit}
+                  isLoading={loading}
+                  loadingText="Wird erstellt..."
+                  className={cn(buttonPreset, 'flex items-center')}
+                >
+                  Event erstellen
+                </LoadingButton>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </PageTransition>
+    </div>
   );
 };

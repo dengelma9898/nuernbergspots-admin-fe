@@ -14,8 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AnimatedButton } from '@/components/AnimatedButton';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { LoadingButton } from '@/components/LoadingButton';
+import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
@@ -49,7 +49,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
   const selectedCategory = categories.find(cat => cat.id === event.categoryId);
 
   return (
-    <Card className={cn(glassCard)}>
+    <Card className={cn(cardPreset)}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-foreground">Event Informationen</CardTitle>
@@ -105,7 +105,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               id="title"
               value={editedEvent.title || ''}
               onChange={e => onInputChange('title', e.target.value)}
-              className={cn(glassInput)}
+              className={cn(inputPreset)}
             />
           ) : (
             <div className="text-lg font-semibold text-foreground">{event.title}</div>
@@ -121,7 +121,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               id="description"
               value={editedEvent.description || ''}
               onChange={e => onInputChange('description', e.target.value)}
-              className={cn(glassInput)}
+              className={cn(inputPreset)}
             />
           ) : (
             <div className="text-muted-foreground">{event.description}</div>
@@ -136,7 +136,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               value={editedEvent.priceString || ''}
               onChange={e => onInputChange('priceString', e.target.value || undefined)}
               placeholder="z.B. 15€, Kostenlos, Spende, etc."
-              className={cn(glassInput)}
+              className={cn(inputPreset)}
             />
           ) : (
             <div className="flex items-center text-muted-foreground">
@@ -224,16 +224,16 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
 
         {isEditing && (
           <div className="flex justify-end gap-4 mt-8">
-            <AnimatedButton variant="outline" onClick={onCancel} className={cn(glassButton)}>
+            <LoadingButton variant="outline" onClick={onCancel} className={cn(buttonPreset)}>
               Abbrechen
-            </AnimatedButton>
-            <AnimatedButton
+            </LoadingButton>
+            <LoadingButton
               onClick={onSave}
               disabled={!isEventChanged}
               className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               Speichern
-            </AnimatedButton>
+            </LoadingButton>
           </div>
         )}
       </CardContent>

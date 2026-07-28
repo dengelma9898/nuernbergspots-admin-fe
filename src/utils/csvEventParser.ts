@@ -83,7 +83,10 @@ export const parseCsvFile = (file: File): Promise<CsvEventRow[]> =>
       complete: results => {
         try {
           const fatalErrors = results.errors.filter(
-            error => error.type !== 'FieldMismatch' && error.code !== 'TooFewFields' && error.code !== 'TooManyFields'
+            error =>
+              error.type !== 'FieldMismatch' &&
+              error.code !== 'TooFewFields' &&
+              error.code !== 'TooManyFields'
           );
           if (fatalErrors.length > 0) {
             const firstError = fatalErrors[0];

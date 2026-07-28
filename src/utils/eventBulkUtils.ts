@@ -1,7 +1,4 @@
-import {
-  Event,
-  BulkUpdateEventCategoryResult,
-} from '@/models/events';
+import { Event, BulkUpdateEventCategoryResult } from '@/models/events';
 
 export const BULK_CATEGORY_MAX_EVENTS = 100;
 
@@ -13,9 +10,7 @@ export function applyBulkCategoryResult(
   result: BulkUpdateEventCategoryResult
 ): Event[] {
   const updatedById = new Map(
-    result.results
-      .filter(r => r.success && r.event)
-      .map(r => [r.eventId, r.event!])
+    result.results.filter(r => r.success && r.event).map(r => [r.eventId, r.event!])
   );
   return events.map(e => updatedById.get(e.id) ?? e);
 }
