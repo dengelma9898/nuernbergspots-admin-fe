@@ -1,6 +1,7 @@
 import { LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/contexts/AuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export function UserMenu() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Fehler beim Logout:', error);
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -29,12 +40,8 @@ export function UserMenu() {
           <User className="mr-2 h-4 w-4" />
           <span>Profil</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate('/settings')}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Einstellungen</span>
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/logout')}>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Abmelden</span>
         </DropdownMenuItem>

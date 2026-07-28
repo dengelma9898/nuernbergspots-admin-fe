@@ -1,7 +1,7 @@
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { AnimatedButton } from './AnimatedButton';
+import { LoadingButton } from './LoadingButton';
 
 /**
  * Theme-Toggle-Komponente für Dark/Light Mode
@@ -23,7 +23,7 @@ export function ThemeToggle() {
   const isDark = currentTheme === 'dark';
 
   return (
-    <AnimatedButton
+    <LoadingButton
       variant="outline"
       size="icon"
       onClick={() => setTheme(isDark ? 'light' : 'dark')}
@@ -35,6 +35,6 @@ export function ThemeToggle() {
       ) : (
         <Moon className="h-4 w-4 text-foreground" />
       )}
-    </AnimatedButton>
+    </LoadingButton>
   );
 }

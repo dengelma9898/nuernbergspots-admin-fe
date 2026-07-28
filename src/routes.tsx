@@ -9,6 +9,7 @@ import { EventImageEditor } from '@/pages/events/EventImageEditor';
 import { CsvEventImport } from '@/pages/events/CsvEventImport';
 import { KeywordList } from './pages/keywords/KeywordList';
 import { PrivateRoute } from '@/components/PrivateRoute';
+import { AdminLayout } from '@/components/AdminLayout';
 import { CreateEvent } from '@/pages/events/CreateEvent';
 import { CopyEvent } from '@/pages/events/CopyEvent';
 import { CreateBusiness } from '@/pages/businesses/CreateBusiness';
@@ -57,61 +58,66 @@ export function AppRoutes() {
 
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/businesses" element={<BusinessList />} />
-        <Route path="/businesses/:id/edit" element={<EditBusiness />} />
-        <Route path="/categories" element={<CategoryList />} />
-        <Route path="/events" element={<EventList />} />
-        <Route path="/events/import/csv" element={<CsvEventImport />} />
-        <Route path="/events/:id" element={<EventDetail />} />
-        <Route path="/events/:id/copy" element={<CopyEvent />} />
-        <Route path="/events/image-editor" element={<EventImageEditor />} />
-        <Route path="/events/:id/image-editor" element={<EventImageEditor />} />
-        <Route path="/keywords" element={<KeywordList />} />
-        <Route path="/create-event" element={<CreateEvent />} />
-        <Route path="/create-business" element={<CreateBusiness />} />
-        <Route path="/users/business/review" element={<BusinessUserReview />} />
-        <Route path="/users" element={<UserManagement />} />
-        <Route path="/business-users" element={<BusinessUserList />} />
-        <Route path="/business-users/:id/edit" element={<EditBusinessUser />} />
-        <Route path="/users/block-management" element={<UserBlockManagement />} />
-        <Route path="/contacts" element={<ContactRequests />} />
-        <Route path="/contacts/:id" element={<ContactRequestDetail />} />
-        <Route path="/event-categories" element={<EventCategoryList />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/news-management" element={<NewsManagement />} />
-        <Route path="/job-offers" element={<JobOffers />} />
-        <Route path="/job-offers/create" element={<JobOfferForm />} />
-        <Route path="/job-offers/:id" element={<JobOfferForm />} />
-        <Route path="/job-categories" element={<JobCategories />} />
-        <Route path="/chatrooms" element={<ChatroomManagement />} />
-        <Route path="/chatrooms/:chatroomId/messages" element={<ChatMessages />} />
-        <Route path="/mittmach-mittwoch" element={<MittmachMittwoch />} />
-        <Route path="/mittmach-mittwoch/:pollId" element={<SpecialPollDetail />} />
-        <Route path="/account-management" element={<AccountManagement />} />
-        <Route path="/downtime-management" element={<DowntimeManagement />} />
-        <Route path="/advent-calendar" element={<AdventCalendarManagement />} />
-        <Route path="/advent-calendar/new" element={<AdventCalendarForm />} />
-        <Route path="/advent-calendar/:id/edit" element={<AdventCalendarForm />} />
-        <Route path="/advent-calendar/:id/participants" element={<AdventCalendarParticipants />} />
-        <Route path="/legal" element={<LegalManagement />} />
-        <Route path="/legal/:type/edit" element={<LegalDocumentEdit />} />
-        <Route path="/app-version-management" element={<AppVersionManagement />} />
-        <Route path="/feature-flags" element={<FeatureFlagsManagement />} />
-        <Route path="/easter-egg-hunt" element={<EasterEggManagement />} />
-        <Route path="/easter-egg-hunt/new" element={<EasterEggForm />} />
-        <Route path="/easter-egg-hunt/:id/edit" element={<EasterEggForm />} />
-        <Route path="/easter-egg-hunt/:id" element={<EasterEggDetail />} />
-        <Route path="/taxi-stands" element={<TaxiStandManagement />} />
-        <Route path="/taxi-stands/new" element={<TaxiStandForm />} />
-        <Route path="/taxi-stands/:id/edit" element={<TaxiStandForm />} />
-        <Route path="/curated-spots" element={<CuratedSpotList />} />
-        <Route path="/curated-spots/settings" element={<CuratedSpotsUserRatingsSettingsPage />} />
-        <Route path="/curated-spots/new" element={<CuratedSpotForm />} />
-        <Route path="/curated-spots/:id/edit" element={<CuratedSpotForm />} />
-        <Route path="/spot-keywords" element={<SpotKeywordManagement />} />
+        <Route element={<AdminLayout />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/businesses" element={<BusinessList />} />
+          <Route path="/businesses/:id/edit" element={<EditBusiness />} />
+          <Route path="/categories" element={<CategoryList />} />
+          <Route path="/events" element={<EventList />} />
+          <Route path="/events/import/csv" element={<CsvEventImport />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/events/:id/copy" element={<CopyEvent />} />
+          <Route path="/events/image-editor" element={<EventImageEditor />} />
+          <Route path="/events/:id/image-editor" element={<EventImageEditor />} />
+          <Route path="/keywords" element={<KeywordList />} />
+          <Route path="/create-event" element={<CreateEvent />} />
+          <Route path="/create-business" element={<CreateBusiness />} />
+          <Route path="/users/business/review" element={<BusinessUserReview />} />
+          <Route path="/users" element={<UserManagement />} />
+          <Route path="/business-users" element={<BusinessUserList />} />
+          <Route path="/business-users/:id/edit" element={<EditBusinessUser />} />
+          <Route path="/users/block-management" element={<UserBlockManagement />} />
+          <Route path="/contacts" element={<ContactRequests />} />
+          <Route path="/contacts/:id" element={<ContactRequestDetail />} />
+          <Route path="/event-categories" element={<EventCategoryList />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/news-management" element={<NewsManagement />} />
+          <Route path="/job-offers" element={<JobOffers />} />
+          <Route path="/job-offers/create" element={<JobOfferForm />} />
+          <Route path="/job-offers/:id" element={<JobOfferForm />} />
+          <Route path="/job-categories" element={<JobCategories />} />
+          <Route path="/chatrooms" element={<ChatroomManagement />} />
+          <Route path="/chatrooms/:chatroomId/messages" element={<ChatMessages />} />
+          <Route path="/mittmach-mittwoch" element={<MittmachMittwoch />} />
+          <Route path="/mittmach-mittwoch/:pollId" element={<SpecialPollDetail />} />
+          <Route path="/account-management" element={<AccountManagement />} />
+          <Route path="/downtime-management" element={<DowntimeManagement />} />
+          <Route path="/advent-calendar" element={<AdventCalendarManagement />} />
+          <Route path="/advent-calendar/new" element={<AdventCalendarForm />} />
+          <Route path="/advent-calendar/:id/edit" element={<AdventCalendarForm />} />
+          <Route
+            path="/advent-calendar/:id/participants"
+            element={<AdventCalendarParticipants />}
+          />
+          <Route path="/legal" element={<LegalManagement />} />
+          <Route path="/legal/:type/edit" element={<LegalDocumentEdit />} />
+          <Route path="/app-version-management" element={<AppVersionManagement />} />
+          <Route path="/feature-flags" element={<FeatureFlagsManagement />} />
+          <Route path="/easter-egg-hunt" element={<EasterEggManagement />} />
+          <Route path="/easter-egg-hunt/new" element={<EasterEggForm />} />
+          <Route path="/easter-egg-hunt/:id/edit" element={<EasterEggForm />} />
+          <Route path="/easter-egg-hunt/:id" element={<EasterEggDetail />} />
+          <Route path="/taxi-stands" element={<TaxiStandManagement />} />
+          <Route path="/taxi-stands/new" element={<TaxiStandForm />} />
+          <Route path="/taxi-stands/:id/edit" element={<TaxiStandForm />} />
+          <Route path="/curated-spots" element={<CuratedSpotList />} />
+          <Route path="/curated-spots/settings" element={<CuratedSpotsUserRatingsSettingsPage />} />
+          <Route path="/curated-spots/new" element={<CuratedSpotForm />} />
+          <Route path="/curated-spots/:id/edit" element={<CuratedSpotForm />} />
+          <Route path="/spot-keywords" element={<SpotKeywordManagement />} />
+        </Route>
       </Route>
 
       {/* Fallback */}
