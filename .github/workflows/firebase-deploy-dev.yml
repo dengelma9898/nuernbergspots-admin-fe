@@ -7,8 +7,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Validate (type-check, lint, format, test)
+        run: npm run validate
+
   # Playwright nur gegen lokalen Dev-Server (vite --mode dev), nicht im Production-Job.
   e2e-dev:
+    needs: validate
     runs-on: ubuntu-latest
     environment: dev
     steps:

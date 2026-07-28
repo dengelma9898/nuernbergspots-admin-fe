@@ -1,6 +1,6 @@
 ---
 name: Ponytail Phase 1 — Toter Code & Artefakte
-overview: "Entfernt ungenutzten Quellcode und committed Build-Artefakte aus Git ohne Verhaltensänderung. Voraussetzung für alle weiteren Ponytail-Phasen. Verifikation: npm run test && npm run build && npm run start:dev."
+overview: 'Entfernt ungenutzten Quellcode und committed Build-Artefakte aus Git ohne Verhaltensänderung. Voraussetzung für alle weiteren Ponytail-Phasen. Verifikation: npm run test && npm run build && npm run start:dev.'
 todos:
   - id: gitignore-public-assets
     content: public/assets/ aus Git entfernen (git rm -r) und in .gitignore eintragen
@@ -68,10 +68,10 @@ Manuell: Login-Seite lädt, Navigation zum Dashboard möglich.
 
 ## 2. Totes Modul `src/modules/partner/`
 
-| Datei | Zeilen | Grund |
-| ----- | ------ | ----- |
-| `src/modules/partner/services/businessService.ts` | ~244 | Duplikat von `src/services/businessService.ts` |
-| `src/modules/partner/services/userService.ts` | ~158 | Duplikat von `src/services/userService.ts` |
+| Datei                                             | Zeilen | Grund                                          |
+| ------------------------------------------------- | ------ | ---------------------------------------------- |
+| `src/modules/partner/services/businessService.ts` | ~244   | Duplikat von `src/services/businessService.ts` |
+| `src/modules/partner/services/userService.ts`     | ~158   | Duplikat von `src/services/userService.ts`     |
 
 - Kein Import von `modules/partner` im gesamten `src/`.
 - Verzeichnis `src/modules/` danach ggf. komplett löschen.
@@ -80,12 +80,12 @@ Manuell: Login-Seite lädt, Navigation zum Dashboard möglich.
 
 ## 3. Ungenutzte Komponenten
 
-| Löschen | Grund |
-| ------- | ----- |
-| [`src/components/CustomerScansAnalysis.tsx`](../../src/components/CustomerScansAnalysis.tsx) | Nur im eigenen Test referenziert, nicht in Routes |
-| [`src/components/__tests__/CustomerScansAnalysis.test.tsx`](../../src/components/__tests__/CustomerScansAnalysis.test.tsx) | — |
-| [`src/components/ui/command.tsx`](../../src/components/ui/command.tsx) | Kein App-Import, nur eigener Test |
-| [`src/components/ui/__tests__/command.test.tsx`](../../src/components/ui/__tests__/command.test.tsx) | — |
+| Löschen                                                                                                                    | Grund                                             |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| [`src/components/CustomerScansAnalysis.tsx`](../../src/components/CustomerScansAnalysis.tsx)                               | Nur im eigenen Test referenziert, nicht in Routes |
+| [`src/components/__tests__/CustomerScansAnalysis.test.tsx`](../../src/components/__tests__/CustomerScansAnalysis.test.tsx) | —                                                 |
+| [`src/components/ui/command.tsx`](../../src/components/ui/command.tsx)                                                     | Kein App-Import, nur eigener Test                 |
+| [`src/components/ui/__tests__/command.test.tsx`](../../src/components/ui/__tests__/command.test.tsx)                       | —                                                 |
 
 Danach: `npm uninstall cmdk`
 

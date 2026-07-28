@@ -1,0 +1,1579 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin-FE Analyse — Nürnbergspots</title>
+    <style>
+      :root {
+        --bg: #0c0f14;
+        --surface: #141a22;
+        --surface-2: #1a222d;
+        --border: #2a3544;
+        --text: #e8edf4;
+        --muted: #8b9bb0;
+        --accent: #5b9cf5;
+        --accent-dim: rgba(91, 156, 245, 0.12);
+        --success: #3ecf8e;
+        --warning: #f0b429;
+        --danger: #f56565;
+        --radius: 10px;
+        --font: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        --mono: 'SF Mono', 'Fira Code', ui-monospace, monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font);
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.55;
+        min-height: 100vh;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+
+      nav {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 1.5rem 1rem;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      nav h1 {
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.25rem;
+      }
+
+      nav .subtitle {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+
+      nav a {
+        display: block;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 2px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+
+      nav a:hover {
+        background: var(--surface-2);
+        color: var(--text);
+      }
+      nav a.active {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      main {
+        padding: 2rem 2.5rem 4rem;
+        max-width: 1100px;
+      }
+
+      section {
+        display: none;
+        animation: fadeIn 0.2s ease;
+      }
+      section.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.5rem;
+      }
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 1.75rem 0 0.75rem;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 0.95rem;
+        max-width: 65ch;
+        margin-bottom: 1.5rem;
+      }
+
+      .badge {
+        display: inline-block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        margin-right: 0.35rem;
+      }
+
+      .badge-admin {
+        background: rgba(91, 156, 245, 0.15);
+        color: var(--accent);
+      }
+      .badge-high {
+        background: rgba(245, 101, 101, 0.15);
+        color: var(--danger);
+      }
+      .badge-med {
+        background: rgba(240, 180, 41, 0.15);
+        color: var(--warning);
+      }
+      .badge-low {
+        background: rgba(62, 207, 142, 0.15);
+        color: var(--success);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+      }
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+          grid-template-columns: 1fr;
+        }
+        main {
+          padding: 1.5rem;
+        }
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1.25rem;
+      }
+
+      .card h4 {
+        font-size: 0.75rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 500;
+        margin-bottom: 0.35rem;
+      }
+
+      .card .value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+
+      .card .hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+
+      .filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .filter-btn {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 0.4rem 0.85rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .filter-btn:hover {
+        border-color: var(--accent);
+        color: var(--text);
+      }
+      .filter-btn.active {
+        background: var(--accent-dim);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .search {
+        width: 100%;
+        max-width: 320px;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+      }
+
+      .search:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+
+      th,
+      td {
+        text-align: left;
+        padding: 0.65rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      th:hover {
+        color: var(--text);
+      }
+      th.sorted-asc::after {
+        content: ' ↑';
+        color: var(--accent);
+      }
+      th.sorted-desc::after {
+        content: ' ↓';
+        color: var(--accent);
+      }
+
+      tr:hover td {
+        background: var(--surface-2);
+      }
+
+      code {
+        font-family: var(--mono);
+        font-size: 0.8em;
+        background: var(--surface-2);
+        padding: 0.1rem 0.35rem;
+        border-radius: 4px;
+      }
+
+      .item-list {
+        list-style: none;
+      }
+
+      .item {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 0.75rem;
+        overflow: hidden;
+      }
+
+      .item.done {
+        opacity: 0.55;
+      }
+
+      .item.done .item-title {
+        text-decoration: line-through;
+        text-decoration-color: var(--muted);
+      }
+
+      .item-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        cursor: pointer;
+        background: var(--surface);
+        gap: 1rem;
+      }
+
+      .item-header:hover {
+        background: var(--surface-2);
+      }
+
+      .item-title {
+        font-weight: 500;
+        font-size: 0.95rem;
+      }
+      .item-meta {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .item-body {
+        display: none;
+        padding: 0 1.25rem 1.25rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .item.open .item-body {
+        display: block;
+        padding-top: 1rem;
+      }
+
+      .item-body ul {
+        margin: 0.5rem 0 0 1.25rem;
+      }
+      .item-body li {
+        margin-bottom: 0.35rem;
+      }
+
+      .matrix {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        min-height: 420px;
+      }
+
+      .quadrant {
+        background: var(--surface);
+        padding: 1rem;
+        position: relative;
+      }
+
+      .quadrant-label {
+        position: absolute;
+        top: 0.75rem;
+        left: 0.75rem;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .chip {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 5px;
+        margin: 0.25rem;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        cursor: default;
+      }
+
+      .chip:hover {
+        border-color: var(--accent);
+      }
+
+      .bar-chart {
+        margin-top: 1rem;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 180px 1fr 50px;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .bar-track {
+        height: 8px;
+        background: var(--surface-2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 4px;
+        transition: width 0.4s ease;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 1.5rem;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.35rem;
+        top: 0.25rem;
+        bottom: 0.25rem;
+        width: 2px;
+        background: var(--border);
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 1.25rem;
+        padding-left: 0.5rem;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -1.35rem;
+        top: 0.45rem;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--border);
+      }
+
+      .timeline-item.done::before {
+        background: var(--success);
+      }
+      .timeline-item.current::before {
+        background: var(--accent);
+      }
+
+      .callout {
+        border-left: 3px solid var(--accent);
+        background: var(--accent-dim);
+        padding: 1rem 1.25rem;
+        border-radius: 0 var(--radius) var(--radius) 0;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+      }
+
+      .callout strong {
+        color: var(--accent);
+      }
+
+      .toggle-group {
+        display: inline-flex;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+      }
+
+      .toggle-group button {
+        background: var(--surface);
+        border: none;
+        color: var(--muted);
+        padding: 0.45rem 1rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+
+      .toggle-group button.active {
+        background: var(--accent-dim);
+        color: var(--accent);
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <nav>
+        <h1>Admin-FE Analyse</h1>
+        <p class="subtitle">Nürnbergspots · Juli 2026</p>
+        <a href="#overview" class="nav-link active">Überblick</a>
+        <a href="#metrics" class="nav-link">Metriken</a>
+        <a href="#code" class="nav-link">Code & Architektur</a>
+        <a href="#ux" class="nav-link">Lesbarkeit & UX</a>
+        <a href="#infra" class="nav-link">Infrastruktur</a>
+        <a href="#admin" class="nav-link">Admin-Vorteile</a>
+        <a href="#roadmap" class="nav-link">Roadmap</a>
+        <a href="#matrix" class="nav-link">Prioritäten</a>
+        <a href="#files" class="nav-link">Große Dateien</a>
+      </nav>
+
+      <main>
+        <!-- OVERVIEW -->
+        <section id="overview" class="active">
+          <h2>Executive Summary</h2>
+          <p class="lead">
+            Das Admin-Frontend ist eine solide, gut getestete React-19-Anwendung mit ~50 geschützten
+            Routen und starkem Fokus auf Events, Businesses und User-Management. Da nur Admins die
+            App nutzen, könnt ihr aggressiver optimieren: höhere Informationsdichte,
+            Power-User-Features und weniger Consumer-UX-Kompromisse.
+          </p>
+
+          <div class="callout">
+            <strong>Kern-Erkenntnis:</strong> Die größten Hebel liegen nicht in neuen Features,
+            sondern in Struktur (Mega-Pages splitten), Bundle-Größe (MUI + framer-motion entfernen)
+            und einem gemeinsamen Admin-Layout mit konsistenter Navigation.
+          </div>
+
+          <div class="grid-4" style="margin-top: 1.5rem">
+            <div class="card">
+              <h4>Seiten</h4>
+              <div class="value">49</div>
+              <div class="hint">~50 geschützte Routen</div>
+            </div>
+            <div class="card">
+              <h4>Services</h4>
+              <div class="value">25</div>
+              <div class="hint">Hook-basierte API-Schicht</div>
+            </div>
+            <div class="card">
+              <h4>Tests</h4>
+              <div class="value">89</div>
+              <div class="hint">86 Unit + 3 E2E</div>
+            </div>
+            <div class="card">
+              <h4>Prod-LOC</h4>
+              <div class="value">~43k</div>
+              <div class="hint">Test-LOC ≈ 90% davon</div>
+            </div>
+          </div>
+
+          <h3>Stärken</h3>
+          <ul class="item-list" style="margin-top: 0.5rem">
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              Umfangreiche Test-Suite mit Service- und Page-Tests
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              Konsistente shadcn/Radix-Komponenten als UI-Basis
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              Token-Caching im API-Client (50 min, dedupliziert)
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              Mobile-first responsive Klassen in 56 Page-Dateien
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              Skeleton-Loading auf den meisten Listen-Seiten
+            </li>
+          </ul>
+
+          <h3>Kritische Schwachstellen</h3>
+          <ul class="item-list" style="margin-top: 0.5rem">
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              <span class="badge badge-high">Hoch</span> Verbleibende Mega-Pages: JobOfferForm
+              (1.158), NewsManagement (1.050), CopyEvent (1.028 Zeilen)
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              <span class="badge badge-med">Mittel</span> Coverage-Threshold nicht enforced
+              (.cursorrules: 80%, TESTING.md: 90%)
+            </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              <span class="badge badge-med">Mittel</span> Kein PR-Workflow — validate läuft erst auf
+              main-push
+            </li>
+          </ul>
+          <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--success)">
+            ✓ Gelöst (2026-07-28): MUI entfernt, CI-validate-Job, Design-System synchronisiert,
+            Shared AdminLayout mit Sidebar, Top-3 Mega-Pages gesplittet.
+          </p>
+        </section>
+
+        <!-- METRICS -->
+        <section id="metrics">
+          <h2>Metriken & Verteilung</h2>
+          <p class="lead">
+            Quantitative Einordnung der Codebase. Klicke auf Kategorien, um Details zu filtern.
+          </p>
+
+          <div class="toggle-group" id="metricView">
+            <button class="active" data-view="structure">Struktur</button>
+            <button data-view="deps">Dependencies</button>
+            <button data-view="quality">Qualität</button>
+          </div>
+
+          <div id="view-structure">
+            <div class="bar-chart" id="structureChart"></div>
+          </div>
+
+          <div id="view-deps" class="hidden">
+            <div class="bar-chart" id="depsChart"></div>
+            <p style="font-size: 0.8rem; color: var(--muted); margin-top: 1rem">
+              Quelle: node_modules-Größe · MUI nur für icon-picker.tsx + iconUtils.tsx
+            </p>
+          </div>
+
+          <div id="view-quality" class="hidden">
+            <div class="grid-2">
+              <div class="card">
+                <h4>Pages &gt; 500 Zeilen</h4>
+                <div class="value">25 / 49</div>
+                <div class="hint">51% — Top-3 gesplittet (Jul 2026)</div>
+              </div>
+              <div class="card">
+                <h4>Coverage Threshold</h4>
+                <div class="value" style="color: var(--danger)">Nicht enforced</div>
+                <div class="hint">.cursorrules: 80%, TESTING.md: 90%</div>
+              </div>
+              <div class="card">
+                <h4>framer-motion Dateien</h4>
+                <div class="value" style="color: var(--success)">0</div>
+                <div class="hint">CSS-Shim + @keyframes (Jul 2026)</div>
+              </div>
+              <div class="card">
+                <h4>TODO/FIXME in src</h4>
+                <div class="value">1</div>
+                <div class="hint">CopyEvent.tsx — Backend-Proxy fehlt</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CODE -->
+        <section id="code">
+          <h2>Code & Architektur</h2>
+          <p class="lead">Was sollten wir strukturell verbessern?</p>
+          <p class="lead" id="codeProgress" style="color: var(--success); font-weight: 600"></p>
+
+          <div class="filters" data-filter-group="code">
+            <button class="filter-btn active" data-filter="all">Alle</button>
+            <button class="filter-btn" data-filter="split">Splitting</button>
+            <button class="filter-btn" data-filter="api">API-Layer</button>
+            <button class="filter-btn" data-filter="cleanup">Aufräumen</button>
+          </div>
+
+          <div id="codeItems"></div>
+        </section>
+
+        <!-- UX -->
+        <section id="ux">
+          <h2>Lesbarkeit & UX</h2>
+          <p class="lead">
+            Admin-Oberflächen brauchen Klarheit und Geschwindigkeit — nicht Consumer-Polish.
+          </p>
+
+          <div class="filters" data-filter-group="ux">
+            <button class="filter-btn active" data-filter="all">Alle</button>
+            <button class="filter-btn" data-filter="design">Design</button>
+            <button class="filter-btn" data-filter="a11y">Accessibility</button>
+            <button class="filter-btn" data-filter="loading">Loading</button>
+          </div>
+
+          <div id="uxItems"></div>
+        </section>
+
+        <!-- INFRA -->
+        <section id="infra">
+          <h2>Infrastruktur & Tooling</h2>
+          <p class="lead">CI/CD, Build-Pipeline und Entwickler-Ergonomie.</p>
+
+          <div id="infraItems"></div>
+
+          <h3>Aktuelle CI-Pipeline</h3>
+          <div class="card" style="font-family: var(--mono); font-size: 0.8rem; line-height: 1.8">
+            push main / workflow_dispatch<br />
+            &nbsp;&nbsp;→ validate (type-check + lint + format + test)<br />
+            &nbsp;&nbsp;→ e2e-dev (Playwright + Vite dev server)<br />
+            &nbsp;&nbsp;→ build-and-deploy-dev (Firebase dev)<br />
+            &nbsp;&nbsp;→ build-and-deploy-prd (Firebase prd)<br />
+            <span style="color: var(--success)">✓ validate seit 2026-07-28 vor e2e/Deploy</span>
+          </div>
+
+          <h3>Empfohlene Pipeline</h3>
+          <div
+            class="card"
+            style="
+              font-family: var(--mono);
+              font-size: 0.8rem;
+              line-height: 1.8;
+              border-color: var(--success);
+            "
+          >
+            push main / PR<br />
+            &nbsp;&nbsp;→ validate (type-check + lint + format + test)<br />
+            &nbsp;&nbsp;→ e2e-dev<br />
+            &nbsp;&nbsp;→ build:dev + build:prd<br />
+            &nbsp;&nbsp;→ deploy (nur main)
+          </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="admin">
+          <h2>Admin-spezifische Chancen</h2>
+          <p class="lead">
+            <span class="badge badge-admin">Nur Admins</span>
+            Ihr habt Freiheiten, die Consumer-Apps nicht haben. Nutzt sie bewusst.
+          </p>
+
+          <div id="adminItems"></div>
+        </section>
+
+        <!-- ROADMAP -->
+        <section id="roadmap">
+          <h2>Ponytail-Roadmap</h2>
+          <p class="lead">
+            8-Phasen-Plan aus dem Repo-Audit. Phasen 1–7 sind umgesetzt, Phase 8 teilweise (8a).
+          </p>
+
+          <div class="timeline" id="roadmapTimeline"></div>
+        </section>
+
+        <!-- MATRIX -->
+        <section id="matrix">
+          <h2>Impact vs. Aufwand</h2>
+          <p class="lead">
+            Hover über Chips für Details. Klick filtert verwandte Empfehlungen unten.
+          </p>
+
+          <div class="matrix" id="priorityMatrix"></div>
+          <div id="matrixDetail" class="callout hidden" style="margin-top: 1rem"></div>
+        </section>
+
+        <!-- FILES -->
+        <section id="files">
+          <h2>Große Dateien</h2>
+          <p class="lead">Sortierbare Tabelle — Kandidaten für Refactoring.</p>
+
+          <input type="text" class="search" id="fileSearch" placeholder="Datei suchen…" />
+
+          <div class="card" style="padding: 0; overflow: hidden">
+            <table id="filesTable">
+              <thead>
+                <tr>
+                  <th data-sort="lines">Zeilen</th>
+                  <th data-sort="file">Datei</th>
+                  <th data-sort="category">Kategorie</th>
+                  <th data-sort="priority">Priorität</th>
+                </tr>
+              </thead>
+              <tbody id="filesBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer>
+          Generiert aus Repo-Analyse · admin-fe · Stand: Juli 2026 · Quellen: package.json, src/,
+          .cursor/plans/PONYTAIL-AUDIT-in-progress.md, docs/
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      // Navigation
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', e => {
+          e.preventDefault();
+          const id = link.getAttribute('href').slice(1);
+          document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+          document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+          link.classList.add('active');
+          document.getElementById(id).classList.add('active');
+        });
+      });
+
+      // Metric views
+      document.querySelectorAll('#metricView button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document
+            .querySelectorAll('#metricView button')
+            .forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          ['structure', 'deps', 'quality'].forEach(v => {
+            document.getElementById('view-' + v).classList.toggle('hidden', btn.dataset.view !== v);
+          });
+        });
+      });
+
+      function renderBarChart(containerId, data, maxVal) {
+        const el = document.getElementById(containerId);
+        el.innerHTML = data
+          .map(
+            d => `
+        <div class="bar-row">
+          <span>${d.label}</span>
+          <div class="bar-track"><div class="bar-fill" style="width: ${(d.value / maxVal) * 100}%"></div></div>
+          <span style="text-align: right; color: var(--muted);">${d.value}${d.unit || ''}</span>
+        </div>
+      `
+          )
+          .join('');
+      }
+
+      renderBarChart(
+        'structureChart',
+        [
+          { label: 'Pages', value: 49 },
+          { label: 'Components', value: 55 },
+          { label: 'Services', value: 25 },
+          { label: 'Models', value: 23 },
+          { label: 'Hooks', value: 3 },
+          { label: 'Utils', value: 13 },
+          { label: 'UI-Tests', value: 28 },
+          { label: 'Page-Tests', value: 34 },
+        ],
+        55
+      );
+
+      renderBarChart(
+        'depsChart',
+        [
+          { label: 'firebase', value: 40, unit: ' MB' },
+          { label: 'lucide-react', value: 39, unit: ' MB' },
+          { label: 'Radix + shadcn', value: 33, unit: ' UI-Komp.' },
+          { label: 'MaterialIcon (Font)', value: 0.1, unit: ' MB' },
+        ],
+        40
+      );
+
+      // Expandable items
+      function createItems(containerId, items) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = items
+          .map((item, i) => {
+            const isDone = item.status === 'done';
+            const doneClass = isDone ? ' done' : '';
+            const doneBadge = isDone
+              ? `<span class="badge badge-low">Erledigt${item.completedAt ? ' · ' + item.completedAt : ''}</span>`
+              : '';
+            return `
+        <div class="item${doneClass}" data-tags="${item.tags.join(',')}" data-id="${containerId}-${i}" data-status="${item.status || 'open'}">
+          <div class="item-header" onclick="toggleItem(this)">
+            <span class="item-title">${item.title}</span>
+            <span class="item-meta">
+              ${doneBadge}
+              <span class="badge badge-${item.impact}">${item.impactLabel}</span>
+              <span class="badge badge-${item.effort}">${item.effortLabel}</span>
+            </span>
+          </div>
+          <div class="item-body">
+            <p>${item.desc}</p>
+            ${item.actions ? '<ul>' + item.actions.map(a => '<li>' + a + '</li>').join('') + '</ul>' : ''}
+          </div>
+        </div>
+      `;
+          })
+          .join('');
+
+        if (containerId === 'codeItems') {
+          const doneCount = items.filter(i => i.status === 'done').length;
+          const progressEl = document.getElementById('codeProgress');
+          if (progressEl) {
+            progressEl.textContent = `${doneCount} / ${items.length} erledigt`;
+          }
+        }
+      }
+
+      function toggleItem(header) {
+        header.parentElement.classList.toggle('open');
+      }
+
+      // Filter groups
+      function setupFilters(groupName, containerId) {
+        document.querySelectorAll(`[data-filter-group="${groupName}"] .filter-btn`).forEach(btn => {
+          btn.addEventListener('click', () => {
+            document
+              .querySelectorAll(`[data-filter-group="${groupName}"] .filter-btn`)
+              .forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filter = btn.dataset.filter;
+            document.querySelectorAll(`#${containerId} .item`).forEach(item => {
+              const tags = item.dataset.tags.split(',');
+              item.classList.toggle('hidden', filter !== 'all' && !tags.includes(filter));
+            });
+          });
+        });
+      }
+
+      const codeItems = [
+        {
+          title: 'Mega-Pages splitten (EventList: 1.690 Zeilen)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'Top-3 Pages aufgeteilt: EventList (~242), EditBusiness (~236), EventImageEditor (~73) Zeilen Orchestrierung. Hooks, Utils und Subkomponenten extrahiert. Tests, Build und validate grün.',
+          actions: [
+            'EventList: useEventListData/Filters/BulkSelection, Filter-Utils, Header/Filters/Cards/Dialogs',
+            'EditBusiness: Form-Sections (Öffnungszeiten, Bilder, Reviews), useEditBusiness',
+            'EventImageEditor: Settings-Tabs, Preview-Canvas, Export-Hook',
+          ],
+        },
+        {
+          title: 'Shared Authenticated Layout',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'AdminLayout mit Background + PageTransition + Outlet in routes.tsx. ~48 Pages bereinigt. Sidebar/Breadcrumbs integriert (siehe UX-Phase).',
+          actions: [
+            'AdminLayout.tsx — minimal (Background, PageTransition, Outlet)',
+            'Geschützte Routes in routes.tsx verschachtelt',
+            'Login-Page ausgenommen',
+          ],
+        },
+        {
+          title: 'API unwrapData zentralisieren (Phase 4)',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['api'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'ApiClient.getData/postData/patchData/putData/deleteData entpacken { data } automatisch. apiUtils.ts gelöscht, Services migriert.',
+          actions: [
+            'getData<T>, postData<T> etc. im ApiClient',
+            'apiUtils.ts gelöscht',
+            '25 Services + LocationSearch migriert',
+          ],
+        },
+        {
+          title: 'errorUtils.ts straffen (678 Zeilen)',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['api', 'cleanup'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'Duplizierte 401/403/404-Blöcke via matchesHttpStatus, authRequiredError, forbiddenError, notFoundError konsolidiert. Öffentliche API unverändert.',
+          actions: [
+            'Hilfsfunktionen für wiederkehrende HTTP-Status-Codes',
+            'Prioritäts-Reihenfolge in getUserFriendlyError beibehalten',
+            'Alle Tests grün',
+          ],
+        },
+        {
+          title: 'MUI entfernen — MaterialIcon (snake_case bleibt)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['cleanup'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: '@mui deinstalliert. iconUtils + Icon-Picker nutzen MaterialIcon (Google Font). Backend iconName bleibt snake_case — Endkunden-App unverändert.',
+          actions: [
+            'allowed-material-icons.ts — kuratierte snake_case Liste',
+            'Icon-Picker durchgängig snake_case (Edit-Bug behoben)',
+            '@mui/material, @mui/icons-material, @emotion/* entfernt',
+          ],
+        },
+        {
+          title: 'framer-motion → CSS',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['cleanup'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'framer-motion deinstalliert. CSS @keyframes + motion.tsx Shim. AnimatedButton in LoadingButton gemergt und gelöscht.',
+          actions: [
+            'PageTransition, AnimatedCard, Background auf CSS',
+            'motion.tsx Shim für bestehende motion.div-Aufrufe',
+            'framer-motion aus package.json entfernt',
+          ],
+        },
+        {
+          title: 'Leeren Partner-Modul löschen',
+          impact: 'low',
+          impactLabel: 'Impact niedrig',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['cleanup'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'src/modules/partner/ entfernt (0 Imports). src/modules/ komplett gelöscht.',
+          actions: ['Verzeichnis gelöscht', 'Keine weiteren Abhängigkeiten'],
+        },
+      ];
+
+      const uxItems = [
+        {
+          title: 'Design-System vereinheitlichen',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['design'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'glass* → cardPreset/inputPreset/buttonPreset migriert, Aliase entfernt, loading-overlay gelöscht, DESIGN_SYSTEM.md synchronisiert.',
+          actions: [
+            'designTokens.ts als Single Source of Truth',
+            'Keine glass*-Aliase mehr in src/',
+            'DESIGN_SYSTEM.md auf *Preset-API aktualisiert',
+          ],
+        },
+        {
+          title: 'Informationsdichte erhöhen (Admin-Vorteil)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['design'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'Animationen 0.2s, Dashboard lg:grid-cols-4, listSectionPreset für Listen/Tables, kompaktere Grids.',
+          actions: [
+            'listSectionPreset (p-4 mb-6) in Event/Business-Listen + 8 Table-Pages',
+            'Dashboard-Delays entfernt, Metrik-Grid 4-spaltig',
+            'TableCell py-4-Overrides entfernt',
+          ],
+        },
+        {
+          title: 'Konsistente Navigation',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['design'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'AdminLayout mit persistenter Sidebar (einklappbar, aktiver Menüpunkt hervorgehoben), Breadcrumbs und zentralem Header mit UserMenu/ThemeToggle — für alle geschützten Routen.',
+          actions: [
+            'AdminSidebar + AdminSidebarMobile mit allen Admin-Bereichen',
+            'AdminBreadcrumbs für tiefe Hierarchien (Events → Detail → Copy)',
+            'aria-current und Tooltips im eingeklappten Zustand',
+          ],
+        },
+        {
+          title: 'Skeleton statt Spinner (9 Pages offen)',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['loading'],
+          desc: '42 Pages nutzen Skeleton, 9 noch Spinner/Overlays. .cursorrules schreibt Skeleton vor.',
+          actions: [
+            'Verbleibende Spinner identifizieren',
+            'Skeleton-Struktur an echten Content anpassen',
+          ],
+        },
+        {
+          title: 'Accessibility für Power-User',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['a11y'],
+          desc: '219 aria-Attribute vorhanden, aber nur 2 Dateien mit prefers-reduced-motion. Fokus-Management bei Dialogen unklar.',
+          actions: [
+            'Keyboard-Shortcuts (/, g+e für Events, Esc schließt Dialoge)',
+            'prefers-reduced-motion global in CSS',
+            'Skip-Links und Landmark-Rollen im Layout',
+          ],
+        },
+        {
+          title: 'Dark Mode als Default',
+          impact: 'low',
+          impactLabel: 'Impact niedrig',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['design'],
+          desc: 'next-themes ist eingebunden, ThemeToggle aber kaum sichtbar. Admins arbeiten oft abends — Dark als Default sinnvoll.',
+          actions: ['defaultTheme="dark" in ThemeProvider', 'ThemeToggle in AdminLayout'],
+        },
+      ];
+
+      const infraItems = [
+        {
+          title: 'CI: validate vor Deploy',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['ci'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'validate-Job (type-check + lint + format + test) läuft vor e2e-dev und Deploy in firebase-deploy-dev.yml. Offen: PR-Workflow-Trennung, Coverage-Threshold (eigenes Item).',
+          actions: [
+            'Job validate: npm run validate — erledigt',
+            'PR-Workflow separat von Deploy — offen',
+          ],
+        },
+        {
+          title: 'Coverage-Threshold enforced',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['ci'],
+          desc: 'Dokumentation sagt 80–90%, Jest hat keinen Threshold. Große Pages wie EventList sind untergetestet relativ zur Größe.',
+          actions: [
+            'coverageThreshold in jest.config.js',
+            'Fokus-Tests für EventList Bulk-Actions',
+            'UI-Passthrough-Tests (28 shadcn-Wrapper) evaluieren — wenig ROI',
+          ],
+        },
+        {
+          title: 'E2E-Abdeckung erweitern',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['ci'],
+          desc: 'Nur 3 Playwright-Specs (Login, Logout, Partner). Kritische Flows fehlen: Event erstellen, CSV-Import, User blockieren.',
+          actions: [
+            'Smoke-Test für Event-CRUD',
+            'CSV-Import Happy Path',
+            'Parallel gegen dev-API mit Testdaten',
+          ],
+        },
+        {
+          title: 'Docs synchronisieren',
+          impact: 'low',
+          impactLabel: 'Impact niedrig',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['docs'],
+          desc: 'OVERVIEW.md sagt React 18, package.json hat React 19. Design-Docs widersprechen .cursorrules.',
+          actions: ['OVERVIEW.md aktualisieren', 'Single Source of Truth: docs/DESIGN_SYSTEM.md'],
+        },
+      ];
+
+      const adminItems = [
+        {
+          title: 'Globale Suche / Command Palette',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['power'],
+          desc: '50 Routen — Admins verlieren Zeit beim Navigieren. Cmd+K Palette für Events, Users, Businesses, Settings.',
+          actions: [
+            'cmdk war installiert, wurde entfernt — leichtgewichtige Alternative',
+            'Fuzzy-Search über Route-Registry',
+            'Letzte besuchte Items',
+          ],
+        },
+        {
+          title: 'Bulk-Operationen ausbauen',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['power'],
+          desc: 'EventList hat Bulk-Kategorien — Pattern auf Businesses, Users, Job Offers erweitern.',
+          actions: [
+            'Multi-Select in allen Listen',
+            'Bulk-Delete, Bulk-Status-Change',
+            'Undo-Toast für destruktive Aktionen',
+          ],
+        },
+        {
+          title: 'Audit-Log / Aktivitätsprotokoll',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['power'],
+          desc: 'Admin-Apps profitieren von Nachvollziehbarkeit: Wer hat was wann geändert?',
+          actions: [
+            'Backend-Endpoint für Admin-Actions',
+            'UI: letzte Änderungen pro Entity',
+            'Filter nach Admin-User',
+          ],
+        },
+        {
+          title: 'Daten-Export überall',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['power'],
+          desc: 'CSV-Import existiert für Events. Export fehlt oft — Admins wollen Daten für Reports.',
+          actions: [
+            'CSV/JSON-Export-Button in Listen',
+            'papaparse ist bereits installiert',
+            'Gefilterte Exporte',
+          ],
+        },
+        {
+          title: 'Entwickler-Modus / Feature-Flags UI',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['power'],
+          desc: 'FeatureFlagsManagement existiert bereits — Dev-Banner, API-URL-Anzeige, Request-Debug wären natürliche Erweiterungen.',
+          actions: [
+            'Dev-Mode Banner (bereits Favicon/Titel-Unterscheidung)',
+            'API-Response-Inspector im Dev-Mode',
+            'Mock-Daten für UI-Entwicklung',
+          ],
+        },
+        {
+          title: 'Tabellen mit Virtualisierung',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['power'],
+          desc: '@tanstack/react-virtual ist installiert aber wenig genutzt. Große Event-/User-Listen profitieren.',
+          actions: [
+            'Virtualisierte EventList-Tabelle',
+            'Infinite Scroll statt Pagination',
+            'Spalten ein-/ausblenden',
+          ],
+        },
+        {
+          title: 'Weniger Animation, mehr Speed',
+          impact: 'low',
+          impactLabel: 'Impact niedrig',
+          effort: 'low',
+          effortLabel: 'Aufwand niedrig',
+          tags: ['power'],
+          desc: 'Admins priorisieren Geschwindigkeit über Delight. PageTransition-Delays und hover:scale-105 überall entfernen.',
+          actions: [
+            'transition-all duration-500 → duration-150',
+            'Kein scale auf Cards',
+            'Sofortiges Feedback statt Animation',
+          ],
+        },
+      ];
+
+      createItems('codeItems', codeItems);
+      createItems('uxItems', uxItems);
+      createItems('infraItems', infraItems);
+      createItems('adminItems', adminItems);
+      setupFilters('code', 'codeItems');
+      setupFilters('ux', 'uxItems');
+
+      // Roadmap
+      const phases = [
+        {
+          n: 1,
+          title: 'Toter Code & Artefakte',
+          status: 'done',
+          desc: 'partner-Modul, CustomerScansAnalysis, command.tsx gelöscht — public/assets/ untracked',
+        },
+        {
+          n: 2,
+          title: 'Ungenutzte Dependencies',
+          status: 'done',
+          desc: 'cmdk, date-fns-tz entfernt',
+        },
+        {
+          n: 3,
+          title: 'API-Client & Fehler-Utils',
+          status: 'done',
+          desc: 'errorUtils dedupliziert (401/403/404-Hilfsfunktionen)',
+        },
+        {
+          n: 4,
+          title: 'API-Response-Layer',
+          status: 'done',
+          desc: 'getData/postData im ApiClient, apiUtils.ts gelöscht',
+        },
+        {
+          n: 5,
+          title: 'Button- & Layout-Wrapper',
+          status: 'done',
+          desc: 'AnimatedButton → LoadingButton, AdminLayout (minimal)',
+        },
+        {
+          n: 6,
+          title: 'Icon-Stack (MUI raus)',
+          status: 'done',
+          desc: 'MaterialIcon Font, snake_case-Vertrag beibehalten',
+        },
+        {
+          n: 7,
+          title: 'framer-motion → CSS',
+          status: 'done',
+          desc: 'CSS-Shim, framer-motion deinstalliert',
+        },
+        {
+          n: 8,
+          title: 'Optional: Presets & Services',
+          status: 'current',
+          desc: '8a erledigt (designTokens-Presets) — offen: Service-Hooks (8b), UI-Tests (8c)',
+        },
+      ];
+
+      document.getElementById('roadmapTimeline').innerHTML = phases
+        .map(
+          p => `
+      <div class="timeline-item ${p.status}">
+        <strong>Phase ${p.n}: ${p.title}</strong>
+        <span class="badge badge-${p.status === 'done' ? 'low' : p.status === 'current' ? 'med' : 'high'}">${p.status}</span>
+        <p style="color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem;">${p.desc}</p>
+      </div>
+    `
+        )
+        .join('');
+
+      // Priority matrix
+      const matrixItems = [
+        {
+          label: 'Mega-Pages splitten',
+          q: 'high-high',
+          detail: 'Größter Wartungshebel, aber viel Arbeit. EventList zuerst.',
+        },
+        {
+          label: 'Shared Admin Layout',
+          q: 'high-med',
+          detail: 'Schneller ROI: Navigation, Background, UserMenu zentral.',
+        },
+        {
+          label: 'MUI entfernen',
+          q: 'high-med',
+          detail: '189 MB weniger, schnellere npm ci, kleineres Bundle.',
+        },
+        {
+          label: 'CI validate',
+          q: 'high-low',
+          detail: 'Ein GitHub-Actions-Job — sofortiger Qualitätsgewinn.',
+        },
+        { label: 'Command Palette', q: 'high-med', detail: 'Admin-UX-Booster für 50 Routen.' },
+        {
+          label: 'Design-System sync',
+          q: 'high-med',
+          detail: '.cursorrules + Code + Docs auf einen Stand.',
+        },
+        { label: 'API unwrap zentral', q: 'med-med', detail: '43 Call-Sites weniger Boilerplate.' },
+        {
+          label: 'framer-motion raus',
+          q: 'med-high',
+          detail: 'Viel Dateien, aber mechanisch umsetzbar.',
+        },
+        { label: 'Partner-Modul löschen', q: 'low-low', detail: '5-Minuten-Cleanup.' },
+        { label: 'Dark Mode Default', q: 'low-low', detail: 'Eine Zeile in ThemeProvider.' },
+        { label: 'Docs aktualisieren', q: 'low-low', detail: 'React 19, Design-Regeln.' },
+        { label: 'Audit-Log', q: 'med-high', detail: 'Hoher Wert, braucht Backend.' },
+      ];
+
+      const quadrants = {
+        'high-low': { label: 'Quick Wins', items: [] },
+        'high-med': { label: 'Strategisch', items: [] },
+        'high-high': { label: 'Großprojekte', items: [] },
+        'med-low': { label: 'Nice-to-have', items: [] },
+        'med-med': { label: 'Mittelfristig', items: [] },
+        'med-high': { label: 'Langfristig', items: [] },
+        'low-low': { label: 'Kleinigkeiten', items: [] },
+      };
+
+      // Map to 4 quadrants
+      const qMap = { 'high-low': 0, 'high-med': 1, 'high-high': 2, 'med-med': 3 };
+      const quadEls = ['high-low', 'high-med', 'high-high', 'med-med'];
+      const quadLabels = [
+        'Quick Wins ↑ Impact, ↓ Aufwand',
+        'Strategisch ↑ Impact, → Aufwand',
+        'Großprojekte ↑↑ Impact & Aufwand',
+        'Mittelfristig → Impact, → Aufwand',
+      ];
+
+      matrixItems.forEach(item => {
+        const q =
+          item.q in qMap
+            ? item.q
+            : item.q === 'low-low' || item.q === 'med-low'
+              ? 'high-low'
+              : item.q === 'med-high'
+                ? 'high-high'
+                : 'med-med';
+        if (!quadrants[q]) quadrants[q] = { label: '', items: [] };
+        quadrants[q].items.push(item);
+      });
+
+      document.getElementById('priorityMatrix').innerHTML = quadEls
+        .map(
+          (q, i) => `
+      <div class="quadrant">
+        <span class="quadrant-label">${quadLabels[i]}</span>
+        <div style="margin-top: 2rem;">
+          ${(quadrants[q]?.items || [])
+            .concat(
+              q === 'high-low'
+                ? (quadrants['low-low']?.items || []).concat(quadrants['med-low']?.items || [])
+                : [],
+              q === 'high-high' ? quadrants['med-high']?.items || [] : []
+            )
+            .map(
+              item =>
+                `<span class="chip" data-detail="${item.detail}" onclick="showMatrixDetail(this)">${item.label}</span>`
+            )
+            .join('')}
+        </div>
+      </div>
+    `
+        )
+        .join('');
+
+      function showMatrixDetail(el) {
+        const detail = document.getElementById('matrixDetail');
+        detail.textContent = el.dataset.detail;
+        detail.classList.remove('hidden');
+      }
+
+      // Files table
+      const files = [
+        {
+          lines: 1158,
+          file: 'src/pages/job-offers/JobOfferForm.tsx',
+          category: 'Page',
+          priority: 'Kritisch',
+        },
+        {
+          lines: 1050,
+          file: 'src/pages/NewsManagement.tsx',
+          category: 'Page',
+          priority: 'Kritisch',
+        },
+        {
+          lines: 1028,
+          file: 'src/pages/events/CopyEvent.tsx',
+          category: 'Page',
+          priority: 'Kritisch',
+        },
+        {
+          lines: 869,
+          file: 'src/pages/events/EventCategoryList.tsx',
+          category: 'Page',
+          priority: 'Hoch',
+        },
+        {
+          lines: 847,
+          file: 'src/pages/businesses/CreateBusiness.tsx',
+          category: 'Page',
+          priority: 'Hoch',
+        },
+        {
+          lines: 837,
+          file: 'src/pages/curated-spots/CuratedSpotForm.tsx',
+          category: 'Page',
+          priority: 'Hoch',
+        },
+        { lines: 829, file: 'src/pages/JobCategories.tsx', category: 'Page', priority: 'Hoch' },
+        { lines: 793, file: 'src/pages/Dashboard.tsx', category: 'Page', priority: 'Hoch' },
+        {
+          lines: 778,
+          file: 'src/pages/chatrooms/ChatroomManagement.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 767,
+          file: 'src/pages/AppVersionManagement.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        { lines: 678, file: 'src/utils/errorUtils.ts', category: 'Util', priority: 'Mittel' },
+      ];
+
+      let sortKey = 'lines';
+      let sortDir = -1;
+
+      function renderFiles(filter = '') {
+        const tbody = document.getElementById('filesBody');
+        const filtered = files.filter(f => f.file.toLowerCase().includes(filter.toLowerCase()));
+        filtered.sort((a, b) => {
+          const av = a[sortKey],
+            bv = b[sortKey];
+          if (typeof av === 'number') return (av - bv) * sortDir;
+          return String(av).localeCompare(String(bv)) * sortDir;
+        });
+        tbody.innerHTML = filtered
+          .map(
+            f => `
+        <tr>
+          <td><code>${f.lines}</code></td>
+          <td><code>${f.file}</code></td>
+          <td>${f.category}</td>
+          <td><span class="badge badge-${f.priority === 'Kritisch' ? 'high' : f.priority === 'Hoch' ? 'med' : 'low'}">${f.priority}</span></td>
+        </tr>
+      `
+          )
+          .join('');
+      }
+
+      renderFiles();
+
+      document
+        .getElementById('fileSearch')
+        .addEventListener('input', e => renderFiles(e.target.value));
+
+      document.querySelectorAll('#filesTable th').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          if (sortKey === key) sortDir *= -1;
+          else {
+            sortKey = key;
+            sortDir = key === 'lines' ? -1 : 1;
+          }
+          document
+            .querySelectorAll('#filesTable th')
+            .forEach(t => t.classList.remove('sorted-asc', 'sorted-desc'));
+          th.classList.add(sortDir === 1 ? 'sorted-asc' : 'sorted-desc');
+          renderFiles(document.getElementById('fileSearch').value);
+        });
+      });
+
+      document.querySelector('#filesTable th[data-sort="lines"]').classList.add('sorted-desc');
+    </script>
+  </body>
+</html>

@@ -52,7 +52,7 @@ src/
 
 - **BusinessList.tsx**: Übersicht aller Geschäfte
 - **CreateBusiness.tsx**: Neue Geschäfte erstellen
-- **EditBusiness.tsx**: Bestehende Geschäfte bearbeiten
+- **EditBusiness.tsx**: Bestehende Geschäfte bearbeiten (Form-Sections unter `src/components/businesses/`)
 - **Features**:
   - CRUD-Operationen für Geschäfte
   - Kategorie-Zuordnung
@@ -61,7 +61,8 @@ src/
 
 ### 3. Veranstaltungsverwaltung (`src/pages/events/`)
 
-- **EventList.tsx**: Alle Veranstaltungen
+- **EventList.tsx**: Alle Veranstaltungen (Orchestrierung; Logik in `src/hooks/useEventList*` und `src/components/events/EventList*`)
+- **EventImageEditor.tsx**: Social-Media-Poster-Generator (Komponenten unter `src/components/events/image-editor/`)
 - **CreateEvent.tsx**: Neue Veranstaltungen erstellen
 - **EventDetail.tsx**: Detailansicht von Veranstaltungen
 - **CsvEventImport.tsx**: CSV-Import für Events

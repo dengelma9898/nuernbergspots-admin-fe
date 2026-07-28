@@ -52,10 +52,10 @@ Manuell: JobCategories, EventCategoryList, CategoryList — Icons sichtbar; Icon
 
 ## 1. Ist-Zustand
 
-| System | Verwendung | Problem |
-| ------ | ---------- | ------- |
-| `lucide-react` | ~70 Dateien | OK |
-| `material-icons` npm | [`src/index.css`](../../src/index.css), [`MaterialIcon`](../../src/components/ui/material-icon.tsx) | OK |
+| System                | Verwendung                                                                                                     | Problem                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `lucide-react`        | ~70 Dateien                                                                                                    | OK                                         |
+| `material-icons` npm  | [`src/index.css`](../../src/index.css), [`MaterialIcon`](../../src/components/ui/material-icon.tsx)            | OK                                         |
 | `@mui/icons-material` | [`iconUtils.tsx`](../../src/utils/iconUtils.tsx), [`icon-picker.tsx`](../../src/components/ui/icon-picker.tsx) | `import * as Icons` bundlet **alle** Icons |
 
 ---

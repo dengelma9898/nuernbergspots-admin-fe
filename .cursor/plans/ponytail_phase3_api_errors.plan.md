@@ -1,21 +1,21 @@
 ---
 name: Ponytail Phase 3 — API-Client & Fehler-Utils
-overview: "Refaktoriert api-client.ts auf eine zentrale request()-Methode und dedupliziert errorUtils.ts ohne API-Verhalten zu ändern. Optional colorUtils inline. Voraussetzung: Phase 2. Verifikation: npm run test && npm run build && npm run start:dev."
+overview: 'Refaktoriert api-client.ts auf eine zentrale request()-Methode und dedupliziert errorUtils.ts ohne API-Verhalten zu ändern. Optional colorUtils inline. Voraussetzung: Phase 2. Verifikation: npm run test && npm run build && npm run start:dev.'
 todos:
   - id: api-client-request-method
-    content: "api-client.ts: private request<T>() einführen; get/post/put/patch/delete delegieren"
+    content: 'api-client.ts: private request<T>() einführen; get/post/put/patch/delete delegieren'
     status: completed
   - id: api-client-tests-green
     content: Alle Service-Tests weiterhin grün (keine Signatur-Änderung an Services)
     status: completed
   - id: error-utils-dedupe
-    content: "errorUtils.ts: doppelte 401/403/404-Blöcke entfernen"
+    content: 'errorUtils.ts: doppelte 401/403/404-Blöcke entfernen'
     status: completed
   - id: error-utils-tests
     content: src/utils/__tests__/errorUtils.test.ts anpassen falls nötig, alle grün
     status: completed
   - id: optional-color-utils
-    content: "Optional: colorUtils.ts inline an Call-Sites und Datei löschen"
+    content: 'Optional: colorUtils.ts inline an Call-Sites und Datei löschen'
     status: completed
   - id: verify-phase3
     content: npm run test && npm run build && npm run start:dev; Toast bei Fehler manuell prüfen

@@ -141,11 +141,11 @@ Tests behalten, aber nicht erweitern — Phase 8c als `skipped` markieren.
 
 ## Sub-Plan Status
 
-| ID | Titel | Pflicht? |
-| -- | ----- | -------- |
-| 8a | Presets umbenennen | Optional |
-| 8b | Service-Factories | Optional, inkrementell |
-| 8c | UI-Tests trimmen | Optional, Coverage-abhängig |
+| ID  | Titel              | Pflicht?                    |
+| --- | ------------------ | --------------------------- |
+| 8a  | Presets umbenennen | Optional                    |
+| 8b  | Service-Factories  | Optional, inkrementell      |
+| 8c  | UI-Tests trimmen   | Optional, Coverage-abhängig |
 
 ---
 

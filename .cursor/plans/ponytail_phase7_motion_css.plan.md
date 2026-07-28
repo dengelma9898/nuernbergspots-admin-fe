@@ -50,16 +50,16 @@ Visuell: Login, Dashboard, EventList, eine Formular-Seite.
 
 ## 1. Migrations-Mapping
 
-| framer-motion | CSS / Tailwind Ersatz |
-| ------------- | --------------------- |
-| `fadeInUp` / `PageTransition` | `animate-in fade-in slide-in-from-bottom-4 duration-300` |
+| framer-motion                      | CSS / Tailwind Ersatz                                                  |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| `fadeInUp` / `PageTransition`      | `animate-in fade-in slide-in-from-bottom-4 duration-300`               |
 | `staggerContainer` + `staggerItem` | `animation-delay-*` pro Kind **oder** einfaches `fade-in` ohne Stagger |
-| `scaleIn` | `animate-in zoom-in-95 duration-200` |
-| `shake` (Login-Fehler) | `animate-shake` (ggf. kurz in `index.css` `@keyframes`) |
-| `whileTap={{ scale: 0.95 }}` | `active:scale-95 transition-transform` |
-| `whileHover={{ scale: 1.02 }}` | `hover:scale-[1.02] transition-transform` |
-| Spinner rotate | `animate-spin` (bereits Lucide) |
-| `AnimatePresence` Listen-Exit | Optional weglassen oder CSS `opacity` transition |
+| `scaleIn`                          | `animate-in zoom-in-95 duration-200`                                   |
+| `shake` (Login-Fehler)             | `animate-shake` (ggf. kurz in `index.css` `@keyframes`)                |
+| `whileTap={{ scale: 0.95 }}`       | `active:scale-95 transition-transform`                                 |
+| `whileHover={{ scale: 1.02 }}`     | `hover:scale-[1.02] transition-transform`                              |
+| Spinner rotate                     | `animate-spin` (bereits Lucide)                                        |
+| `AnimatePresence` Listen-Exit      | Optional weglassen oder CSS `opacity` transition                       |
 
 **Reduced motion:**
 
@@ -73,12 +73,12 @@ className="motion-reduce:animate-none motion-reduce:transition-none"
 
 ### 7a — Shared Components
 
-| Datei | Aktion |
-| ----- | ------ |
-| [`src/components/LoadingButton.tsx`](../../src/components/LoadingButton.tsx) | `motion`/`AnimatePresence` → CSS + conditional render für Loading |
-| [`src/components/AnimatedCard.tsx`](../../src/components/AnimatedCard.tsx) | `motion.div` → `div` mit `animate-in` + optional `style={{ animationDelay }}` |
-| [`src/components/PageTransition.tsx`](../../src/components/PageTransition.tsx) | Reines `div` mit Tailwind animate classes |
-| [`src/components/Background.tsx`](../../src/components/Background.tsx) | `motion` Blur-Kreise → `animate-pulse` |
+| Datei                                                                          | Aktion                                                                        |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| [`src/components/LoadingButton.tsx`](../../src/components/LoadingButton.tsx)   | `motion`/`AnimatePresence` → CSS + conditional render für Loading             |
+| [`src/components/AnimatedCard.tsx`](../../src/components/AnimatedCard.tsx)     | `motion.div` → `div` mit `animate-in` + optional `style={{ animationDelay }}` |
+| [`src/components/PageTransition.tsx`](../../src/components/PageTransition.tsx) | Reines `div` mit Tailwind animate classes                                     |
+| [`src/components/Background.tsx`](../../src/components/Background.tsx)         | `motion` Blur-Kreise → `animate-pulse`                                        |
 
 ### 7b — Auth & Shell
 

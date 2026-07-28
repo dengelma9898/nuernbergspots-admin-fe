@@ -49,10 +49,10 @@ Manuell: Button mit Loading-Spinner; Seitenwechsel ohne Layout-Sprung.
 
 ### Ausgangslage
 
-| Komponente | Datei | Verhalten |
-| ---------- | ----- | --------- |
-| `AnimatedButton` | [`src/components/AnimatedButton.tsx`](../../src/components/AnimatedButton.tsx) | `whileTap` scale 0.95, `whileHover` 1.02 |
-| `LoadingButton` | [`src/components/LoadingButton.tsx`](../../src/components/LoadingButton.tsx) | Gleiches + `isLoading`, Spinner, `AnimatePresence` |
+| Komponente       | Datei                                                                          | Verhalten                                          |
+| ---------------- | ------------------------------------------------------------------------------ | -------------------------------------------------- |
+| `AnimatedButton` | [`src/components/AnimatedButton.tsx`](../../src/components/AnimatedButton.tsx) | `whileTap` scale 0.95, `whileHover` 1.02           |
+| `LoadingButton`  | [`src/components/LoadingButton.tsx`](../../src/components/LoadingButton.tsx)   | Gleiches + `isLoading`, Spinner, `AnimatePresence` |
 
 Viele Seiten importieren **beide**.
 
