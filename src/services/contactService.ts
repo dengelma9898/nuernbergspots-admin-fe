@@ -1,5 +1,4 @@
-import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
+import { useApi } from '../lib/api';
 import { ContactRequest } from '@/models/contact-requests';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -9,14 +8,12 @@ export const useContactService = () => {
   const { getUserId } = useAuth();
 
   const getOpenContactRequestsCount = async (): Promise<number> => {
-    const response = await api.get<ApiResponse<number>>(`${baseUrl}/open-requests/count`);
-    return response.data;
+    return api.getData<number>(`${baseUrl}/open-requests/count`);
   };
 
   const getContactRequests = async (): Promise<ContactRequest[]> => {
     try {
-      const response = await api.get<ApiResponse<ContactRequest[]>>(`${baseUrl}`);
-      return unwrapData(response);
+      return await api.getData<ContactRequest[]>(`${baseUrl}`);
     } catch (error) {
       console.error('Fehler beim Abrufen der Kontaktanfragen:', error);
       return [];
@@ -30,10 +27,7 @@ export const useContactService = () => {
         throw new Error('Kein Benutzer angemeldet');
       }
 
-      const response = await api.get<ApiResponse<ContactRequest>>(
-        `${baseUrl}/user/${userId}/request/${requestId}`
-      );
-      return unwrapData(response);
+      return await api.getData<ContactRequest>(`${baseUrl}/user/${userId}/request/${requestId}`);
     } catch (error) {
       console.error('Fehler beim Abrufen der Kontaktanfrage:', error);
       throw error;
@@ -50,11 +44,9 @@ export const useContactService = () => {
         throw new Error('Kein Benutzer angemeldet');
       }
 
-      const response = await api.patch<ApiResponse<ContactRequest>>(
-        `${baseUrl}/user/${userId}/request/${requestId}`,
-        { message }
-      );
-      return unwrapData(response);
+      return await api.patchData<ContactRequest>(`${baseUrl}/user/${userId}/request/${requestId}`, {
+        message,
+      });
     } catch (error) {
       console.error('Fehler beim Senden der Antwort:', error);
       throw error;

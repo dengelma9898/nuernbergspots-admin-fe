@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -23,36 +28,36 @@ describe('User Service', () => {
       { id: '2', name: 'Test User 2', email: 'user2@test.com' },
     ];
 
-    mockApi.get.mockResolvedValue({ data: mockUsers });
+    mockApi.getData.mockResolvedValue(mockUsers);
 
-    const result = await mockApi.get('/users');
+    const result = await mockApi.getData('/users');
 
-    expect(mockApi.get).toHaveBeenCalledWith('/users');
-    expect(result.data).toEqual(mockUsers);
+    expect(mockApi.getData).toHaveBeenCalledWith('/users');
+    expect(result).toEqual(mockUsers);
   });
 
   it('should handle user creation', async () => {
     const newUser = { name: 'New User', email: 'new@test.com' };
     const response = { data: { id: '1', ...newUser } };
 
-    mockApi.post.mockResolvedValue(response);
+    mockApi.postData.mockResolvedValue({ id: '1', ...newUser });
 
-    const result = await mockApi.post('/users', newUser);
+    const result = await mockApi.postData('/users', newUser);
 
-    expect(mockApi.post).toHaveBeenCalledWith('/users', newUser);
-    expect(result.data.name).toBe('New User');
+    expect(mockApi.postData).toHaveBeenCalledWith('/users', newUser);
+    expect(result.name).toBe('New User');
   });
 
   it('should handle user updates', async () => {
     const updates = { name: 'Updated User' };
     const response = { data: { id: '1', ...updates } };
 
-    mockApi.patch.mockResolvedValue(response);
+    mockApi.patchData.mockResolvedValue({ id: '1', ...updates });
 
-    const result = await mockApi.patch('/users/1', updates);
+    const result = await mockApi.patchData('/users/1', updates);
 
-    expect(mockApi.patch).toHaveBeenCalledWith('/users/1', updates);
-    expect(result.data.name).toBe('Updated User');
+    expect(mockApi.patchData).toHaveBeenCalledWith('/users/1', updates);
+    expect(result.name).toBe('Updated User');
   });
 
   it('should handle user deletion', async () => {
@@ -66,8 +71,8 @@ describe('User Service', () => {
 
   it('should handle user API errors', async () => {
     const errorMessage = 'User not found';
-    mockApi.get.mockRejectedValue(new Error(errorMessage));
+    mockApi.getData.mockRejectedValue(new Error(errorMessage));
 
-    await expect(mockApi.get('/users/999')).rejects.toThrow(errorMessage);
+    await expect(mockApi.getData('/users/999')).rejects.toThrow(errorMessage);
   });
 });

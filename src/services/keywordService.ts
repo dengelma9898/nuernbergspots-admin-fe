@@ -1,6 +1,5 @@
 import { Keyword } from '../models/keyword';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useKeywordService() {
   const api = useApi();
@@ -10,16 +9,14 @@ export function useKeywordService() {
      * Lädt alle Keywords
      */
     getKeywords: async (): Promise<Keyword[]> => {
-      const response = await api.get<ApiResponse<Keyword[]>>(endpoints.keywords);
-      return unwrapData(response);
+      return api.getData<Keyword[]>(endpoints.keywords);
     },
 
     /**
      * Lädt ein spezifisches Keyword
      */
     getKeyword: async (keywordId: string): Promise<Keyword> => {
-      const response = await api.get<ApiResponse<Keyword>>(`${endpoints.keywords}/${keywordId}`);
-      return unwrapData(response);
+      return api.getData<Keyword>(`${endpoints.keywords}/${keywordId}`);
     },
 
     /**
@@ -28,19 +25,14 @@ export function useKeywordService() {
     createKeyword: async (
       keyword: Omit<Keyword, 'id' | 'createdAt' | 'updatedAt'>
     ): Promise<Keyword> => {
-      const response = await api.post<ApiResponse<Keyword>>(endpoints.keywords, keyword);
-      return unwrapData(response);
+      return api.postData<Keyword>(endpoints.keywords, keyword);
     },
 
     /**
      * Aktualisiert ein Keyword
      */
     updateKeyword: async (keywordId: string, keyword: Partial<Keyword>): Promise<Keyword> => {
-      const response = await api.patch<ApiResponse<Keyword>>(
-        `${endpoints.keywords}/${keywordId}`,
-        keyword
-      );
-      return unwrapData(response);
+      return api.patchData<Keyword>(`${endpoints.keywords}/${keywordId}`, keyword);
     },
 
     /**
@@ -54,10 +46,7 @@ export function useKeywordService() {
      * Lädt Keywords nach Namen (Suche)
      */
     searchKeywords: async (query: string): Promise<Keyword[]> => {
-      const response = await api.get<ApiResponse<Keyword[]>>(
-        `${endpoints.keywords}/search?q=${encodeURIComponent(query)}`
-      );
-      return unwrapData(response);
+      return api.getData<Keyword[]>(`${endpoints.keywords}/search?q=${encodeURIComponent(query)}`);
     },
   };
 }

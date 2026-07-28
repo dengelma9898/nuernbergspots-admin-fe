@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -10,10 +15,6 @@ const mockApi = {
 
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useEventCategoryService } from '../eventCategoryService';
@@ -46,16 +47,16 @@ describe('Event Category Service', () => {
           updatedAt: '2024-01-01',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockCategories });
+      mockApi.getData.mockResolvedValue(mockCategories);
 
       const result = await eventCategoryService.getCategories();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/event-categories');
+      expect(mockApi.getData).toHaveBeenCalledWith('/event-categories');
       expect(result).toEqual(mockCategories);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(eventCategoryService.getCategories()).rejects.toThrow('Network error');
     });
@@ -71,16 +72,16 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.get.mockResolvedValue({ data: mockCategory });
+      mockApi.getData.mockResolvedValue(mockCategory);
 
       const result = await eventCategoryService.getCategory('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/event-categories/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/event-categories/1');
       expect(result).toEqual(mockCategory);
     });
 
     it('should handle category not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('Category not found'));
+      mockApi.getData.mockRejectedValue(new Error('Category not found'));
 
       await expect(eventCategoryService.getCategory('999')).rejects.toThrow('Category not found');
     });
@@ -101,11 +102,11 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await eventCategoryService.createCategory(categoryData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/event-categories', categoryData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/event-categories', categoryData);
       expect(result).toEqual(createdCategory);
     });
 
@@ -116,7 +117,7 @@ describe('Event Category Service', () => {
         colorCode: '#FF0000',
         iconName: 'test-icon',
       };
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(eventCategoryService.createCategory(categoryData)).rejects.toThrow(
         'Creation failed'
@@ -135,11 +136,11 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await eventCategoryService.updateCategory('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/event-categories/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/event-categories/1', updateData);
       expect(result).toEqual(updatedCategory);
     });
 
@@ -153,17 +154,17 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await eventCategoryService.updateCategory('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/event-categories/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/event-categories/1', updateData);
       expect(result).toEqual(updatedCategory);
     });
 
     it('should handle update errors', async () => {
       const updateData = { name: 'Updated Name' };
-      mockApi.patch.mockRejectedValue(new Error('Update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Update failed'));
 
       await expect(eventCategoryService.updateCategory('1', updateData)).rejects.toThrow(
         'Update failed'
@@ -173,15 +174,15 @@ describe('Event Category Service', () => {
 
   describe('deleteCategory', () => {
     it('should delete an event category', async () => {
-      mockApi.delete.mockResolvedValue(undefined);
+      mockApi.deleteData.mockResolvedValue(undefined);
 
       await eventCategoryService.deleteCategory('1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/event-categories/1');
+      expect(mockApi.deleteData).toHaveBeenCalledWith('/event-categories/1');
     });
 
     it('should handle delete errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Delete failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Delete failed'));
 
       await expect(eventCategoryService.deleteCategory('1')).rejects.toThrow('Delete failed');
     });
@@ -200,11 +201,11 @@ describe('Event Category Service', () => {
         fallbackImages: ['new-image1.jpg', 'new-image2.jpg'],
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await eventCategoryService.updateFallbackImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
+      expect(mockApi.patchData).toHaveBeenCalledWith(
         '/event-categories/1/fallback-images',
         expect.any(FormData),
         { isFormData: true }
@@ -219,11 +220,11 @@ describe('Event Category Service', () => {
         name: 'Music',
         fallbackImages: [],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await eventCategoryService.updateFallbackImages('1', mockFiles);
 
-      const formDataCall = mockApi.patch.mock.calls[0];
+      const formDataCall = mockApi.patchData.mock.calls[0];
       const formData = formDataCall[1] as FormData;
 
       // FormData with no files should still be sent
@@ -237,22 +238,26 @@ describe('Event Category Service', () => {
         new File(['content2'], 'test2.png', { type: 'image/png' }),
       ];
       const updatedCategory = { id: '1', fallbackImages: ['test1.jpg', 'test2.png'] };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       await eventCategoryService.updateFallbackImages('1', mockFiles);
 
-      const formDataCall = mockApi.patch.mock.calls[0];
+      const formDataCall = mockApi.patchData.mock.calls[0];
       const formData = formDataCall[1] as FormData;
 
       expect(formData).toBeInstanceOf(FormData);
-      expect(mockApi.patch).toHaveBeenCalledWith('/event-categories/1/fallback-images', formData, {
-        isFormData: true,
-      });
+      expect(mockApi.patchData).toHaveBeenCalledWith(
+        '/event-categories/1/fallback-images',
+        formData,
+        {
+          isFormData: true,
+        }
+      );
     });
 
     it('should handle image upload errors', async () => {
       const mockFiles = [new File(['image'], 'test.jpg', { type: 'image/jpeg' })];
-      mockApi.patch.mockRejectedValue(new Error('Upload failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Upload failed'));
 
       await expect(eventCategoryService.updateFallbackImages('1', mockFiles)).rejects.toThrow(
         'Upload failed'
@@ -263,7 +268,7 @@ describe('Event Category Service', () => {
       const largeContent = 'x'.repeat(10 * 1024 * 1024); // 10MB
       const mockFiles = [new File([largeContent], 'large.jpg', { type: 'image/jpeg' })];
       const updatedCategory = { id: '1', fallbackImages: ['large.jpg'] };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await eventCategoryService.updateFallbackImages('1', mockFiles);
 
@@ -287,7 +292,7 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await eventCategoryService.createCategory(categoryData);
 
@@ -309,7 +314,7 @@ describe('Event Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await eventCategoryService.createCategory(categoryData);
 
@@ -323,7 +328,7 @@ describe('Event Category Service', () => {
         colorCode: '#000000',
         iconName: 'empty-icon',
       };
-      mockApi.post.mockRejectedValue(new Error('Name cannot be empty'));
+      mockApi.postData.mockRejectedValue(new Error('Name cannot be empty'));
 
       await expect(eventCategoryService.createCategory(categoryData)).rejects.toThrow(
         'Name cannot be empty'
@@ -337,7 +342,7 @@ describe('Event Category Service', () => {
         name: 'Popular Category',
         fallbackImages: manyImages,
       };
-      mockApi.get.mockResolvedValue({ data: mockCategory });
+      mockApi.getData.mockResolvedValue(mockCategory);
 
       const result = await eventCategoryService.getCategory('1');
 
@@ -347,13 +352,13 @@ describe('Event Category Service', () => {
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(eventCategoryService.getCategories()).rejects.toThrow('Request timeout');
     });
 
     it('should handle server errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Internal server error'));
+      mockApi.postData.mockRejectedValue(new Error('Internal server error'));
 
       await expect(
         eventCategoryService.createCategory({
@@ -366,7 +371,7 @@ describe('Event Category Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.patchData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(eventCategoryService.updateCategory('1', { name: 'New Name' })).rejects.toThrow(
         'Unauthorized'
@@ -375,7 +380,7 @@ describe('Event Category Service', () => {
 
     it('should handle invalid file types in image upload', async () => {
       const invalidFile = new File(['content'], 'document.pdf', { type: 'application/pdf' });
-      mockApi.patch.mockRejectedValue(new Error('Invalid file type'));
+      mockApi.patchData.mockRejectedValue(new Error('Invalid file type'));
 
       await expect(eventCategoryService.updateFallbackImages('1', [invalidFile])).rejects.toThrow(
         'Invalid file type'
@@ -389,7 +394,7 @@ describe('Event Category Service', () => {
       const oversizedFile = new File([largeContent], 'huge.jpg', {
         type: 'image/jpeg',
       });
-      mockApi.patch.mockRejectedValue(new Error('File too large'));
+      mockApi.patchData.mockRejectedValue(new Error('File too large'));
 
       await expect(eventCategoryService.updateFallbackImages('1', [oversizedFile])).rejects.toThrow(
         'File too large'
@@ -405,11 +410,11 @@ describe('Event Category Service', () => {
         new File(['3'], 'file3.gif', { type: 'image/gif' }),
       ];
 
-      mockApi.patch.mockResolvedValue({ data: { id: '1', fallbackImages: [] } });
+      mockApi.patchData.mockResolvedValue({ id: '1', fallbackImages: [] });
 
       await eventCategoryService.updateFallbackImages('1', files);
 
-      const [url, formData, options] = mockApi.patch.mock.calls[0];
+      const [url, formData, options] = mockApi.patchData.mock.calls[0];
 
       expect(url).toBe('/event-categories/1/fallback-images');
       expect(formData).toBeInstanceOf(FormData);
@@ -424,9 +429,7 @@ describe('Event Category Service', () => {
         new File(['webp'], 'test.webp', { type: 'image/webp' }),
       ];
 
-      mockApi.patch.mockResolvedValue({
-        data: { id: '1', fallbackImages: files.map(f => f.name) },
-      });
+      mockApi.patchData.mockResolvedValue({ id: '1', fallbackImages: files.map(f => f.name) });
 
       const result = await eventCategoryService.updateFallbackImages('1', files);
 

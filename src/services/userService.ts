@@ -1,6 +1,5 @@
 import { UserProfile, BusinessUser, User, BlockUserRequest } from '../models/users';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { useMemo } from 'react';
 
 interface BusinessUsersInReview {
@@ -16,10 +15,9 @@ export function useUserService() {
        * Lädt die Anzahl der Business-User, die auf Überprüfung warten
        */
       getBusinessUsersInReviewCount: async (): Promise<number> => {
-        const response = await api.get<ApiResponse<BusinessUsersInReview>>(
+        const result = await api.getData<BusinessUsersInReview>(
           `${endpoints.users}/business-users/needs-review/count`
         );
-        const result = unwrapData(response);
         return result.count;
       },
 
@@ -27,18 +25,14 @@ export function useUserService() {
        * Lädt die Anzahl der Business-User, die auf Überprüfung warten
        */
       getBusinessUsersInReview: async (): Promise<BusinessUser[]> => {
-        const response = await api.get<ApiResponse<BusinessUser[]>>(
-          `${endpoints.users}/business-users/needs-review`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessUser[]>(`${endpoints.users}/business-users/needs-review`);
       },
 
       /**
        * Lädt das Profil eines Benutzers
        */
       getUserProfile: async (userId: string): Promise<UserProfile> => {
-        const response = await api.get<ApiResponse<UserProfile>>(endpoints.userProfile(userId));
-        return unwrapData(response);
+        return api.getData<UserProfile>(endpoints.userProfile(userId));
       },
 
       /**
@@ -48,29 +42,21 @@ export function useUserService() {
         userId: string,
         profile: Partial<UserProfile>
       ): Promise<UserProfile> => {
-        const response = await api.put<ApiResponse<UserProfile>>(
-          endpoints.userProfile(userId),
-          profile
-        );
-        return unwrapData(response);
+        return api.putData<UserProfile>(endpoints.userProfile(userId), profile);
       },
 
       /**
        * Lädt alle Business-Benutzer
        */
       getBusinessUsers: async (): Promise<BusinessUser[]> => {
-        const response = await api.get<ApiResponse<BusinessUser[]>>(endpoints.businessUsers);
-        return unwrapData(response);
+        return api.getData<BusinessUser[]>(endpoints.businessUsers);
       },
 
       /**
        * Lädt einen spezifischen Business-Benutzer
        */
       getBusinessUser: async (userId: string): Promise<BusinessUser> => {
-        const response = await api.get<ApiResponse<BusinessUser>>(
-          endpoints.businessUserById(userId)
-        );
-        return unwrapData(response);
+        return api.getData<BusinessUser>(endpoints.businessUserById(userId));
       },
 
       /**
@@ -80,11 +66,7 @@ export function useUserService() {
         userId: string,
         user: Partial<BusinessUser>
       ): Promise<BusinessUser> => {
-        const response = await api.put<ApiResponse<BusinessUser>>(
-          endpoints.businessUserById(userId),
-          user
-        );
-        return unwrapData(response);
+        return api.putData<BusinessUser>(endpoints.businessUserById(userId), user);
       },
 
       /**
@@ -98,11 +80,9 @@ export function useUserService() {
        * Fügt ein Business zu den Favoriten hinzu
        */
       addFavoriteBusiness: async (userId: string, businessId: string): Promise<UserProfile> => {
-        const response = await api.post<ApiResponse<UserProfile>>(
-          `${endpoints.userProfile(userId)}/favorites/businesses`,
-          { businessId }
-        );
-        return unwrapData(response);
+        return api.postData<UserProfile>(`${endpoints.userProfile(userId)}/favorites/businesses`, {
+          businessId,
+        });
       },
 
       /**
@@ -116,11 +96,9 @@ export function useUserService() {
        * Fügt ein Event zu den Favoriten hinzu
        */
       addFavoriteEvent: async (userId: string, eventId: string): Promise<UserProfile> => {
-        const response = await api.post<ApiResponse<UserProfile>>(
-          `${endpoints.userProfile(userId)}/favorites/events`,
-          { eventId }
-        );
-        return unwrapData(response);
+        return api.postData<UserProfile>(`${endpoints.userProfile(userId)}/favorites/events`, {
+          eventId,
+        });
       },
 
       /**
@@ -134,11 +112,9 @@ export function useUserService() {
        * Aktualisiert die Benutzereinstellungen
        */
       updatePreferences: async (userId: string, preferences: string[]): Promise<UserProfile> => {
-        const response = await api.put<ApiResponse<UserProfile>>(
-          `${endpoints.userProfile(userId)}/preferences`,
-          { preferences }
-        );
-        return unwrapData(response);
+        return api.putData<UserProfile>(`${endpoints.userProfile(userId)}/preferences`, {
+          preferences,
+        });
       },
 
       /**
@@ -157,30 +133,25 @@ export function useUserService() {
        * Blockiert oder entsperrt einen User
        */
       blockUser: async (request: BlockUserRequest): Promise<User> => {
-        const response = await api.patch<ApiResponse<User>>(`${endpoints.users}/block`, {
+        return api.patchData<User>(`${endpoints.users}/block`, {
           customerId: request.customerId,
           isBlocked: request.isBlocked,
           blockReason: request.blockReason,
         });
-        return unwrapData(response);
       },
 
       /**
        * Lädt alle User (für Super Admin)
        */
       getAllUsers: async (): Promise<User[]> => {
-        const response = await api.get<ApiResponse<User[]>>(endpoints.users);
-        return unwrapData(response);
+        return api.getData<User[]>(endpoints.users);
       },
 
       /**
        * Sucht User nach E-Mail oder Name
        */
       searchUsers: async (query: string): Promise<User[]> => {
-        const response = await api.get<ApiResponse<User[]>>(
-          `${endpoints.users}/search?q=${encodeURIComponent(query)}`
-        );
-        return unwrapData(response);
+        return api.getData<User[]>(`${endpoints.users}/search?q=${encodeURIComponent(query)}`);
       },
     }),
     [api]

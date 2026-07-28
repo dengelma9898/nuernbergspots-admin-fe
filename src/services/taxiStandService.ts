@@ -5,7 +5,6 @@ import {
   TaxiStandFeatureStatus,
 } from '../models/taxi-stand';
 import { useApi } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useTaxiStandService() {
   const api = useApi();
@@ -16,10 +15,7 @@ export function useTaxiStandService() {
      * Lädt den Feature-Status der Taxistandorte
      */
     getFeatureStatus: async (): Promise<TaxiStandFeatureStatus> => {
-      const response = await api.get<ApiResponse<TaxiStandFeatureStatus>>(
-        `${baseUrl}/feature-status`
-      );
-      return unwrapData(response);
+      return api.getData<TaxiStandFeatureStatus>(`${baseUrl}/feature-status`);
     },
 
     /**
@@ -29,43 +25,38 @@ export function useTaxiStandService() {
       isFeatureActive: boolean,
       startDate?: string
     ): Promise<TaxiStandFeatureStatus> => {
-      const response = await api.put<ApiResponse<TaxiStandFeatureStatus>>(
-        `${baseUrl}/feature-status`,
-        { isFeatureActive, startDate }
-      );
-      return unwrapData(response);
+      return api.putData<TaxiStandFeatureStatus>(`${baseUrl}/feature-status`, {
+        isFeatureActive,
+        startDate,
+      });
     },
 
     /**
      * Lädt alle Taxistandorte
      */
     getAll: async (): Promise<TaxiStand[]> => {
-      const response = await api.get<ApiResponse<TaxiStand[]>>(baseUrl);
-      return unwrapData(response);
+      return api.getData<TaxiStand[]>(baseUrl);
     },
 
     /**
      * Lädt einen spezifischen Taxistandort
      */
     getById: async (id: string): Promise<TaxiStand> => {
-      const response = await api.get<ApiResponse<TaxiStand>>(`${baseUrl}/${id}`);
-      return unwrapData(response);
+      return api.getData<TaxiStand>(`${baseUrl}/${id}`);
     },
 
     /**
      * Erstellt einen neuen Taxistandort
      */
     create: async (dto: CreateTaxiStandDto): Promise<TaxiStand> => {
-      const response = await api.post<ApiResponse<TaxiStand>>(baseUrl, dto);
-      return unwrapData(response);
+      return api.postData<TaxiStand>(baseUrl, dto);
     },
 
     /**
      * Aktualisiert einen Taxistandort
      */
     update: async (id: string, dto: UpdateTaxiStandDto): Promise<TaxiStand> => {
-      const response = await api.patch<ApiResponse<TaxiStand>>(`${baseUrl}/${id}`, dto);
-      return unwrapData(response);
+      return api.patchData<TaxiStand>(`${baseUrl}/${id}`, dto);
     },
 
     /**

@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -21,10 +26,6 @@ jest.mock('../../lib/api', () => ({
     chatroomParticipants: (id: string) => `/chatrooms/${id}/participants`,
     chatroomMessages: (id: string) => `/chatrooms/${id}/messages`,
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('../../contexts/AuthContext', () => ({
@@ -48,16 +49,16 @@ describe('Chatroom Service', () => {
         { id: '1', name: 'Chatroom 1', description: 'Test chatroom 1' },
         { id: '2', name: 'Chatroom 2', description: 'Test chatroom 2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockChatrooms });
+      mockApi.getData.mockResolvedValue(mockChatrooms);
 
       const result = await chatroomService.getChatrooms();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms');
       expect(result).toEqual(mockChatrooms);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(chatroomService.getChatrooms()).rejects.toThrow('Network error');
     });
@@ -66,11 +67,11 @@ describe('Chatroom Service', () => {
   describe('getChatroom', () => {
     it('should fetch a specific chatroom', async () => {
       const mockChatroom = { id: '1', name: 'Test Chatroom', description: 'Test description' };
-      mockApi.get.mockResolvedValue({ data: mockChatroom });
+      mockApi.getData.mockResolvedValue(mockChatroom);
 
       const result = await chatroomService.getChatroom('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms/1');
       expect(result).toEqual(mockChatroom);
     });
   });
@@ -88,11 +89,11 @@ describe('Chatroom Service', () => {
         createdBy: 'user123',
         createdAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdChatroom });
+      mockApi.postData.mockResolvedValue(createdChatroom);
 
       const result = await chatroomService.createChatroom(chatroomData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/chatrooms', {
+      expect(mockApi.postData).toHaveBeenCalledWith('/chatrooms', {
         ...chatroomData,
         createdBy: 'user123',
       });
@@ -104,11 +105,11 @@ describe('Chatroom Service', () => {
     it('should update an existing chatroom', async () => {
       const updateData = { title: 'Updated Chatroom' };
       const updatedChatroom = { id: '1', title: 'Updated Chatroom', description: 'Test' };
-      mockApi.patch.mockResolvedValue({ data: updatedChatroom });
+      mockApi.patchData.mockResolvedValue(updatedChatroom);
 
       const result = await chatroomService.updateChatroom('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/chatrooms/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/chatrooms/1', updateData);
       expect(result).toEqual(updatedChatroom);
     });
   });
@@ -130,11 +131,13 @@ describe('Chatroom Service', () => {
         name: 'Test Chatroom',
         participants: ['user123', 'user456'],
       };
-      mockApi.post.mockResolvedValue({ data: updatedChatroom });
+      mockApi.postData.mockResolvedValue(updatedChatroom);
 
       const result = await chatroomService.addParticipant('1', 'user456');
 
-      expect(mockApi.post).toHaveBeenCalledWith('/chatrooms/1/participants', { userId: 'user456' });
+      expect(mockApi.postData).toHaveBeenCalledWith('/chatrooms/1/participants', {
+        userId: 'user456',
+      });
       expect(result).toEqual(updatedChatroom);
     });
   });
@@ -146,11 +149,11 @@ describe('Chatroom Service', () => {
         name: 'Test Chatroom',
         participants: ['user123'],
       };
-      mockApi.delete.mockResolvedValue({ data: updatedChatroom });
+      mockApi.deleteData.mockResolvedValue(updatedChatroom);
 
       const result = await chatroomService.removeParticipant('1', 'user456');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/chatrooms/1/participants/user456');
+      expect(mockApi.deleteData).toHaveBeenCalledWith('/chatrooms/1/participants/user456');
       expect(result).toEqual(updatedChatroom);
     });
   });
@@ -161,21 +164,21 @@ describe('Chatroom Service', () => {
         { id: '1', content: 'Message 1', senderId: 'user1' },
         { id: '2', content: 'Message 2', senderId: 'user2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockMessages });
+      mockApi.getData.mockResolvedValue(mockMessages);
 
       const result = await chatroomService.getLastMessages('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms/1/messages?limit=50');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms/1/messages?limit=50');
       expect(result).toEqual(mockMessages);
     });
 
     it('should fetch last messages with custom limit', async () => {
       const mockMessages = [{ id: '1', content: 'Message 1', senderId: 'user1' }];
-      mockApi.get.mockResolvedValue({ data: mockMessages });
+      mockApi.getData.mockResolvedValue(mockMessages);
 
       const result = await chatroomService.getLastMessages('1', 10);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms/1/messages?limit=10');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms/1/messages?limit=10');
       expect(result).toEqual(mockMessages);
     });
   });
@@ -184,11 +187,11 @@ describe('Chatroom Service', () => {
     it('should upload chatroom image', async () => {
       const mockFile = new File(['test'], 'chatroom.jpg', { type: 'image/jpeg' });
       const mockImageUrl = 'https://example.com/chatroom.jpg';
-      mockApi.patch.mockResolvedValue({ data: { imageUrl: mockImageUrl } });
+      mockApi.patchData.mockResolvedValue({ imageUrl: mockImageUrl });
 
       const result = await chatroomService.uploadChatroomImage('1', mockFile);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/chatrooms/1/image', expect.any(FormData), {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/chatrooms/1/image', expect.any(FormData), {
         isFormData: true,
       });
       expect(result).toBe(mockImageUrl);
@@ -207,7 +210,7 @@ describe('Chatroom Service', () => {
 
   describe('error handling', () => {
     it('should handle create chatroom errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(
         chatroomService.createChatroom({ title: 'Test', description: 'Test', participants: [] })
@@ -215,7 +218,7 @@ describe('Chatroom Service', () => {
     });
 
     it('should handle add participant errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Add participant failed'));
+      mockApi.postData.mockRejectedValue(new Error('Add participant failed'));
 
       await expect(chatroomService.addParticipant('1', 'user456')).rejects.toThrow(
         'Add participant failed'
@@ -223,7 +226,7 @@ describe('Chatroom Service', () => {
     });
 
     it('should handle remove participant errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Remove participant failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Remove participant failed'));
 
       await expect(chatroomService.removeParticipant('1', 'user456')).rejects.toThrow(
         'Remove participant failed'
@@ -232,7 +235,7 @@ describe('Chatroom Service', () => {
 
     it('should handle image upload errors', async () => {
       const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
-      mockApi.patch.mockRejectedValue(new Error('Upload failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Upload failed'));
 
       await expect(chatroomService.uploadChatroomImage('1', mockFile)).rejects.toThrow(
         'Upload failed'
@@ -244,12 +247,12 @@ describe('Chatroom Service', () => {
     it('should use current user ID when creating chatroom', async () => {
       const chatroomData = { title: 'Test', description: 'Test', participants: [] };
       const createdChatroom = { id: '1', ...chatroomData, createdBy: 'user123' };
-      mockApi.post.mockResolvedValue({ data: createdChatroom });
+      mockApi.postData.mockResolvedValue(createdChatroom);
 
       await chatroomService.createChatroom(chatroomData);
 
       expect(mockAuth.getUserId).toHaveBeenCalled();
-      expect(mockApi.post).toHaveBeenCalledWith('/chatrooms', {
+      expect(mockApi.postData).toHaveBeenCalledWith('/chatrooms', {
         ...chatroomData,
         createdBy: 'user123',
       });

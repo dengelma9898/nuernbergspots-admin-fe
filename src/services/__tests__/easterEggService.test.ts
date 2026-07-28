@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -11,10 +16,6 @@ const mockApi = {
 
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useEasterEggService } from '../easterEggService';
@@ -32,16 +33,16 @@ describe('Easter Egg Service', () => {
   describe('getFeatureStatus', () => {
     it('should fetch the feature status', async () => {
       const mockStatus = { isFeatureActive: true, startDate: '2026-03-28' };
-      mockApi.get.mockResolvedValue({ data: mockStatus });
+      mockApi.getData.mockResolvedValue(mockStatus);
 
       const result = await easterEggService.getFeatureStatus();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/feature-status');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/feature-status');
       expect(result).toEqual(mockStatus);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(easterEggService.getFeatureStatus()).rejects.toThrow('Network error');
     });
@@ -50,11 +51,11 @@ describe('Easter Egg Service', () => {
   describe('setFeatureStatus', () => {
     it('should update feature status with isFeatureActive and startDate', async () => {
       const mockStatus = { isFeatureActive: true, startDate: '2026-03-28' };
-      mockApi.put.mockResolvedValue({ data: mockStatus });
+      mockApi.putData.mockResolvedValue(mockStatus);
 
       const result = await easterEggService.setFeatureStatus(true, '2026-03-28');
 
-      expect(mockApi.put).toHaveBeenCalledWith('/easter-egg-hunt/feature-status', {
+      expect(mockApi.putData).toHaveBeenCalledWith('/easter-egg-hunt/feature-status', {
         isFeatureActive: true,
         startDate: '2026-03-28',
       });
@@ -63,11 +64,11 @@ describe('Easter Egg Service', () => {
 
     it('should update feature status without startDate', async () => {
       const mockStatus = { isFeatureActive: false };
-      mockApi.put.mockResolvedValue({ data: mockStatus });
+      mockApi.putData.mockResolvedValue(mockStatus);
 
       const result = await easterEggService.setFeatureStatus(false);
 
-      expect(mockApi.put).toHaveBeenCalledWith('/easter-egg-hunt/feature-status', {
+      expect(mockApi.putData).toHaveBeenCalledWith('/easter-egg-hunt/feature-status', {
         isFeatureActive: false,
         startDate: undefined,
       });
@@ -83,39 +84,39 @@ describe('Easter Egg Service', () => {
         { id: '1', title: 'Ei 1' },
         { id: '2', title: 'Ei 2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockEggs });
+      mockApi.getData.mockResolvedValue(mockEggs);
 
       const result = await easterEggService.getAll(false);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=false');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=false');
       expect(result).toEqual(mockEggs);
     });
 
     it('should default to activeOnly=false', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       await easterEggService.getAll();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=false');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=false');
     });
 
     it('should fetch only active eggs', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       await easterEggService.getAll(true);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=true');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/eggs?activeOnly=true');
     });
   });
 
   describe('getById', () => {
     it('should fetch a specific egg', async () => {
       const mockEgg = { id: 'abc-123', title: 'Goldenes Ei' };
-      mockApi.get.mockResolvedValue({ data: mockEgg });
+      mockApi.getData.mockResolvedValue(mockEgg);
 
       const result = await easterEggService.getById('abc-123');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123');
       expect(result).toEqual(mockEgg);
     });
   });
@@ -132,11 +133,11 @@ describe('Easter Egg Service', () => {
         longitude: 11.0775,
       };
       const createdEgg = { id: 'abc-123', ...newEgg };
-      mockApi.post.mockResolvedValue({ data: createdEgg });
+      mockApi.postData.mockResolvedValue(createdEgg);
 
       const result = await easterEggService.create(newEgg);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/easter-egg-hunt/eggs', newEgg);
+      expect(mockApi.postData).toHaveBeenCalledWith('/easter-egg-hunt/eggs', newEgg);
       expect(result).toEqual(createdEgg);
     });
   });
@@ -145,11 +146,11 @@ describe('Easter Egg Service', () => {
     it('should update an existing egg', async () => {
       const updates = { title: 'Aktualisiertes Ei' };
       const updatedEgg = { id: 'abc-123', title: 'Aktualisiertes Ei' };
-      mockApi.patch.mockResolvedValue({ data: updatedEgg });
+      mockApi.patchData.mockResolvedValue(updatedEgg);
 
       const result = await easterEggService.update('abc-123', updates);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123', updates);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123', updates);
       expect(result).toEqual(updatedEgg);
     });
   });
@@ -170,11 +171,11 @@ describe('Easter Egg Service', () => {
     it('should upload an image for an egg', async () => {
       const mockFile = new File(['test'], 'test.png', { type: 'image/png' });
       const mockEgg = { id: 'abc-123', imageUrl: 'http://example.com/image.png' };
-      mockApi.post.mockResolvedValue({ data: mockEgg });
+      mockApi.postData.mockResolvedValue(mockEgg);
 
       const result = await easterEggService.uploadImage('abc-123', mockFile);
 
-      expect(mockApi.post).toHaveBeenCalledWith(
+      expect(mockApi.postData).toHaveBeenCalledWith(
         '/easter-egg-hunt/eggs/abc-123/image',
         expect.any(FormData),
         { isFormData: true }
@@ -188,11 +189,11 @@ describe('Easter Egg Service', () => {
   describe('addWinner', () => {
     it('should add a winner to an egg', async () => {
       const mockEgg = { id: 'abc-123', winnerCount: 1 };
-      mockApi.patch.mockResolvedValue({ data: mockEgg });
+      mockApi.patchData.mockResolvedValue(mockEgg);
 
       const result = await easterEggService.addWinner('abc-123', { userId: 'user-456' });
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/winners', {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/winners', {
         userId: 'user-456',
       });
       expect(result).toEqual(mockEgg);
@@ -202,11 +203,14 @@ describe('Easter Egg Service', () => {
   describe('drawWinners', () => {
     it('should draw winners for an egg', async () => {
       const mockEgg = { id: 'abc-123', winnerCount: 2 };
-      mockApi.post.mockResolvedValue({ data: mockEgg });
+      mockApi.postData.mockResolvedValue(mockEgg);
 
       const result = await easterEggService.drawWinners('abc-123');
 
-      expect(mockApi.post).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/draw-winners', {});
+      expect(mockApi.postData).toHaveBeenCalledWith(
+        '/easter-egg-hunt/eggs/abc-123/draw-winners',
+        {}
+      );
       expect(result).toEqual(mockEgg);
     });
   });
@@ -216,11 +220,11 @@ describe('Easter Egg Service', () => {
   describe('getParticipants', () => {
     it('should fetch participants for an egg', async () => {
       const mockParticipants = ['user-1', 'user-2', 'user-3'];
-      mockApi.get.mockResolvedValue({ data: mockParticipants });
+      mockApi.getData.mockResolvedValue(mockParticipants);
 
       const result = await easterEggService.getParticipants('abc-123');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/participants');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/eggs/abc-123/participants');
       expect(result).toEqual(mockParticipants);
     });
   });
@@ -243,11 +247,11 @@ describe('Easter Egg Service', () => {
           },
         ],
       };
-      mockApi.get.mockResolvedValue({ data: mockStats });
+      mockApi.getData.mockResolvedValue(mockStats);
 
       const result = await easterEggService.getStatistics();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/easter-egg-hunt/statistics');
+      expect(mockApi.getData).toHaveBeenCalledWith('/easter-egg-hunt/statistics');
       expect(result).toEqual(mockStats);
     });
   });

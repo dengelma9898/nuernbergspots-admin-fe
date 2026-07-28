@@ -1,4 +1,3 @@
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { useApi } from '@/lib/api';
 
 interface AnonymousAccountStats {
@@ -12,14 +11,11 @@ export const useAccountManagementService = () => {
   const baseUrl = '/account-management';
 
   const cleanupAnonymousAccounts = async (): Promise<void> => {
-    await api.delete<ApiResponse<void>>(`${baseUrl}/cleanup-anonymous`);
+    await api.deleteData<void>(`${baseUrl}/cleanup-anonymous`);
   };
 
   const getAnonymousAccountStats = async (): Promise<AnonymousAccountStats> => {
-    const response = await api.get<ApiResponse<AnonymousAccountStats>>(
-      `${baseUrl}/anonymous-stats`
-    );
-    return unwrapData(response);
+    return api.getData<AnonymousAccountStats>(`${baseUrl}/anonymous-stats`);
   };
 
   return {

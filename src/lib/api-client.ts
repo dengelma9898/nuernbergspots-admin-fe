@@ -71,11 +71,7 @@ class ApiClient {
     return headers;
   }
 
-  private async request<T>(
-    method: string,
-    endpoint: string,
-    options?: RequestOptions
-  ): Promise<T> {
+  private async request<T>(method: string, endpoint: string, options?: RequestOptions): Promise<T> {
     try {
       const { body, contentType, isFormData, emptyOnNoContent } = options ?? {};
       const headers = await this.getHeaders(isFormData ? undefined : contentType);
@@ -148,6 +144,43 @@ class ApiClient {
       body: data ? JSON.stringify(data) : undefined,
       emptyOnNoContent: true,
     });
+  }
+
+  private async unwrapEnvelope<T>(promise: Promise<{ data: T }>): Promise<T> {
+    const response = await promise;
+    return response.data;
+  }
+
+  async getData<T>(endpoint: string): Promise<T> {
+    return this.unwrapEnvelope(this.get<{ data: T }>(endpoint));
+  }
+
+  async postData<T>(
+    endpoint: string,
+    data: unknown,
+    options: { isFormData?: boolean } = {}
+  ): Promise<T> {
+    return this.unwrapEnvelope(this.post<{ data: T }>(endpoint, data, options));
+  }
+
+  async putData<T>(endpoint: string, data: unknown): Promise<T> {
+    return this.unwrapEnvelope(this.put<{ data: T }>(endpoint, data));
+  }
+
+  async patchData<T>(
+    endpoint: string,
+    data: unknown,
+    options: { isFormData?: boolean } = {}
+  ): Promise<T> {
+    return this.unwrapEnvelope(this.patch<{ data: T }>(endpoint, data, options));
+  }
+
+  async deleteData<T = void>(endpoint: string, data?: unknown): Promise<T> {
+    const response = await this.delete<{ data: T }>(endpoint, data);
+    if (response && typeof response === 'object' && 'data' in response) {
+      return response.data;
+    }
+    return undefined as T;
   }
 
   private async extractErrorMessage(

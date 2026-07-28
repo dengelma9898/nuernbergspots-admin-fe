@@ -1,5 +1,4 @@
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export interface DowntimeStatus {
   isDowntime: boolean;
@@ -13,18 +12,16 @@ export function useDowntimeService() {
      * Lädt den aktuellen Downtime-Status
      */
     getDowntimeStatus: async (): Promise<DowntimeStatus> => {
-      const response = await api.get<ApiResponse<DowntimeStatus>>(endpoints.downtime);
-      return unwrapData(response);
+      return api.getData<DowntimeStatus>(endpoints.downtime);
     },
 
     /**
      * Setzt den Downtime-Status
      */
     setDowntimeStatus: async (isDowntime: boolean): Promise<DowntimeStatus> => {
-      const response = await api.put<ApiResponse<DowntimeStatus>>(endpoints.downtime, {
+      return api.putData<DowntimeStatus>(endpoints.downtime, {
         isDowntime,
       });
-      return unwrapData(response);
     },
   };
 }

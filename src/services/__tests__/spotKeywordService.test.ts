@@ -1,4 +1,9 @@
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
 };
@@ -14,10 +19,6 @@ jest.mock('../../lib/api', () => ({
       return `/spot-keywords/suggest?${p.toString()}`;
     },
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response: { data: unknown }) => response.data),
 }));
 
 import { useSpotKeywordService } from '../spotKeywordService';
@@ -41,27 +42,27 @@ describe('spotKeywordService', () => {
   it('suggest returns [] for blank query without calling API', async () => {
     const r = await service.suggest('   ');
     expect(r).toEqual([]);
-    expect(mockApi.get).not.toHaveBeenCalled();
+    expect(mockApi.getData).not.toHaveBeenCalled();
   });
 
   it('suggest calls GET with encoded q', async () => {
-    mockApi.get.mockResolvedValue({ data: [kw] });
+    mockApi.getData.mockResolvedValue([kw]);
     const list = await service.suggest('bier', 15);
-    expect(mockApi.get).toHaveBeenCalledWith('/spot-keywords/suggest?q=bier&limit=15');
+    expect(mockApi.getData).toHaveBeenCalledWith('/spot-keywords/suggest?q=bier&limit=15');
     expect(list).toEqual([kw]);
   });
 
   it('create posts to /spot-keywords', async () => {
-    mockApi.post.mockResolvedValue({ data: kw });
+    mockApi.postData.mockResolvedValue(kw);
     const created = await service.create({ name: 'Biergarten' });
-    expect(mockApi.post).toHaveBeenCalledWith('/spot-keywords', { name: 'Biergarten' });
+    expect(mockApi.postData).toHaveBeenCalledWith('/spot-keywords', { name: 'Biergarten' });
     expect(created).toEqual(kw);
   });
 
   it('getById calls GET /spot-keywords/:id', async () => {
-    mockApi.get.mockResolvedValue({ data: kw });
+    mockApi.getData.mockResolvedValue(kw);
     const found = await service.getById('k1');
-    expect(mockApi.get).toHaveBeenCalledWith('/spot-keywords/k1');
+    expect(mockApi.getData).toHaveBeenCalledWith('/spot-keywords/k1');
     expect(found).toEqual(kw);
   });
 });

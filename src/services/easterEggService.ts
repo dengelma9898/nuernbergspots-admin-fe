@@ -7,7 +7,6 @@ import {
   EasterEggStatistics,
 } from '../models/easter-egg';
 import { useApi } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useEasterEggService() {
   const api = useApi();
@@ -18,10 +17,7 @@ export function useEasterEggService() {
      * Lädt den Feature-Status der Ostereiersuche
      */
     getFeatureStatus: async (): Promise<EasterEggFeatureStatus> => {
-      const response = await api.get<ApiResponse<EasterEggFeatureStatus>>(
-        `${baseUrl}/feature-status`
-      );
-      return unwrapData(response);
+      return api.getData<EasterEggFeatureStatus>(`${baseUrl}/feature-status`);
     },
 
     /**
@@ -31,45 +27,38 @@ export function useEasterEggService() {
       isFeatureActive: boolean,
       startDate?: string
     ): Promise<EasterEggFeatureStatus> => {
-      const response = await api.put<ApiResponse<EasterEggFeatureStatus>>(
-        `${baseUrl}/feature-status`,
-        { isFeatureActive, startDate }
-      );
-      return unwrapData(response);
+      return api.putData<EasterEggFeatureStatus>(`${baseUrl}/feature-status`, {
+        isFeatureActive,
+        startDate,
+      });
     },
 
     /**
      * Lädt alle Ostereier (activeOnly=false für Admin, um alle inkl. inaktive zu laden)
      */
     getAll: async (activeOnly: boolean = false): Promise<EasterEgg[]> => {
-      const response = await api.get<ApiResponse<EasterEgg[]>>(
-        `${baseUrl}/eggs?activeOnly=${activeOnly}`
-      );
-      return unwrapData(response);
+      return api.getData<EasterEgg[]>(`${baseUrl}/eggs?activeOnly=${activeOnly}`);
     },
 
     /**
      * Lädt ein spezifisches Osterei
      */
     getById: async (id: string): Promise<EasterEgg> => {
-      const response = await api.get<ApiResponse<EasterEgg>>(`${baseUrl}/eggs/${id}`);
-      return unwrapData(response);
+      return api.getData<EasterEgg>(`${baseUrl}/eggs/${id}`);
     },
 
     /**
      * Erstellt ein neues Osterei
      */
     create: async (egg: CreateEasterEggDto): Promise<EasterEgg> => {
-      const response = await api.post<ApiResponse<EasterEgg>>(`${baseUrl}/eggs`, egg);
-      return unwrapData(response);
+      return api.postData<EasterEgg>(`${baseUrl}/eggs`, egg);
     },
 
     /**
      * Aktualisiert ein Osterei
      */
     update: async (id: string, egg: UpdateEasterEggDto): Promise<EasterEgg> => {
-      const response = await api.patch<ApiResponse<EasterEgg>>(`${baseUrl}/eggs/${id}`, egg);
-      return unwrapData(response);
+      return api.patchData<EasterEgg>(`${baseUrl}/eggs/${id}`, egg);
     },
 
     /**
@@ -86,50 +75,37 @@ export function useEasterEggService() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await api.post<ApiResponse<EasterEgg>>(
-        `${baseUrl}/eggs/${id}/image`,
-        formData,
-        { isFormData: true }
-      );
-      return unwrapData(response);
+      return api.postData<EasterEgg>(`${baseUrl}/eggs/${id}/image`, formData, {
+        isFormData: true,
+      });
     },
 
     /**
      * Fügt einen Gewinner zu einem Osterei hinzu
      */
     addWinner: async (id: string, winnerDto: AddWinnerDto): Promise<EasterEgg> => {
-      const response = await api.patch<ApiResponse<EasterEgg>>(
-        `${baseUrl}/eggs/${id}/winners`,
-        winnerDto
-      );
-      return unwrapData(response);
+      return api.patchData<EasterEgg>(`${baseUrl}/eggs/${id}/winners`, winnerDto);
     },
 
     /**
      * Lost Gewinner für ein Osterei aus
      */
     drawWinners: async (id: string): Promise<EasterEgg> => {
-      const response = await api.post<ApiResponse<EasterEgg>>(
-        `${baseUrl}/eggs/${id}/draw-winners`,
-        {}
-      );
-      return unwrapData(response);
+      return api.postData<EasterEgg>(`${baseUrl}/eggs/${id}/draw-winners`, {});
     },
 
     /**
      * Lädt die Teilnehmer eines Ostereis
      */
     getParticipants: async (id: string): Promise<string[]> => {
-      const response = await api.get<ApiResponse<string[]>>(`${baseUrl}/eggs/${id}/participants`);
-      return unwrapData(response);
+      return api.getData<string[]>(`${baseUrl}/eggs/${id}/participants`);
     },
 
     /**
      * Lädt Statistiken zur Ostereiersuche
      */
     getStatistics: async (): Promise<EasterEggStatistics> => {
-      const response = await api.get<ApiResponse<EasterEggStatistics>>(`${baseUrl}/statistics`);
-      return unwrapData(response);
+      return api.getData<EasterEggStatistics>(`${baseUrl}/statistics`);
     },
   };
 }

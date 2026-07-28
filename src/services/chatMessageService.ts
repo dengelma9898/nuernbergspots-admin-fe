@@ -1,5 +1,4 @@
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export enum ReactionType {
   LIKE = 'like',
@@ -46,18 +45,13 @@ export function useChatMessageService() {
 
   return {
     getMessages: async (chatroomId: string, limit?: number): Promise<ChatMessage[]> => {
-      const response = await api.get<ApiResponse<ChatMessage[]>>(
+      return api.getData<ChatMessage[]>(
         `${endpoints.chatroomMessages(chatroomId)}${limit ? `?limit=${limit}` : ''}`
       );
-      return unwrapData(response);
     },
 
     createMessage: async (chatroomId: string, data: CreateMessageDto): Promise<ChatMessage> => {
-      const response = await api.post<ApiResponse<ChatMessage>>(
-        endpoints.chatroomMessages(chatroomId),
-        data
-      );
-      return unwrapData(response);
+      return api.postData<ChatMessage>(endpoints.chatroomMessages(chatroomId), data);
     },
 
     updateMessage: async (
@@ -65,11 +59,10 @@ export function useChatMessageService() {
       messageId: string,
       data: UpdateMessageDto
     ): Promise<ChatMessage> => {
-      const response = await api.patch<ApiResponse<ChatMessage>>(
+      return api.patchData<ChatMessage>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}`,
         data
       );
-      return unwrapData(response);
     },
 
     deleteMessage: async (chatroomId: string, messageId: string): Promise<void> => {
@@ -81,11 +74,10 @@ export function useChatMessageService() {
       messageId: string,
       data: UpdateMessageDto
     ): Promise<ChatMessage> => {
-      const response = await api.patch<ApiResponse<ChatMessage>>(
+      return api.patchData<ChatMessage>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}/admin`,
         data
       );
-      return unwrapData(response);
     },
 
     adminDeleteMessage: async (chatroomId: string, messageId: string): Promise<void> => {
@@ -97,18 +89,16 @@ export function useChatMessageService() {
       messageId: string,
       reaction: UpdateMessageReactionDto
     ): Promise<ChatMessage> => {
-      const response = await api.post<ApiResponse<ChatMessage>>(
+      return api.postData<ChatMessage>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}/reactions`,
         reaction
       );
-      return unwrapData(response);
     },
 
     removeReaction: async (chatroomId: string, messageId: string): Promise<ChatMessage> => {
-      const response = await api.delete<ApiResponse<ChatMessage>>(
+      return api.deleteData<ChatMessage>(
         `${endpoints.chatroomMessages(chatroomId)}/${messageId}/reactions`
       );
-      return unwrapData(response);
     },
   };
 }

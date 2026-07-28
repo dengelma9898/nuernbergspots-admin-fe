@@ -6,6 +6,11 @@ global.fetch = mockFetch;
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -22,36 +27,36 @@ describe('Business Service', () => {
   });
 
   it('should mock API calls successfully', async () => {
-    mockApi.get.mockResolvedValue({ data: [] });
+    mockApi.getData.mockResolvedValue([]);
 
-    const result = await mockApi.get('/businesses');
+    const result = await mockApi.getData('/businesses');
 
-    expect(mockApi.get).toHaveBeenCalledWith('/businesses');
-    expect(result.data).toEqual([]);
+    expect(mockApi.getData).toHaveBeenCalledWith('/businesses');
+    expect(result).toEqual([]);
   });
 
   it('should handle POST requests', async () => {
     const newBusiness = { name: 'Test Business' };
     const response = { data: { id: '1', ...newBusiness } };
 
-    mockApi.post.mockResolvedValue(response);
+    mockApi.postData.mockResolvedValue({ id: '1', ...newBusiness });
 
-    const result = await mockApi.post('/businesses', newBusiness);
+    const result = await mockApi.postData('/businesses', newBusiness);
 
-    expect(mockApi.post).toHaveBeenCalledWith('/businesses', newBusiness);
-    expect(result.data.name).toBe('Test Business');
+    expect(mockApi.postData).toHaveBeenCalledWith('/businesses', newBusiness);
+    expect(result.name).toBe('Test Business');
   });
 
   it('should handle PATCH requests', async () => {
     const updates = { name: 'Updated Business' };
     const response = { data: { id: '1', ...updates } };
 
-    mockApi.patch.mockResolvedValue(response);
+    mockApi.patchData.mockResolvedValue({ id: '1', ...updates });
 
-    const result = await mockApi.patch('/businesses/1', updates);
+    const result = await mockApi.patchData('/businesses/1', updates);
 
-    expect(mockApi.patch).toHaveBeenCalledWith('/businesses/1', updates);
-    expect(result.data.name).toBe('Updated Business');
+    expect(mockApi.patchData).toHaveBeenCalledWith('/businesses/1', updates);
+    expect(result.name).toBe('Updated Business');
   });
 
   it('should handle DELETE requests', async () => {
@@ -65,8 +70,8 @@ describe('Business Service', () => {
 
   it('should handle API errors', async () => {
     const errorMessage = 'Network Error';
-    mockApi.get.mockRejectedValue(new Error(errorMessage));
+    mockApi.getData.mockRejectedValue(new Error(errorMessage));
 
-    await expect(mockApi.get('/businesses')).rejects.toThrow(errorMessage);
+    await expect(mockApi.getData('/businesses')).rejects.toThrow(errorMessage);
   });
 });

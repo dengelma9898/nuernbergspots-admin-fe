@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -14,10 +19,6 @@ jest.mock('../../lib/api', () => ({
   endpoints: {
     events: '/events',
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useEventService } from '../eventService';
@@ -36,16 +37,16 @@ describe('Event Service', () => {
         { id: '1', title: 'Event 1', description: 'Test Event 1' },
         { id: '2', title: 'Event 2', description: 'Test Event 2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getEvents();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events');
       expect(result).toEqual(mockEvents);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(eventService.getEvents()).rejects.toThrow('Network error');
     });
@@ -54,11 +55,11 @@ describe('Event Service', () => {
   describe('getEvent', () => {
     it('should fetch a specific event', async () => {
       const mockEvent = { id: '1', title: 'Event 1', description: 'Test Event' };
-      mockApi.get.mockResolvedValue({ data: mockEvent });
+      mockApi.getData.mockResolvedValue(mockEvent);
 
       const result = await eventService.getEvent('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events/1');
       expect(result).toEqual(mockEvent);
     });
   });
@@ -73,11 +74,11 @@ describe('Event Service', () => {
           status: 'PENDING' as const,
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getPendingEvents();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/pending');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events/pending');
       expect(result).toEqual(mockEvents);
     });
   });
@@ -90,11 +91,11 @@ describe('Event Service', () => {
         description: 'x',
         status: 'ACTIVE' as const,
       };
-      mockApi.patch.mockResolvedValue({ data: approved });
+      mockApi.patchData.mockResolvedValue(approved);
 
       const result = await eventService.approveEvent('p1');
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/events/p1/approve', {});
+      expect(mockApi.patchData).toHaveBeenCalledWith('/events/p1/approve', {});
       expect(result).toEqual(approved);
     });
   });
@@ -117,11 +118,11 @@ describe('Event Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdEvent });
+      mockApi.postData.mockResolvedValue(createdEvent);
 
       const result = await eventService.createEvent(newEvent);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/events', newEvent);
+      expect(mockApi.postData).toHaveBeenCalledWith('/events', newEvent);
       expect(result).toEqual(createdEvent);
     });
   });
@@ -130,11 +131,11 @@ describe('Event Service', () => {
     it('should update an existing event', async () => {
       const updates = { title: 'Updated Event' };
       const updatedEvent = { id: '1', title: 'Updated Event', description: 'Test' };
-      mockApi.patch.mockResolvedValue({ data: updatedEvent });
+      mockApi.patchData.mockResolvedValue(updatedEvent);
 
       const result = await eventService.updateEvent('1', updates);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/events/1', updates);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/events/1', updates);
       expect(result).toEqual(updatedEvent);
     });
   });
@@ -152,11 +153,11 @@ describe('Event Service', () => {
   describe('getEventsByDateRange', () => {
     it('should fetch events by date range', async () => {
       const mockEvents = [{ id: '1', title: 'Event in range' }];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getEventsByDateRange('2024-01-01', '2024-01-31');
 
-      expect(mockApi.get).toHaveBeenCalledWith(
+      expect(mockApi.getData).toHaveBeenCalledWith(
         '/events/range?startDate=2024-01-01&endDate=2024-01-31'
       );
       expect(result).toEqual(mockEvents);
@@ -166,11 +167,11 @@ describe('Event Service', () => {
   describe('getCurrentEvents', () => {
     it('should fetch current events', async () => {
       const mockEvents = [{ id: '1', title: 'Current Event' }];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getCurrentEvents();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/current');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events/current');
       expect(result).toEqual(mockEvents);
     });
   });
@@ -178,11 +179,11 @@ describe('Event Service', () => {
   describe('getNearbyEvents', () => {
     it('should fetch nearby events', async () => {
       const mockEvents = [{ id: '1', title: 'Nearby Event' }];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getNearbyEvents(49.4521, 11.0767, 10);
 
-      expect(mockApi.get).toHaveBeenCalledWith(
+      expect(mockApi.getData).toHaveBeenCalledWith(
         '/events/nearby?latitude=49.4521&longitude=11.0767&radiusKm=10'
       );
       expect(result).toEqual(mockEvents);
@@ -192,21 +193,21 @@ describe('Event Service', () => {
   describe('getPopularEvents', () => {
     it('should fetch popular events with default limit', async () => {
       const mockEvents = [{ id: '1', title: 'Popular Event' }];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getPopularEvents();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/popular?limit=10');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events/popular?limit=10');
       expect(result).toEqual(mockEvents);
     });
 
     it('should fetch popular events with custom limit', async () => {
       const mockEvents = [{ id: '1', title: 'Popular Event' }];
-      mockApi.get.mockResolvedValue({ data: mockEvents });
+      mockApi.getData.mockResolvedValue(mockEvents);
 
       const result = await eventService.getPopularEvents(5);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/events/popular?limit=5');
+      expect(mockApi.getData).toHaveBeenCalledWith('/events/popular?limit=5');
       expect(result).toEqual(mockEvents);
     });
   });
@@ -223,16 +224,16 @@ describe('Event Service', () => {
           { eventId: 'def', success: true, event: { id: 'def', categoryId: 'cat-1' } },
         ],
       };
-      mockApi.patch.mockResolvedValue({ data: mockResult });
+      mockApi.patchData.mockResolvedValue(mockResult);
 
       const result = await eventService.bulkUpdateCategory(payload);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/events/bulk/category', payload);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/events/bulk/category', payload);
       expect(result).toEqual(mockResult);
     });
 
     it('should handle API errors', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Forbidden'));
+      mockApi.patchData.mockRejectedValue(new Error('Forbidden'));
 
       await expect(
         eventService.bulkUpdateCategory({ eventIds: ['abc'], categoryId: 'cat-1' })
@@ -247,11 +248,11 @@ describe('Event Service', () => {
         new File(['test'], 'test2.jpg', { type: 'image/jpeg' }),
       ];
       const mockUrls = ['url1.jpg', 'url2.jpg'];
-      mockApi.patch.mockResolvedValue({ data: { urls: mockUrls } });
+      mockApi.patchData.mockResolvedValue({ urls: mockUrls });
 
       const result = await eventService.uploadEventImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/events/1/images', expect.any(FormData), {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/events/1/images', expect.any(FormData), {
         isFormData: true,
       });
       expect(result).toEqual(mockUrls);

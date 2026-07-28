@@ -4,9 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, MapPin, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { glassInput } from '@/lib/glassmorphism';
+import { inputPreset } from '@/lib/designTokens';
 import { useApi } from '@/lib/api';
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { Button } from './button';
 
 export interface LocationResult {
@@ -73,10 +72,9 @@ export function LocationSearch({
 
       try {
         setLoading(true);
-        const response = await api.get<ApiResponse<LocationResult[]>>(
+        const results = await api.getData<LocationResult[]>(
           `/location/search?query=${encodeURIComponent(query)}`
         );
-        const results = unwrapData(response);
         setSuggestions(results || []);
 
         if (results && results.length > 0) {
@@ -169,7 +167,7 @@ export function LocationSearch({
           value={searchQuery}
           onChange={handleSearchChange}
           placeholder={placeholder}
-          className={cn(glassInput, 'w-full pr-10')}
+          className={cn(inputPreset, 'w-full pr-10')}
           onFocus={() => {
             if (suggestions.length > 0 && !isTyping) {
               setShowSuggestions(true);

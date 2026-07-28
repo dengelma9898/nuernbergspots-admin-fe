@@ -1,5 +1,4 @@
 import { JobOffer, JobOfferCreation } from '@/models/job-offer';
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { useApi } from '@/lib/api';
 
 export const useJobOfferService = () => {
@@ -7,30 +6,26 @@ export const useJobOfferService = () => {
   const baseUrl = '/job-offers';
 
   const getJobOffers = async (): Promise<JobOffer[]> => {
-    const response = await api.get<ApiResponse<JobOffer[]>>(`${baseUrl}`);
-    return unwrapData(response);
+    return api.getData<JobOffer[]>(`${baseUrl}`);
   };
 
   const getJobOffer = async (id: string): Promise<JobOffer> => {
-    const response = await api.get<ApiResponse<JobOffer>>(`${baseUrl}/${id}`);
-    return unwrapData(response);
+    return api.getData<JobOffer>(`${baseUrl}/${id}`);
   };
 
   const createJobOffer = async (jobOffer: JobOfferCreation): Promise<JobOffer> => {
-    const response = await api.post<ApiResponse<JobOffer>>(`${baseUrl}`, jobOffer);
-    return unwrapData(response);
+    return api.postData<JobOffer>(`${baseUrl}`, jobOffer);
   };
 
   const updateJobOffer = async (
     id: string,
     jobOffer: Partial<JobOfferCreation>
   ): Promise<JobOffer> => {
-    const response = await api.patch<ApiResponse<JobOffer>>(`${baseUrl}/${id}`, jobOffer);
-    return unwrapData(response);
+    return api.patchData<JobOffer>(`${baseUrl}/${id}`, jobOffer);
   };
 
   const deleteJobOffer = async (id: string): Promise<void> => {
-    await api.delete<ApiResponse<void>>(`${baseUrl}/${id}`);
+    await api.deleteData<void>(`${baseUrl}/${id}`);
   };
 
   const updateImages = async (id: string, files: File[]): Promise<JobOffer> => {
@@ -39,24 +34,18 @@ export const useJobOfferService = () => {
       formData.append('images', file);
     });
 
-    const response = await api.patch<ApiResponse<JobOffer>>(`${baseUrl}/${id}/images`, formData, {
+    return api.patchData<JobOffer>(`${baseUrl}/${id}/images`, formData, {
       isFormData: true,
     });
-
-    return unwrapData(response);
   };
 
   const updateCompanyLogo = async (id: string, file: File): Promise<JobOffer> => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await api.patch<ApiResponse<JobOffer>>(
-      `${baseUrl}/${id}/company-logo`,
-      formData,
-      { isFormData: true }
-    );
-
-    return unwrapData(response);
+    return api.patchData<JobOffer>(`${baseUrl}/${id}/company-logo`, formData, {
+      isFormData: true,
+    });
   };
 
   return {

@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -10,10 +15,6 @@ const mockApi = {
 
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useJobOfferService } from '../jobOfferService';
@@ -32,16 +33,16 @@ describe('Job Offer Service', () => {
         { id: '1', title: 'Software Developer', company: 'Tech Corp', location: 'Berlin' },
         { id: '2', title: 'Product Manager', company: 'Startup Inc', location: 'Munich' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockJobOffers });
+      mockApi.getData.mockResolvedValue(mockJobOffers);
 
       const result = await jobOfferService.getJobOffers();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/job-offers');
+      expect(mockApi.getData).toHaveBeenCalledWith('/job-offers');
       expect(result).toEqual(mockJobOffers);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(jobOfferService.getJobOffers()).rejects.toThrow('Network error');
     });
@@ -56,11 +57,11 @@ describe('Job Offer Service', () => {
         description: 'Great opportunity',
         location: 'Berlin',
       };
-      mockApi.get.mockResolvedValue({ data: mockJobOffer });
+      mockApi.getData.mockResolvedValue(mockJobOffer);
 
       const result = await jobOfferService.getJobOffer('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/job-offers/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/job-offers/1');
       expect(result).toEqual(mockJobOffer);
     });
   });
@@ -98,11 +99,11 @@ describe('Job Offer Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdJobOffer });
+      mockApi.postData.mockResolvedValue(createdJobOffer);
 
       const result = await jobOfferService.createJobOffer(jobOfferData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/job-offers', jobOfferData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/job-offers', jobOfferData);
       expect(result).toEqual(createdJobOffer);
     });
   });
@@ -117,22 +118,22 @@ describe('Job Offer Service', () => {
         salary: '60000-80000',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       const result = await jobOfferService.updateJobOffer('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offers/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/job-offers/1', updateData);
       expect(result).toEqual(updatedJobOffer);
     });
   });
 
   describe('deleteJobOffer', () => {
     it('should delete a job offer', async () => {
-      mockApi.delete.mockResolvedValue(undefined);
+      mockApi.deleteData.mockResolvedValue(undefined);
 
       await jobOfferService.deleteJobOffer('1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/job-offers/1');
+      expect(mockApi.deleteData).toHaveBeenCalledWith('/job-offers/1');
     });
   });
 
@@ -147,11 +148,11 @@ describe('Job Offer Service', () => {
         title: 'Software Developer',
         images: ['office1.jpg', 'office2.jpg'],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       const result = await jobOfferService.updateImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offers/1/images', expect.any(FormData), {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/job-offers/1/images', expect.any(FormData), {
         isFormData: true,
       });
       expect(result).toEqual(updatedJobOffer);
@@ -163,11 +164,11 @@ describe('Job Offer Service', () => {
         title: 'Software Developer',
         images: [],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       const result = await jobOfferService.updateImages('1', []);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offers/1/images', expect.any(FormData), {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/job-offers/1/images', expect.any(FormData), {
         isFormData: true,
       });
       expect(result).toEqual(updatedJobOffer);
@@ -182,11 +183,11 @@ describe('Job Offer Service', () => {
         title: 'Software Developer',
         companyLogo: 'logo.png',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       const result = await jobOfferService.updateCompanyLogo('1', mockFile);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
+      expect(mockApi.patchData).toHaveBeenCalledWith(
         '/job-offers/1/company-logo',
         expect.any(FormData),
         { isFormData: true }
@@ -197,7 +198,7 @@ describe('Job Offer Service', () => {
 
   describe('error handling', () => {
     it('should handle create job offer errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(
         jobOfferService.createJobOffer({
@@ -227,7 +228,7 @@ describe('Job Offer Service', () => {
     });
 
     it('should handle update job offer errors', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Update failed'));
 
       await expect(jobOfferService.updateJobOffer('1', { title: 'New Title' })).rejects.toThrow(
         'Update failed'
@@ -235,14 +236,14 @@ describe('Job Offer Service', () => {
     });
 
     it('should handle delete job offer errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Delete failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Delete failed'));
 
       await expect(jobOfferService.deleteJobOffer('1')).rejects.toThrow('Delete failed');
     });
 
     it('should handle image update errors', async () => {
       const mockFiles = [new File(['test'], 'test.jpg', { type: 'image/jpeg' })];
-      mockApi.patch.mockRejectedValue(new Error('Image update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Image update failed'));
 
       await expect(jobOfferService.updateImages('1', mockFiles)).rejects.toThrow(
         'Image update failed'
@@ -251,7 +252,7 @@ describe('Job Offer Service', () => {
 
     it('should handle company logo update errors', async () => {
       const mockFile = new File(['test'], 'logo.png', { type: 'image/png' });
-      mockApi.patch.mockRejectedValue(new Error('Logo update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Logo update failed'));
 
       await expect(jobOfferService.updateCompanyLogo('1', mockFile)).rejects.toThrow(
         'Logo update failed'
@@ -266,11 +267,11 @@ describe('Job Offer Service', () => {
         new File(['test2'], 'image2.jpg', { type: 'image/jpeg' }),
       ];
       const updatedJobOffer = { id: '1', images: ['image1.jpg', 'image2.jpg'] };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       await jobOfferService.updateImages('1', mockFiles);
 
-      const formDataCall = mockApi.patch.mock.calls[0];
+      const formDataCall = mockApi.patchData.mock.calls[0];
       const formData = formDataCall[1];
 
       expect(formData).toBeInstanceOf(FormData);
@@ -280,11 +281,11 @@ describe('Job Offer Service', () => {
     it('should properly append single file to FormData for company logo', async () => {
       const mockFile = new File(['test'], 'logo.png', { type: 'image/png' });
       const updatedJobOffer = { id: '1', companyLogo: 'logo.png' };
-      mockApi.patch.mockResolvedValue({ data: updatedJobOffer });
+      mockApi.patchData.mockResolvedValue(updatedJobOffer);
 
       await jobOfferService.updateCompanyLogo('1', mockFile);
 
-      const formDataCall = mockApi.patch.mock.calls[0];
+      const formDataCall = mockApi.patchData.mock.calls[0];
       const formData = formDataCall[1];
 
       expect(formData).toBeInstanceOf(FormData);

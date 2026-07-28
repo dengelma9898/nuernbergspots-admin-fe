@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -13,10 +18,6 @@ jest.mock('../../lib/api', () => ({
   endpoints: {
     chatroomMessages: (chatroomId: string) => `/chatrooms/${chatroomId}/messages`,
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useChatMessageService, ReactionType } from '../chatMessageService';
@@ -51,11 +52,11 @@ describe('Chat Message Service', () => {
           updatedAt: '2024-01-01T10:01:00Z',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockMessages });
+      mockApi.getData.mockResolvedValue(mockMessages);
 
       const result = await chatMessageService.getMessages('chatroom1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms/chatroom1/messages');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms/chatroom1/messages');
       expect(result).toEqual(mockMessages);
     });
 
@@ -71,16 +72,16 @@ describe('Chat Message Service', () => {
           updatedAt: '2024-01-01T10:00:00Z',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockMessages });
+      mockApi.getData.mockResolvedValue(mockMessages);
 
       const result = await chatMessageService.getMessages('chatroom1', 10);
 
-      expect(mockApi.get).toHaveBeenCalledWith('/chatrooms/chatroom1/messages?limit=10');
+      expect(mockApi.getData).toHaveBeenCalledWith('/chatrooms/chatroom1/messages?limit=10');
       expect(result).toEqual(mockMessages);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(chatMessageService.getMessages('chatroom1')).rejects.toThrow('Network error');
     });
@@ -100,11 +101,11 @@ describe('Chat Message Service', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:00:00Z',
       };
-      mockApi.post.mockResolvedValue({ data: createdMessage });
+      mockApi.postData.mockResolvedValue(createdMessage);
 
       const result = await chatMessageService.createMessage('chatroom1', messageData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/chatrooms/chatroom1/messages', messageData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/chatrooms/chatroom1/messages', messageData);
       expect(result).toEqual(createdMessage);
     });
 
@@ -114,7 +115,7 @@ describe('Chat Message Service', () => {
         senderId: 'user1',
         senderName: 'John Doe',
       };
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(chatMessageService.createMessage('chatroom1', messageData)).rejects.toThrow(
         'Creation failed'
@@ -135,11 +136,11 @@ describe('Chat Message Service', () => {
         updatedAt: '2024-01-01T10:05:00Z',
         editedAt: '2024-01-01T10:05:00Z',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedMessage });
+      mockApi.patchData.mockResolvedValue(updatedMessage);
 
       const result = await chatMessageService.updateMessage('chatroom1', 'message1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
+      expect(mockApi.patchData).toHaveBeenCalledWith(
         '/chatrooms/chatroom1/messages/message1',
         updateData
       );
@@ -148,7 +149,7 @@ describe('Chat Message Service', () => {
 
     it('should handle update errors', async () => {
       const updateData = { content: 'Updated content' };
-      mockApi.patch.mockRejectedValue(new Error('Update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Update failed'));
 
       await expect(
         chatMessageService.updateMessage('chatroom1', 'message1', updateData)
@@ -187,7 +188,7 @@ describe('Chat Message Service', () => {
         updatedAt: '2024-01-01T10:05:00Z',
         editedAt: '2024-01-01T10:05:00Z',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedMessage });
+      mockApi.patchData.mockResolvedValue(updatedMessage);
 
       const result = await chatMessageService.adminUpdateMessage(
         'chatroom1',
@@ -195,7 +196,7 @@ describe('Chat Message Service', () => {
         updateData
       );
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
+      expect(mockApi.patchData).toHaveBeenCalledWith(
         '/chatrooms/chatroom1/messages/message1/admin',
         updateData
       );
@@ -204,7 +205,7 @@ describe('Chat Message Service', () => {
 
     it('should handle admin update errors', async () => {
       const updateData = { content: 'Updated content' };
-      mockApi.patch.mockRejectedValue(new Error('Admin update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Admin update failed'));
 
       await expect(
         chatMessageService.adminUpdateMessage('chatroom1', 'message1', updateData)
@@ -242,11 +243,11 @@ describe('Chat Message Service', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:01:00Z',
       };
-      mockApi.post.mockResolvedValue({ data: updatedMessage });
+      mockApi.postData.mockResolvedValue(updatedMessage);
 
       const result = await chatMessageService.addReaction('chatroom1', 'message1', reactionData);
 
-      expect(mockApi.post).toHaveBeenCalledWith(
+      expect(mockApi.postData).toHaveBeenCalledWith(
         '/chatrooms/chatroom1/messages/message1/reactions',
         reactionData
       );
@@ -269,7 +270,7 @@ describe('Chat Message Service', () => {
           id: '1',
           reactions: [{ userId: 'user1', type }],
         };
-        mockApi.post.mockResolvedValue({ data: updatedMessage });
+        mockApi.postData.mockResolvedValue(updatedMessage);
 
         const result = await chatMessageService.addReaction('chatroom1', 'message1', reactionData);
 
@@ -279,7 +280,7 @@ describe('Chat Message Service', () => {
 
     it('should handle add reaction errors', async () => {
       const reactionData = { type: ReactionType.LIKE };
-      mockApi.post.mockRejectedValue(new Error('Add reaction failed'));
+      mockApi.postData.mockRejectedValue(new Error('Add reaction failed'));
 
       await expect(
         chatMessageService.addReaction('chatroom1', 'message1', reactionData)
@@ -298,18 +299,18 @@ describe('Chat Message Service', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:01:00Z',
       };
-      mockApi.delete.mockResolvedValue({ data: updatedMessage });
+      mockApi.deleteData.mockResolvedValue(updatedMessage);
 
       const result = await chatMessageService.removeReaction('chatroom1', 'message1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith(
+      expect(mockApi.deleteData).toHaveBeenCalledWith(
         '/chatrooms/chatroom1/messages/message1/reactions'
       );
       expect(result).toEqual(updatedMessage);
     });
 
     it('should handle remove reaction errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Remove reaction failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Remove reaction failed'));
 
       await expect(chatMessageService.removeReaction('chatroom1', 'message1')).rejects.toThrow(
         'Remove reaction failed'
@@ -332,7 +333,7 @@ describe('Chat Message Service', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:00:00Z',
       };
-      mockApi.post.mockResolvedValue({ data: createdMessage });
+      mockApi.postData.mockResolvedValue(createdMessage);
 
       const result = await chatMessageService.createMessage('chatroom1', messageData);
 
@@ -353,7 +354,7 @@ describe('Chat Message Service', () => {
         createdAt: '2024-01-01T10:00:00Z',
         updatedAt: '2024-01-01T10:00:00Z',
       };
-      mockApi.post.mockResolvedValue({ data: createdMessage });
+      mockApi.postData.mockResolvedValue(createdMessage);
 
       const result = await chatMessageService.createMessage('chatroom1', messageData);
 
@@ -366,7 +367,7 @@ describe('Chat Message Service', () => {
         senderId: 'user1',
         senderName: 'John Doe',
       };
-      mockApi.post.mockRejectedValue(new Error('Message content cannot be empty'));
+      mockApi.postData.mockRejectedValue(new Error('Message content cannot be empty'));
 
       await expect(chatMessageService.createMessage('chatroom1', messageData)).rejects.toThrow(
         'Message content cannot be empty'
@@ -384,7 +385,7 @@ describe('Chat Message Service', () => {
           { userId: 'user4', type: 'wow' },
         ],
       };
-      mockApi.post.mockResolvedValue({ data: updatedMessage });
+      mockApi.postData.mockResolvedValue(updatedMessage);
 
       const result = await chatMessageService.addReaction('chatroom1', 'message1', {
         type: ReactionType.LIKE,
@@ -397,13 +398,13 @@ describe('Chat Message Service', () => {
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(chatMessageService.getMessages('chatroom1')).rejects.toThrow('Request timeout');
     });
 
     it('should handle server errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Internal server error'));
+      mockApi.postData.mockRejectedValue(new Error('Internal server error'));
 
       await expect(
         chatMessageService.createMessage('chatroom1', {
@@ -415,7 +416,7 @@ describe('Chat Message Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.patchData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(
         chatMessageService.updateMessage('chatroom1', 'message1', { content: 'New content' })
@@ -423,7 +424,7 @@ describe('Chat Message Service', () => {
     });
 
     it('should handle message not found', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Message not found'));
+      mockApi.patchData.mockRejectedValue(new Error('Message not found'));
 
       await expect(
         chatMessageService.updateMessage('chatroom1', 'nonexistent', { content: 'Update' })
@@ -431,7 +432,7 @@ describe('Chat Message Service', () => {
     });
 
     it('should handle chatroom not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('Chatroom not found'));
+      mockApi.getData.mockRejectedValue(new Error('Chatroom not found'));
 
       await expect(chatMessageService.getMessages('nonexistent')).rejects.toThrow(
         'Chatroom not found'

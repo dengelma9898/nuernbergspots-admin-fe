@@ -1,4 +1,9 @@
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -15,10 +20,6 @@ jest.mock('../../lib/api', () => ({
     curatedSpotVideo: (id: string) => `/curated-spots/${id}/video`,
     curatedSpotsUserRatingsSettings: '/curated-spots/settings/user-ratings',
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn((response: { data: unknown }) => response.data),
 }));
 
 import { useCuratedSpotService } from '../curatedSpotService';
@@ -58,21 +59,21 @@ describe('curatedSpotService', () => {
   };
 
   it('listAdmin calls GET /curated-spots/admin', async () => {
-    mockApi.get.mockResolvedValue({ data: [sampleSpot] });
+    mockApi.getData.mockResolvedValue([sampleSpot]);
     const list = await service.listAdmin();
-    expect(mockApi.get).toHaveBeenCalledWith('/curated-spots/admin');
+    expect(mockApi.getData).toHaveBeenCalledWith('/curated-spots/admin');
     expect(list).toEqual([sampleSpot]);
   });
 
   it('getAdmin calls GET /curated-spots/admin/:id', async () => {
-    mockApi.get.mockResolvedValue({ data: sampleSpot });
+    mockApi.getData.mockResolvedValue(sampleSpot);
     const spot = await service.getAdmin('spot-1');
-    expect(mockApi.get).toHaveBeenCalledWith('/curated-spots/admin/spot-1');
+    expect(mockApi.getData).toHaveBeenCalledWith('/curated-spots/admin/spot-1');
     expect(spot).toEqual(sampleSpot);
   });
 
   it('create posts to /curated-spots', async () => {
-    mockApi.post.mockResolvedValue({ data: sampleSpot });
+    mockApi.postData.mockResolvedValue(sampleSpot);
     const dto = {
       name: 'Café',
       descriptionMarkdown: 'Hi',
@@ -80,47 +81,51 @@ describe('curatedSpotService', () => {
       status: 'PENDING' as const,
     };
     const spot = await service.create(dto);
-    expect(mockApi.post).toHaveBeenCalledWith('/curated-spots', dto);
+    expect(mockApi.postData).toHaveBeenCalledWith('/curated-spots', dto);
     expect(spot).toEqual(sampleSpot);
   });
 
   it('patch calls PATCH /curated-spots/:id', async () => {
-    mockApi.patch.mockResolvedValue({ data: sampleSpot });
+    mockApi.patchData.mockResolvedValue(sampleSpot);
     const body = { status: 'ACTIVE' as const };
     const spot = await service.patch('spot-1', body);
-    expect(mockApi.patch).toHaveBeenCalledWith('/curated-spots/spot-1', body);
+    expect(mockApi.patchData).toHaveBeenCalledWith('/curated-spots/spot-1', body);
     expect(spot).toEqual(sampleSpot);
   });
 
   it('delete calls DELETE /curated-spots/:id', async () => {
-    mockApi.delete.mockResolvedValue({ data: { ...sampleSpot, isDeleted: true } });
+    mockApi.deleteData.mockResolvedValue({ ...sampleSpot, isDeleted: true });
     const spot = await service.delete('spot-1');
-    expect(mockApi.delete).toHaveBeenCalledWith('/curated-spots/spot-1');
+    expect(mockApi.deleteData).toHaveBeenCalledWith('/curated-spots/spot-1');
     expect(spot.isDeleted).toBe(true);
   });
 
   it('uploadImages posts FormData with images field', async () => {
-    mockApi.post.mockResolvedValue({ data: { ...sampleSpot, imageUrls: ['https://x'] } });
+    mockApi.postData.mockResolvedValue({ ...sampleSpot, imageUrls: ['https://x'] });
     const f1 = new File(['a'], 'a.png', { type: 'image/png' });
     const f2 = new File(['b'], 'b.png', { type: 'image/png' });
     await service.uploadImages('spot-1', [f1, f2]);
-    expect(mockApi.post).toHaveBeenCalledWith(
+    expect(mockApi.postData).toHaveBeenCalledWith(
       '/curated-spots/spot-1/images',
       expect.any(FormData),
       { isFormData: true }
     );
-    const fd = mockApi.post.mock.calls[0][1] as FormData;
+    const fd = mockApi.postData.mock.calls[0][1] as FormData;
     expect(fd.getAll('images')).toHaveLength(2);
   });
 
   it('uploadVideo posts FormData with file field', async () => {
-    mockApi.post.mockResolvedValue({ data: sampleSpot });
+    mockApi.postData.mockResolvedValue(sampleSpot);
     const vf = new File(['v'], 'v.mp4', { type: 'video/mp4' });
     await service.uploadVideo('spot-1', vf);
-    expect(mockApi.post).toHaveBeenCalledWith('/curated-spots/spot-1/video', expect.any(FormData), {
-      isFormData: true,
-    });
-    const fd = mockApi.post.mock.calls[0][1] as FormData;
+    expect(mockApi.postData).toHaveBeenCalledWith(
+      '/curated-spots/spot-1/video',
+      expect.any(FormData),
+      {
+        isFormData: true,
+      }
+    );
+    const fd = mockApi.postData.mock.calls[0][1] as FormData;
     expect(fd.get('file')).toBe(vf);
   });
 
@@ -130,9 +135,9 @@ describe('curatedSpotService', () => {
       isEnabled: true,
       updatedAt: '2024-01-01T12:00:00.000Z',
     };
-    mockApi.get.mockResolvedValue({ data: settings });
+    mockApi.getData.mockResolvedValue(settings);
     const result = await service.getUserRatingsSettings();
-    expect(mockApi.get).toHaveBeenCalledWith('/curated-spots/settings/user-ratings');
+    expect(mockApi.getData).toHaveBeenCalledWith('/curated-spots/settings/user-ratings');
     expect(result).toEqual(settings);
   });
 
@@ -142,10 +147,10 @@ describe('curatedSpotService', () => {
       isEnabled: false,
       updatedAt: '2024-01-02T12:00:00.000Z',
     };
-    mockApi.patch.mockResolvedValue({ data: settings });
+    mockApi.patchData.mockResolvedValue(settings);
     const body = { isEnabled: false };
     const result = await service.patchUserRatingsSettings(body);
-    expect(mockApi.patch).toHaveBeenCalledWith('/curated-spots/settings/user-ratings', body);
+    expect(mockApi.patchData).toHaveBeenCalledWith('/curated-spots/settings/user-ratings', body);
     expect(result).toEqual(settings);
   });
 });

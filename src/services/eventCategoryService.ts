@@ -1,5 +1,4 @@
 import { EventCategory, EventCategoryCreation } from '@/models/event-category';
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { useApi } from '@/lib/api';
 
 export const useEventCategoryService = () => {
@@ -7,30 +6,26 @@ export const useEventCategoryService = () => {
   const baseUrl = '/event-categories';
 
   const getCategories = async (): Promise<EventCategory[]> => {
-    const response = await api.get<ApiResponse<EventCategory[]>>(`${baseUrl}`);
-    return unwrapData(response);
+    return api.getData<EventCategory[]>(`${baseUrl}`);
   };
 
   const getCategory = async (id: string): Promise<EventCategory> => {
-    const response = await api.get<ApiResponse<EventCategory>>(`${baseUrl}/${id}`);
-    return unwrapData(response);
+    return api.getData<EventCategory>(`${baseUrl}/${id}`);
   };
 
   const createCategory = async (category: EventCategoryCreation): Promise<EventCategory> => {
-    const response = await api.post<ApiResponse<EventCategory>>(`${baseUrl}`, category);
-    return unwrapData(response);
+    return api.postData<EventCategory>(`${baseUrl}`, category);
   };
 
   const updateCategory = async (
     id: string,
     category: Partial<EventCategoryCreation>
   ): Promise<EventCategory> => {
-    const response = await api.patch<ApiResponse<EventCategory>>(`${baseUrl}/${id}`, category);
-    return unwrapData(response);
+    return api.patchData<EventCategory>(`${baseUrl}/${id}`, category);
   };
 
   const deleteCategory = async (id: string): Promise<void> => {
-    await api.delete<ApiResponse<void>>(`${baseUrl}/${id}`);
+    await api.deleteData<void>(`${baseUrl}/${id}`);
   };
 
   const updateFallbackImages = async (id: string, files: File[]): Promise<EventCategory> => {
@@ -39,13 +34,9 @@ export const useEventCategoryService = () => {
       formData.append('images', file);
     });
 
-    const response = await api.patch<ApiResponse<EventCategory>>(
-      `${baseUrl}/${id}/fallback-images`,
-      formData,
-      { isFormData: true }
-    );
-
-    return unwrapData(response);
+    return api.patchData<EventCategory>(`${baseUrl}/${id}/fallback-images`, formData, {
+      isFormData: true,
+    });
   };
 
   return {

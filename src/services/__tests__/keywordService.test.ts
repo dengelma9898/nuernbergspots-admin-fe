@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -13,10 +18,6 @@ jest.mock('../../lib/api', () => ({
   endpoints: {
     keywords: '/keywords',
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useKeywordService } from '../keywordService';
@@ -47,16 +48,16 @@ describe('Keyword Service', () => {
           updatedAt: '2024-01-01',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockKeywords });
+      mockApi.getData.mockResolvedValue(mockKeywords);
 
       const result = await keywordService.getKeywords();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/keywords');
+      expect(mockApi.getData).toHaveBeenCalledWith('/keywords');
       expect(result).toEqual(mockKeywords);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(keywordService.getKeywords()).rejects.toThrow('Network error');
     });
@@ -71,16 +72,16 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.get.mockResolvedValue({ data: mockKeyword });
+      mockApi.getData.mockResolvedValue(mockKeyword);
 
       const result = await keywordService.getKeyword('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/keywords/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/keywords/1');
       expect(result).toEqual(mockKeyword);
     });
 
     it('should handle keyword not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('Keyword not found'));
+      mockApi.getData.mockRejectedValue(new Error('Keyword not found'));
 
       await expect(keywordService.getKeyword('999')).rejects.toThrow('Keyword not found');
     });
@@ -98,11 +99,11 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdKeyword });
+      mockApi.postData.mockResolvedValue(createdKeyword);
 
       const result = await keywordService.createKeyword(keywordData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/keywords', keywordData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/keywords', keywordData);
       expect(result).toEqual(createdKeyword);
     });
 
@@ -111,7 +112,7 @@ describe('Keyword Service', () => {
         name: 'Test',
         description: 'Test keyword',
       };
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(keywordService.createKeyword(keywordData)).rejects.toThrow('Creation failed');
     });
@@ -127,11 +128,11 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedKeyword });
+      mockApi.patchData.mockResolvedValue(updatedKeyword);
 
       const result = await keywordService.updateKeyword('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/keywords/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/keywords/1', updateData);
       expect(result).toEqual(updatedKeyword);
     });
 
@@ -144,11 +145,11 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedKeyword });
+      mockApi.patchData.mockResolvedValue(updatedKeyword);
 
       const result = await keywordService.updateKeyword('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/keywords/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/keywords/1', updateData);
       expect(result).toEqual(updatedKeyword);
     });
   });
@@ -175,25 +176,27 @@ describe('Keyword Service', () => {
         { id: '1', name: 'Restaurant', description: 'Food related' },
         { id: '2', name: 'Fast Food Restaurant', description: 'Quick service food' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockKeywords });
+      mockApi.getData.mockResolvedValue(mockKeywords);
 
       const result = await keywordService.searchKeywords('restaurant');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/keywords/search?q=restaurant');
+      expect(mockApi.getData).toHaveBeenCalledWith('/keywords/search?q=restaurant');
       expect(result).toEqual(mockKeywords);
     });
 
     it('should properly encode search query', async () => {
       const mockKeywords = [];
-      mockApi.get.mockResolvedValue({ data: mockKeywords });
+      mockApi.getData.mockResolvedValue(mockKeywords);
 
       await keywordService.searchKeywords('café & restaurant');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/keywords/search?q=caf%C3%A9%20%26%20restaurant');
+      expect(mockApi.getData).toHaveBeenCalledWith(
+        '/keywords/search?q=caf%C3%A9%20%26%20restaurant'
+      );
     });
 
     it('should handle empty search results', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       const result = await keywordService.searchKeywords('nonexistent');
 
@@ -202,15 +205,15 @@ describe('Keyword Service', () => {
 
     it('should handle special characters in search', async () => {
       const mockKeywords = [];
-      mockApi.get.mockResolvedValue({ data: mockKeywords });
+      mockApi.getData.mockResolvedValue(mockKeywords);
 
       await keywordService.searchKeywords('test@#$%^&*()');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/keywords/search?q=test%40%23%24%25%5E%26*()');
+      expect(mockApi.getData).toHaveBeenCalledWith('/keywords/search?q=test%40%23%24%25%5E%26*()');
     });
 
     it('should handle search errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Search failed'));
+      mockApi.getData.mockRejectedValue(new Error('Search failed'));
 
       await expect(keywordService.searchKeywords('test')).rejects.toThrow('Search failed');
     });
@@ -222,7 +225,7 @@ describe('Keyword Service', () => {
         name: '',
         description: 'Empty name test',
       };
-      mockApi.post.mockRejectedValue(new Error('Name cannot be empty'));
+      mockApi.postData.mockRejectedValue(new Error('Name cannot be empty'));
 
       await expect(keywordService.createKeyword(keywordData)).rejects.toThrow(
         'Name cannot be empty'
@@ -241,7 +244,7 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdKeyword });
+      mockApi.postData.mockResolvedValue(createdKeyword);
 
       const result = await keywordService.createKeyword(keywordData);
 
@@ -259,7 +262,7 @@ describe('Keyword Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdKeyword });
+      mockApi.postData.mockResolvedValue(createdKeyword);
 
       const result = await keywordService.createKeyword(keywordData);
 
@@ -269,13 +272,13 @@ describe('Keyword Service', () => {
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(keywordService.getKeywords()).rejects.toThrow('Request timeout');
     });
 
     it('should handle server errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Internal server error'));
+      mockApi.postData.mockRejectedValue(new Error('Internal server error'));
 
       await expect(
         keywordService.createKeyword({ name: 'Test', description: 'Test' })
@@ -283,7 +286,7 @@ describe('Keyword Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.patchData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(keywordService.updateKeyword('1', { name: 'New Name' })).rejects.toThrow(
         'Unauthorized'

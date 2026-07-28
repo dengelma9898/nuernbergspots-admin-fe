@@ -1,6 +1,11 @@
 // Special Poll Service Tests
 
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -18,10 +23,6 @@ jest.mock('../../lib/api', () => ({
       `/special-polls/${pollId}/responses/${encodeURIComponent(responseId)}/upvote`,
     specialPollResponsesMe: (pollId: string) => `/special-polls/${pollId}/responses/me`,
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('react', () => ({
@@ -63,24 +64,24 @@ describe('Special Poll Service', () => {
           updatedAt: '2024-01-01',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockPolls });
+      mockApi.getData.mockResolvedValue(mockPolls);
 
       const result = await specialPollService.getSpecialPolls();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/special-polls');
+      expect(mockApi.getData).toHaveBeenCalledWith('/special-polls');
       expect(result).toEqual(mockPolls);
     });
 
     it('should fetch highlighted polls when requested', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       await specialPollService.getSpecialPolls({ highlighted: true });
 
-      expect(mockApi.get).toHaveBeenCalledWith('/special-polls?highlighted=true');
+      expect(mockApi.getData).toHaveBeenCalledWith('/special-polls?highlighted=true');
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(specialPollService.getSpecialPolls()).rejects.toThrow('Network error');
     });
@@ -106,16 +107,16 @@ describe('Special Poll Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.get.mockResolvedValue({ data: mockPoll });
+      mockApi.getData.mockResolvedValue(mockPoll);
 
       const result = await specialPollService.getSpecialPoll('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/special-polls/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/special-polls/1');
       expect(result).toEqual(mockPoll);
     });
 
     it('should handle poll not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('Poll not found'));
+      mockApi.getData.mockRejectedValue(new Error('Poll not found'));
 
       await expect(specialPollService.getSpecialPoll('999')).rejects.toThrow('Poll not found');
     });
@@ -136,11 +137,11 @@ describe('Special Poll Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdPoll });
+      mockApi.postData.mockResolvedValue(createdPoll);
 
       const result = await specialPollService.createSpecialPoll(pollData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/special-polls', pollData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/special-polls', pollData);
       expect(result).toEqual(createdPoll);
     });
 
@@ -148,7 +149,7 @@ describe('Special Poll Service', () => {
       const pollData = {
         title: 'Test question?',
       };
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(specialPollService.createSpecialPoll(pollData)).rejects.toThrow(
         'Creation failed'
@@ -168,17 +169,17 @@ describe('Special Poll Service', () => {
         updatedAt: '2024-01-02',
         createdAt: '2024-01-01',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+      mockApi.patchData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.updateSpecialPollStatus('1', statusData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/special-polls/1/status', statusData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/special-polls/1/status', statusData);
       expect(result).toEqual(updatedPoll);
     });
 
     it('should handle status update errors', async () => {
       const statusData = { status: SpecialPollStatus.ACTIVE };
-      mockApi.patch.mockRejectedValue(new Error('Status update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Status update failed'));
 
       await expect(specialPollService.updateSpecialPollStatus('1', statusData)).rejects.toThrow(
         'Status update failed'
@@ -198,11 +199,11 @@ describe('Special Poll Service', () => {
         createdAt: '',
         updatedAt: '',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+      mockApi.patchData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.updateSpecialPollHighlight('1', body);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/special-polls/1/highlight', body);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/special-polls/1/highlight', body);
       expect(result).toEqual(updatedPoll);
     });
   });
@@ -217,18 +218,18 @@ describe('Special Poll Service', () => {
         isHighlighted: false,
         responses: [] as SpecialPollResponse[],
       };
-      mockApi.post.mockResolvedValue({ data: updatedPoll });
+      mockApi.postData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.addResponse('1', responseText);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/special-polls/1/responses', {
+      expect(mockApi.postData).toHaveBeenCalledWith('/special-polls/1/responses', {
         response: responseText,
       });
       expect(result).toEqual(updatedPoll);
     });
 
     it('should handle add response errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Add response failed'));
+      mockApi.postData.mockRejectedValue(new Error('Add response failed'));
 
       await expect(specialPollService.addResponse('1', 'Test response')).rejects.toThrow(
         'Add response failed'
@@ -247,16 +248,16 @@ describe('Special Poll Service', () => {
         createdAt: '',
         updatedAt: '',
       };
-      mockApi.delete.mockResolvedValue({ data: updatedPoll });
+      mockApi.deleteData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.removeResponse('1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/special-polls/1/responses/me');
+      expect(mockApi.deleteData).toHaveBeenCalledWith('/special-polls/1/responses/me');
       expect(result).toEqual(updatedPoll);
     });
 
     it('should handle remove response errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Remove response failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Remove response failed'));
 
       await expect(specialPollService.removeResponse('1')).rejects.toThrow(
         'Remove response failed'
@@ -275,11 +276,14 @@ describe('Special Poll Service', () => {
         createdAt: '',
         updatedAt: '',
       };
-      mockApi.post.mockResolvedValue({ data: updatedPoll });
+      mockApi.postData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.upvoteResponse('1', 'resp-uuid');
 
-      expect(mockApi.post).toHaveBeenCalledWith('/special-polls/1/responses/resp-uuid/upvote', {});
+      expect(mockApi.postData).toHaveBeenCalledWith(
+        '/special-polls/1/responses/resp-uuid/upvote',
+        {}
+      );
       expect(result).toEqual(updatedPoll);
     });
   });
@@ -329,11 +333,11 @@ describe('Special Poll Service', () => {
         createdAt: '',
         updatedAt: '',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+      mockApi.patchData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.updateResponses('1', responses);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/special-polls/1/responses', { responses });
+      expect(mockApi.patchData).toHaveBeenCalledWith('/special-polls/1/responses', { responses });
       expect(result).toEqual(updatedPoll);
     });
 
@@ -348,11 +352,13 @@ describe('Special Poll Service', () => {
         createdAt: '',
         updatedAt: '',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+      mockApi.patchData.mockResolvedValue(updatedPoll);
 
       const result = await specialPollService.updateResponses('1', responses);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/special-polls/1/responses', { responses: [] });
+      expect(mockApi.patchData).toHaveBeenCalledWith('/special-polls/1/responses', {
+        responses: [],
+      });
       expect(result).toEqual(updatedPoll);
     });
 
@@ -367,7 +373,7 @@ describe('Special Poll Service', () => {
           upvotedUserIds: [],
         },
       ];
-      mockApi.patch.mockRejectedValue(new Error('Update responses failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Update responses failed'));
 
       await expect(specialPollService.updateResponses('1', responses)).rejects.toThrow(
         'Update responses failed'
@@ -390,7 +396,7 @@ describe('Special Poll Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdPoll });
+      mockApi.postData.mockResolvedValue(createdPoll);
 
       const result = await specialPollService.createSpecialPoll(pollData);
 
@@ -411,7 +417,7 @@ describe('Special Poll Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdPoll });
+      mockApi.postData.mockResolvedValue(createdPoll);
 
       const result = await specialPollService.createSpecialPoll(pollData);
 
@@ -421,30 +427,30 @@ describe('Special Poll Service', () => {
     it('should handle multiple status transitions (nur ACTIVE/PENDING)', async () => {
       const statusData1 = { status: SpecialPollStatus.ACTIVE };
       const updatedPoll1 = { id: '1', status: SpecialPollStatus.ACTIVE };
-      mockApi.patch.mockResolvedValueOnce({ data: updatedPoll1 });
+      mockApi.patchData.mockResolvedValueOnce(updatedPoll1);
 
       await specialPollService.updateSpecialPollStatus('1', statusData1);
 
       const statusData2 = { status: SpecialPollStatus.PENDING };
       const updatedPoll2 = { id: '1', status: SpecialPollStatus.PENDING };
-      mockApi.patch.mockResolvedValueOnce({ data: updatedPoll2 });
+      mockApi.patchData.mockResolvedValueOnce(updatedPoll2);
 
       const result = await specialPollService.updateSpecialPollStatus('1', statusData2);
 
-      expect(mockApi.patch).toHaveBeenCalledTimes(2);
+      expect(mockApi.patchData).toHaveBeenCalledTimes(2);
       expect(result.status).toBe(SpecialPollStatus.PENDING);
     });
   });
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(specialPollService.getSpecialPolls()).rejects.toThrow('Request timeout');
     });
 
     it('should handle server errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Internal server error'));
+      mockApi.postData.mockRejectedValue(new Error('Internal server error'));
 
       await expect(
         specialPollService.createSpecialPoll({
@@ -454,7 +460,7 @@ describe('Special Poll Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.patchData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(
         specialPollService.updateSpecialPollStatus('1', { status: SpecialPollStatus.ACTIVE })

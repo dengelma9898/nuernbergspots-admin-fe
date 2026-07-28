@@ -1,6 +1,5 @@
 import { CreateSpotKeywordDto, SpotKeyword } from '../models/spot-keyword';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useSpotKeywordService() {
   const api = useApi();
@@ -14,26 +13,21 @@ export function useSpotKeywordService() {
       if (!trimmed) {
         return [];
       }
-      const response = await api.get<ApiResponse<SpotKeyword[]>>(
-        endpoints.spotKeywordsSuggest(trimmed, limit)
-      );
-      return unwrapData(response);
+      return api.getData<SpotKeyword[]>(endpoints.spotKeywordsSuggest(trimmed, limit));
     },
 
     /**
      * Legt ein Spot-Keyword an (Admin). Duplikat nach nameLower → bestehendes Dokument.
      */
     create: async (dto: CreateSpotKeywordDto): Promise<SpotKeyword> => {
-      const response = await api.post<ApiResponse<SpotKeyword>>(endpoints.spotKeywords, dto);
-      return unwrapData(response);
+      return api.postData<SpotKeyword>(endpoints.spotKeywords, dto);
     },
 
     /**
      * Lädt ein Spot-Keyword nach ID (z. B. Anzeigenamen in Bearbeitungsformularen).
      */
     getById: async (id: string): Promise<SpotKeyword> => {
-      const response = await api.get<ApiResponse<SpotKeyword>>(endpoints.spotKeywordById(id));
-      return unwrapData(response);
+      return api.getData<SpotKeyword>(endpoints.spotKeywordById(id));
     },
   };
 }

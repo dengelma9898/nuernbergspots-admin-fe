@@ -1,6 +1,5 @@
 import { BusinessCategory, BusinessCategoryCreation } from '../models/business-category';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export function useBusinessCategoryService() {
   const api = useApi();
@@ -10,31 +9,21 @@ export function useBusinessCategoryService() {
      * Lädt alle Business-Kategorien
      */
     getCategories: async (): Promise<BusinessCategory[]> => {
-      const response = await api.get<ApiResponse<BusinessCategory[]>>(
-        `${endpoints.businessCategories}/with-keywords`
-      );
-      return unwrapData(response);
+      return api.getData<BusinessCategory[]>(`${endpoints.businessCategories}/with-keywords`);
     },
 
     /**
      * Lädt eine spezifische Business-Kategorie
      */
     getCategory: async (categoryId: string): Promise<BusinessCategory> => {
-      const response = await api.get<ApiResponse<BusinessCategory>>(
-        `${endpoints.businessCategories}/${categoryId}`
-      );
-      return unwrapData(response);
+      return api.getData<BusinessCategory>(`${endpoints.businessCategories}/${categoryId}`);
     },
 
     /**
      * Erstellt eine neue Business-Kategorie
      */
     createCategory: async (category: BusinessCategoryCreation): Promise<BusinessCategory> => {
-      const response = await api.post<ApiResponse<BusinessCategory>>(
-        endpoints.businessCategories,
-        category
-      );
-      return unwrapData(response);
+      return api.postData<BusinessCategory>(endpoints.businessCategories, category);
     },
 
     /**
@@ -44,11 +33,10 @@ export function useBusinessCategoryService() {
       categoryId: string,
       category: Partial<BusinessCategoryCreation>
     ): Promise<BusinessCategory> => {
-      const response = await api.patch<ApiResponse<BusinessCategory>>(
+      return api.patchData<BusinessCategory>(
         `${endpoints.businessCategories}/${categoryId}`,
         category
       );
-      return unwrapData(response);
     },
 
     /**
@@ -65,33 +53,30 @@ export function useBusinessCategoryService() {
       categoryId: string,
       keywordIds: string[]
     ): Promise<BusinessCategory> => {
-      const response = await api.put<ApiResponse<BusinessCategory>>(
+      return api.putData<BusinessCategory>(
         `${endpoints.businessCategories}/${categoryId}/keywords`,
         {
           keywordIds,
         }
       );
-      return unwrapData(response);
     },
 
     /**
      * Lädt Kategorien nach Namen (Suche)
      */
     searchCategories: async (query: string): Promise<BusinessCategory[]> => {
-      const response = await api.get<ApiResponse<BusinessCategory[]>>(
+      return api.getData<BusinessCategory[]>(
         `${endpoints.businessCategories}/search?q=${encodeURIComponent(query)}`
       );
-      return unwrapData(response);
     },
 
     /**
      * Lädt Kategorien nach Icon-Name
      */
     getCategoriesByIcon: async (iconName: string): Promise<BusinessCategory[]> => {
-      const response = await api.get<ApiResponse<BusinessCategory[]>>(
+      return api.getData<BusinessCategory[]>(
         `${endpoints.businessCategories}/icon/${encodeURIComponent(iconName)}`
       );
-      return unwrapData(response);
     },
   };
 }

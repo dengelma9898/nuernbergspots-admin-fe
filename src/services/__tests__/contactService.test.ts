@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -16,10 +21,6 @@ const mockAuth = {
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
   endpoints: {},
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('../../contexts/AuthContext', () => ({
@@ -40,16 +41,16 @@ describe('Contact Service', () => {
   describe('getOpenContactRequestsCount', () => {
     it('should fetch open contact requests count', async () => {
       const mockCount = 5;
-      mockApi.get.mockResolvedValue({ data: mockCount });
+      mockApi.getData.mockResolvedValue(mockCount);
 
       const result = await contactService.getOpenContactRequestsCount();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/contact/open-requests/count');
+      expect(mockApi.getData).toHaveBeenCalledWith('/contact/open-requests/count');
       expect(result).toBe(mockCount);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(contactService.getOpenContactRequestsCount()).rejects.toThrow('Network error');
     });
@@ -61,16 +62,16 @@ describe('Contact Service', () => {
         { id: '1', subject: 'Request 1', message: 'Test message 1' },
         { id: '2', subject: 'Request 2', message: 'Test message 2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockRequests });
+      mockApi.getData.mockResolvedValue(mockRequests);
 
       const result = await contactService.getContactRequests();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/contact');
+      expect(mockApi.getData).toHaveBeenCalledWith('/contact');
       expect(result).toEqual(mockRequests);
     });
 
     it('should return empty array on error', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       const result = await contactService.getContactRequests();
 
@@ -81,11 +82,11 @@ describe('Contact Service', () => {
   describe('getContactRequestById', () => {
     it('should fetch a specific contact request', async () => {
       const mockRequest = { id: '1', subject: 'Test Request', message: 'Test message' };
-      mockApi.get.mockResolvedValue({ data: mockRequest });
+      mockApi.getData.mockResolvedValue(mockRequest);
 
       const result = await contactService.getContactRequestById('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/contact/user/user123/request/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/contact/user/user123/request/1');
       expect(result).toEqual(mockRequest);
     });
 
@@ -98,7 +99,7 @@ describe('Contact Service', () => {
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request not found'));
+      mockApi.getData.mockRejectedValue(new Error('Request not found'));
 
       await expect(contactService.getContactRequestById('1')).rejects.toThrow('Request not found');
     });
@@ -107,14 +108,14 @@ describe('Contact Service', () => {
   describe('respondToContactRequest', () => {
     it('should respond to a contact request successfully', async () => {
       const mockResponse = { id: '1', subject: 'Test', status: 'responded' };
-      mockApi.patch.mockResolvedValue({ data: mockResponse });
+      mockApi.patchData.mockResolvedValue(mockResponse);
 
       const result = await contactService.respondToContactRequest(
         '1',
         'Thank you for your message'
       );
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/contact/user/user123/request/1', {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/contact/user/user123/request/1', {
         message: 'Thank you for your message',
       });
       expect(result).toEqual(mockResponse);
@@ -129,7 +130,7 @@ describe('Contact Service', () => {
     });
 
     it('should handle API errors', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Failed to respond'));
+      mockApi.patchData.mockRejectedValue(new Error('Failed to respond'));
 
       await expect(contactService.respondToContactRequest('1', 'Response')).rejects.toThrow(
         'Failed to respond'

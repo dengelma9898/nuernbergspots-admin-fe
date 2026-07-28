@@ -98,6 +98,44 @@ function extractStatusCode(error: unknown): number | null {
   return null;
 }
 
+function matchesHttpStatus(
+  statusCode: number | null,
+  code: number,
+  errorString: string,
+  keywords: string[]
+): boolean {
+  return statusCode === code || keywords.some(keyword => errorString.includes(keyword));
+}
+
+function authRequiredError(): UserFriendlyError {
+  return {
+    title: 'Anmeldung erforderlich',
+    message:
+      'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
+    isPersistent: true,
+    actionHint: 'Bitte melde dich erneut an.',
+  };
+}
+
+function forbiddenError(): UserFriendlyError {
+  return {
+    title: 'Keine Berechtigung',
+    message: 'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
+    isPersistent: true,
+    actionHint: 'Kontaktiere einen Administrator, wenn du glaubst, dass dies ein Fehler ist.',
+  };
+}
+
+function notFoundError(): UserFriendlyError {
+  return {
+    title: 'Nicht gefunden',
+    message:
+      'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
+    isPersistent: false,
+    actionHint: 'Bitte aktualisiere die Seite und versuche es erneut.',
+  };
+}
+
 /**
  * Wendet den Kontext auf eine Fehlermeldung an
  */
@@ -389,51 +427,18 @@ export function getUserFriendlyError(error: unknown, context?: ErrorContext): Us
   }
 
   // Authentifizierungsfehler (401) - Vor anderen 4XX Fehlern
-  if (
-    statusCode === 401 ||
-    errorString.includes('401') ||
-    errorString.includes('unauthorized') ||
-    errorString.includes('authentication')
-  ) {
-    return {
-      title: 'Anmeldung erforderlich',
-      message:
-        'Du bist nicht angemeldet oder deine Sitzung ist abgelaufen. Bitte melde dich erneut an.',
-      isPersistent: true,
-      actionHint: 'Bitte melde dich erneut an.',
-    };
+  if (matchesHttpStatus(statusCode, 401, errorString, ['401', 'unauthorized', 'authentication'])) {
+    return authRequiredError();
   }
 
   // Berechtigungsfehler (403)
-  if (
-    statusCode === 403 ||
-    errorString.includes('403') ||
-    errorString.includes('forbidden') ||
-    errorString.includes('permission')
-  ) {
-    return {
-      title: 'Keine Berechtigung',
-      message:
-        'Du hast keine Berechtigung für diese Aktion. Bitte kontaktiere einen Administrator.',
-      isPersistent: true,
-      actionHint: 'Kontaktiere einen Administrator, wenn du glaubst, dass dies ein Fehler ist.',
-    };
+  if (matchesHttpStatus(statusCode, 403, errorString, ['403', 'forbidden', 'permission'])) {
+    return forbiddenError();
   }
 
   // Nicht gefunden (404)
-  if (
-    statusCode === 404 ||
-    errorString.includes('404') ||
-    errorString.includes('not found') ||
-    errorString.includes('nicht gefunden')
-  ) {
-    return {
-      title: 'Nicht gefunden',
-      message:
-        'Die angeforderte Ressource wurde nicht gefunden. Möglicherweise wurde sie gelöscht oder existiert nicht mehr.',
-      isPersistent: false,
-      actionHint: 'Bitte aktualisiere die Seite und versuche es erneut.',
-    };
+  if (matchesHttpStatus(statusCode, 404, errorString, ['404', 'not found', 'nicht gefunden'])) {
+    return notFoundError();
   }
 
   // Konflikt (409) – z. B. Redaktionsbewertung bereits gesetzt und nicht änderbar

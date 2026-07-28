@@ -1,5 +1,4 @@
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { NewsItem, TextNewsItem, ImageNewsItem, PollNewsItem, Reaction } from '../models/news';
 
 export function useNewsService() {
@@ -10,33 +9,22 @@ export function useNewsService() {
      * Holt alle News
      */
     getAll: async (): Promise<NewsItem[]> => {
-      const response = await api.get<ApiResponse<NewsItem[]>>(endpoints.news);
-      const data = unwrapData(response);
-      // Stelle sicher, dass wir ein Array zurückgeben
-      if (Array.isArray(data)) {
-        return data;
-      }
-      // Falls die API direkt ein Array zurückgibt (ohne data-Wrapper)
-      if (Array.isArray(response)) {
-        return response as NewsItem[];
-      }
-      return [];
+      const data = await api.getData<NewsItem[]>(endpoints.news);
+      return Array.isArray(data) ? data : [];
     },
 
     /**
      * Holt eine News per ID
      */
     getById: async (id: string): Promise<NewsItem> => {
-      const response = await api.get<ApiResponse<NewsItem>>(`${endpoints.news}/${id}`);
-      return unwrapData(response);
+      return api.getData<NewsItem>(`${endpoints.news}/${id}`);
     },
 
     /**
      * Erstellt eine Text-News
      */
     createTextNews: async (data: { content: string; authorId: string }): Promise<TextNewsItem> => {
-      const response = await api.post<ApiResponse<TextNewsItem>>(`${endpoints.news}/text`, data);
-      return unwrapData(response);
+      return api.postData<TextNewsItem>(`${endpoints.news}/text`, data);
     },
 
     /**
@@ -47,8 +35,7 @@ export function useNewsService() {
         authorId: string;
       }
     ): Promise<ImageNewsItem> => {
-      const response = await api.post<ApiResponse<ImageNewsItem>>(`${endpoints.news}/image`, data);
-      return unwrapData(response);
+      return api.postData<ImageNewsItem>(`${endpoints.news}/image`, data);
     },
 
     /**
@@ -63,30 +50,21 @@ export function useNewsService() {
         expiresAt?: string;
       };
     }): Promise<PollNewsItem> => {
-      const response = await api.post<ApiResponse<PollNewsItem>>(`${endpoints.news}/poll`, data);
-      return unwrapData(response);
+      return api.postData<PollNewsItem>(`${endpoints.news}/poll`, data);
     },
 
     /**
      * Stimmt bei einer Umfrage ab
      */
     votePoll: async (id: string, voteData: { optionId: string }): Promise<PollNewsItem> => {
-      const response = await api.patch<ApiResponse<PollNewsItem>>(
-        `${endpoints.news}/${id}/poll-vote`,
-        voteData
-      );
-      return unwrapData(response);
+      return api.patchData<PollNewsItem>(`${endpoints.news}/${id}/poll-vote`, voteData);
     },
 
     /**
      * Reagiert auf eine News
      */
     postReaction: async (id: string, reactionData: Reaction): Promise<NewsItem> => {
-      const response = await api.patch<ApiResponse<NewsItem>>(
-        `${endpoints.news}/${id}/react`,
-        reactionData
-      );
-      return unwrapData(response);
+      return api.patchData<NewsItem>(`${endpoints.news}/${id}/react`, reactionData);
     },
 
     /**
@@ -100,8 +78,7 @@ export function useNewsService() {
      * Aktualisiert eine News
      */
     update: async (id: string, updateData: Partial<NewsItem>): Promise<NewsItem> => {
-      const response = await api.put<ApiResponse<NewsItem>>(`${endpoints.news}/${id}`, updateData);
-      return unwrapData(response);
+      return api.putData<NewsItem>(`${endpoints.news}/${id}`, updateData);
     },
 
     /**
@@ -112,12 +89,9 @@ export function useNewsService() {
       files.forEach(file => {
         formData.append('images', file);
       });
-      const response = await api.patch<ApiResponse<ImageNewsItem>>(
-        `${endpoints.news}/${id}/images`,
-        formData,
-        { isFormData: true }
-      );
-      return unwrapData(response);
+      return api.patchData<ImageNewsItem>(`${endpoints.news}/${id}/images`, formData, {
+        isFormData: true,
+      });
     },
   };
 }

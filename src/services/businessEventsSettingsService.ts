@@ -1,5 +1,4 @@
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { BusinessEventsSettings } from '../models/business-events-settings';
 import { useMemo } from 'react';
 
@@ -13,10 +12,7 @@ export function useBusinessEventsSettingsService() {
        */
       getBusinessEventsSettings: async (): Promise<BusinessEventsSettings | null> => {
         try {
-          const response = await api.get<ApiResponse<BusinessEventsSettings>>(
-            endpoints.businessEventsSettings
-          );
-          return unwrapData(response);
+          return await api.getData<BusinessEventsSettings>(endpoints.businessEventsSettings);
         } catch (error) {
           // Wenn die API null zurückgibt oder ein Fehler auftritt, geben wir null zurück
           // null wird als false behandelt
@@ -28,11 +24,9 @@ export function useBusinessEventsSettingsService() {
        * Aktualisiert die Business Events Settings
        */
       updateBusinessEventsSettings: async (isEnabled: boolean): Promise<BusinessEventsSettings> => {
-        const response = await api.patch<ApiResponse<BusinessEventsSettings>>(
-          endpoints.businessEventsSettings,
-          { isEnabled }
-        );
-        return unwrapData(response);
+        return api.patchData<BusinessEventsSettings>(endpoints.businessEventsSettings, {
+          isEnabled,
+        });
       },
     }),
     [api]

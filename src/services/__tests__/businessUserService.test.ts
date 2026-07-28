@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -20,10 +25,6 @@ const mockAuth = {
 
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 jest.mock('../../contexts/AuthContext', () => ({
@@ -73,16 +74,16 @@ describe('Business User Service', () => {
           contactRequestIds: [],
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockBusinessUsers });
+      mockApi.getData.mockResolvedValue(mockBusinessUsers);
 
       const result = await businessUserService.getBusinessUsers();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/users/admin-user-123/business-users');
+      expect(mockApi.getData).toHaveBeenCalledWith('/users/admin-user-123/business-users');
       expect(result).toEqual(mockBusinessUsers);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(businessUserService.getBusinessUsers()).rejects.toThrow('Network error');
     });
@@ -121,16 +122,16 @@ describe('Business User Service', () => {
         eventIds: ['event1', 'event2'],
         contactRequestIds: ['contact1'],
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/users/user1/profile');
+      expect(mockApi.getData).toHaveBeenCalledWith('/users/user1/profile');
       expect(result).toEqual(mockBusinessUser);
     });
 
     it('should handle user not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('User not found'));
+      mockApi.getData.mockRejectedValue(new Error('User not found'));
 
       await expect(businessUserService.getBusinessUser('nonexistent')).rejects.toThrow(
         'User not found'
@@ -138,7 +139,7 @@ describe('Business User Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.get.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.getData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(businessUserService.getBusinessUser('user1')).rejects.toThrow('Unauthorized');
     });
@@ -214,7 +215,7 @@ describe('Business User Service', () => {
         eventIds: [],
         contactRequestIds: [],
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
@@ -234,7 +235,7 @@ describe('Business User Service', () => {
         isDeleted: false,
         needsReview: false,
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
@@ -251,7 +252,7 @@ describe('Business User Service', () => {
         isDeleted: true,
         needsReview: false,
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
@@ -268,7 +269,7 @@ describe('Business User Service', () => {
         isDeleted: false,
         needsReview: true,
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
@@ -285,7 +286,7 @@ describe('Business User Service', () => {
         isDeleted: false,
         needsReview: false,
       };
-      mockApi.get.mockResolvedValue({ data: mockBusinessUser });
+      mockApi.getData.mockResolvedValue(mockBusinessUser);
 
       const result = await businessUserService.getBusinessUser('user1');
 
@@ -295,7 +296,7 @@ describe('Business User Service', () => {
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(businessUserService.getBusinessUsers()).rejects.toThrow('Request timeout');
     });
@@ -309,13 +310,13 @@ describe('Business User Service', () => {
     });
 
     it('should handle forbidden access', async () => {
-      mockApi.get.mockRejectedValue(new Error('Forbidden'));
+      mockApi.getData.mockRejectedValue(new Error('Forbidden'));
 
       await expect(businessUserService.getBusinessUser('user1')).rejects.toThrow('Forbidden');
     });
 
     it('should handle malformed responses', async () => {
-      mockApi.get.mockResolvedValue({ data: null });
+      mockApi.getData.mockResolvedValue(null);
 
       const result = await businessUserService.getBusinessUsers();
 
@@ -323,7 +324,7 @@ describe('Business User Service', () => {
     });
 
     it('should handle empty response arrays', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       const result = await businessUserService.getBusinessUsers();
 
@@ -339,15 +340,15 @@ describe('Business User Service', () => {
       // Re-create service with new user
       businessUserService = useBusinessUserService();
 
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       await businessUserService.getBusinessUsers();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/users/different-admin-456/business-users');
+      expect(mockApi.getData).toHaveBeenCalledWith('/users/different-admin-456/business-users');
     });
 
     it('should handle user changes during operation', async () => {
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       await businessUserService.getBusinessUsers();
 
@@ -358,14 +359,14 @@ describe('Business User Service', () => {
       await businessUserService.getBusinessUsers();
 
       // Both calls should use the original user
-      expect(mockApi.get).toHaveBeenCalledWith('/users/admin-user-123/business-users');
-      expect(mockApi.get).toHaveBeenCalledTimes(2);
+      expect(mockApi.getData).toHaveBeenCalledWith('/users/admin-user-123/business-users');
+      expect(mockApi.getData).toHaveBeenCalledTimes(2);
     });
 
     it('should handle missing user properties gracefully', async () => {
       mockAuth.user = { uid: 'user-123' } as any; // Missing email
 
-      mockApi.get.mockResolvedValue({ data: [] });
+      mockApi.getData.mockResolvedValue([]);
 
       const result = await businessUserService.getBusinessUsers();
 

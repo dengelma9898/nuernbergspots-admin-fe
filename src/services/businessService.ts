@@ -1,7 +1,6 @@
 import { Business, BusinessResponse, BusinessCustomerScans } from '../models/business';
 import { BusinessCategory } from '../models/business-category';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { NuernbergspotsReview } from '@/models/business';
 import { useMemo } from 'react';
 
@@ -18,10 +17,9 @@ export function useBusinessService() {
        * Lädt die Anzahl der Geschäfte, die auf Genehmigung warten
        */
       getPendingApprovalsCount: async (): Promise<number> => {
-        const response = await api.get<ApiResponse<PendingApprovalsCount>>(
+        const result = await api.getData<PendingApprovalsCount>(
           `${endpoints.businesses}/pending-approvals/count`
         );
-        const result = unwrapData(response);
         return result.count;
       },
 
@@ -29,18 +27,14 @@ export function useBusinessService() {
        * Lädt alle Businesses
        */
       getBusinesses: async (): Promise<BusinessResponse[]> => {
-        const response = await api.get<ApiResponse<BusinessResponse[]>>(endpoints.businesses);
-        return unwrapData(response);
+        return api.getData<BusinessResponse[]>(endpoints.businesses);
       },
 
       /**
        * Lädt ein spezifisches Business
        */
       getBusiness: async (businessId: string): Promise<BusinessResponse> => {
-        const response = await api.get<ApiResponse<BusinessResponse>>(
-          `${endpoints.businesses}/${businessId}`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessResponse>(`${endpoints.businesses}/${businessId}`);
       },
 
       /**
@@ -49,11 +43,7 @@ export function useBusinessService() {
       createBusiness: async (
         business: Omit<Business, 'id' | 'createdAt' | 'updatedAt' | 'isDeleted'>
       ): Promise<BusinessResponse> => {
-        const response = await api.post<ApiResponse<BusinessResponse>>(
-          endpoints.businesses,
-          business
-        );
-        return unwrapData(response);
+        return api.postData<BusinessResponse>(endpoints.businesses, business);
       },
 
       /**
@@ -63,11 +53,9 @@ export function useBusinessService() {
         businessId: string,
         business: Partial<Business>
       ): Promise<BusinessResponse> => {
-        const response = await api.patch<ApiResponse<BusinessResponse>>(
-          `${endpoints.businesses}/${businessId}`,
-          { ...business }
-        );
-        return unwrapData(response);
+        return api.patchData<BusinessResponse>(`${endpoints.businesses}/${businessId}`, {
+          ...business,
+        });
       },
 
       /**
@@ -81,20 +69,14 @@ export function useBusinessService() {
        * Lädt alle Business-Kategorien
        */
       getCategories: async (): Promise<BusinessCategory[]> => {
-        const response = await api.get<ApiResponse<BusinessCategory[]>>(
-          endpoints.businessCategories
-        );
-        return unwrapData(response);
+        return api.getData<BusinessCategory[]>(endpoints.businessCategories);
       },
 
       /**
        * Lädt Businesses nach Kategorie
        */
       getBusinessesByCategory: async (categoryId: string): Promise<BusinessResponse[]> => {
-        const response = await api.get<ApiResponse<BusinessResponse[]>>(
-          `${endpoints.businesses}/category/${categoryId}`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessResponse[]>(`${endpoints.businesses}/category/${categoryId}`);
       },
 
       /**
@@ -105,10 +87,9 @@ export function useBusinessService() {
         longitude: number,
         radiusKm: number
       ): Promise<BusinessResponse[]> => {
-        const response = await api.get<ApiResponse<BusinessResponse[]>>(
+        return api.getData<BusinessResponse[]>(
           `${endpoints.businesses}/nearby?latitude=${latitude}&longitude=${longitude}&radiusKm=${radiusKm}`
         );
-        return unwrapData(response);
       },
 
       /**
@@ -118,26 +99,18 @@ export function useBusinessService() {
         businessId: string,
         imageUrls: string[]
       ): Promise<BusinessResponse> => {
-        const response = await api.put<ApiResponse<BusinessResponse>>(
-          `${endpoints.businesses}/${businessId}/images`,
-          {
-            imageUrls,
-          }
-        );
-        return unwrapData(response);
+        return api.putData<BusinessResponse>(`${endpoints.businesses}/${businessId}/images`, {
+          imageUrls,
+        });
       },
 
       /**
        * Setzt das Logo eines Businesses
        */
       setBusinessLogo: async (businessId: string, logoUrl: string): Promise<BusinessResponse> => {
-        const response = await api.put<ApiResponse<BusinessResponse>>(
-          `${endpoints.businesses}/${businessId}/logo`,
-          {
-            logoUrl,
-          }
-        );
-        return unwrapData(response);
+        return api.putData<BusinessResponse>(`${endpoints.businesses}/${businessId}/logo`, {
+          logoUrl,
+        });
       },
 
       /**
@@ -147,13 +120,12 @@ export function useBusinessService() {
         businessId: string,
         openingHours: Record<string, string>
       ): Promise<BusinessResponse> => {
-        const response = await api.put<ApiResponse<BusinessResponse>>(
+        return api.putData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/opening-hours`,
           {
             openingHours,
           }
         );
-        return unwrapData(response);
       },
 
       /**
@@ -163,14 +135,13 @@ export function useBusinessService() {
         businessId: string,
         review: NuernbergspotsReview
       ): Promise<BusinessResponse> => {
-        const response = await api.patch<ApiResponse<BusinessResponse>>(
+        return api.patchData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/nuernbergspots-review`,
           {
             reviewText: review.reviewText,
             reviewImageUrls: review.reviewImageUrls,
           }
         );
-        return unwrapData(response);
       },
 
       uploadReviewImages: async (businessId: string, images: File[]): Promise<BusinessResponse> => {
@@ -179,46 +150,40 @@ export function useBusinessService() {
           formData.append('images', image);
         });
 
-        const response = await api.post<ApiResponse<BusinessResponse>>(
+        return api.postData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/nuernbergspots-review/images`,
           formData,
           { isFormData: true }
         );
-        return unwrapData(response);
       },
 
       deleteReviewImage: async (
         businessId: string,
         imageUrl: string
       ): Promise<BusinessResponse> => {
-        const response = await api.delete<ApiResponse<BusinessResponse>>(
+        return api.deleteData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/nuernbergspots-review/images`,
           imageUrl
         );
-        return unwrapData(response);
       },
 
       /**
        * Lädt die Kundenscans aller Geschäfte
        */
       getCustomerScans: async (): Promise<BusinessCustomerScans[]> => {
-        const response = await api.get<ApiResponse<BusinessCustomerScans[]>>(
-          `${endpoints.businesses}/customer-scans`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessCustomerScans[]>(`${endpoints.businesses}/customer-scans`);
       },
 
       uploadLogo: async (businessId: string, file: File): Promise<BusinessResponse> => {
         const formData = new FormData();
         formData.append('file', file);
-        const response = await api.post<ApiResponse<BusinessResponse>>(
+        return api.postData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/logo`,
           formData,
           {
             isFormData: true,
           }
         );
-        return unwrapData(response);
       },
 
       uploadBusinessImages: async (
@@ -229,14 +194,13 @@ export function useBusinessService() {
         files.forEach(file => {
           formData.append('images', file);
         });
-        const response = await api.post<ApiResponse<BusinessResponse>>(
+        return api.postData<BusinessResponse>(
           `${endpoints.businesses}/${businessId}/images`,
           formData,
           {
             isFormData: true,
           }
         );
-        return unwrapData(response);
       },
     }),
     [api]

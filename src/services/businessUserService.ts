@@ -1,7 +1,6 @@
 import { useApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMemo } from 'react';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 
 export interface BusinessUser {
   id: string;
@@ -29,17 +28,11 @@ export function useBusinessUserService() {
           throw new Error('Kein eingeloggter Benutzer gefunden');
         }
 
-        const response = await api.get<ApiResponse<BusinessUser[]>>(
-          `/users/${user.uid}/business-users`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessUser[]>(`/users/${user.uid}/business-users`);
       },
 
       getBusinessUser: async (businessUserId: string): Promise<BusinessUser> => {
-        const response = await api.get<ApiResponse<BusinessUser>>(
-          `/users/${businessUserId}/profile`
-        );
-        return unwrapData(response);
+        return api.getData<BusinessUser>(`/users/${businessUserId}/profile`);
       },
 
       /**

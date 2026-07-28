@@ -1,6 +1,5 @@
 import { Chatroom, CreateChatroomDto, UpdateChatroomDto } from '@/models/chatroom';
 import { useApi, endpoints } from '../lib/api';
-import { ApiResponse, unwrapData } from '../lib/apiUtils';
 import { useAuth } from '../contexts/AuthContext';
 import { validateImageFile } from '@/utils/fileValidationUtils';
 
@@ -13,47 +12,32 @@ export function useChatroomService() {
      * Lädt alle Chatrooms
      */
     getChatrooms: async (): Promise<Chatroom[]> => {
-      const response = await api.get<ApiResponse<Chatroom[]>>(endpoints.chatrooms);
-      const data = unwrapData(response);
-      // Stelle sicher, dass wir ein Array zurückgeben
-      if (Array.isArray(data)) {
-        return data;
-      }
-      // Falls die API direkt ein Array zurückgibt (ohne data-Wrapper)
-      if (Array.isArray(response)) {
-        return response as Chatroom[];
-      }
-      return [];
+      const data = await api.getData<Chatroom[]>(endpoints.chatrooms);
+      return Array.isArray(data) ? data : [];
     },
 
     /**
      * Lädt einen spezifischen Chatroom
      */
     getChatroom: async (chatroomId: string): Promise<Chatroom> => {
-      const response = await api.get<ApiResponse<Chatroom>>(endpoints.chatroomById(chatroomId));
-      return unwrapData(response);
+      return api.getData<Chatroom>(endpoints.chatroomById(chatroomId));
     },
 
     /**
      * Erstellt einen neuen Chatroom
      */
     createChatroom: async (data: CreateChatroomDto): Promise<Chatroom> => {
-      const response = await api.post<ApiResponse<Chatroom>>(endpoints.chatrooms, {
+      return api.postData<Chatroom>(endpoints.chatrooms, {
         ...data,
         createdBy: getUserId(),
       });
-      return unwrapData(response);
     },
 
     /**
      * Aktualisiert einen Chatroom
      */
     updateChatroom: async (chatroomId: string, data: UpdateChatroomDto): Promise<Chatroom> => {
-      const response = await api.patch<ApiResponse<Chatroom>>(
-        endpoints.chatroomById(chatroomId),
-        data
-      );
-      return unwrapData(response);
+      return api.patchData<Chatroom>(endpoints.chatroomById(chatroomId), data);
     },
 
     /**
@@ -67,21 +51,14 @@ export function useChatroomService() {
      * Fügt einen Teilnehmer zum Chatroom hinzu
      */
     addParticipant: async (chatroomId: string, userId: string): Promise<Chatroom> => {
-      const response = await api.post<ApiResponse<Chatroom>>(
-        endpoints.chatroomParticipants(chatroomId),
-        { userId }
-      );
-      return unwrapData(response);
+      return api.postData<Chatroom>(endpoints.chatroomParticipants(chatroomId), { userId });
     },
 
     /**
      * Entfernt einen Teilnehmer aus dem Chatroom
      */
     removeParticipant: async (chatroomId: string, userId: string): Promise<Chatroom> => {
-      const response = await api.delete<ApiResponse<Chatroom>>(
-        `${endpoints.chatroomParticipants(chatroomId)}/${userId}`
-      );
-      return unwrapData(response);
+      return api.deleteData<Chatroom>(`${endpoints.chatroomParticipants(chatroomId)}/${userId}`);
     },
 
     /**
@@ -91,10 +68,9 @@ export function useChatroomService() {
       chatroomId: string,
       limit: number = 50
     ): Promise<Chatroom['lastMessage'][]> => {
-      const response = await api.get<ApiResponse<Chatroom['lastMessage'][]>>(
+      return api.getData<Chatroom['lastMessage'][]>(
         `${endpoints.chatroomMessages(chatroomId)}?limit=${limit}`
       );
-      return unwrapData(response);
     },
 
     /**
@@ -113,13 +89,13 @@ export function useChatroomService() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await api.patch<ApiResponse<{ imageUrl: string }>>(
+      const response = await api.patchData<{ imageUrl: string }>(
         `${endpoints.chatroomById(chatroomId)}/image`,
         formData,
         { isFormData: true }
       );
 
-      return unwrapData(response).imageUrl;
+      return response.imageUrl;
     },
 
     /**

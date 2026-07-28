@@ -8,16 +8,11 @@ import '@testing-library/jest-dom';
 import { LocationSearch, LocationResult } from '../LocationSearch';
 
 // Mock API Hook
-const mockApiGet = jest.fn();
+const mockApiGetData = jest.fn();
 jest.mock('@/lib/api', () => ({
   useApi: () => ({
-    get: mockApiGet,
+    getData: mockApiGetData,
   }),
-}));
-
-// Mock API Utils
-jest.mock('@/lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 // Mock UI Components
@@ -165,7 +160,7 @@ describe('LocationSearch Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    mockApiGet.mockResolvedValue({ data: mockSearchResults });
+    mockApiGetData.mockResolvedValue(mockSearchResults);
   });
 
   afterEach(() => {
@@ -216,7 +211,7 @@ describe('LocationSearch Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockApiGet).toHaveBeenCalledWith('/location/search?query=Hauptstra%C3%9Fe');
+        expect(mockApiGetData).toHaveBeenCalledWith('/location/search?query=Hauptstra%C3%9Fe');
       });
     });
 
@@ -231,7 +226,7 @@ describe('LocationSearch Component', () => {
         jest.advanceTimersByTime(1500);
       });
 
-      expect(mockApiGet).not.toHaveBeenCalled();
+      expect(mockApiGetData).not.toHaveBeenCalled();
     });
 
     it('sollte Debouncing implementieren', async () => {
@@ -245,14 +240,14 @@ describe('LocationSearch Component', () => {
         jest.advanceTimersByTime(500);
       });
 
-      expect(mockApiGet).not.toHaveBeenCalled();
+      expect(mockApiGetData).not.toHaveBeenCalled();
 
       act(() => {
         jest.advanceTimersByTime(500);
       });
 
       await waitFor(() => {
-        expect(mockApiGet).toHaveBeenCalled();
+        expect(mockApiGetData).toHaveBeenCalled();
       });
     });
   });
@@ -367,7 +362,7 @@ describe('LocationSearch Component', () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-      mockApiGet.mockRejectedValue(new Error('API Error'));
+      mockApiGetData.mockRejectedValue(new Error('API Error'));
 
       render(<LocationSearch {...defaultProps} />);
 
@@ -391,7 +386,7 @@ describe('LocationSearch Component', () => {
     it('sollte mit leeren API-Ergebnissen umgehen', async () => {
       const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
 
-      mockApiGet.mockResolvedValue({ data: [] });
+      mockApiGetData.mockResolvedValue([]);
 
       render(<LocationSearch {...defaultProps} />);
 
@@ -421,7 +416,7 @@ describe('LocationSearch Component', () => {
       });
 
       await waitFor(() => {
-        expect(mockApiGet).toHaveBeenCalled();
+        expect(mockApiGetData).toHaveBeenCalled();
       });
     });
 

@@ -6,8 +6,15 @@ import {
   CreateLegalDocumentDto,
   transformBackendDtoToFrontendModel,
 } from '@/models/legal-document';
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import { useApi } from '@/lib/api';
+
+interface ApiResponse<T> {
+  data: T;
+}
+
+function unwrapData<T>(response: ApiResponse<T>): T {
+  return response.data;
+}
 
 export const useLegalDocumentService = () => {
   const api = useApi();

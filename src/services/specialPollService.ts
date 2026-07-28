@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 
-import { ApiResponse, unwrapData } from '@/lib/apiUtils';
 import {
   SpecialPoll,
   CreateSpecialPollDto,
@@ -21,51 +20,35 @@ export function useSpecialPollService() {
   return useMemo(
     () => ({
       getSpecialPolls: async (options?: GetSpecialPollsOptions): Promise<SpecialPoll[]> => {
-        const response = await api.get<ApiResponse<SpecialPoll[]>>(
+        return api.getData<SpecialPoll[]>(
           endpoints.specialPolls({ highlighted: options?.highlighted })
         );
-        return unwrapData(response);
       },
       getSpecialPoll: async (id: string): Promise<SpecialPoll> => {
-        const response = await api.get<ApiResponse<SpecialPoll>>(endpoints.specialPollById(id));
-        return unwrapData(response);
+        return api.getData<SpecialPoll>(endpoints.specialPollById(id));
       },
       createSpecialPoll: async (data: CreateSpecialPollDto): Promise<SpecialPoll> => {
-        const response = await api.post<ApiResponse<SpecialPoll>>(endpoints.specialPolls(), data);
-        return unwrapData(response);
+        return api.postData<SpecialPoll>(endpoints.specialPolls(), data);
       },
       updateSpecialPollStatus: async (
         id: string,
         data: UpdateSpecialPollStatusDto
       ): Promise<SpecialPoll> => {
-        const response = await api.patch<ApiResponse<SpecialPoll>>(
-          `${endpoints.specialPollById(id)}/status`,
-          data
-        );
-        return unwrapData(response);
+        return api.patchData<SpecialPoll>(`${endpoints.specialPollById(id)}/status`, data);
       },
       updateSpecialPollHighlight: async (
         id: string,
         data: UpdateSpecialPollHighlightDto
       ): Promise<SpecialPoll> => {
-        const response = await api.patch<ApiResponse<SpecialPoll>>(
-          endpoints.specialPollHighlight(id),
-          data
-        );
-        return unwrapData(response);
+        return api.patchData<SpecialPoll>(endpoints.specialPollHighlight(id), data);
       },
       addResponse: async (id: string, responseText: string): Promise<SpecialPoll> => {
-        const response = await api.post<ApiResponse<SpecialPoll>>(
-          `${endpoints.specialPollById(id)}/responses`,
-          { response: responseText }
-        );
-        return unwrapData(response);
+        return api.postData<SpecialPoll>(`${endpoints.specialPollById(id)}/responses`, {
+          response: responseText,
+        });
       },
       removeResponse: async (id: string): Promise<SpecialPoll> => {
-        const response = await api.delete<ApiResponse<SpecialPoll>>(
-          endpoints.specialPollResponsesMe(id)
-        );
-        return unwrapData(response);
+        return api.deleteData<SpecialPoll>(endpoints.specialPollResponsesMe(id));
       },
       removeSpecialPoll: async (id: string): Promise<void> => {
         await api.delete(endpoints.specialPollById(id));
@@ -74,18 +57,15 @@ export function useSpecialPollService() {
         id: string,
         responses: SpecialPollResponse[]
       ): Promise<SpecialPoll> => {
-        const response = await api.patch<ApiResponse<SpecialPoll>>(
-          `${endpoints.specialPollById(id)}/responses`,
-          { responses }
-        );
-        return unwrapData(response);
+        return api.patchData<SpecialPoll>(`${endpoints.specialPollById(id)}/responses`, {
+          responses,
+        });
       },
       upvoteResponse: async (pollId: string, responseId: string): Promise<SpecialPoll> => {
-        const response = await api.post<ApiResponse<SpecialPoll>>(
+        return api.postData<SpecialPoll>(
           endpoints.specialPollResponseUpvote(pollId, responseId),
           {}
         );
-        return unwrapData(response);
       },
     }),
     [api]

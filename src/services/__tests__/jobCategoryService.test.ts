@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -10,10 +15,6 @@ const mockApi = {
 
 jest.mock('../../lib/api', () => ({
   useApi: () => mockApi,
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useJobCategoryService } from '../jobCategoryService';
@@ -46,16 +47,16 @@ describe('Job Category Service', () => {
           updatedAt: '2024-01-01',
         },
       ];
-      mockApi.get.mockResolvedValue({ data: mockCategories });
+      mockApi.getData.mockResolvedValue(mockCategories);
 
       const result = await jobCategoryService.getCategories();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/job-offer-categories');
+      expect(mockApi.getData).toHaveBeenCalledWith('/job-offer-categories');
       expect(result).toEqual(mockCategories);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(jobCategoryService.getCategories()).rejects.toThrow('Network error');
     });
@@ -71,16 +72,16 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.get.mockResolvedValue({ data: mockCategory });
+      mockApi.getData.mockResolvedValue(mockCategory);
 
       const result = await jobCategoryService.getCategory('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/job-offer-categories/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/job-offer-categories/1');
       expect(result).toEqual(mockCategory);
     });
 
     it('should handle category not found', async () => {
-      mockApi.get.mockRejectedValue(new Error('Category not found'));
+      mockApi.getData.mockRejectedValue(new Error('Category not found'));
 
       await expect(jobCategoryService.getCategory('999')).rejects.toThrow('Category not found');
     });
@@ -101,11 +102,11 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await jobCategoryService.createCategory(categoryData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/job-offer-categories', categoryData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/job-offer-categories', categoryData);
       expect(result).toEqual(createdCategory);
     });
 
@@ -117,7 +118,7 @@ describe('Job Category Service', () => {
         iconName: 'test',
         fallbackImages: [],
       };
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(jobCategoryService.createCategory(categoryData)).rejects.toThrow(
         'Creation failed'
@@ -136,11 +137,11 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await jobCategoryService.updateCategory('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offer-categories/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/job-offer-categories/1', updateData);
       expect(result).toEqual(updatedCategory);
     });
 
@@ -154,17 +155,17 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await jobCategoryService.updateCategory('1', updateData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offer-categories/1', updateData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/job-offer-categories/1', updateData);
       expect(result).toEqual(updatedCategory);
     });
 
     it('should handle update errors', async () => {
       const updateData = { name: 'Updated Name' };
-      mockApi.patch.mockRejectedValue(new Error('Update failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Update failed'));
 
       await expect(jobCategoryService.updateCategory('1', updateData)).rejects.toThrow(
         'Update failed'
@@ -174,15 +175,15 @@ describe('Job Category Service', () => {
 
   describe('deleteCategory', () => {
     it('should delete a job category', async () => {
-      mockApi.delete.mockResolvedValue(undefined);
+      mockApi.deleteData.mockResolvedValue(undefined);
 
       await jobCategoryService.deleteCategory('1');
 
-      expect(mockApi.delete).toHaveBeenCalledWith('/job-offer-categories/1');
+      expect(mockApi.deleteData).toHaveBeenCalledWith('/job-offer-categories/1');
     });
 
     it('should handle delete errors', async () => {
-      mockApi.delete.mockRejectedValue(new Error('Delete failed'));
+      mockApi.deleteData.mockRejectedValue(new Error('Delete failed'));
 
       await expect(jobCategoryService.deleteCategory('1')).rejects.toThrow('Delete failed');
     });
@@ -201,11 +202,11 @@ describe('Job Category Service', () => {
         fallbackImages: ['new-image1.jpg', 'new-image2.jpg'],
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await jobCategoryService.updateFallbackImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith(
+      expect(mockApi.patchData).toHaveBeenCalledWith(
         '/job-offer-categories/1/fallback-images',
         expect.any(FormData),
         { isFormData: true }
@@ -220,11 +221,11 @@ describe('Job Category Service', () => {
         name: 'IT & Software',
         fallbackImages: [],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await jobCategoryService.updateFallbackImages('1', mockFiles);
 
-      const formDataCall = mockApi.patch.mock.calls[0];
+      const formDataCall = mockApi.patchData.mock.calls[0];
       const formData = formDataCall[1] as FormData;
 
       expect(formData).toBeInstanceOf(FormData);
@@ -233,7 +234,7 @@ describe('Job Category Service', () => {
 
     it('should handle image upload errors', async () => {
       const mockFiles = [new File(['image'], 'test.jpg', { type: 'image/jpeg' })];
-      mockApi.patch.mockRejectedValue(new Error('Upload failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Upload failed'));
 
       await expect(jobCategoryService.updateFallbackImages('1', mockFiles)).rejects.toThrow(
         'Upload failed'
@@ -250,19 +251,22 @@ describe('Job Category Service', () => {
         fallbackImages: ['image2.jpg'], // image1.jpg removed
         updatedAt: '2024-01-02',
       };
-      mockApi.patch.mockResolvedValue({ data: updatedCategory });
+      mockApi.patchData.mockResolvedValue(updatedCategory);
 
       const result = await jobCategoryService.deleteFallbackImage('1', imageUrl);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/job-offer-categories/1/fallback-images/remove', {
-        imageUrl,
-      });
+      expect(mockApi.patchData).toHaveBeenCalledWith(
+        '/job-offer-categories/1/fallback-images/remove',
+        {
+          imageUrl,
+        }
+      );
       expect(result).toEqual(updatedCategory);
     });
 
     it('should handle delete image errors', async () => {
       const imageUrl = 'https://example.com/nonexistent.jpg';
-      mockApi.patch.mockRejectedValue(new Error('Image not found'));
+      mockApi.patchData.mockRejectedValue(new Error('Image not found'));
 
       await expect(jobCategoryService.deleteFallbackImage('1', imageUrl)).rejects.toThrow(
         'Image not found'
@@ -271,7 +275,7 @@ describe('Job Category Service', () => {
 
     it('should handle invalid image URLs', async () => {
       const invalidUrl = 'not-a-valid-url';
-      mockApi.patch.mockRejectedValue(new Error('Invalid image URL'));
+      mockApi.patchData.mockRejectedValue(new Error('Invalid image URL'));
 
       await expect(jobCategoryService.deleteFallbackImage('1', invalidUrl)).rejects.toThrow(
         'Invalid image URL'
@@ -295,7 +299,7 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await jobCategoryService.createCategory(categoryData);
 
@@ -317,7 +321,7 @@ describe('Job Category Service', () => {
         createdAt: '2024-01-01',
         updatedAt: '2024-01-01',
       };
-      mockApi.post.mockResolvedValue({ data: createdCategory });
+      mockApi.postData.mockResolvedValue(createdCategory);
 
       const result = await jobCategoryService.createCategory(categoryData);
 
@@ -331,7 +335,7 @@ describe('Job Category Service', () => {
         name: 'Popular Job Category',
         fallbackImages: manyImages,
       };
-      mockApi.get.mockResolvedValue({ data: mockCategory });
+      mockApi.getData.mockResolvedValue(mockCategory);
 
       const result = await jobCategoryService.getCategory('1');
 
@@ -342,32 +346,34 @@ describe('Job Category Service', () => {
       const images = ['image1.jpg', 'image2.jpg', 'image3.jpg'];
 
       // Delete first image
-      mockApi.patch.mockResolvedValueOnce({
-        data: { id: '1', fallbackImages: ['image2.jpg', 'image3.jpg'] },
+      mockApi.patchData.mockResolvedValueOnce({
+        id: '1',
+        fallbackImages: ['image2.jpg', 'image3.jpg'],
       });
 
       // Delete second image
-      mockApi.patch.mockResolvedValueOnce({
-        data: { id: '1', fallbackImages: ['image3.jpg'] },
+      mockApi.patchData.mockResolvedValueOnce({
+        id: '1',
+        fallbackImages: ['image3.jpg'],
       });
 
       await jobCategoryService.deleteFallbackImage('1', images[0]);
       const result = await jobCategoryService.deleteFallbackImage('1', images[1]);
 
-      expect(mockApi.patch).toHaveBeenCalledTimes(2);
+      expect(mockApi.patchData).toHaveBeenCalledTimes(2);
       expect(result.fallbackImages).toEqual(['image3.jpg']);
     });
   });
 
   describe('error handling', () => {
     it('should handle network timeouts', async () => {
-      mockApi.get.mockRejectedValue(new Error('Request timeout'));
+      mockApi.getData.mockRejectedValue(new Error('Request timeout'));
 
       await expect(jobCategoryService.getCategories()).rejects.toThrow('Request timeout');
     });
 
     it('should handle server errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Internal server error'));
+      mockApi.postData.mockRejectedValue(new Error('Internal server error'));
 
       await expect(
         jobCategoryService.createCategory({
@@ -381,7 +387,7 @@ describe('Job Category Service', () => {
     });
 
     it('should handle unauthorized access', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Unauthorized'));
+      mockApi.patchData.mockRejectedValue(new Error('Unauthorized'));
 
       await expect(jobCategoryService.updateCategory('1', { name: 'New Name' })).rejects.toThrow(
         'Unauthorized'
@@ -390,7 +396,7 @@ describe('Job Category Service', () => {
 
     it('should handle invalid file types in image upload', async () => {
       const invalidFile = new File(['content'], 'document.pdf', { type: 'application/pdf' });
-      mockApi.patch.mockRejectedValue(new Error('Invalid file type'));
+      mockApi.patchData.mockRejectedValue(new Error('Invalid file type'));
 
       await expect(jobCategoryService.updateFallbackImages('1', [invalidFile])).rejects.toThrow(
         'Invalid file type'
@@ -401,7 +407,7 @@ describe('Job Category Service', () => {
       const oversizedFile = new File(['x'.repeat(50 * 1024 * 1024)], 'huge.jpg', {
         type: 'image/jpeg',
       });
-      mockApi.patch.mockRejectedValue(new Error('File too large'));
+      mockApi.patchData.mockRejectedValue(new Error('File too large'));
 
       await expect(jobCategoryService.updateFallbackImages('1', [oversizedFile])).rejects.toThrow(
         'File too large'
@@ -417,11 +423,11 @@ describe('Job Category Service', () => {
         new File(['3'], 'file3.gif', { type: 'image/gif' }),
       ];
 
-      mockApi.patch.mockResolvedValue({ data: { id: '1', fallbackImages: [] } });
+      mockApi.patchData.mockResolvedValue({ id: '1', fallbackImages: [] });
 
       await jobCategoryService.updateFallbackImages('1', files);
 
-      const [url, formData, options] = mockApi.patch.mock.calls[0];
+      const [url, formData, options] = mockApi.patchData.mock.calls[0];
 
       expect(url).toBe('/job-offer-categories/1/fallback-images');
       expect(formData).toBeInstanceOf(FormData);
@@ -436,9 +442,7 @@ describe('Job Category Service', () => {
         new File(['webp'], 'test.webp', { type: 'image/webp' }),
       ];
 
-      mockApi.patch.mockResolvedValue({
-        data: { id: '1', fallbackImages: files.map(f => f.name) },
-      });
+      mockApi.patchData.mockResolvedValue({ id: '1', fallbackImages: files.map(f => f.name) });
 
       const result = await jobCategoryService.updateFallbackImages('1', files);
 

@@ -2,6 +2,11 @@
 
 // Mock API
 const mockApi = {
+  getData: jest.fn(),
+  postData: jest.fn(),
+  patchData: jest.fn(),
+  putData: jest.fn(),
+  deleteData: jest.fn(),
   get: jest.fn(),
   post: jest.fn(),
   patch: jest.fn(),
@@ -14,10 +19,6 @@ jest.mock('../../lib/api', () => ({
   endpoints: {
     news: '/news',
   },
-}));
-
-jest.mock('../../lib/apiUtils', () => ({
-  unwrapData: jest.fn(response => response.data),
 }));
 
 import { useNewsService } from '../newsService';
@@ -36,16 +37,16 @@ describe('News Service', () => {
         { id: '1', type: 'text', content: 'News 1', authorId: 'author1' },
         { id: '2', type: 'image', content: 'News 2', authorId: 'author2' },
       ];
-      mockApi.get.mockResolvedValue({ data: mockNews });
+      mockApi.getData.mockResolvedValue(mockNews);
 
       const result = await newsService.getAll();
 
-      expect(mockApi.get).toHaveBeenCalledWith('/news');
+      expect(mockApi.getData).toHaveBeenCalledWith('/news');
       expect(result).toEqual(mockNews);
     });
 
     it('should handle API errors', async () => {
-      mockApi.get.mockRejectedValue(new Error('Network error'));
+      mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(newsService.getAll()).rejects.toThrow('Network error');
     });
@@ -54,11 +55,11 @@ describe('News Service', () => {
   describe('getById', () => {
     it('should fetch a specific news item', async () => {
       const mockNews = { id: '1', type: 'text', content: 'Test News', authorId: 'author1' };
-      mockApi.get.mockResolvedValue({ data: mockNews });
+      mockApi.getData.mockResolvedValue(mockNews);
 
       const result = await newsService.getById('1');
 
-      expect(mockApi.get).toHaveBeenCalledWith('/news/1');
+      expect(mockApi.getData).toHaveBeenCalledWith('/news/1');
       expect(result).toEqual(mockNews);
     });
   });
@@ -67,11 +68,11 @@ describe('News Service', () => {
     it('should create a text news item', async () => {
       const newsData = { content: 'New text news', authorId: 'author1' };
       const createdNews = { id: '1', type: 'text', ...newsData, createdAt: '2024-01-01' };
-      mockApi.post.mockResolvedValue({ data: createdNews });
+      mockApi.postData.mockResolvedValue(createdNews);
 
       const result = await newsService.createTextNews(newsData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/news/text', newsData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/news/text', newsData);
       expect(result).toEqual(createdNews);
     });
   });
@@ -84,11 +85,11 @@ describe('News Service', () => {
         imageUrls: ['image1.jpg', 'image2.jpg'],
       };
       const createdNews = { id: '1', type: 'image', ...newsData, createdAt: '2024-01-01' };
-      mockApi.post.mockResolvedValue({ data: createdNews });
+      mockApi.postData.mockResolvedValue(createdNews);
 
       const result = await newsService.createImageNews(newsData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/news/image', newsData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/news/image', newsData);
       expect(result).toEqual(createdNews);
     });
   });
@@ -108,11 +109,11 @@ describe('News Service', () => {
         },
       };
       const createdNews = { id: '1', type: 'poll', ...newsData, createdAt: '2024-01-01' };
-      mockApi.post.mockResolvedValue({ data: createdNews });
+      mockApi.postData.mockResolvedValue(createdNews);
 
       const result = await newsService.createPollNews(newsData);
 
-      expect(mockApi.post).toHaveBeenCalledWith('/news/poll', newsData);
+      expect(mockApi.postData).toHaveBeenCalledWith('/news/poll', newsData);
       expect(result).toEqual(createdNews);
     });
   });
@@ -132,11 +133,11 @@ describe('News Service', () => {
           allowMultipleChoices: false,
         },
       };
-      mockApi.patch.mockResolvedValue({ data: updatedPoll });
+      mockApi.patchData.mockResolvedValue(updatedPoll);
 
       const result = await newsService.votePoll('1', voteData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/news/1/poll-vote', voteData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/news/1/poll-vote', voteData);
       expect(result).toEqual(updatedPoll);
     });
   });
@@ -149,11 +150,11 @@ describe('News Service', () => {
         content: 'Test news',
         reactions: [reactionData],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedNews });
+      mockApi.patchData.mockResolvedValue(updatedNews);
 
       const result = await newsService.postReaction('1', reactionData);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/news/1/react', reactionData);
+      expect(mockApi.patchData).toHaveBeenCalledWith('/news/1/react', reactionData);
       expect(result).toEqual(updatedNews);
     });
   });
@@ -172,11 +173,11 @@ describe('News Service', () => {
     it('should update a news item', async () => {
       const updateData = { content: 'Updated content' };
       const updatedNews = { id: '1', content: 'Updated content', authorId: 'author1' };
-      mockApi.put.mockResolvedValue({ data: updatedNews });
+      mockApi.putData.mockResolvedValue(updatedNews);
 
       const result = await newsService.update('1', updateData);
 
-      expect(mockApi.put).toHaveBeenCalledWith('/news/1', updateData);
+      expect(mockApi.putData).toHaveBeenCalledWith('/news/1', updateData);
       expect(result).toEqual(updatedNews);
     });
   });
@@ -193,11 +194,11 @@ describe('News Service', () => {
         content: 'Image news',
         imageUrls: ['new1.jpg', 'new2.jpg'],
       };
-      mockApi.patch.mockResolvedValue({ data: updatedNews });
+      mockApi.patchData.mockResolvedValue(updatedNews);
 
       const result = await newsService.updateNewsImages('1', mockFiles);
 
-      expect(mockApi.patch).toHaveBeenCalledWith('/news/1/images', expect.any(FormData), {
+      expect(mockApi.patchData).toHaveBeenCalledWith('/news/1/images', expect.any(FormData), {
         isFormData: true,
       });
       expect(result).toEqual(updatedNews);
@@ -206,7 +207,7 @@ describe('News Service', () => {
 
   describe('error handling', () => {
     it('should handle create text news errors', async () => {
-      mockApi.post.mockRejectedValue(new Error('Creation failed'));
+      mockApi.postData.mockRejectedValue(new Error('Creation failed'));
 
       await expect(
         newsService.createTextNews({ content: 'test', authorId: 'author1' })
@@ -214,13 +215,13 @@ describe('News Service', () => {
     });
 
     it('should handle vote poll errors', async () => {
-      mockApi.patch.mockRejectedValue(new Error('Vote failed'));
+      mockApi.patchData.mockRejectedValue(new Error('Vote failed'));
 
       await expect(newsService.votePoll('1', { optionId: '1' })).rejects.toThrow('Vote failed');
     });
 
     it('should handle update errors', async () => {
-      mockApi.put.mockRejectedValue(new Error('Update failed'));
+      mockApi.putData.mockRejectedValue(new Error('Update failed'));
 
       await expect(newsService.update('1', { content: 'new content' })).rejects.toThrow(
         'Update failed'
