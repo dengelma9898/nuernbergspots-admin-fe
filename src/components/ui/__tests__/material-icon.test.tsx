@@ -38,7 +38,7 @@ describe('MaterialIcon Component', () => {
     it('sollte leere Icon-Strings handhaben', () => {
       render(<MaterialIcon icon="" />);
 
-      const icon = document.querySelector('.material-symbols-rounded');
+      const icon = document.querySelector('.material-icons');
       expect(icon).toBeInTheDocument();
       expect(icon).toHaveTextContent('');
     });
@@ -49,7 +49,7 @@ describe('MaterialIcon Component', () => {
       render(<MaterialIcon icon="home" />);
 
       const icon = screen.getByText('home');
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
     });
 
     it('sollte Standard-Size (medium) haben', () => {
@@ -64,7 +64,7 @@ describe('MaterialIcon Component', () => {
 
       const icon = screen.getByText('home');
       expect(icon).toHaveClass('custom-icon');
-      expect(icon).toHaveClass('material-symbols-rounded'); // Standard-Klasse sollte auch da sein
+      expect(icon).toHaveClass('material-icons'); // Standard-Klasse sollte auch da sein
     });
 
     it('sollte Klassen mit cn utility kombinieren', () => {
@@ -73,7 +73,7 @@ describe('MaterialIcon Component', () => {
       const icon = screen.getByText('home');
       expect(icon).toHaveClass('text-red-500');
       expect(icon).toHaveClass('p-2');
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
       expect(icon).toHaveClass('text-2xl'); // Standard medium size
     });
   });
@@ -112,95 +112,32 @@ describe('MaterialIcon Component', () => {
 
         const icon = screen.getByText('test');
         expect(icon).toHaveClass(expectedClass);
-        expect(icon).toHaveClass('material-symbols-rounded');
+        expect(icon).toHaveClass('material-icons');
 
         unmount();
       });
     });
   });
 
-  describe('Font Variation Settings', () => {
-    it('sollte Standard-Font-Variation-Settings haben', () => {
+  describe('Icon Variant', () => {
+    it('sollte standardmäßig material-icons verwenden', () => {
       render(<MaterialIcon icon="home" />);
 
       const icon = screen.getByText('home');
-      const style = icon.getAttribute('style');
-
-      expect(style).toContain('font-variation-settings');
-      expect(style).toContain("'FILL' 1"); // filled = true (default)
-      expect(style).toContain("'wght' 400"); // weight = 400 (default)
-      expect(style).toContain("'GRAD' 0"); // grade = 0 (default)
-      expect(style).toContain("'opsz' 24"); // opticalSize = 24 (default)
+      expect(icon).toHaveClass('material-icons');
+      expect(icon).not.toHaveClass('material-icons-outlined');
     });
 
     it('sollte filled prop korrekt handhaben', () => {
-      // Filled = true
       const { unmount: unmount1 } = render(<MaterialIcon icon="star" filled={true} />);
       let icon = screen.getByText('star');
-      let style = icon.getAttribute('style');
-      expect(style).toContain("'FILL' 1");
+      expect(icon).toHaveClass('material-icons');
       unmount1();
 
-      // Filled = false
       const { unmount: unmount2 } = render(<MaterialIcon icon="star" filled={false} />);
       icon = screen.getByText('star');
-      style = icon.getAttribute('style');
-      expect(style).toContain("'FILL' 0");
+      expect(icon).toHaveClass('material-icons-outlined');
       unmount2();
-    });
-
-    it('sollte weight prop korrekt handhaben', () => {
-      const weights = [100, 200, 300, 400, 500, 600, 700] as const;
-
-      weights.forEach(weight => {
-        const { unmount } = render(<MaterialIcon icon="test" weight={weight} />);
-
-        const icon = screen.getByText('test');
-        const style = icon.getAttribute('style');
-        expect(style).toContain(`'wght' ${weight}`);
-
-        unmount();
-      });
-    });
-
-    it('sollte grade prop korrekt handhaben', () => {
-      const grades = [-25, 0, 200] as const;
-
-      grades.forEach(grade => {
-        const { unmount } = render(<MaterialIcon icon="test" grade={grade} />);
-
-        const icon = screen.getByText('test');
-        const style = icon.getAttribute('style');
-        expect(style).toContain(`'GRAD' ${grade}`);
-
-        unmount();
-      });
-    });
-
-    it('sollte opticalSize prop korrekt handhaben', () => {
-      const opticalSizes = [20, 24, 40, 48] as const;
-
-      opticalSizes.forEach(opticalSize => {
-        const { unmount } = render(<MaterialIcon icon="test" opticalSize={opticalSize} />);
-
-        const icon = screen.getByText('test');
-        const style = icon.getAttribute('style');
-        expect(style).toContain(`'opsz' ${opticalSize}`);
-
-        unmount();
-      });
-    });
-
-    it('sollte alle Font-Variation-Settings kombinieren', () => {
-      render(<MaterialIcon icon="star" filled={false} weight={700} grade={200} opticalSize={48} />);
-
-      const icon = screen.getByText('star');
-      const style = icon.getAttribute('style');
-
-      expect(style).toContain("'FILL' 0");
-      expect(style).toContain("'wght' 700");
-      expect(style).toContain("'GRAD' 200");
-      expect(style).toContain("'opsz' 48");
     });
   });
 
@@ -304,7 +241,7 @@ describe('MaterialIcon Component', () => {
 
       const icon = screen.getByText('test');
       expect(icon).toBeInTheDocument();
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
     });
 
     it('sollte sehr lange Icon-Namen handhaben', () => {
@@ -331,7 +268,7 @@ describe('MaterialIcon Component', () => {
       render(<MaterialIcon icon="test" className="" />);
 
       const icon = screen.getByText('test');
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
       expect(icon).toHaveClass('text-2xl');
     });
   });
@@ -370,9 +307,9 @@ describe('MaterialIcon Component', () => {
       expect(mediumIcon).toHaveClass('text-2xl');
       expect(largeIcon).toHaveClass('text-3xl');
 
-      expect(smallIcon.getAttribute('style')).toContain("'FILL' 0");
-      expect(mediumIcon.getAttribute('style')).toContain("'FILL' 1");
-      expect(largeIcon.getAttribute('style')).toContain("'FILL' 0");
+      expect(smallIcon).toHaveClass('material-icons-outlined');
+      expect(mediumIcon).toHaveClass('material-icons');
+      expect(largeIcon).toHaveClass('material-icons-outlined');
     });
 
     it('sollte Re-Rendering bei Props-Änderungen handhaben', () => {
@@ -380,14 +317,14 @@ describe('MaterialIcon Component', () => {
 
       let icon = screen.getByText('star');
       expect(icon).toHaveClass('text-lg');
-      expect(icon.getAttribute('style')).toContain("'FILL' 0");
+      expect(icon).toHaveClass('material-icons-outlined');
 
       // Props ändern
       rerender(<MaterialIcon icon="star" filled={true} size="large" />);
 
       icon = screen.getByText('star');
       expect(icon).toHaveClass('text-3xl');
-      expect(icon.getAttribute('style')).toContain("'FILL' 1");
+      expect(icon).toHaveClass('material-icons');
     });
   });
 
@@ -417,17 +354,10 @@ describe('MaterialIcon Component', () => {
       expect(icon).toHaveTextContent('favorite');
 
       // CSS Classes
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
       expect(icon).toHaveClass('text-3xl'); // large size
       expect(icon).toHaveClass('text-red-500');
       expect(icon).toHaveClass('cursor-pointer');
-
-      // Font variation settings
-      const style = icon.getAttribute('style');
-      expect(style).toContain("'FILL' 1");
-      expect(style).toContain("'wght' 600");
-      expect(style).toContain("'GRAD' 200");
-      expect(style).toContain("'opsz' 48");
 
       // Accessibility
       expect(icon).toHaveAttribute('aria-label', 'Favorite button');
@@ -514,7 +444,7 @@ describe('MaterialIcon Component', () => {
       const icon = screen.getByText('theme');
       expect(icon).toHaveClass('text-primary');
       expect(icon).toHaveClass('dark:text-primary-dark');
-      expect(icon).toHaveClass('material-symbols-rounded');
+      expect(icon).toHaveClass('material-icons');
     });
   });
 });

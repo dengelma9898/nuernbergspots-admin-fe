@@ -1,10 +1,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import * as Icons from '@mui/icons-material';
-import { Input } from './input';
-import { ScrollArea } from './scroll-area';
-import { cn } from '@/lib/utils';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { VirtualItem } from '@tanstack/react-virtual';
+
+import { ALLOWED_MATERIAL_ICONS } from '@/lib/allowed-material-icons';
+import { cn } from '@/lib/utils';
+import { resolveIconName } from '@/utils/iconUtils';
+
+import { Input } from './input';
+import { MaterialIcon } from './material-icon';
+import { ScrollArea } from './scroll-area';
 
 interface IconPickerProps {
   value: string;
@@ -12,44 +15,28 @@ interface IconPickerProps {
   className?: string;
 }
 
-const ICON_VARIANTS = ['Outlined', 'Rounded', 'Sharp', 'TwoTone'];
-
 export function IconPicker({ value, onChange, className }: IconPickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Memoize all available icons and filter variants
-  const allIcons = useMemo(() => {
-    const icons = Object.keys(Icons);
-    // Nur Icons ohne Suffix oder mit einem der definierten Suffixe
-    return icons.filter(iconName => {
-      // Prüfe, ob das Icon eines der Suffixe hat
-      const hasVariantSuffix = ICON_VARIANTS.some(variant => iconName.endsWith(variant));
-      // Wenn es kein Suffix hat (Basis-Icon) oder ein gültiges Suffix, behalte es
-      return !hasVariantSuffix;
-    });
-  }, []);
-
-  // Memoize filtered icons
   const filteredIcons = useMemo(() => {
     const searchLower = searchTerm.toLowerCase();
-    return allIcons.filter(iconName => iconName.toLowerCase().includes(searchLower));
-  }, [searchTerm, allIcons]);
+    return ALLOWED_MATERIAL_ICONS.filter(iconName => iconName.toLowerCase().includes(searchLower));
+  }, [searchTerm]);
 
-  // Memoize icon rendering function
   const renderIcon = useCallback((iconName: string) => {
-    const IconComponent = (Icons as any)[iconName];
-    return IconComponent ? <IconComponent /> : null;
+    return <MaterialIcon icon={resolveIconName(iconName)} size="small" />;
   }, []);
 
-  // Virtual list setup
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
     count: filteredIcons.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 40, // height of each row
+    estimateSize: () => 40,
     overscan: 10,
   });
+
+  const resolvedValue = value ? resolveIconName(value) : '';
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -60,9 +47,9 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
           placeholder="Icon suchen..."
           className="flex-1"
         />
-        {value && (
+        {resolvedValue && (
           <div className="flex items-center justify-center w-10 h-10 border rounded-md">
-            {renderIcon(value)}
+            {renderIcon(resolvedValue)}
           </div>
         )}
       </div>
@@ -85,10 +72,11 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
                 return (
                   <button
                     key={iconName}
+                    type="button"
                     onClick={() => onChange(iconName)}
                     className={cn(
                       'flex items-center justify-center w-10 h-10 rounded-md hover:bg-accent',
-                      value === iconName && 'bg-accent'
+                      resolvedValue === iconName && 'bg-accent'
                     )}
                     title={iconName}
                   >

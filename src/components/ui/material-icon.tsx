@@ -20,18 +20,17 @@ export function MaterialIcon({
   icon,
   size = 'medium',
   filled = true,
-  weight = 400,
-  grade = 0,
-  opticalSize = 24,
   className,
   ...props
 }: MaterialIconProps) {
   return (
     <span
-      className={cn('material-symbols-rounded', sizeMap[size], className)}
-      style={{
-        fontVariationSettings: `'FILL' ${filled ? 1 : 0}, 'wght' ${weight}, 'GRAD' ${grade}, 'opsz' ${opticalSize}`,
-      }}
+      className={cn(
+        filled ? 'material-icons' : 'material-icons-outlined',
+        sizeMap[size],
+        className
+      )}
+      aria-hidden={props['aria-hidden'] ?? true}
       {...props}
     >
       {icon}
