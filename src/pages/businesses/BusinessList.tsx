@@ -11,15 +11,13 @@ import { useBusinessService } from '@/services/businessService';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { BusinessCategory } from '@/models/business-category';
 import { useBusinessCategoryService } from '@/services/businessCategoryService';
-import { Background } from '@/components/Background';
-import { PageTransition } from '@/components/PageTransition';
-import { AnimatedButton } from '@/components/AnimatedButton';
+import { LoadingButton } from '@/components/LoadingButton';
 import { BusinessCard } from '@/components/businesses/BusinessCard';
 import { BusinessCardSkeleton } from '@/components/businesses/BusinessCardSkeleton';
-import { motion } from 'framer-motion';
+import { motion } from '@/components/motion';
 import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
-import { glassCard, glassInput, glassButton } from '@/lib/glassmorphism';
+import { cardPreset, listSectionPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 export const BusinessList: React.FC = () => {
@@ -95,56 +93,53 @@ export const BusinessList: React.FC = () => {
 
   if (loading) {
     return (
-      <PageTransition>
-        <div className="min-h-screen relative overflow-hidden">
-          <Background />
-          <div className="relative z-10 container mx-auto py-6">
-            {/* Header Skeleton */}
-            <div className={cn(glassCard, 'p-6 mb-8')}>
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-4">
-                  <Skeleton className="h-10 w-10 rounded-full" />
-                  <Skeleton className="h-8 w-32 rounded" />
-                </div>
-                <Skeleton className="h-9 w-full sm:w-40 rounded-xl" />
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 container mx-auto py-6">
+          {/* Header Skeleton */}
+          <div className={listSectionPreset}>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-8 w-32 rounded" />
               </div>
+              <Skeleton className="h-9 w-full sm:w-40 rounded-xl" />
             </div>
+          </div>
 
-            {/* Filter Section Skeleton */}
-            <div className={cn(glassCard, 'p-6 mb-8')}>
-              <div className="space-y-4">
-                <Skeleton className="h-10 w-full rounded-xl" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array.from({ length: 3 }, (_, index) => (
-                    <div key={index} className={cn(glassCard, 'p-3')}>
-                      <div className="flex items-center space-x-3">
-                        <Skeleton className="h-5 w-9 rounded-full" />
-                        <Skeleton className="h-4 w-20 rounded" />
-                      </div>
+          {/* Filter Section Skeleton */}
+          <div className={listSectionPreset}>
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full rounded-xl" />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 3 }, (_, index) => (
+                  <div key={index} className={cn(cardPreset, 'p-3')}>
+                    <div className="flex items-center space-x-3">
+                      <Skeleton className="h-5 w-9 rounded-full" />
+                      <Skeleton className="h-4 w-20 rounded" />
                     </div>
-                  ))}
-                </div>
-                <Skeleton className="h-4 w-32 rounded" />
+                  </div>
+                ))}
               </div>
+              <Skeleton className="h-4 w-32 rounded" />
             </div>
+          </div>
 
-            {/* Business Cards Skeleton */}
-            <div className="space-y-8">
-              <div className={cn(glassCard, 'p-6')}>
-                <div className="flex items-center mb-6">
-                  <Skeleton className="h-6 w-6 rounded mr-3" />
-                  <Skeleton className="h-6 w-48 rounded" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.from({ length: 6 }, (_, index) => (
-                    <BusinessCardSkeleton key={`skeleton-${index}`} />
-                  ))}
-                </div>
+          {/* Business Cards Skeleton */}
+          <div className="space-y-8">
+            <div className={cn(cardPreset, 'p-6')}>
+              <div className="flex items-center mb-6">
+                <Skeleton className="h-6 w-6 rounded mr-3" />
+                <Skeleton className="h-6 w-48 rounded" />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: 6 }, (_, index) => (
+                  <BusinessCardSkeleton key={`skeleton-${index}`} />
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </PageTransition>
+      </div>
     );
   }
 
@@ -167,177 +162,174 @@ export const BusinessList: React.FC = () => {
   const inactiveBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.INACTIVE);
 
   return (
-    <PageTransition>
-      <div className="min-h-screen relative overflow-hidden">
-        <Background />
-        <div className="relative z-10 container mx-auto py-6">
-          {/* Header */}
-          <motion.div
-            className={cn(glassCard, 'p-6 mb-8')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-4">
-                <AnimatedButton
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/dashboard')}
-                  className={cn(glassButton, 'rounded-full')}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="sr-only">Zurück zum Dashboard</span>
-                </AnimatedButton>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
-                  Geschäfte
-                </h1>
-              </div>
-              <AnimatedButton
-                onClick={() => navigate('/create-business')}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+    <div className="min-h-screen relative overflow-hidden">
+      <div className="relative z-10 container mx-auto py-6">
+        {/* Header */}
+        <motion.div
+          className={listSectionPreset}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-4">
+              <LoadingButton
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/dashboard')}
+                className={cn(buttonPreset, 'rounded-full')}
               >
-                <Plus className="mr-2 h-4 w-4" />
-                Partner hinzufügen
-              </AnimatedButton>
+                <ArrowLeft className="h-5 w-5" />
+                <span className="sr-only">Zurück zum Dashboard</span>
+              </LoadingButton>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                Geschäfte
+              </h1>
             </div>
-          </motion.div>
+            <LoadingButton
+              onClick={() => navigate('/create-business')}
+              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Partner hinzufügen
+            </LoadingButton>
+          </div>
+        </motion.div>
 
-          {/* Filter Section */}
-          <motion.div
-            className={cn(glassCard, 'p-6 mb-8')}
-            variants={fadeInUp}
-            initial="initial"
-            animate="animate"
-            transition={defaultTransition}
-          >
-            <div className="space-y-4">
-              <Input
-                placeholder="Nach Geschäftsnamen suchen..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className={cn(glassInput)}
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className={cn(glassCard, 'p-3')}>
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="pending-filter"
-                      checked={showOnlyPending}
-                      onCheckedChange={setShowOnlyPending}
-                    />
-                    <Label htmlFor="pending-filter" className="text-foreground text-sm">
-                      Nur ausstehende
-                    </Label>
-                  </div>
-                </div>
-                <div className={cn(glassCard, 'p-3')}>
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="review-filter"
-                      checked={showOnlyWithoutReview}
-                      onCheckedChange={setShowOnlyWithoutReview}
-                    />
-                    <Label htmlFor="review-filter" className="text-foreground text-sm">
-                      Ohne Review
-                    </Label>
-                  </div>
-                </div>
-                <div className={cn(glassCard, 'p-3')}>
-                  <div className="flex items-center space-x-3">
-                    <Switch
-                      id="pending-partners-filter"
-                      checked={showOnlyPendingPartners}
-                      onCheckedChange={setShowOnlyPendingPartners}
-                    />
-                    <Label htmlFor="pending-partners-filter" className="text-foreground text-sm">
-                      Ausstehende Partner mit Konto
-                    </Label>
-                  </div>
+        {/* Filter Section */}
+        <motion.div
+          className={listSectionPreset}
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          transition={defaultTransition}
+        >
+          <div className="space-y-4">
+            <Input
+              placeholder="Nach Geschäftsnamen suchen..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className={cn(inputPreset)}
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className={cn(cardPreset, 'p-3')}>
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="pending-filter"
+                    checked={showOnlyPending}
+                    onCheckedChange={setShowOnlyPending}
+                  />
+                  <Label htmlFor="pending-filter" className="text-foreground text-sm">
+                    Nur ausstehende
+                  </Label>
                 </div>
               </div>
-              <div className="text-sm text-muted-foreground">
-                {filteredBusinesses.length} Geschäfte gefunden
+              <div className={cn(cardPreset, 'p-3')}>
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="review-filter"
+                    checked={showOnlyWithoutReview}
+                    onCheckedChange={setShowOnlyWithoutReview}
+                  />
+                  <Label htmlFor="review-filter" className="text-foreground text-sm">
+                    Ohne Review
+                  </Label>
+                </div>
+              </div>
+              <div className={cn(cardPreset, 'p-3')}>
+                <div className="flex items-center space-x-3">
+                  <Switch
+                    id="pending-partners-filter"
+                    checked={showOnlyPendingPartners}
+                    onCheckedChange={setShowOnlyPendingPartners}
+                  />
+                  <Label htmlFor="pending-partners-filter" className="text-foreground text-sm">
+                    Ausstehende Partner mit Konto
+                  </Label>
+                </div>
               </div>
             </div>
-          </motion.div>
+            <div className="text-sm text-muted-foreground">
+              {filteredBusinesses.length} Geschäfte gefunden
+            </div>
+          </div>
+        </motion.div>
 
-          {/* Business Sections */}
-          <motion.div
-            className="space-y-8"
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-          >
-            {activeBusinesses.length > 0 && (
-              <motion.div variants={fadeInUp} className={cn(glassCard, 'p-6')}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
-                  <CheckCircle2 className="mr-3 h-6 w-6 text-green-600 dark:text-green-400" />
-                  Aktive Geschäfte ({activeBusinesses.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {activeBusinesses.map((business, index) => (
-                    <BusinessCard
-                      key={business.id}
-                      business={business}
-                      categoryNames={getCategoryNames(business.categoryIds)}
-                      onEdit={handleEditClick}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
+        {/* Business Sections */}
+        <motion.div
+          className="space-y-8"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          {activeBusinesses.length > 0 && (
+            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-6')}>
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
+                <CheckCircle2 className="mr-3 h-6 w-6 text-green-600 dark:text-green-400" />
+                Aktive Geschäfte ({activeBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {activeBusinesses.map((business, index) => (
+                  <BusinessCard
+                    key={business.id}
+                    business={business}
+                    categoryNames={getCategoryNames(business.categoryIds)}
+                    onEdit={handleEditClick}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-            {pendingBusinesses.length > 0 && (
-              <motion.div variants={fadeInUp} className={cn(glassCard, 'p-6')}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
-                  <AlertCircle className="mr-3 h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-                  Ausstehende Partner ({pendingBusinesses.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pendingBusinesses.map((business, index) => (
-                    <BusinessCard
-                      key={business.id}
-                      business={business}
-                      categoryNames={getCategoryNames(business.categoryIds)}
-                      onEdit={handleEditClick}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
+          {pendingBusinesses.length > 0 && (
+            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-6')}>
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
+                <AlertCircle className="mr-3 h-6 w-6 text-yellow-600 dark:text-yellow-400" />
+                Ausstehende Partner ({pendingBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {pendingBusinesses.map((business, index) => (
+                  <BusinessCard
+                    key={business.id}
+                    business={business}
+                    categoryNames={getCategoryNames(business.categoryIds)}
+                    onEdit={handleEditClick}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-            {inactiveBusinesses.length > 0 && (
-              <motion.div variants={fadeInUp} className={cn(glassCard, 'p-6')}>
-                <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
-                  <XCircle className="mr-3 h-6 w-6 text-red-600 dark:text-red-400" />
-                  Inaktive Partner ({inactiveBusinesses.length})
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {inactiveBusinesses.map((business, index) => (
-                    <BusinessCard
-                      key={business.id}
-                      business={business}
-                      categoryNames={getCategoryNames(business.categoryIds)}
-                      onEdit={handleEditClick}
-                      index={index}
-                    />
-                  ))}
-                </div>
-              </motion.div>
-            )}
+          {inactiveBusinesses.length > 0 && (
+            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-6')}>
+              <h2 className="text-xl font-semibold mb-6 flex items-center text-foreground">
+                <XCircle className="mr-3 h-6 w-6 text-red-600 dark:text-red-400" />
+                Inaktive Partner ({inactiveBusinesses.length})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {inactiveBusinesses.map((business, index) => (
+                  <BusinessCard
+                    key={business.id}
+                    business={business}
+                    categoryNames={getCategoryNames(business.categoryIds)}
+                    onEdit={handleEditClick}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-            {filteredBusinesses.length === 0 && (
-              <motion.div variants={fadeInUp} className={cn(glassCard, 'p-8 text-center')}>
-                <div className="text-muted-foreground text-lg">Keine Partner gefunden.</div>
-              </motion.div>
-            )}
-          </motion.div>
-        </div>
+          {filteredBusinesses.length === 0 && (
+            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-8 text-center')}>
+              <div className="text-muted-foreground text-lg">Keine Partner gefunden.</div>
+            </motion.div>
+          )}
+        </motion.div>
       </div>
-    </PageTransition>
+    </div>
   );
 };

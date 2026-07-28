@@ -1,8 +1,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { AnimatedCard } from '@/components/AnimatedCard';
-import { AnimatedButton } from '@/components/AnimatedButton';
-import { glassCard, glassButton } from '@/lib/glassmorphism';
+import { LoadingButton } from '@/components/LoadingButton';
+import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import {
   MapPin,
@@ -80,7 +80,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   const status = getStatusBadge(business.status);
 
   return (
-    <AnimatedCard index={index} className={cn(glassCard, 'overflow-hidden')}>
+    <AnimatedCard index={index} className={cn(cardPreset, 'overflow-hidden')}>
       {business.imageUrls && business.imageUrls.length > 0 && (
         <div className="relative h-48 w-full">
           <img
@@ -193,15 +193,15 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
             Erstellt am {formatDate(business.createdAt)}
           </div>
           <div className="flex gap-2">
-            <AnimatedButton
+            <LoadingButton
               variant="outline"
               size="icon"
               onClick={() => onEdit(business)}
-              className={cn(glassButton)}
+              className={cn(buttonPreset)}
             >
               <Pencil className="h-4 w-4" />
               <span className="sr-only">Bearbeiten</span>
-            </AnimatedButton>
+            </LoadingButton>
           </div>
         </div>
       </div>

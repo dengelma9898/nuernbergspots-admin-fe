@@ -274,7 +274,7 @@ describe('BusinessList Component', () => {
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBeGreaterThan(0);
 
-      // Cards nutzen glassCard (Border-Design ohne backdrop-blur) — mehrere Sektionen mit Skeletons
+      // Cards nutzen cardPreset (Border-Design ohne backdrop-blur) — mehrere Sektionen mit Skeletons
       const skeletonCards = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletonCards.length).toBeGreaterThan(0);
     });

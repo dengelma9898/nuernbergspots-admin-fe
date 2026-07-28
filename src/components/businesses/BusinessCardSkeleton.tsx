@@ -1,11 +1,11 @@
 import React from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
-import { glassCard } from '@/lib/glassmorphism';
+import { cardPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
 export const BusinessCardSkeleton: React.FC = () => (
-  <Card className={cn(glassCard, 'overflow-hidden')}>
+  <Card className={cn(cardPreset, 'overflow-hidden')}>
     {/* Image Skeleton */}
     <div className="relative h-48 w-full bg-muted">
       <Skeleton className="w-full h-full rounded-none" />

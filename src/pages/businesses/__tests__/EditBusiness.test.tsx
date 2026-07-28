@@ -374,7 +374,7 @@ describe('EditBusiness Component', () => {
       const skeletons = container.querySelectorAll('[data-slot="skeleton"]');
       expect(skeletons.length).toBeGreaterThan(0);
 
-      // glassCard nutzt seit Design-Update u. a. border-secondary (siehe src/lib/glassmorphism.ts)
+      // cardPreset nutzt u. a. border-secondary (siehe src/lib/designTokens.ts)
       const skeletonCards = container.querySelectorAll(
         '[data-testid="card"].border-secondary.rounded-lg'
       );

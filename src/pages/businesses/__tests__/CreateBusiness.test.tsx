@@ -361,15 +361,15 @@ describe('CreateBusiness Component', () => {
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
-        const categoryBadge = screen.getByText('Restaurant');
+        const categoryBadge = screen.getByText('Restaurant').closest('[data-slot="badge"]');
 
-        // Kategorie auswählen - glassmorphism styling ändert sich bei Klicks
-        fireEvent.click(categoryBadge);
-        expect(categoryBadge).toHaveClass('bg-white/20');
+        // Kategorie auswählen — Badge wechselt auf default-Variant
+        fireEvent.click(categoryBadge!);
+        expect(categoryBadge).toHaveClass('bg-primary');
 
         // Kategorie abwählen
-        fireEvent.click(categoryBadge);
-        expect(categoryBadge).toHaveClass('bg-white/5');
+        fireEvent.click(categoryBadge!);
+        expect(categoryBadge).toHaveClass('border-secondary');
       });
     });
 
@@ -422,15 +422,15 @@ describe('CreateBusiness Component', () => {
       });
 
       await waitFor(() => {
-        const keywordBadge = screen.getAllByText('Pizza')[0];
+        const keywordBadge = screen.getAllByText('Pizza')[0].closest('[data-slot="badge"]');
 
-        // Keyword auswählen - glassmorphism styling ändert sich bei Klicks
-        fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveClass('bg-white/20');
+        // Keyword auswählen — Badge wechselt auf default-Variant
+        fireEvent.click(keywordBadge!);
+        expect(keywordBadge).toHaveClass('bg-primary');
 
         // Keyword abwählen
-        fireEvent.click(keywordBadge);
-        expect(keywordBadge).toHaveClass('bg-white/5');
+        fireEvent.click(keywordBadge!);
+        expect(keywordBadge).toHaveClass('border-secondary');
       });
     });
   });
@@ -505,11 +505,10 @@ describe('CreateBusiness Component', () => {
       renderWithRouter(<CreateBusiness />);
 
       await waitFor(() => {
-        const montag = screen.getAllByText('Montag')[0]; // Erster Zeitraum
-        fireEvent.click(montag);
+        const montag = screen.getAllByText('Montag')[0].closest('[data-slot="badge"]');
+        fireEvent.click(montag!);
 
-        // Glassmorphism styling sollte sich ändern
-        expect(montag).toHaveClass('backdrop-blur-2xl');
+        expect(montag).toHaveClass('bg-primary');
       });
     });
   });
