@@ -429,6 +429,14 @@ auf CSS.
 buttonPreset) ersetzt, loading-overlay gelöscht, DESIGN_SYSTEM.md synchronisiert.
 Offen: 8b (Service-Hooks vereinfachen), 8c (UI-Passthrough-Tests nach Coverage-Review).
 
+### Quick Wins — Jul 2026
+
+**Status:** done  
+**Datum:** 2026-07-28  
+**Notizen:** Dark Mode Default, Docs React 19, Coverage-Baseline in jest.config.js,
+Skeleton auf ContactRequestDetail/Dashboard/Profile, Animations-Reduktion
+(Background/Analytics/Profile). Verifikation: validate + build + start:dev.
+
 ---
 
 ## Geschätzter Netto-Effekt (nach vollständiger Umsetzung)

@@ -4,6 +4,7 @@ import { useUserService } from '../services/userService';
 import { useBusinessService } from '../services/businessService';
 import { useContactService } from '../services/contactService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from '@/components/motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { LoadingButton } from '@/components/LoadingButton';
@@ -49,24 +50,20 @@ const DashboardCardSkeleton = ({ icon: Icon, titleText }: { icon: any; titleText
       <div className="flex items-center justify-between gap-4">
         {/* Number and emoji skeleton */}
         <div className="flex items-center gap-3">
-          <div className="text-2xl sm:text-3xl font-bold text-foreground">
-            <div className="w-12 h-8 bg-muted rounded-lg animate-pulse"></div>
-          </div>
-          <div className="text-xl sm:text-2xl">
-            <div className="w-8 h-8 bg-muted rounded-lg animate-pulse"></div>
-          </div>
+          <Skeleton className="w-12 h-8 rounded-lg" />
+          <Skeleton className="w-8 h-8 rounded-lg" />
         </div>
 
         {/* Action button skeleton */}
         <div className="shrink-0">
-          <div className="w-20 sm:w-24 h-8 bg-muted rounded-xl animate-pulse"></div>
+          <Skeleton className="w-20 sm:w-24 h-8 rounded-xl" />
         </div>
       </div>
 
       {/* Description text skeleton */}
       <div className="mt-3 space-y-1">
-        <div className="w-full h-3 bg-muted rounded animate-pulse"></div>
-        <div className="w-3/4 h-3 bg-muted rounded animate-pulse"></div>
+        <Skeleton className="w-full h-3 rounded" />
+        <Skeleton className="w-3/4 h-3 rounded" />
       </div>
     </CardContent>
   </Card>

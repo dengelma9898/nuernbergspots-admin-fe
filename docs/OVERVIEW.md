@@ -48,11 +48,11 @@ Das Nürnbergspots Admin Frontend ist eine moderne React-basierte Webanwendung z
 
 ### Frontend
 
-- **React 18** mit TypeScript
+- **React 19** mit TypeScript
 - **Vite** als Build-Tool
 - **Tailwind CSS** mit shadcn/ui Komponenten
 - **React Router** für Navigation
-- **React Context API** für State Management
+- **React Context API** für Auth/State (AuthContext)
 
 ### Entwicklungstools
 

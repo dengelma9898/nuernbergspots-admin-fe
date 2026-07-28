@@ -119,10 +119,10 @@ describe('Profile Component', () => {
   it('renders profile page correctly', async () => {
     render(<Profile />);
 
-    expect(screen.getByText('Mein Profil')).toBeTruthy();
-    expect(screen.getByText('Zurück')).toBeTruthy();
+    expect(screen.getByTestId('profile-skeleton')).toBeTruthy();
 
     await waitFor(() => {
+      expect(screen.getByText('Mein Profil')).toBeTruthy();
       expect(screen.getByText('John Doe')).toBeTruthy();
       expect(screen.getByText('test@example.com')).toBeTruthy();
       expect(screen.getByText('admin')).toBeTruthy();
@@ -148,12 +148,20 @@ describe('Profile Component', () => {
     });
   });
 
-  it('navigates back when back button is clicked', async () => {
-    const user = userEvent.setup();
+  it('shows skeleton while loading', () => {
+    mockGetCurrentUser.mockImplementation(() => new Promise(() => {}));
     render(<Profile />);
 
-    const backButton = screen.getByTestId('arrow-left-icon').closest('button');
-    await user.click(backButton!);
+    expect(screen.getByTestId('profile-skeleton')).toBeInTheDocument();
+  });
+
+  it('navigates back when back button is clicked', async () => {
+    const user = userEvent.setup();
+    mockGetCurrentUser.mockImplementation(() => new Promise(() => {}));
+    render(<Profile />);
+
+    const backButton = screen.getByRole('button', { name: /zurück/i });
+    await user.click(backButton);
 
     expect(mockNavigate).toHaveBeenCalledWith(-1);
   });

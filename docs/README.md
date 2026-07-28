@@ -6,7 +6,7 @@ Das Nürnbergspots Admin Frontend ist eine React-basierte Webanwendung zur Verwa
 
 ## Technologie-Stack
 
-- **Frontend Framework**: React 18 mit TypeScript
+- **Frontend Framework**: React 19 mit TypeScript
 - **Build Tool**: Vite
 - **UI Framework**: Tailwind CSS mit shadcn/ui Komponenten
 - **State Management**: React Context API

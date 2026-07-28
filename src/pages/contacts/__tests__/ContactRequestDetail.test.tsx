@@ -142,10 +142,10 @@ describe('ContactRequestDetail', () => {
 
       renderWithRouter(<ContactRequestDetail />);
 
-      expect(screen.getByText('Lade Kontaktanfrage...')).toBeInTheDocument();
+      expect(screen.getByTestId('contact-request-detail-skeleton')).toBeInTheDocument();
 
       await waitFor(() => {
-        expect(screen.queryByText('Lade Kontaktanfrage...')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('contact-request-detail-skeleton')).not.toBeInTheDocument();
       });
     });
 
@@ -158,7 +158,7 @@ describe('ContactRequestDetail', () => {
 
       // Da keine ID vorhanden ist, lädt die Komponente nicht und bleibt im Loading-State
       // Das ist das erwartete Verhalten, da fetchContactRequest() nicht ausgeführt wird
-      expect(screen.getByText('Lade Kontaktanfrage...')).toBeInTheDocument();
+      expect(screen.getByTestId('contact-request-detail-skeleton')).toBeInTheDocument();
       expect(mockContactService.getContactRequestById).not.toHaveBeenCalled();
     });
 

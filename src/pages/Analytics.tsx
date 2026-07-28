@@ -143,7 +143,7 @@ const BusinessAnalyticsCard = ({
             </div>
             <div className="bg-muted rounded-full h-2 overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-500"
+                className="h-full bg-primary transition-all duration-150"
                 style={{ width: `${(business.totalScans / business.yearlyScans) * 100}%` }}
               ></div>
             </div>

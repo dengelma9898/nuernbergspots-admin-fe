@@ -336,6 +336,13 @@ it('sollte zur Dashboard-Seite navigieren', async () => {
 - **Pages**: 70% Coverage (Integration wichtiger als Details)
 - **Utils**: 95% Coverage (reine Funktionen, einfach zu testen)
 
+### Jest Baseline (enforced)
+
+Jest enforced aktuell einen **globalen Coverage-Floor** in `jest.config.js`
+(~54 % Lines / ~53 % Statements). Das schützt vor Regressionen, ohne den
+Build sofort zu blockieren. Das Ziel laut `.cursorrules` und dieser Doku bleibt
+**80–90 %** — die Erhöhung erfolgt schrittweise.
+
 ### Ausschlüsse
 
 Folgende Dateien/Patterns sind von Coverage ausgeschlossen:

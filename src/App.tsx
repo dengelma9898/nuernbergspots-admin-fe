@@ -6,7 +6,7 @@ import { Toaster } from 'sonner';
 
 export default function App() {
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
       <Router>
         <AuthProvider>
           <AppRoutes />

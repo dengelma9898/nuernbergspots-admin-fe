@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   ArrowLeft,
   Clock,
@@ -25,6 +26,51 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
+
+function ContactRequestDetailSkeleton() {
+  return (
+    <div
+      className="min-h-screen relative overflow-hidden"
+      data-testid="contact-request-detail-skeleton"
+    >
+      <div className="container mx-auto p-4 md:p-8 max-w-4xl relative z-10">
+        <Card className={cn(cardPreset, 'p-6 md:p-8 mb-6')}>
+          <div className="flex flex-row items-start justify-between gap-4">
+            <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+            <div className="flex-1 min-w-0 space-y-3">
+              <Skeleton className="h-7 w-48 sm:w-64 rounded" />
+              <div className="flex flex-wrap items-center gap-2">
+                <Skeleton className="h-6 w-24 rounded-full" />
+                <Skeleton className="h-6 w-20 rounded-full" />
+              </div>
+              <Skeleton className="h-4 w-32 rounded" />
+            </div>
+            <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+          </div>
+        </Card>
+
+        <Card className={cn(cardPreset, 'p-6 mb-6')}>
+          <Skeleton className="h-6 w-40 rounded mb-6" />
+          <div className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`message-skeleton-${index}`}
+                className={cn('flex', index % 2 === 0 ? 'justify-start' : 'justify-end')}
+              >
+                <Card className={cn(cardPreset, 'p-4 max-w-[85%] w-full space-y-2')}>
+                  <Skeleton className="h-4 w-24 rounded" />
+                  <Skeleton className="h-4 w-full rounded" />
+                  <Skeleton className="h-4 w-3/4 rounded" />
+                  <Skeleton className="h-3 w-28 rounded" />
+                </Card>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+}
 
 export function ContactRequestDetail() {
   const { id } = useParams<{ id: string }>();
@@ -196,18 +242,7 @@ export function ContactRequestDetail() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen relative overflow-hidden">
-        <div className="relative z-10 p-4 md:p-8">
-          <Card className={cn(cardPreset, 'p-8 text-center max-w-md mx-auto')}>
-            <div className="flex flex-col items-center gap-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-2 border-secondary border-t-primary"></div>
-              <p className="text-foreground text-lg">Lade Kontaktanfrage...</p>
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
+    return <ContactRequestDetailSkeleton />;
   }
 
   if (!contactRequest) {
