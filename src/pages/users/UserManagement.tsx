@@ -23,7 +23,9 @@ import {
   Calendar,
   Shield,
   CheckCircle2,
+  Download,
 } from 'lucide-react';
+import { downloadCsv } from '@/utils/csvExport';
 import { User, UserType } from '@/models/users';
 import { useUserService } from '@/services/userService';
 import { format } from 'date-fns';
@@ -256,6 +258,25 @@ export function UserManagement() {
     </motion.div>
   );
 
+  const handleExportCsv = () => {
+    if (users.length === 0) return;
+    downloadCsv(
+      `users-export-${new Date().toISOString().slice(0, 10)}`,
+      users.map(user => ({
+        id: user.id,
+        email: user.email ?? '',
+        name: user.name ?? '',
+        userType: user.userType,
+        isBlocked: user.isBlocked ?? false,
+        createdAt: user.createdAt ?? '',
+      }))
+    );
+    showSuccessMessage(toast, {
+      title: 'Export gestartet',
+      description: `${users.length} User als CSV exportiert.`,
+    });
+  };
+
   const TableSkeleton = () => (
     <Card className={cn(cardPreset, 'p-4 md:p-6')}>
       <Table>
@@ -339,15 +360,26 @@ export function UserManagement() {
                   Übersicht aller registrierten Benutzer und Statistiken
                 </p>
               </div>
-              <LoadingButton
-                onClick={() => fetchUsers(true)}
-                disabled={isRefreshing}
-                size="icon"
-                className={cn(buttonPreset, 'shrink-0 rounded-full')}
-              >
-                <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="sr-only">Aktualisieren</span>
-              </LoadingButton>
+              <div className="flex gap-2 shrink-0">
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleExportCsv}
+                  disabled={users.length === 0 || loading}
+                  className={cn(buttonPreset, 'gap-2')}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">CSV Export</span>
+                </LoadingButton>
+                <LoadingButton
+                  onClick={() => fetchUsers(true)}
+                  disabled={isRefreshing}
+                  size="icon"
+                  className={cn(buttonPreset, 'rounded-full')}
+                >
+                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="sr-only">Aktualisieren</span>
+                </LoadingButton>
+              </div>
             </div>
           </motion.div>
 

@@ -10,7 +10,9 @@ import {
   CheckCircle2,
   MessageSquare,
   RefreshCcw,
+  Download,
 } from 'lucide-react';
+import { downloadCsv } from '@/utils/csvExport';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 import { useContactService } from '@/services/contactService';
 import { format } from 'date-fns';
@@ -116,6 +118,25 @@ export function ContactRequests() {
     );
   };
 
+  const handleExportCsv = () => {
+    if (contactRequests.length === 0) return;
+    downloadCsv(
+      `contact-requests-export-${new Date().toISOString().slice(0, 10)}`,
+      contactRequests.map(request => ({
+        id: request.id,
+        type: request.type,
+        status: request.isProcessed ? 'Bearbeitet' : 'Offen',
+        userId: request.userId ?? '',
+        businessId: request.businessId ?? '',
+        createdAt: request.createdAt,
+      }))
+    );
+    showSuccessMessage(toast, {
+      title: 'Export gestartet',
+      description: `${contactRequests.length} Kontaktanfragen als CSV exportiert.`,
+    });
+  };
+
   const ContactRequestSkeleton = () => (
     <Card className={cn(cardPreset, 'p-4 md:p-6')}>
       {/* Header Row Skeleton */}
@@ -187,15 +208,26 @@ export function ContactRequests() {
                   Verwalten Sie alle eingehenden Kundenanfragen und Nachrichten
                 </p>
               </div>
-              <LoadingButton
-                onClick={() => fetchContactRequests(true)}
-                disabled={isRefreshing}
-                size="icon"
-                className={cn(buttonPreset, 'shrink-0 rounded-full')}
-              >
-                <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                <span className="sr-only">Aktualisieren</span>
-              </LoadingButton>
+              <div className="flex gap-2 shrink-0">
+                <LoadingButton
+                  variant="outline"
+                  onClick={handleExportCsv}
+                  disabled={contactRequests.length === 0 || loading}
+                  className={cn(buttonPreset, 'gap-2')}
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">CSV Export</span>
+                </LoadingButton>
+                <LoadingButton
+                  onClick={() => fetchContactRequests(true)}
+                  disabled={isRefreshing}
+                  size="icon"
+                  className={cn(buttonPreset, 'rounded-full')}
+                >
+                  <RefreshCcw className={`h-5 w-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  <span className="sr-only">Aktualisieren</span>
+                </LoadingButton>
+              </div>
             </div>
           </motion.div>
 

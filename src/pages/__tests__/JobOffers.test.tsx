@@ -170,6 +170,10 @@ jest.mock('@/utils/iconUtils', () => ({
   getIconComponent: jest.fn(() => <div data-testid="category-icon">CategoryIcon</div>),
 }));
 
+jest.mock('@/utils/csvExport', () => ({
+  downloadCsv: jest.fn(),
+}));
+
 describe('JobOffers Component', () => {
   const user = userEvent.setup();
 
@@ -669,6 +673,24 @@ describe('JobOffers Component', () => {
     await waitFor(() => {
       expect(screen.getAllByTestId('euro-icon').length).toBeGreaterThan(0);
     });
+  });
+
+  it('exports filtered job offers as CSV', async () => {
+    const { downloadCsv } = require('@/utils/csvExport');
+    renderComponent();
+
+    await waitFor(() => {
+      expect(screen.getByText('CSV Export')).toBeTruthy();
+    });
+
+    await user.click(screen.getByText('CSV Export'));
+
+    expect(downloadCsv).toHaveBeenCalledWith(
+      expect.stringMatching(/^job-offers-export-/),
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'job-1', title: 'Software Developer' }),
+      ])
+    );
   });
 
   it('handles invalid date gracefully', async () => {

@@ -30,6 +30,10 @@ jest.mock('sonner', () => ({
   },
 }));
 
+jest.mock('@/utils/csvExport', () => ({
+  downloadCsv: jest.fn(),
+}));
+
 const { toast: mockToast } = require('sonner');
 
 // Mock date-fns
@@ -386,6 +390,29 @@ describe('UserManagement', () => {
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalled();
       });
+    });
+  });
+
+  describe('CSV Export', () => {
+    it('sollte User als CSV exportieren', async () => {
+      const { downloadCsv } = require('@/utils/csvExport');
+
+      await act(async () => {
+        renderWithRouter(<UserManagement />);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('CSV Export')).toBeInTheDocument();
+      });
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('CSV Export'));
+      });
+
+      expect(downloadCsv).toHaveBeenCalledWith(
+        expect.stringMatching(/^users-export-/),
+        expect.arrayContaining([expect.objectContaining({ id: expect.any(String) })])
+      );
     });
   });
 });

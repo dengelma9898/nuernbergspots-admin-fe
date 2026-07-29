@@ -567,9 +567,9 @@
           </p>
 
           <div class="callout">
-            <strong>Kern-Erkenntnis:</strong> Ponytail-Audit (Phasen 1–8) ist abgeschlossen. Die
-            größten verbleibenden Hebel: restliche Mega-Pages (Wave 4+), Admin-Power-Features
-            (Bulk, CSV-Export, E2E) und schrittweise Coverage-Erhöhung Richtung 80–90 %.
+            <strong>Kern-Erkenntnis:</strong> Ponytail-Audit, Wave 4+ Mega-Page-Splits und Frontend-Admin-Power
+            (CSV-Export erweitert, E2E-Smoke, Dev-Banner) sind umgesetzt. Nächster Fokus: Coverage
+            schrittweise Richtung 80–90 % und CopyEvent Backend-Proxy.
           </div>
 
           <div class="grid-4" style="margin-top: 1.5rem">
@@ -617,25 +617,20 @@
           <h3>Kritische Schwachstellen</h3>
           <ul class="item-list" style="margin-top: 0.5rem">
             <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-med">Mittel</span> Wave 4+ Mega-Pages: JobOffers (653),
-              AdventCalendar*, CsvEventImport, ChatMessages, CategoryList (alle &gt; 500 LOC)
+              <span class="badge badge-med">Mittel</span> Coverage-Ziel 80–90% — Jest-Floor
+              angehoben (~57 % Lines / ~56 % Statements, Ziel weiterhin schrittweise)
             </li>
             <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-med">Mittel</span> Coverage-Ziel 80–90% — Jest enforced
-              aktuell Baseline (~54%) gegen Regression
-            </li>
-            <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-low">Niedrig</span> CopyEvent.tsx — Backend-Proxy für
-              Bild-Upload fehlt (einziger TODO in src)
+              <span class="badge badge-low">Niedrig</span> CopyEvent — Backend-Proxy für
+              Bild-Upload (CORS in eventFormUtils)
             </li>
           </ul>
           <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--success)">
             ✓ Gelöst (2026-07-28–29): MUI entfernt, CI-validate-Job, Design-System synchronisiert,
-            Shared AdminLayout mit Sidebar, Mega-Page-Splits Waves A/B/C + 2 + 3 + 4 (EasterEgg,
-            Analytics, TaxiStand). Quick Wins: Dark Mode Default, Docs React 19, Skeleton-Rest,
-            Coverage-Baseline, Animations-Reduktion, PR-Workflow, Command Palette, a11y Skip-Link +
-            Shortcuts (g+e, g+b, g+u, g+d). Admin-Power: CSV-Export, Business-Bulk-Delete, E2E
-            Events-Smoke.
+            Shared AdminLayout mit Sidebar, Mega-Page-Splits Waves A–4+, Command Palette, Shortcuts
+            (g+e/b/u/d). Admin-Power: CSV-Export (Events, Businesses, JobOffers, Users,
+            Kontaktanfragen), Business-Bulk-Delete, E2E-Smoke (Events, CSV-Import, User-Block,
+            Partner), Dev-Mode-Banner in AdminLayout.
           </p>
         </section>
 
@@ -775,8 +770,8 @@
         <section id="roadmap">
           <h2>Ponytail-Roadmap</h2>
           <p class="lead">
-            8-Phasen-Plan aus dem Repo-Audit. Phasen 1–8 abgeschlossen (8b/8c bewusst skipped).
-            Nächster Fokus: Wave 4+ Mega-Pages und Admin-Power-Features.
+            8-Phasen-Plan aus dem Repo-Audit. Phasen 1–8, Wave 4+ und Frontend-Admin-Power abgeschlossen.
+            Nächster Fokus: Coverage-Erhöhung und CopyEvent Backend-Proxy.
           </p>
 
           <div class="timeline" id="roadmapTimeline"></div>
@@ -1210,11 +1205,11 @@
           tags: ['ci'],
           status: 'done',
           completedAt: '2026-07-29',
-          desc: 'Events-Smoke-Spec ergänzt (Login → /events). Weitere Flows (CSV-Import, User blockieren) als Backlog.',
+          desc: 'Events-, CSV-Import- und User-Block-Smoke-Specs ergänzt. Keine destruktiven Aktionen in CI.',
           actions: [
             'e2e/events-smoke.spec.ts — Navigation nach Login',
-            'CSV-Import Happy Path — Backlog',
-            'Parallel gegen dev-API mit Testdaten — Backlog',
+            'e2e/csv-import-smoke.spec.ts — Upload + Vorschau',
+            'e2e/user-block-smoke.spec.ts — Block-Verwaltung UI',
           ],
         },
         {
@@ -1300,11 +1295,10 @@
           tags: ['power'],
           status: 'done',
           completedAt: '2026-07-29',
-          desc: 'CSV-Export-Utility + Export-Buttons in EventList und BusinessList (gefilterte Daten).',
+          desc: 'CSV-Export-Utility + Export in EventList, BusinessList, JobOffers, UserManagement und ContactRequests.',
           actions: [
             'src/utils/csvExport.ts — downloadCsv()',
-            'Export-Button in EventList + BusinessList',
-            'Weitere Listen — bei Bedarf',
+            'Export-Button in EventList + BusinessList + JobOffers + Users + Kontaktanfragen',
           ],
         },
         {
@@ -1314,11 +1308,13 @@
           effort: 'low',
           effortLabel: 'Aufwand niedrig',
           tags: ['power'],
-          desc: 'FeatureFlagsManagement existiert bereits — Dev-Banner, API-URL-Anzeige, Request-Debug wären natürliche Erweiterungen.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Dev-Mode-Banner in AdminLayout zeigt VITE_API_URL (nur import.meta.env.DEV). Request-Inspector weiterhin Backlog.',
           actions: [
-            'Dev-Mode Banner (bereits Favicon/Titel-Unterscheidung)',
-            'API-Response-Inspector im Dev-Mode',
-            'Mock-Daten für UI-Entwicklung',
+            'Dev-Banner mit API-URL in AdminLayout',
+            'API-Response-Inspector — Backlog',
+            'Mock-Daten für UI-Entwicklung — Backlog',
           ],
         },
         {
@@ -1498,7 +1494,7 @@
           label: 'Mega-Pages Wave 4+',
           q: 'high-high',
           detail:
-            'Wave 4 erledigt (2026-07-29). Nächste Kandidaten: JobOffers, AdventCalendar*, CsvEventImport, ChatMessages.',
+            'Erledigt (2026-07-29): JobOffers, AdventCalendar*, CsvEventImport, ChatMessages, CategoryList, SpecialPollDetail, EasterEggForm, EventDetail, UserBlockManagement — alle Page-Wrapper &lt;10 LOC.',
         },
         {
           label: 'CSV-Export',
@@ -1526,7 +1522,7 @@
           q: 'med-high',
           detail: 'Erst bei messbarem Performance-Problem.',
         },
-        { label: 'Coverage 80%+', q: 'med-med', detail: 'Schrittweise von Baseline ~54 % erhöhen.' },
+        { label: 'Coverage 80%+', q: 'med-med', detail: 'Floor ~57 % Lines — schrittweise von ~60 % erhöhen.' },
       ];
 
       const quadrants = {
@@ -1595,66 +1591,6 @@
       // Files table
       const files = [
         {
-          lines: 653,
-          file: 'src/pages/JobOffers.tsx',
-          category: 'Page',
-          priority: 'Hoch',
-        },
-        {
-          lines: 648,
-          file: 'src/pages/advent-calendar/AdventCalendarManagement.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 636,
-          file: 'src/pages/advent-calendar/AdventCalendarForm.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 635,
-          file: 'src/pages/events/CsvEventImport.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 627,
-          file: 'src/pages/chatrooms/ChatMessages.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 611,
-          file: 'src/pages/categories/CategoryList.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 610,
-          file: 'src/pages/SpecialPollDetail.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 552,
-          file: 'src/pages/easter-egg/EasterEggForm.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 536,
-          file: 'src/pages/events/EventDetail.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
-          lines: 520,
-          file: 'src/pages/users/UserBlockManagement.tsx',
-          category: 'Page',
-          priority: 'Mittel',
-        },
-        {
           lines: 661,
           file: 'src/components/events/EventCategoryListContent.tsx',
           category: 'Component',
@@ -1672,7 +1608,109 @@
           category: 'Component',
           priority: 'Mittel',
         },
+        {
+          lines: 426,
+          file: 'src/components/chatrooms/ChatMessagesContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 392,
+          file: 'src/components/special-poll/SpecialPollDetailContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 354,
+          file: 'src/components/categories/CategoryListContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 353,
+          file: 'src/components/advent-calendar/AdventCalendarFormContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 334,
+          file: 'src/components/events/CsvEventImportContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 318,
+          file: 'src/components/users/UserBlockManagementContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 306,
+          file: 'src/components/easter-egg/EasterEggFormContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
         { lines: 678, file: 'src/utils/errorUtils.ts', category: 'Util', priority: 'Niedrig' },
+        {
+          lines: 5,
+          file: 'src/pages/JobOffers.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/advent-calendar/AdventCalendarManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/advent-calendar/AdventCalendarForm.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/events/CsvEventImport.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/chatrooms/ChatMessages.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/categories/CategoryList.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/SpecialPollDetail.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/easter-egg/EasterEggForm.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 9,
+          file: 'src/pages/events/EventDetail.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/users/UserBlockManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
         {
           lines: 5,
           file: 'src/pages/easter-egg/EasterEggManagement.tsx',

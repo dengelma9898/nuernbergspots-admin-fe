@@ -63,10 +63,10 @@ export default {
   // Baseline-Floor gegen Coverage-Regression (Ziel laut .cursorrules: 80 %)
   coverageThreshold: {
     global: {
-      statements: 53,
-      branches: 45,
-      functions: 47,
-      lines: 54,
+      statements: 56,
+      branches: 48,
+      functions: 50,
+      lines: 57,
     },
   },
 

@@ -67,7 +67,7 @@ Unser Test-Ansatz folgt der klassischen Test-Pyramide:
 
 - **Zweck**: Wenige Smoke-Flows im echten Browser (inkl. Firebase Auth gegen das Dev-Projekt).
 - **Ort**: `e2e/*.spec.ts`, gemeinsame Hilfen unter `e2e/helpers/`
-- **Beispiele:** Login-Smoke (`auth-login.spec.ts`), Partner-Liste (`partner-verwalten.spec.ts`), Logout (`auth-logout.spec.ts`)
+- **Beispiele:** Login-Smoke (`auth-login.spec.ts`), Partner-Liste (`partner-verwalten.spec.ts`), Events-Smoke (`events-smoke.spec.ts`), CSV-Import-Smoke (`csv-import-smoke.spec.ts`), User-Block-Smoke (`user-block-smoke.spec.ts`), Logout (`auth-logout.spec.ts`)
 - **Tools**: `@playwright/test`, Konfiguration [`playwright.config.ts`](../playwright.config.ts)
 - **Hinweis**: E2E ergänzen Jest/jsdom-Tests (echter Browser, Firebase Auth gegen das Dev-Projekt); keine dedizierte BDD/Gherkin-Suite.
 
