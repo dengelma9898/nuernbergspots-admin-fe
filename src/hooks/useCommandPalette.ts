@@ -62,9 +62,19 @@ export function useCommandPalette() {
 
       if (event.key.toLowerCase() === 'g') {
         const handleSecondKey = (secondEvent: KeyboardEvent) => {
-          if (secondEvent.key.toLowerCase() === 'e') {
+          const key = secondEvent.key.toLowerCase();
+          if (key === 'e') {
             secondEvent.preventDefault();
             navigate('/events');
+          } else if (key === 'b') {
+            secondEvent.preventDefault();
+            navigate('/businesses');
+          } else if (key === 'u') {
+            secondEvent.preventDefault();
+            navigate('/users');
+          } else if (key === 'd') {
+            secondEvent.preventDefault();
+            navigate('/dashboard');
           }
           window.removeEventListener('keydown', handleSecondKey);
         };

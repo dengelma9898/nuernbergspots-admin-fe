@@ -25,6 +25,9 @@ interface BusinessCardProps {
   categoryNames: string;
   onEdit: (business: Business) => void;
   index?: number;
+  isSelectionMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (businessId: string) => void;
 }
 
 const getStatusBadge = (status: BusinessStatus) => {
@@ -76,11 +79,21 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
   categoryNames,
   onEdit,
   index = 0,
+  isSelectionMode = false,
+  isSelected = false,
+  onToggleSelection,
 }) => {
   const status = getStatusBadge(business.status);
 
   return (
-    <AnimatedCard index={index} className={cn(cardPreset, 'overflow-hidden')}>
+    <AnimatedCard
+      index={index}
+      className={cn(
+        cardPreset,
+        'overflow-hidden',
+        isSelectionMode && isSelected && 'ring-2 ring-primary'
+      )}
+    >
       {business.imageUrls && business.imageUrls.length > 0 && (
         <div className="relative h-48 w-full">
           <img
@@ -105,6 +118,15 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
       <div className="p-4 sm:p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-start gap-3 flex-1">
+            {isSelectionMode && onToggleSelection ? (
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onToggleSelection(business.id)}
+                aria-label={`${business.name} auswählen`}
+                className="mt-1 h-4 w-4 accent-primary"
+              />
+            ) : null}
             {business.logoUrl && (
               <div className="w-12 h-12 rounded-lg overflow-hidden border border-secondary bg-muted">
                 <img
@@ -197,6 +219,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
               variant="outline"
               size="icon"
               onClick={() => onEdit(business)}
+              disabled={isSelectionMode}
               className={cn(buttonPreset)}
             >
               <Pencil className="h-4 w-4" />

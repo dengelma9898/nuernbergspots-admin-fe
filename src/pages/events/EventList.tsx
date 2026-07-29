@@ -18,6 +18,7 @@ import { cardPreset, listSectionPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { showSuccessMessage } from '@/utils/errorUtils';
 import { getMonthOptions, groupEventsByMonth, sortMonthKeys } from '@/utils/eventListUtils';
+import { downloadCsv } from '@/utils/csvExport';
 
 export { EventCard } from '@/components/events/EventListCard';
 
@@ -94,6 +95,26 @@ export const EventList: React.FC = () => {
     });
   };
 
+  const handleExportCsv = () => {
+    if (displayFilteredEvents.length === 0) return;
+    downloadCsv(
+      `events-export-${new Date().toISOString().slice(0, 10)}`,
+      displayFilteredEvents.map(event => ({
+        id: event.id,
+        title: event.title,
+        status: event.status ?? 'ACTIVE',
+        categoryId: event.categoryId ?? '',
+        startDate: event.startDate ?? event.dailyTimeSlots?.[0]?.date ?? '',
+        location: event.location?.address ?? '',
+        isPromoted: event.isPromoted ?? false,
+      }))
+    );
+    showSuccessMessage(toast, {
+      title: 'Export gestartet',
+      description: `${displayFilteredEvents.length} Events als CSV exportiert.`,
+    });
+  };
+
   if (loading) {
     return <EventListSkeleton />;
   }
@@ -124,6 +145,7 @@ export const EventList: React.FC = () => {
             onManualRefresh={handleManualRefresh}
             onNavigateCsvImport={() => navigate('/events/import/csv')}
             onNavigateCreateEvent={() => navigate('/create-event')}
+            onExportCsv={handleExportCsv}
           />
 
           {bulk.isSelectionMode ? (

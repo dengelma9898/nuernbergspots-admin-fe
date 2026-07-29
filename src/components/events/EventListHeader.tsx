@@ -1,6 +1,7 @@
 import {
   ArrowLeft,
   CheckSquare,
+  Download,
   FileSpreadsheet,
   Image as ImageIcon,
   Plus,
@@ -30,6 +31,7 @@ interface EventListHeaderProps {
   onManualRefresh: () => void;
   onNavigateCsvImport: () => void;
   onNavigateCreateEvent: () => void;
+  onExportCsv: () => void;
 }
 
 export function EventListHeader({
@@ -48,6 +50,7 @@ export function EventListHeader({
   onManualRefresh,
   onNavigateCsvImport,
   onNavigateCreateEvent,
+  onExportCsv,
 }: EventListHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
@@ -134,6 +137,14 @@ export function EventListHeader({
             >
               <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
               Aktualisieren
+            </LoadingButton>
+            <LoadingButton
+              variant="outline"
+              onClick={onExportCsv}
+              className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+            >
+              <Download className="h-4 w-4" />
+              CSV Export
             </LoadingButton>
             <LoadingButton
               variant="outline"

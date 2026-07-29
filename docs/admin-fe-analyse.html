@@ -567,9 +567,9 @@
           </p>
 
           <div class="callout">
-            <strong>Kern-Erkenntnis:</strong> Die größten Hebel liegen nicht in neuen Features,
-            sondern in Struktur (Mega-Pages splitten), Bundle-Größe (MUI + framer-motion entfernen)
-            und einem gemeinsamen Admin-Layout mit konsistenter Navigation.
+            <strong>Kern-Erkenntnis:</strong> Ponytail-Audit (Phasen 1–8) ist abgeschlossen. Die
+            größten verbleibenden Hebel: restliche Mega-Pages (Wave 4+), Admin-Power-Features
+            (Bulk, CSV-Export, E2E) und schrittweise Coverage-Erhöhung Richtung 80–90 %.
           </div>
 
           <div class="grid-4" style="margin-top: 1.5rem">
@@ -617,22 +617,25 @@
           <h3>Kritische Schwachstellen</h3>
           <ul class="item-list" style="margin-top: 0.5rem">
             <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-med">Mittel</span> Verbleibende große Pages:
-              EasterEggManagement (748), Analytics (692), TaxiStandManagement (679 Zeilen)
+              <span class="badge badge-med">Mittel</span> Wave 4+ Mega-Pages: JobOffers (653),
+              AdventCalendar*, CsvEventImport, ChatMessages, CategoryList (alle &gt; 500 LOC)
             </li>
             <li style="padding: 0.5rem 0; color: var(--muted)">
               <span class="badge badge-med">Mittel</span> Coverage-Ziel 80–90% — Jest enforced
               aktuell Baseline (~54%) gegen Regression
             </li>
+            <li style="padding: 0.5rem 0; color: var(--muted)">
+              <span class="badge badge-low">Niedrig</span> CopyEvent.tsx — Backend-Proxy für
+              Bild-Upload fehlt (einziger TODO in src)
+            </li>
           </ul>
           <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--success)">
-            ✓ Gelöst (2026-07-28): MUI entfernt, CI-validate-Job, Design-System synchronisiert,
-            Shared AdminLayout mit Sidebar, Mega-Page-Splits (EventList, EditBusiness,
-            CopyEvent/CreateEvent, JobOfferForm, NewsManagement, Wave 2: CreateBusiness,
-            EventCategoryList, CuratedSpotForm, JobCategories, Wave 3: Dashboard,
-            ChatroomManagement, AppVersionManagement). Quick Wins: Dark Mode Default, Docs React 19,
-            Skeleton-Rest (ContactRequestDetail/Dashboard/Profile), Coverage-Baseline,
-            Animations-Reduktion, PR-Workflow, Command Palette, a11y Skip-Link + Shortcuts.
+            ✓ Gelöst (2026-07-28–29): MUI entfernt, CI-validate-Job, Design-System synchronisiert,
+            Shared AdminLayout mit Sidebar, Mega-Page-Splits Waves A/B/C + 2 + 3 + 4 (EasterEgg,
+            Analytics, TaxiStand). Quick Wins: Dark Mode Default, Docs React 19, Skeleton-Rest,
+            Coverage-Baseline, Animations-Reduktion, PR-Workflow, Command Palette, a11y Skip-Link +
+            Shortcuts (g+e, g+b, g+u, g+d). Admin-Power: CSV-Export, Business-Bulk-Delete, E2E
+            Events-Smoke.
           </p>
         </section>
 
@@ -656,7 +659,7 @@
           <div id="view-deps" class="hidden">
             <div class="bar-chart" id="depsChart"></div>
             <p style="font-size: 0.8rem; color: var(--muted); margin-top: 1rem">
-              Quelle: node_modules-Größe · MUI nur für icon-picker.tsx + iconUtils.tsx
+              Quelle: node_modules-Größe · MUI entfernt, MaterialIcon via Google Font
             </p>
           </div>
 
@@ -664,8 +667,8 @@
             <div class="grid-2">
               <div class="card">
                 <h4>Pages &gt; 500 Zeilen</h4>
-                <div class="value">25 / 49</div>
-                <div class="hint">51% — Top-3 gesplittet (Jul 2026)</div>
+                <div class="value">10 / 49</div>
+                <div class="hint">20% — Wave 4 gesplittet (Jul 2026)</div>
               </div>
               <div class="card">
                 <h4>Coverage Threshold</h4>
@@ -772,7 +775,8 @@
         <section id="roadmap">
           <h2>Ponytail-Roadmap</h2>
           <p class="lead">
-            8-Phasen-Plan aus dem Repo-Audit. Phasen 1–7 sind umgesetzt, Phase 8 teilweise (8a).
+            8-Phasen-Plan aus dem Repo-Audit. Phasen 1–8 abgeschlossen (8b/8c bewusst skipped).
+            Nächster Fokus: Wave 4+ Mega-Pages und Admin-Power-Features.
           </p>
 
           <div class="timeline" id="roadmapTimeline"></div>
@@ -866,7 +870,7 @@
           { label: 'Components', value: 55 },
           { label: 'Services', value: 25 },
           { label: 'Models', value: 23 },
-          { label: 'Hooks', value: 3 },
+          { label: 'Hooks', value: 28 },
           { label: 'Utils', value: 13 },
           { label: 'UI-Tests', value: 28 },
           { label: 'Page-Tests', value: 34 },
@@ -1144,10 +1148,12 @@
           effort: 'med',
           effortLabel: 'Aufwand mittel',
           tags: ['a11y'],
-          desc: 'Weitere Shortcuts (Esc in allen Dialogen prüfen), Fokus-Ringe auditieren.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Weitere g+* Shortcuts: g+b Partner, g+u Users, g+d Dashboard. Fokus-Ringe über shadcn focus-visible.',
           actions: [
-            'Weitere g+* Shortcuts für häufige Bereiche',
-            'Fokus-Management bei verschachtelten Dialogen prüfen',
+            'g+b → /businesses, g+u → /users, g+d → /dashboard',
+            'Fokus-Management bei verschachtelten Dialogen prüfen (laufend)',
           ],
         },
         {
@@ -1202,11 +1208,26 @@
           effort: 'med',
           effortLabel: 'Aufwand mittel',
           tags: ['ci'],
-          desc: 'Nur 3 Playwright-Specs (Login, Logout, Partner). Kritische Flows fehlen: Event erstellen, CSV-Import, User blockieren.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Events-Smoke-Spec ergänzt (Login → /events). Weitere Flows (CSV-Import, User blockieren) als Backlog.',
           actions: [
-            'Smoke-Test für Event-CRUD',
-            'CSV-Import Happy Path',
-            'Parallel gegen dev-API mit Testdaten',
+            'e2e/events-smoke.spec.ts — Navigation nach Login',
+            'CSV-Import Happy Path — Backlog',
+            'Parallel gegen dev-API mit Testdaten — Backlog',
+          ],
+        },
+        {
+          title: 'CopyEvent Backend-Proxy',
+          impact: 'low',
+          impactLabel: 'Impact niedrig',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['api'],
+          desc: 'Einziges TODO in src: CopyEvent.tsx benötigt Backend-Proxy für Bild-Upload beim Kopieren.',
+          actions: [
+            'Backend-Endpoint für Proxy-Upload',
+            'CopyEvent.tsx TODO entfernen',
           ],
         },
         {
@@ -1247,11 +1268,13 @@
           effort: 'med',
           effortLabel: 'Aufwand mittel',
           tags: ['power'],
-          desc: 'EventList hat Bulk-Kategorien — Pattern auf Businesses, Users, Job Offers erweitern.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'EventList hatte Bulk-Kategorien — Pattern auf BusinessList erweitert (Multi-Select + Bulk-Delete).',
           actions: [
-            'Multi-Select in allen Listen',
-            'Bulk-Delete, Bulk-Status-Change',
-            'Undo-Toast für destruktive Aktionen',
+            'useBusinessBulkSelection + Auswahlmodus in BusinessList',
+            'Bulk-Delete mit Bestätigungsdialog',
+            'Users/Job Offers — Backlog wenn Backend-Bulk-API verfügbar',
           ],
         },
         {
@@ -1275,11 +1298,13 @@
           effort: 'low',
           effortLabel: 'Aufwand niedrig',
           tags: ['power'],
-          desc: 'CSV-Import existiert für Events. Export fehlt oft — Admins wollen Daten für Reports.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'CSV-Export-Utility + Export-Buttons in EventList und BusinessList (gefilterte Daten).',
           actions: [
-            'CSV/JSON-Export-Button in Listen',
-            'papaparse ist bereits installiert',
-            'Gefilterte Exporte',
+            'src/utils/csvExport.ts — downloadCsv()',
+            'Export-Button in EventList + BusinessList',
+            'Weitere Listen — bei Bedarf',
           ],
         },
         {
@@ -1377,6 +1402,23 @@
             'Profile StatCard/Info-Cards ohne hover:scale',
           ],
         },
+        {
+          title:
+            'Mega-Pages splitten — Wave 4 (EasterEggManagement, Analytics, TaxiStandManagement)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'EasterEggManagement (~5), Analytics (~5), TaxiStandManagement (~5) Zeilen Orchestrierung. Hooks + domain components extrahiert. validate + build grün.',
+          actions: [
+            'useEasterEggManagement + components/easter-egg/*',
+            'useAnalyticsData + components/analytics/*',
+            'useTaxiStandManagement + components/taxi-stands/*',
+          ],
+        },
       ];
 
       createItems('codeItems', codeItems);
@@ -1433,8 +1475,8 @@
         {
           n: 8,
           title: 'Optional: Presets & Services',
-          status: 'current',
-          desc: '8a erledigt (designTokens-Presets) — offen: Service-Hooks (8b), UI-Tests (8c)',
+          status: 'done',
+          desc: '8a erledigt (designTokens-Presets) — 8b/8c skipped (ROI/Coverage). Ponytail-Audit abgeschlossen.',
         },
       ];
 
@@ -1453,42 +1495,38 @@
       // Priority matrix
       const matrixItems = [
         {
-          label: 'Mega-Pages splitten',
+          label: 'Mega-Pages Wave 4+',
           q: 'high-high',
           detail:
-            'Wave A/B/C + Wave 2 + Wave 3 erledigt (2026-07-29). Nächste Kandidaten: EasterEggManagement, Analytics.',
+            'Wave 4 erledigt (2026-07-29). Nächste Kandidaten: JobOffers, AdventCalendar*, CsvEventImport, ChatMessages.',
         },
         {
-          label: 'Shared Admin Layout',
-          q: 'high-med',
-          detail: 'Schneller ROI: Navigation, Background, UserMenu zentral.',
-        },
-        {
-          label: 'MUI entfernen',
-          q: 'high-med',
-          detail: '189 MB weniger, schnellere npm ci, kleineres Bundle.',
-        },
-        {
-          label: 'CI validate',
+          label: 'CSV-Export',
           q: 'high-low',
-          detail: 'Ein GitHub-Actions-Job — sofortiger Qualitätsgewinn.',
+          detail: 'downloadCsv-Utility + Export in EventList/BusinessList.',
         },
-        { label: 'Command Palette', q: 'high-med', detail: 'Admin-UX-Booster für 50 Routen.' },
         {
-          label: 'Design-System sync',
+          label: 'Business Bulk-Delete',
           q: 'high-med',
-          detail: '.cursorrules + Code + Docs auf einen Stand.',
+          detail: 'Multi-Select + Bulk-Delete in BusinessList.',
         },
-        { label: 'API unwrap zentral', q: 'med-med', detail: '43 Call-Sites weniger Boilerplate.' },
         {
-          label: 'framer-motion raus',
-          q: 'med-high',
-          detail: 'Viel Dateien, aber mechanisch umsetzbar.',
+          label: 'E2E Events-Smoke',
+          q: 'high-low',
+          detail: 'Playwright-Spec: Login → /events.',
         },
-        { label: 'Partner-Modul löschen', q: 'low-low', detail: '5-Minuten-Cleanup.' },
-        { label: 'Dark Mode Default', q: 'low-low', detail: 'Eine Zeile in ThemeProvider.' },
-        { label: 'Docs aktualisieren', q: 'low-low', detail: 'React 19, Design-Regeln.' },
         { label: 'Audit-Log', q: 'med-high', detail: 'Hoher Wert, braucht Backend.' },
+        {
+          label: 'CopyEvent Backend-Proxy',
+          q: 'med-med',
+          detail: 'Einziges src-TODO — Bild-Upload beim Event-Kopieren.',
+        },
+        {
+          label: 'Virtualisierung',
+          q: 'med-high',
+          detail: 'Erst bei messbarem Performance-Problem.',
+        },
+        { label: 'Coverage 80%+', q: 'med-med', detail: 'Schrittweise von Baseline ~54 % erhöhen.' },
       ];
 
       const quadrants = {
@@ -1557,20 +1595,62 @@
       // Files table
       const files = [
         {
-          lines: 748,
-          file: 'src/pages/easter-egg/EasterEggManagement.tsx',
+          lines: 653,
+          file: 'src/pages/JobOffers.tsx',
           category: 'Page',
           priority: 'Hoch',
         },
         {
-          lines: 692,
-          file: 'src/pages/Analytics.tsx',
+          lines: 648,
+          file: 'src/pages/advent-calendar/AdventCalendarManagement.tsx',
           category: 'Page',
           priority: 'Mittel',
         },
         {
-          lines: 679,
-          file: 'src/pages/taxi-stands/TaxiStandManagement.tsx',
+          lines: 636,
+          file: 'src/pages/advent-calendar/AdventCalendarForm.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 635,
+          file: 'src/pages/events/CsvEventImport.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 627,
+          file: 'src/pages/chatrooms/ChatMessages.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 611,
+          file: 'src/pages/categories/CategoryList.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 610,
+          file: 'src/pages/SpecialPollDetail.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 552,
+          file: 'src/pages/easter-egg/EasterEggForm.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 536,
+          file: 'src/pages/events/EventDetail.tsx',
+          category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 520,
+          file: 'src/pages/users/UserBlockManagement.tsx',
           category: 'Page',
           priority: 'Mittel',
         },
@@ -1592,7 +1672,25 @@
           category: 'Component',
           priority: 'Mittel',
         },
-        { lines: 678, file: 'src/utils/errorUtils.ts', category: 'Util', priority: 'Mittel' },
+        { lines: 678, file: 'src/utils/errorUtils.ts', category: 'Util', priority: 'Niedrig' },
+        {
+          lines: 5,
+          file: 'src/pages/easter-egg/EasterEggManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/Analytics.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/taxi-stands/TaxiStandManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
         {
           lines: 5,
           file: 'src/pages/Dashboard.tsx',

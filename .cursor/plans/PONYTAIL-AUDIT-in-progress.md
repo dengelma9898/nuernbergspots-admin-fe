@@ -2,7 +2,7 @@
 
 **Projekt:** nuernbergspots-admin-fe  
 **Erstellt:** 2026-06-22  
-**Status:** in-progress  
+**Status:** done  
 **Quelle:** Repo-weiter Ponytail-Audit (Over-Engineering, keine Korrektur-/Security-Fixes)  
 **Regel:** Phasen **nacheinander** abarbeiten; nächste Phase erst nach grüner Verifikation der aktuellen
 
@@ -37,7 +37,7 @@ npm run validate   # type-check + lint + format:check + test
 | 5     | Button- & Layout-Wrapper      | [ponytail_phase5_wrappers.plan.md](./ponytail_phase5_wrappers.plan.md)       | Mittel      | `done`        |
 | 6     | Icon-Stack (MUI raus)         | [ponytail_phase6_icons.plan.md](./ponytail_phase6_icons.plan.md)             | Mittel–Hoch | `done`        |
 | 7     | framer-motion → CSS           | [ponytail_phase7_motion_css.plan.md](./ponytail_phase7_motion_css.plan.md)   | Hoch        | `done`        |
-| 8     | Optional (Presets & Services) | [ponytail_phase8_optional.plan.md](./ponytail_phase8_optional.plan.md)       | Mittel      | `in-progress` |
+| 8     | Optional (Presets & Services) | [ponytail_phase8_optional.plan.md](./ponytail_phase8_optional.plan.md)       | Mittel      | `done`        |
 
 **Status-Werte:** `open` | `in-progress` | `done` | `blocked` | `skipped`
 
@@ -423,11 +423,13 @@ auf CSS.
 
 ### Phase 8 — Optional
 
-**Status:** in-progress  
-**Datum:** 2026-07-28  
+**Status:** done  
+**Datum:** 2026-07-29  
 **Notizen:** 8a done: `glassmorphism.ts` durch `designTokens.ts` (cardPreset/inputPreset/
 buttonPreset) ersetzt, loading-overlay gelöscht, DESIGN_SYSTEM.md synchronisiert.
-Offen: 8b (Service-Hooks vereinfachen), 8c (UI-Passthrough-Tests nach Coverage-Review).
+8b skipped: Service-Hooks funktionieren stabil, Factory-Refactor ohne messbaren ROI.
+8c skipped: Coverage-Baseline ~54 %, UI-Tests löschen würde Ziel 80–90 % verschlechtern.
+Ponytail-Audit abgeschlossen — nächster Fokus: Wave 4 Mega-Pages + Admin-Power-Features.
 
 ### Quick Wins — Jul 2026
 

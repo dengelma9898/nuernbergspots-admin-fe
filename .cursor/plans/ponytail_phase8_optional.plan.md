@@ -4,22 +4,22 @@ overview: 'Optionale Architektur-Vereinfachungen nach Phasen 1–7: glassmorphis
 todos:
   - id: rename-glass-presets
     content: '8a: glassmorphism.ts → card-presets.ts (oder @layer components); Imports aktualisieren'
-    status: pending
+    status: completed
   - id: analytics-service-utils
     content: '8b-start: useAnalyticsService → reine Utils-Funktionen (kein API)'
-    status: pending
+    status: cancelled
   - id: service-factory-pattern
     content: '8b-inkrementell: pro Service createXService(api) statt useMemo-Hook (ein Service pro Commit)'
-    status: pending
+    status: cancelled
   - id: coverage-review
     content: '8c: npm run test:coverage — Baseline dokumentieren'
-    status: pending
+    status: cancelled
   - id: trim-ui-passthrough-tests
     content: '8c: Nur Tests löschen die Radix/Tailwind duplizieren; Coverage ≥80% halten'
-    status: pending
+    status: cancelled
   - id: verify-phase8
     content: 'npm run test && npm run build && npm run start:dev'
-    status: pending
+    status: completed
 isProject: false
 ---
 

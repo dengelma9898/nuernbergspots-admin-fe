@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, CheckCircle2, AlertCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { Plus, CheckCircle2, AlertCircle, XCircle, ArrowLeft, Download, Trash2, CheckSquare, Square, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Business, BusinessStatus } from '@/models/business';
@@ -19,6 +19,8 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { cardPreset, listSectionPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
+import { useBusinessBulkSelection } from '@/hooks/useBusinessBulkSelection';
+import { downloadCsv } from '@/utils/csvExport';
 
 export const BusinessList: React.FC = () => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -45,6 +47,12 @@ export const BusinessList: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const bulk = useBusinessBulkSelection({
+    businesses,
+    businessService,
+    onDeleted: loadBusinesses,
+  });
 
   useEffect(() => {
     loadBusinesses();
@@ -161,6 +169,39 @@ export const BusinessList: React.FC = () => {
   const pendingBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.PENDING);
   const inactiveBusinesses = filteredBusinesses.filter(b => b.status === BusinessStatus.INACTIVE);
 
+  const handleExportCsv = () => {
+    if (filteredBusinesses.length === 0) return;
+    downloadCsv(
+      `businesses-export-${new Date().toISOString().slice(0, 10)}`,
+      filteredBusinesses.map(business => ({
+        id: business.id,
+        name: business.name,
+        status: business.status,
+        email: business.contact.email ?? '',
+        phone: business.contact.phoneNumber ?? '',
+        city: business.address.city,
+        categories: getCategoryNames(business.categoryIds),
+      }))
+    );
+    showSuccessMessage(toast, {
+      title: 'Export gestartet',
+      description: `${filteredBusinesses.length} Partner als CSV exportiert.`,
+    });
+  };
+
+  const renderBusinessCard = (business: Business, index: number) => (
+    <BusinessCard
+      key={business.id}
+      business={business}
+      categoryNames={getCategoryNames(business.categoryIds)}
+      onEdit={handleEditClick}
+      index={index}
+      isSelectionMode={bulk.isSelectionMode}
+      isSelected={bulk.selectedBusinessIds.has(business.id)}
+      onToggleSelection={bulk.toggleBusinessSelection}
+    />
+  );
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <div className="relative z-10 container mx-auto py-6">
@@ -187,13 +228,71 @@ export const BusinessList: React.FC = () => {
                 Geschäfte
               </h1>
             </div>
-            <LoadingButton
-              onClick={() => navigate('/create-business')}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Partner hinzufügen
-            </LoadingButton>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              {bulk.isSelectionMode ? (
+                <>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={() => bulk.selectAllVisible(filteredBusinesses)}
+                    className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+                  >
+                    <CheckSquare className="h-4 w-4" />
+                    Alle auswählen
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={bulk.deselectAll}
+                    className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+                  >
+                    <Square className="h-4 w-4" />
+                    Auswahl aufheben
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="destructive"
+                    onClick={bulk.handleBulkDelete}
+                    disabled={bulk.selectedBusinessIds.size === 0 || bulk.bulkDeleting}
+                    className="w-full sm:w-auto gap-2"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Löschen ({bulk.selectedBusinessIds.size})
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={bulk.toggleSelectionMode}
+                    className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+                  >
+                    <X className="h-4 w-4" />
+                    Abbrechen
+                  </LoadingButton>
+                </>
+              ) : (
+                <>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={bulk.toggleSelectionMode}
+                    className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+                  >
+                    <CheckSquare className="h-4 w-4" />
+                    Mehrfachauswahl
+                  </LoadingButton>
+                  <LoadingButton
+                    variant="outline"
+                    onClick={handleExportCsv}
+                    className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+                  >
+                    <Download className="h-4 w-4" />
+                    CSV Export
+                  </LoadingButton>
+                  <LoadingButton
+                    onClick={() => navigate('/create-business')}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 w-full sm:w-auto"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Partner hinzufügen
+                  </LoadingButton>
+                </>
+              )}
+            </div>
           </div>
         </motion.div>
 
@@ -270,15 +369,7 @@ export const BusinessList: React.FC = () => {
                 Aktive Geschäfte ({activeBusinesses.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {activeBusinesses.map((business, index) => (
-                  <BusinessCard
-                    key={business.id}
-                    business={business}
-                    categoryNames={getCategoryNames(business.categoryIds)}
-                    onEdit={handleEditClick}
-                    index={index}
-                  />
-                ))}
+                {activeBusinesses.map((business, index) => renderBusinessCard(business, index))}
               </div>
             </motion.div>
           )}
@@ -290,15 +381,7 @@ export const BusinessList: React.FC = () => {
                 Ausstehende Partner ({pendingBusinesses.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {pendingBusinesses.map((business, index) => (
-                  <BusinessCard
-                    key={business.id}
-                    business={business}
-                    categoryNames={getCategoryNames(business.categoryIds)}
-                    onEdit={handleEditClick}
-                    index={index}
-                  />
-                ))}
+                {pendingBusinesses.map((business, index) => renderBusinessCard(business, index))}
               </div>
             </motion.div>
           )}
@@ -310,15 +393,7 @@ export const BusinessList: React.FC = () => {
                 Inaktive Partner ({inactiveBusinesses.length})
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {inactiveBusinesses.map((business, index) => (
-                  <BusinessCard
-                    key={business.id}
-                    business={business}
-                    categoryNames={getCategoryNames(business.categoryIds)}
-                    onEdit={handleEditClick}
-                    index={index}
-                  />
-                ))}
+                {inactiveBusinesses.map((business, index) => renderBusinessCard(business, index))}
               </div>
             </motion.div>
           )}
