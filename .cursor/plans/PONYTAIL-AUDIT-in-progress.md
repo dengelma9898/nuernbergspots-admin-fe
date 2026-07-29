@@ -28,16 +28,16 @@ npm run validate   # type-check + lint + format:check + test
 
 ## Übersicht
 
-| Phase | Titel                         | Cursor-Plan                                                                  | Risiko      | Status        |
-| ----- | ----------------------------- | ---------------------------------------------------------------------------- | ----------- | ------------- |
-| 1     | Toter Code & Artefakte        | [ponytail_phase1_dead_code.plan.md](./ponytail_phase1_dead_code.plan.md)     | Niedrig     | `done`        |
-| 2     | Ungenutzte Dependencies       | [ponytail_phase2_unused_deps.plan.md](./ponytail_phase2_unused_deps.plan.md) | Niedrig     | `done`        |
-| 3     | API-Client & Fehler-Utils     | [ponytail_phase3_api_errors.plan.md](./ponytail_phase3_api_errors.plan.md)   | Niedrig     | `done`        |
-| 4     | API-Response-Layer            | [ponytail_phase4_unwrap_data.plan.md](./ponytail_phase4_unwrap_data.plan.md) | Mittel      | `done`        |
-| 5     | Button- & Layout-Wrapper      | [ponytail_phase5_wrappers.plan.md](./ponytail_phase5_wrappers.plan.md)       | Mittel      | `done`        |
-| 6     | Icon-Stack (MUI raus)         | [ponytail_phase6_icons.plan.md](./ponytail_phase6_icons.plan.md)             | Mittel–Hoch | `done`        |
-| 7     | framer-motion → CSS           | [ponytail_phase7_motion_css.plan.md](./ponytail_phase7_motion_css.plan.md)   | Hoch        | `done`        |
-| 8     | Optional (Presets & Services) | [ponytail_phase8_optional.plan.md](./ponytail_phase8_optional.plan.md)       | Mittel      | `done`        |
+| Phase | Titel                         | Cursor-Plan                                                                  | Risiko      | Status |
+| ----- | ----------------------------- | ---------------------------------------------------------------------------- | ----------- | ------ |
+| 1     | Toter Code & Artefakte        | [ponytail_phase1_dead_code.plan.md](./ponytail_phase1_dead_code.plan.md)     | Niedrig     | `done` |
+| 2     | Ungenutzte Dependencies       | [ponytail_phase2_unused_deps.plan.md](./ponytail_phase2_unused_deps.plan.md) | Niedrig     | `done` |
+| 3     | API-Client & Fehler-Utils     | [ponytail_phase3_api_errors.plan.md](./ponytail_phase3_api_errors.plan.md)   | Niedrig     | `done` |
+| 4     | API-Response-Layer            | [ponytail_phase4_unwrap_data.plan.md](./ponytail_phase4_unwrap_data.plan.md) | Mittel      | `done` |
+| 5     | Button- & Layout-Wrapper      | [ponytail_phase5_wrappers.plan.md](./ponytail_phase5_wrappers.plan.md)       | Mittel      | `done` |
+| 6     | Icon-Stack (MUI raus)         | [ponytail_phase6_icons.plan.md](./ponytail_phase6_icons.plan.md)             | Mittel–Hoch | `done` |
+| 7     | framer-motion → CSS           | [ponytail_phase7_motion_css.plan.md](./ponytail_phase7_motion_css.plan.md)   | Hoch        | `done` |
+| 8     | Optional (Presets & Services) | [ponytail_phase8_optional.plan.md](./ponytail_phase8_optional.plan.md)       | Mittel      | `done` |
 
 **Status-Werte:** `open` | `in-progress` | `done` | `blocked` | `skipped`
 

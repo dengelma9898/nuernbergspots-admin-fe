@@ -249,11 +249,7 @@ export function CustomerRetentionCard({
   );
 }
 
-export function BusinessDetails({
-  business,
-}: {
-  business: BusinessAnalytics | null;
-}) {
+export function BusinessDetails({ business }: { business: BusinessAnalytics | null }) {
   if (!business) return null;
 
   return (

@@ -125,7 +125,9 @@ export function AnalyticsPageContent() {
           <motion.div variants={fadeInUp}>
             <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-4">Umsatzübersicht</h2>
             <div className="mb-4">
-              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">Umsatzverteilung</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1">
+                Umsatzverteilung
+              </h3>
               <p className="text-sm text-muted-foreground">Einnahmen über verschiedene Zeiträume</p>
             </div>
             <Card className={cn(cardPreset, 'gap-0 !py-0 !px-0 overflow-hidden mb-6')}>

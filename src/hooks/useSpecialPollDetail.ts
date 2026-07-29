@@ -3,11 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts/AuthContext';
-import {
-  SpecialPoll,
-  SpecialPollResponse,
-  SpecialPollStatus,
-} from '@/models/specialPoll';
+import { SpecialPoll, SpecialPollResponse, SpecialPollStatus } from '@/models/specialPoll';
 import { UserType } from '@/models/users';
 import { useSpecialPollService } from '@/services/specialPollService';
 import { useUserService } from '@/services/userService';

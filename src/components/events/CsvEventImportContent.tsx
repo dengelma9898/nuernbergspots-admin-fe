@@ -15,15 +15,7 @@ import { CsvImportResults } from '@/components/events/CsvImportResults';
 import { CsvEventImportingSkeleton } from '@/components/events/CsvEventImportSkeletons';
 import { useCsvEventImport } from '@/hooks/useCsvEventImport';
 
-import {
-  ArrowLeft,
-  Upload,
-  FileSpreadsheet,
-  XCircle,
-  Info,
-  X,
-  Download,
-} from 'lucide-react';
+import { ArrowLeft, Upload, FileSpreadsheet, XCircle, Info, X, Download } from 'lucide-react';
 
 export function CsvEventImportContent() {
   const {

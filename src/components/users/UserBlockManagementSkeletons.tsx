@@ -1,10 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@/components/ui/table';
+import { TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { cardPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 
@@ -29,10 +25,7 @@ export function UserBlockManagementTableSkeletonRows() {
   return (
     <>
       {[...Array(5)].map((_, i) => (
-        <TableRow
-          key={`skeleton-desktop-${i}`}
-          className="border-border hover:bg-muted/50"
-        >
+        <TableRow key={`skeleton-desktop-${i}`} className="border-border hover:bg-muted/50">
           <TableCell>
             <Skeleton className="h-4 w-48 rounded" />
           </TableCell>

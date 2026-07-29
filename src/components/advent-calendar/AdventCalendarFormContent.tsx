@@ -12,7 +12,14 @@ import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { useAdventCalendarForm } from '@/hooks/useAdventCalendarForm';
 import { AdventCalendarFormSkeleton } from '@/components/advent-calendar/AdventCalendarSkeletons';
-import { ArrowLeft, Image as ImageIcon, Upload, X, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  Image as ImageIcon,
+  Upload,
+  X,
+  Link as LinkIcon,
+  AlertCircle,
+} from 'lucide-react';
 
 export function AdventCalendarFormContent() {
   const {

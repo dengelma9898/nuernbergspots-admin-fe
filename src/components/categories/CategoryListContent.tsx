@@ -289,7 +289,9 @@ export function CategoryListContent({
                         key={category.id}
                         className="border-secondary hover:bg-muted/50 transition-colors"
                       >
-                        <TableCell className="font-medium text-foreground">{category.name}</TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          {category.name}
+                        </TableCell>
                         <TableCell className="text-muted-foreground">
                           {getIconComponent(category.iconName)}
                         </TableCell>

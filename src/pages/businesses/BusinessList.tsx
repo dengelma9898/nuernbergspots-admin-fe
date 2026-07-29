@@ -3,7 +3,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, CheckCircle2, AlertCircle, XCircle, ArrowLeft, Download, Trash2, CheckSquare, Square, X } from 'lucide-react';
+import {
+  Plus,
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  ArrowLeft,
+  Download,
+  Trash2,
+  CheckSquare,
+  Square,
+  X,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { showUserFriendlyError, showSuccessMessage } from '@/utils/errorUtils';
 import { Business, BusinessStatus } from '@/models/business';
