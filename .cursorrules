@@ -89,6 +89,22 @@
       "coverageThreshold": 80,
       "mandatory": "All tests must pass before committing - no exceptions"
     },
+    "taskCompletion": {
+      "mandatory": true,
+      "description": "Vor Abschluss jeder Aufgabe mit Code-Änderungen muss die CI-Validierung grün sein",
+      "reference": "docs/TESTING.md",
+      "command": "npm run validate",
+      "includes": ["type-check", "lint", "format:check", "test"],
+      "rules": [
+        "Vor dem Abschluss einer Aufgabe mit Dateiänderungen `npm run validate` ausführen — nicht nur einzelne Schritte",
+        "Bei format:check-Fehlern `npm run format` ausführen und validate erneut laufen lassen",
+        "Fehler beheben, bevor die Aufgabe als erledigt gemeldet wird; kein Abschluss mit rotem validate",
+        "Ergebnis kurz bestätigen (z. B. validate grün, ggf. betroffene Tests)",
+        "Entfällt nur bei reinen Lese-, Review- oder Erklär-Aufgaben ohne Dateiänderungen",
+        "Bei Änderungen an E2E-Tests oder Playwright-Flows zusätzlich `npm run test:e2e` ausführen (nicht Teil von validate)"
+      ],
+      "ciParity": ".github/workflows/firebase-deploy-dev.yml — Job validate blockiert Deploy bei Fehlern"
+    },
     "ux": {
       "mobileFirst": {
         "mandatory": true,
