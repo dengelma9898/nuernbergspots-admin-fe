@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 
 import { Background } from '@/components/Background';
@@ -12,7 +13,12 @@ import { useAdminSidebar } from '@/hooks/useAdminSidebar';
 
 export function AdminLayout() {
   const { pathname } = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
   const { collapsed, toggle } = useAdminSidebar();
+
+  useLayoutEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [pathname]);
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -23,6 +29,14 @@ export function AdminLayout() {
         Zum Hauptinhalt springen
       </a>
       <CommandPalette />
+      {import.meta.env.DEV && (
+        <div
+          className="relative z-20 border-b border-secondary bg-muted px-4 py-1.5 text-center text-xs text-muted-foreground"
+          role="status"
+        >
+          Dev-Modus — API: {import.meta.env.VITE_API_URL ?? 'nicht gesetzt'}
+        </div>
+      )}
       <div className="relative h-svh overflow-hidden">
         <Background />
 
@@ -46,6 +60,7 @@ export function AdminLayout() {
             </header>
 
             <main
+              ref={mainRef}
               className="min-h-0 flex-1 overflow-y-auto"
               id="main-content"
               tabIndex={-1}
