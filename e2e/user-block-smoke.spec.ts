@@ -14,5 +14,5 @@ test('nach Login ist die User-Block-Verwaltung erreichbar', async ({ page }) => 
   await expect(page.getByRole('heading', { name: 'User Blockierung verwalten' })).toBeVisible({
     timeout: 30_000,
   });
-  await expect(page.getByPlaceholderText('User suchen (E-Mail, Name, ID)...')).toBeVisible();
+  await expect(page.getByPlaceholder('User suchen (E-Mail, Name, ID)...')).toBeVisible();
 });

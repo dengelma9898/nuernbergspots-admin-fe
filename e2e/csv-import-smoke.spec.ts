@@ -1,4 +1,5 @@
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { test, expect } from '@playwright/test';
 
@@ -16,12 +17,19 @@ test('nach Login ist die CSV-Import-Seite erreichbar und zeigt Preview', async (
   await expect(page.getByRole('heading', { name: 'CSV Event Import' })).toBeVisible({
     timeout: 30_000,
   });
+  await page.getByRole('button', { name: 'CSV-Format' }).click();
   await expect(page.getByRole('button', { name: 'Beispiel-CSV herunterladen' })).toBeVisible();
 
   await page.getByLabel('Vorschau vor Import').click();
 
-  const fixturePath = path.join(__dirname, 'fixtures', 'events-minimal.csv');
+  const fixturePath = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    'fixtures',
+    'events-minimal.csv'
+  );
   await page.locator('input[type="file"]').setInputFiles(fixturePath);
 
-  await expect(page.getByRole('heading', { name: 'Vorschau' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('checkbox', { name: /E2E Test Event auswählen/ })).toBeVisible({
+    timeout: 15_000,
+  });
 });

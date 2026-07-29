@@ -9,7 +9,8 @@ test('Abmelden führt zurück zur Login-Seite', async ({ page }) => {
 
   await loginAsAdmin(page, creds);
 
-  await page.getByRole('button', { name: 'Abmelden' }).click();
+  await page.getByRole('button', { name: 'U', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Abmelden' }).click();
 
   await expect(page).toHaveURL(/\/login/);
   await expect(page.getByRole('heading', { name: 'Admin Login' })).toBeVisible({ timeout: 15_000 });
