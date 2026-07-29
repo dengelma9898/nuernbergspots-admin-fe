@@ -99,6 +99,13 @@ jest.mock('lucide-react', () => ({
   MessageCircle: () => <span data-testid="message-circle-icon" />,
   Handshake: () => <span data-testid="handshake-icon" />,
   Power: () => <span data-testid="power-icon" />,
+  Shield: () => <span data-testid="shield-icon" />,
+  FileText: () => <span data-testid="file-text-icon" />,
+  Package: () => <span data-testid="package-icon" />,
+  Car: () => <span data-testid="car-icon" />,
+  MapPin: () => <span data-testid="map-pin-icon" />,
+  Sparkles: () => <span data-testid="sparkles-icon" />,
+  Star: () => <span data-testid="star-icon" />,
 }));
 
 describe('Dashboard Component', () => {

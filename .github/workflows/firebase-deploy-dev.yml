@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -28,6 +31,7 @@ jobs:
   # Playwright nur gegen lokalen Dev-Server (vite --mode dev), nicht im Production-Job.
   e2e-dev:
     needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -57,6 +61,7 @@ jobs:
 
   build-and-deploy-dev:
     needs: e2e-dev
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -93,6 +98,7 @@ jobs:
 
   build-and-deploy-prd:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
       name: prd
     needs: build-and-deploy-dev

@@ -402,6 +402,25 @@ npm test -- --collectCoverageFrom="src/services/businessService.ts"
 npm test -- --watch
 ```
 
+## Mega-Page-Split Verifikation
+
+Nach jedem Page-Split (siehe `docs/admin-fe-analyse.html`):
+
+```bash
+# 1. Page-spezifische Tests
+npm test -- --testPathPattern="<PageName>"
+
+# 2. Vollständige Suite + Types + Lint + Format
+npm run validate
+
+# 3. Production-Build
+npm run build
+```
+
+Optional manuell: `npm run start:dev` — betroffene Route kurz durchklicken (Laden, Speichern, Dialoge).
+
+Jeder Split = ein Commit. Nächster Split erst nach grüner Verifikation.
+
 ## Test-Maintenance
 
 ### Regelmäßige Aufgaben

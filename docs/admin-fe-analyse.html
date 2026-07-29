@@ -617,23 +617,22 @@
           <h3>Kritische Schwachstellen</h3>
           <ul class="item-list" style="margin-top: 0.5rem">
             <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-high">Hoch</span> Verbleibende Mega-Pages: JobOfferForm
-              (1.158), NewsManagement (1.050), CopyEvent (1.028 Zeilen)
+              <span class="badge badge-med">Mittel</span> Verbleibende große Pages:
+              EasterEggManagement (748), Analytics (692), TaxiStandManagement (679 Zeilen)
             </li>
             <li style="padding: 0.5rem 0; color: var(--muted)">
               <span class="badge badge-med">Mittel</span> Coverage-Ziel 80–90% — Jest enforced
               aktuell Baseline (~54%) gegen Regression
             </li>
-            <li style="padding: 0.5rem 0; color: var(--muted)">
-              <span class="badge badge-med">Mittel</span> Kein PR-Workflow — validate läuft erst auf
-              main-push
-            </li>
           </ul>
           <p style="margin-top: 0.75rem; font-size: 0.85rem; color: var(--success)">
             ✓ Gelöst (2026-07-28): MUI entfernt, CI-validate-Job, Design-System synchronisiert,
-            Shared AdminLayout mit Sidebar, Top-3 Mega-Pages gesplittet. Quick Wins: Dark Mode
-            Default, Docs React 19, Skeleton-Rest (ContactRequestDetail/Dashboard/Profile),
-            Coverage-Baseline, Animations-Reduktion.
+            Shared AdminLayout mit Sidebar, Mega-Page-Splits (EventList, EditBusiness,
+            CopyEvent/CreateEvent, JobOfferForm, NewsManagement, Wave 2: CreateBusiness,
+            EventCategoryList, CuratedSpotForm, JobCategories, Wave 3: Dashboard,
+            ChatroomManagement, AppVersionManagement). Quick Wins: Dark Mode Default, Docs React 19,
+            Skeleton-Rest (ContactRequestDetail/Dashboard/Profile), Coverage-Baseline,
+            Animations-Reduktion, PR-Workflow, Command Palette, a11y Skip-Link + Shortcuts.
           </p>
         </section>
 
@@ -729,8 +728,11 @@
 
           <h3>Aktuelle CI-Pipeline</h3>
           <div class="card" style="font-family: var(--mono); font-size: 0.8rem; line-height: 1.8">
-            push main / workflow_dispatch<br />
+            push main / PR<br />
             &nbsp;&nbsp;→ validate (type-check + lint + format + test)<br />
+            <span style="color: var(--success)"
+              >✓ validate auf pull_request + push main (2026-07-29)</span
+            >
             &nbsp;&nbsp;→ e2e-dev (Playwright + Vite dev server)<br />
             &nbsp;&nbsp;→ build-and-deploy-dev (Firebase dev)<br />
             &nbsp;&nbsp;→ build-and-deploy-prd (Firebase prd)<br />
@@ -749,8 +751,8 @@
           >
             push main / PR<br />
             &nbsp;&nbsp;→ validate (type-check + lint + format + test)<br />
-            &nbsp;&nbsp;→ e2e-dev<br />
-            &nbsp;&nbsp;→ build:dev + build:prd<br />
+            &nbsp;&nbsp;→ e2e-dev (nur main)<br />
+            &nbsp;&nbsp;→ build:dev + build:prd (nur main)<br />
             &nbsp;&nbsp;→ deploy (nur main)
           </div>
         </section>
@@ -1125,11 +1127,27 @@
           effort: 'med',
           effortLabel: 'Aufwand mittel',
           tags: ['a11y'],
-          desc: '219 aria-Attribute vorhanden, aber nur 2 Dateien mit prefers-reduced-motion. Fokus-Management bei Dialogen unklar.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Skip-Link zum Hauptinhalt, Landmarks (nav/banner/main), Cmd+K Command Palette, g+e Shortcut zu Events. prefers-reduced-motion global in index.css.',
           actions: [
-            'Keyboard-Shortcuts (/, g+e für Events, Esc schließt Dialoge)',
-            'prefers-reduced-motion global in CSS',
-            'Skip-Links und Landmark-Rollen im Layout',
+            'Skip-Link + aria-label auf main in AdminLayout',
+            'Cmd+K / Ctrl+K Command Palette mit Route-Suche',
+            'g+e Keyboard-Shortcut zu /events',
+            'prefers-reduced-motion in index.css',
+          ],
+        },
+        {
+          title: 'Accessibility für Power-User (Rest)',
+          impact: 'med',
+          impactLabel: 'Impact mittel',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['a11y'],
+          desc: 'Weitere Shortcuts (Esc in allen Dialogen prüfen), Fokus-Ringe auditieren.',
+          actions: [
+            'Weitere g+* Shortcuts für häufige Bereiche',
+            'Fokus-Management bei verschachtelten Dialogen prüfen',
           ],
         },
         {
@@ -1155,11 +1173,11 @@
           effortLabel: 'Aufwand niedrig',
           tags: ['ci'],
           status: 'done',
-          completedAt: '2026-07-28',
-          desc: 'validate-Job (type-check + lint + format + test) läuft vor e2e-dev und Deploy in firebase-deploy-dev.yml. Offen: PR-Workflow-Trennung, Coverage-Threshold (eigenes Item).',
+          completedAt: '2026-07-29',
+          desc: 'validate auf pull_request + push main. e2e-dev und Deploy-Jobs nur bei push auf main.',
           actions: [
-            'Job validate: npm run validate — erledigt',
-            'PR-Workflow separat von Deploy — offen',
+            'pull_request-Trigger für validate — erledigt',
+            'Deploy-Jobs mit if: github.ref == refs/heads/main — erledigt',
           ],
         },
         {
@@ -1213,11 +1231,13 @@
           effort: 'med',
           effortLabel: 'Aufwand mittel',
           tags: ['power'],
-          desc: '50 Routen — Admins verlieren Zeit beim Navigieren. Cmd+K Palette für Events, Users, Businesses, Settings.',
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Leichtgewichtige Command Palette ohne cmdk: Cmd+K, Fuzzy-Suche über Route-Registry, letzte besuchte Items in localStorage.',
           actions: [
-            'cmdk war installiert, wurde entfernt — leichtgewichtige Alternative',
-            'Fuzzy-Search über Route-Registry',
-            'Letzte besuchte Items',
+            'CommandPalette in AdminLayout integriert',
+            'commandPaletteConfig aus Dashboard-Navigation + Zusatz-Routen',
+            'useCommandPalette mit Cmd+K und g+e Shortcut',
           ],
         },
         {
@@ -1288,6 +1308,57 @@
             'Virtualisierte EventList-Tabelle',
             'Infinite Scroll statt Pagination',
             'Spalten ein-/ausblenden',
+          ],
+        },
+        {
+          title: 'Mega-Pages splitten — Wave A/B/C (CopyEvent, JobOfferForm, NewsManagement)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'CopyEvent (107), CreateEvent (74), JobOfferForm (93), NewsManagement (163) Zeilen Orchestrierung. Hooks + domain components extrahiert. CopyEvent.test.tsx neu. validate + build grün.',
+          actions: [
+            'event-form/*, useEventCreateForm, useCopyEventData, eventFormUtils',
+            'job-offers/*, useJobOfferForm',
+            'news/*, useNewsFeed, useNewsComposer, newsManagementUtils',
+          ],
+        },
+        {
+          title:
+            'Mega-Pages splitten — Wave 2 (CreateBusiness, EventCategoryList, CuratedSpotForm, JobCategories)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'med',
+          effortLabel: 'Aufwand mittel',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-28',
+          desc: 'Pages auf 7–8 Zeilen Orchestrierung: CreateBusiness (8), EventCategoryList (7), CuratedSpotForm (7), JobCategories (7). Logik in Hooks, JSX in Content-Komponenten.',
+          actions: [
+            'useCreateBusiness + CreateBusinessForm',
+            'useEventCategoryList + EventCategoryListContent',
+            'useCuratedSpotForm + CuratedSpotFormFields',
+            'useJobCategories + JobCategoriesContent',
+          ],
+        },
+        {
+          title:
+            'Mega-Pages splitten — Wave 3 (Dashboard, ChatroomManagement, AppVersionManagement)',
+          impact: 'high',
+          impactLabel: 'Impact hoch',
+          effort: 'high',
+          effortLabel: 'Aufwand hoch',
+          tags: ['split'],
+          status: 'done',
+          completedAt: '2026-07-29',
+          desc: 'Dashboard (5), ChatroomManagement (5), AppVersionManagement (5) Zeilen Orchestrierung. Hooks + domain components extrahiert. validate + build grün.',
+          actions: [
+            'useDashboardStats + components/dashboard/*',
+            'useChatroomManagement + components/chatrooms/*',
+            'useAppVersionManagement + components/app-version/* + appVersionUtils',
           ],
         },
         {
@@ -1384,7 +1455,8 @@
         {
           label: 'Mega-Pages splitten',
           q: 'high-high',
-          detail: 'Größter Wartungshebel, aber viel Arbeit. EventList zuerst.',
+          detail:
+            'Wave A/B/C + Wave 2 + Wave 3 erledigt (2026-07-29). Nächste Kandidaten: EasterEggManagement, Analytics.',
         },
         {
           label: 'Shared Admin Layout',
@@ -1485,56 +1557,97 @@
       // Files table
       const files = [
         {
-          lines: 1158,
-          file: 'src/pages/job-offers/JobOfferForm.tsx',
-          category: 'Page',
-          priority: 'Kritisch',
-        },
-        {
-          lines: 1050,
-          file: 'src/pages/NewsManagement.tsx',
-          category: 'Page',
-          priority: 'Kritisch',
-        },
-        {
-          lines: 1028,
-          file: 'src/pages/events/CopyEvent.tsx',
-          category: 'Page',
-          priority: 'Kritisch',
-        },
-        {
-          lines: 869,
-          file: 'src/pages/events/EventCategoryList.tsx',
+          lines: 748,
+          file: 'src/pages/easter-egg/EasterEggManagement.tsx',
           category: 'Page',
           priority: 'Hoch',
         },
         {
-          lines: 847,
-          file: 'src/pages/businesses/CreateBusiness.tsx',
-          category: 'Page',
-          priority: 'Hoch',
-        },
-        {
-          lines: 837,
-          file: 'src/pages/curated-spots/CuratedSpotForm.tsx',
-          category: 'Page',
-          priority: 'Hoch',
-        },
-        { lines: 829, file: 'src/pages/JobCategories.tsx', category: 'Page', priority: 'Hoch' },
-        { lines: 793, file: 'src/pages/Dashboard.tsx', category: 'Page', priority: 'Hoch' },
-        {
-          lines: 778,
-          file: 'src/pages/chatrooms/ChatroomManagement.tsx',
+          lines: 692,
+          file: 'src/pages/Analytics.tsx',
           category: 'Page',
           priority: 'Mittel',
         },
         {
-          lines: 767,
-          file: 'src/pages/AppVersionManagement.tsx',
+          lines: 679,
+          file: 'src/pages/taxi-stands/TaxiStandManagement.tsx',
           category: 'Page',
+          priority: 'Mittel',
+        },
+        {
+          lines: 661,
+          file: 'src/components/events/EventCategoryListContent.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 549,
+          file: 'src/components/businesses/CreateBusinessForm.tsx',
+          category: 'Component',
+          priority: 'Mittel',
+        },
+        {
+          lines: 456,
+          file: 'src/components/curated-spots/CuratedSpotFormFields.tsx',
+          category: 'Component',
           priority: 'Mittel',
         },
         { lines: 678, file: 'src/utils/errorUtils.ts', category: 'Util', priority: 'Mittel' },
+        {
+          lines: 5,
+          file: 'src/pages/Dashboard.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/chatrooms/ChatroomManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 5,
+          file: 'src/pages/AppVersionManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 163,
+          file: 'src/pages/NewsManagement.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 107,
+          file: 'src/pages/events/CopyEvent.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 93,
+          file: 'src/pages/job-offers/JobOfferForm.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 8,
+          file: 'src/pages/businesses/CreateBusiness.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/events/EventCategoryList.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        {
+          lines: 7,
+          file: 'src/pages/curated-spots/CuratedSpotForm.tsx',
+          category: 'Page',
+          priority: 'Erledigt',
+        },
+        { lines: 7, file: 'src/pages/JobCategories.tsx', category: 'Page', priority: 'Erledigt' },
       ];
 
       let sortKey = 'lines';
