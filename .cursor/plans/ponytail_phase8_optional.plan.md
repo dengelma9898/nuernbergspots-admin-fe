@@ -152,5 +152,5 @@ Tests behalten, aber nicht erweitern — Phase 8c als `skipped` markieren.
 ## Erfolgskriterien (Gesamt)
 
 - Keine Regression in `npm run validate`
-- Architektur dokumentiert in [`docs/OVERVIEW.md`](../../docs/OVERVIEW.md) falls Service-Pattern geändert
+- Architektur dokumentiert in [`CONSTITUTION.md`](../../CONSTITUTION.md) falls Service-Pattern geändert
 - Master-Plan [PONYTAIL-AUDIT-in-progress.md](./PONYTAIL-AUDIT-in-progress.md) auf `done` setzen

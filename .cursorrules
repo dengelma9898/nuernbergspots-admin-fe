@@ -52,7 +52,7 @@
       "useTailwindClasses": true,
       "preferShadcnComponents": true,
       "designSystem": {
-        "reference": "docs/DESIGN_SYSTEM.md",
+        "reference": "CONSTITUTION.md",
         "philosophy": "Minimalismus — klare Borders, keine Schatten, kein Glassmorphism, kein backdrop-blur",
         "tokens": "src/lib/designTokens.ts — cardPreset, inputPreset, buttonPreset, badgePreset",
         "colors": {
@@ -92,7 +92,7 @@
     "taskCompletion": {
       "mandatory": true,
       "description": "Vor Abschluss jeder Aufgabe mit Code-Änderungen muss die CI-Validierung grün sein",
-      "reference": "docs/TESTING.md",
+      "reference": "CONSTITUTION.md",
       "command": "npm run validate",
       "includes": ["type-check", "lint", "format:check", "test"],
       "rules": [
@@ -135,7 +135,7 @@
       "pageFallbacks": {
         "mandatory": true,
         "description": "Niemals leere oder schwarze Seiten — jeder Page-Zustand braucht einen sichtbaren Fallback",
-        "reference": "docs/DESIGN_SYSTEM.md — Skeleton Loading, Alert-Komponenten",
+        "reference": "CONSTITUTION.md — Skeleton Loading, Alert-Komponenten",
         "rules": [
           "Jede Page muss für Lade-, Leer-, Fehler- und ungültige-Daten-Zustände explizit rendern — kein stiller Crash und kein leerer Viewport",
           "Laden: Skeleton passend zum echten Layout (siehe skeletonLoading), kein blanker Screen",

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin-FE Analyse — Nürnbergspots</title>
+    <title>App Review — Nürnbergspots Admin</title>
     <style>
       :root {
         --bg: #0c0f14;
@@ -542,8 +542,8 @@
   <body>
     <div class="layout">
       <nav>
-        <h1>Admin-FE Analyse</h1>
-        <p class="subtitle">Nürnbergspots · Juli 2026</p>
+        <h1>App Review</h1>
+        <p class="subtitle">Nürnbergspots Admin · August 2026</p>
         <a href="#overview" class="nav-link active">Überblick</a>
         <a href="#metrics" class="nav-link">Metriken</a>
         <a href="#code" class="nav-link">Code & Architektur</a>
@@ -553,6 +553,7 @@
         <a href="#roadmap" class="nav-link">Roadmap</a>
         <a href="#matrix" class="nav-link">Prioritäten</a>
         <a href="#files" class="nav-link">Große Dateien</a>
+        <a href="#checklists" class="nav-link">Checklisten</a>
       </nav>
 
       <main>
@@ -810,9 +811,69 @@
           </div>
         </section>
 
+        <!-- CHECKLISTS -->
+        <section id="checklists">
+          <h2>Checklisten</h2>
+          <p class="lead">
+            Verifikation nach Refactors und vor Merge. Regeln und Architektur:
+            <code>CONSTITUTION.md</code> im Repo-Root.
+          </p>
+
+          <h3>Task Completion (jede Code-Änderung)</h3>
+          <div class="card" style="font-size: 0.9rem">
+            <ul style="margin: 0.5rem 0 0 1.25rem; color: var(--muted)">
+              <li><code>npm run validate</code> — type-check, lint, format:check, test</li>
+              <li>Bei format:check-Fehlern: <code>npm run format</code>, dann validate erneut</li>
+              <li>Kein Abschluss mit rotem validate</li>
+              <li>E2E-Änderungen zusätzlich: <code>npm run test:e2e</code></li>
+            </ul>
+          </div>
+
+          <h3>Mega-Page-Split Verifikation</h3>
+          <p class="lead" style="margin-bottom: 0.75rem">
+            Nach jedem Page-Split — ein Commit pro Split, nächster Split erst nach grüner
+            Verifikation.
+          </p>
+          <div class="card" style="font-size: 0.9rem">
+            <ol style="margin: 0.5rem 0 0 1.25rem; color: var(--muted)">
+              <li>
+                Page-spezifische Tests:
+                <code>npm test -- --testPathPattern="&lt;PageName&gt;"</code>
+              </li>
+              <li>Vollständige Suite: <code>npm run validate</code></li>
+              <li>Production-Build: <code>npm run build</code></li>
+              <li>Optional manuell: betroffene Route durchklicken (Laden, Speichern, Dialoge)</li>
+            </ol>
+          </div>
+
+          <h3>Neues Feature / PR</h3>
+          <div class="card" style="font-size: 0.9rem">
+            <ul style="margin: 0.5rem 0 0 1.25rem; color: var(--muted)">
+              <li>Page-Fallbacks: Laden (Skeleton), Leer, Fehler, ungültige Daten</li>
+              <li>API-Guards: loading state, disabled buttons während Requests</li>
+              <li>Design: cardPreset/inputPreset, kein Glassmorphism/Shadow</li>
+              <li>Tests: Component oder Service-Tests für neue Logik</li>
+              <li>Mobile-First: Touch-Targets ≥ 44px</li>
+            </ul>
+          </div>
+
+          <h3>Dependency-Update</h3>
+          <div class="card" style="font-size: 0.9rem">
+            <ul style="margin: 0.5rem 0 0 1.25rem; color: var(--muted)">
+              <li>Minor/Patch: Skills <code>admin-fe-update-dependencies</code></li>
+              <li>
+                Major: Skill <code>admin-fe-major-dependency-updates</code> (ein Paket pro
+                Durchlauf)
+              </li>
+              <li>Nach Update: <code>npm run validate</code> + <code>npm run build</code></li>
+            </ul>
+          </div>
+        </section>
+
         <footer>
-          Generiert aus Repo-Analyse · admin-fe · Stand: Juli 2026 · Quellen: package.json, src/,
-          .cursor/plans/PONYTAIL-AUDIT-in-progress.md, docs/
+          Nürnbergspots Admin Frontend · Stand: August 2026 · Kanonische Docs:
+          <code>CONSTITUTION.md</code> (Regeln/Architektur),
+          <code>docs/app_review.html</code> (dieses Review)
         </footer>
       </main>
     </div>
@@ -1064,11 +1125,11 @@
           tags: ['design'],
           status: 'done',
           completedAt: '2026-07-28',
-          desc: 'glass* → cardPreset/inputPreset/buttonPreset migriert, Aliase entfernt, loading-overlay gelöscht, DESIGN_SYSTEM.md synchronisiert.',
+          desc: 'glass* → cardPreset/inputPreset/buttonPreset migriert, Aliase entfernt, loading-overlay gelöscht, CONSTITUTION.md synchronisiert.',
           actions: [
             'designTokens.ts als Single Source of Truth',
             'Keine glass*-Aliase mehr in src/',
-            'DESIGN_SYSTEM.md auf *Preset-API aktualisiert',
+            'CONSTITUTION.md Design-System-Sektion',
           ],
         },
         {
@@ -1190,10 +1251,10 @@
           tags: ['ci'],
           status: 'done',
           completedAt: '2026-07-28',
-          desc: 'Jest coverageThreshold als Baseline-Floor (~54% Lines) gegen Regression. Ziel 80–90% bleibt in TESTING.md / .cursorrules — schrittweise Erhöhung.',
+          desc: 'Jest coverageThreshold als Baseline-Floor (~54% Lines) gegen Regression. Ziel 80–90% in CONSTITUTION.md / .cursorrules — schrittweise Erhöhung.',
           actions: [
             'coverageThreshold in jest.config.js — Baseline',
-            'TESTING.md: Baseline vs. Ziel dokumentiert',
+            'CONSTITUTION.md: Baseline vs. Ziel dokumentiert',
           ],
         },
         {
@@ -1230,9 +1291,12 @@
           effortLabel: 'Aufwand niedrig',
           tags: ['docs'],
           status: 'done',
-          completedAt: '2026-07-28',
-          desc: 'OVERVIEW.md und README.md auf React 19 aktualisiert. DESIGN_SYSTEM.md bleibt Single Source of Truth für Design.',
-          actions: ['OVERVIEW.md aktualisieren', 'README.md React 19'],
+          completedAt: '2026-08-03',
+          desc: 'Dokumentation konsolidiert in CONSTITUTION.md (Regeln/Architektur) und docs/app_review.html (Review/Roadmap/Checklisten).',
+          actions: [
+            'CONSTITUTION.md als kanonische Regel- und Architektur-Doku',
+            'app_review.html für Review, Roadmap und Checklisten',
+          ],
         },
       ];
 

@@ -4,7 +4,7 @@
  * aus `@/utils/errorUtils` → `toast.success`/`toast.error` erhalten i. d. R.
  * `(title, { description, ... })`, nicht nur einen einzelnen String.
  *
- * Siehe auch: docs/TESTING.md, src/utils/errorUtils.ts
+ * Siehe auch: CONSTITUTION.md, src/utils/errorUtils.ts
  */
 
 /** Erfolgstoast mit festem Titel und beliebiger (String-)Beschreibung. */

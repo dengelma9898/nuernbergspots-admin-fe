@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { configure } from '@testing-library/react';
 
-// Obergrenze 10s für waitFor / findBy* (Projektstandard, siehe docs/TESTING.md)
+// Obergrenze 10s für waitFor / findBy* (Projektstandard, siehe CONSTITUTION.md)
 configure({ asyncUtilTimeout: 10000 });
 
 // Erweitere Jest Matchers mit @testing-library/jest-dom
@@ -69,7 +69,7 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
-// jsdom: Radix Select/ScrollArea etc. rufen scrollIntoView auf (siehe docs/TESTING.md)
+// jsdom: Radix Select/ScrollArea etc. rufen scrollIntoView auf (siehe CONSTITUTION.md)
 Element.prototype.scrollIntoView = jest.fn();
 
 // Mock React Router

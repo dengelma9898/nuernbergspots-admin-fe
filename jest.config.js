@@ -31,7 +31,7 @@ export default {
     '<rootDir>/src/**/*.(test|spec).{ts,tsx}',
   ],
 
-  // Temporär: CreateBusiness-Tests werden separat repariert (siehe docs/TESTING.md)
+  // Temporär: CreateBusiness-Tests werden separat repariert (siehe CONSTITUTION.md)
   testPathIgnorePatterns: [
     '/node_modules/',
     '<rootDir>/src/pages/businesses/__tests__/CreateBusiness.test.tsx',

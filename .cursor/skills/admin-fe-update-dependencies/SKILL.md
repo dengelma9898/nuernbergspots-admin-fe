@@ -5,7 +5,7 @@ description: Aktualisiert npm-Dependencies im admin-fe-Projekt ausschließlich a
 
 # Admin-FE Dependency Updates (Minor/Patch)
 
-Skill für das **nuernbergspots-admin-fe** Repository. Folgt `.cursorrules`, `docs/TESTING.md` und `package.json`.
+Skill für das **nuernbergspots-admin-fe** Repository. Folgt `.cursorrules`, `CONSTITUTION.md` und `package.json`.
 
 ## Scope
 
@@ -195,7 +195,7 @@ Antwort an den User in diesem Format:
 | Lint/Format      | `eslint.config.js`, Prettier                                        |
 | CI               | `.github/workflows/firebase-deploy-dev.yml` → `npm ci`, E2E separat |
 | Coding-Standards | `.cursorrules`                                                      |
-| Test-Doku        | `docs/TESTING.md`                                                   |
+| Test-Doku        | `CONSTITUTION.md`                                                   |
 
 ## Fehlerbehebung (ohne Overrides)
 

@@ -2,7 +2,7 @@ import { cn } from './utils';
 
 /**
  * Design-Token-Utilities für konsistentes Styling.
- * Siehe docs/DESIGN_SYSTEM.md — Minimalismus, klare Borders, kein Glassmorphism.
+ * Siehe CONSTITUTION.md — Minimalismus, klare Borders, kein Glassmorphism.
  */
 
 /** Basis-Klassen für Cards mit Secondary Color Border */

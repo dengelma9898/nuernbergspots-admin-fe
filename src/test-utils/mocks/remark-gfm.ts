@@ -1,4 +1,4 @@
-/** Stub für Jest (remark-gfm ist ESM). Siehe docs/TESTING.md */
+/** Stub für Jest (remark-gfm ist ESM). Siehe CONSTITUTION.md */
 export default function remarkGfm() {
   return () => {};
 }

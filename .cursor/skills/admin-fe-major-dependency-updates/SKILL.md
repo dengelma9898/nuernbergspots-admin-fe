@@ -5,7 +5,7 @@ description: Analysiert alle npm-Dependencies und devDependencies im admin-fe-Pr
 
 # Admin-FE Major Dependency Updates
 
-Skill für das **nuernbergspots-admin-fe** Repository. Ergänzt [admin-fe-update-dependencies](../admin-fe-update-dependencies/SKILL.md) (Minor/Patch). Folgt `.cursorrules`, `docs/TESTING.md` und `package.json`.
+Skill für das **nuernbergspots-admin-fe** Repository. Ergänzt [admin-fe-update-dependencies](../admin-fe-update-dependencies/SKILL.md) (Minor/Patch). Folgt `.cursorrules`, `CONSTITUTION.md` und `package.json`.
 
 ## Scope
 
@@ -281,7 +281,7 @@ Wenn **in-progress**: explizit schreiben, dass der bestehende Plan Vorrang hat u
 | Tests             | `src/**/__tests__/*`, `npm test`                       |
 | CI                | `.github/workflows/firebase-deploy-dev.yml`            |
 | Coding-Standards  | `.cursorrules`                                         |
-| Test-Doku         | `docs/TESTING.md`                                      |
+| Test-Doku         | `CONSTITUTION.md`                                      |
 
 ## Fehlerbehebung
 
