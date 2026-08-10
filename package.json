@@ -86,7 +86,7 @@
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-transform-stub": "^2.0.0",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.1",
     "postcss": "^8.5.25",
     "postcss-nesting": "^14.0.1",
     "prettier": "^3.9.6",
@@ -98,6 +98,11 @@
     "vite": "^8.2.0"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
+  },
+  "overrides": {
+    "jest-environment-jsdom": {
+      "jsdom": "$jsdom"
+    }
   }
 }

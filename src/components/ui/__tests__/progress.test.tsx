@@ -66,7 +66,7 @@ describe('Progress Komponente', () => {
       render(<Progress value={100} data-testid="progress" />);
       const progress = screen.getByTestId('progress');
       const indicator = progress.querySelector('[data-slot="progress-indicator"]');
-      expect(indicator).toHaveStyle('transform: translateX(-0%)');
+      expect(indicator).toHaveStyle('transform: translateX(0%)');
     });
 
     it('sollte Dezimalwerte korrekt handhaben', () => {
@@ -87,7 +87,7 @@ describe('Progress Komponente', () => {
       render(<Progress value={150} data-testid="progress" />);
       const progress = screen.getByTestId('progress');
       const indicator = progress.querySelector('[data-slot="progress-indicator"]');
-      expect(indicator).toHaveStyle('transform: translateX(--50%)');
+      expect(indicator).toHaveStyle('transform: translateX(50%)');
     });
   });
 
@@ -262,7 +262,7 @@ describe('Progress Komponente', () => {
       render(<Progress value={999} data-testid="progress" />);
       const progress = screen.getByTestId('progress');
       const indicator = progress.querySelector('[data-slot="progress-indicator"]');
-      expect(indicator).toHaveStyle('transform: translateX(--899%)');
+      expect(indicator).toHaveStyle('transform: translateX(899%)');
     });
   });
 

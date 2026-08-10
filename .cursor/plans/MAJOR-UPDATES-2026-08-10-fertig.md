@@ -15,6 +15,7 @@
 | `@testing-library/jest-dom` | 6.9.1   | 7.0.0           | done   | hoch      |
 | `@types/node`               | 25.9.5  | 26.2.0          | done   | mittel    |
 | `typescript`                | 6.0.3   | 7.0.2           | done   | niedrig   |
+| `jsdom`                     | 29.1.1  | 30.0.1          | done   | hoch      |
 
 **Status-Werte:** `open` | `in-progress` | `done` | `blocked`
 
@@ -155,11 +156,53 @@ npm outdated
 
 ---
 
+### 2026-08-10 — `jsdom` (Major 29 → 30)
+
+**Status:** done
+
+#### Breaking Changes
+
+- [x] Node.js Minimum: `^22.22.2 || ^24.15.0 || >=26.0.0`
+- [x] Striktere CSS-Validierung — ungültige `transform`-Strings (z. B. `translateX(--50%)`) werden nicht mehr gesetzt
+- [x] `jest-environment-jsdom@30.4.1` nutzt intern `jsdom ^26.1.0` — `overrides` für jsdom 30 erforderlich
+
+#### Betroffene Bereiche
+
+- [x] `package.json` — `jsdom@^30.0.1`, `engines.node`, `overrides` für Jest
+- [x] `src/components/ui/progress.tsx` — gültige `translateX`-Syntax
+- [x] `src/components/ui/__tests__/progress.test.tsx` — Erwartungen an gültige CSS-Werte
+
+#### Migrationsschritte
+
+- [x] `npm install jsdom@30`
+- [x] `overrides.jest-environment-jsdom.jsdom: "$jsdom"`
+- [x] `engines.node` auf jsdom-30-Floor angepasst
+- [x] Progress-Komponente: `translateX(${-(100 - value)}%)` statt doppeltes Minus
+- [x] `rm -rf node_modules && npm ci`
+- [x] `npm run validate`
+- [x] `npm run build`
+- [x] Preview Smoke (`curl` → HTTP 200)
+
+#### Validierung
+
+- [x] `npm ci`
+- [x] `npm run validate` (2067 Tests bestanden)
+- [x] `npm run build`
+- [x] Dev-Server / Preview Smoke (HTTP 200)
+
+#### Notizen
+
+- Override dedupliziert jsdom — kein nested `jsdom@26` mehr unter `jest-environment-jsdom`
+- Lokale Node v24.1.0 unter jsdom-30-Floor — CI nutzt Node 22 (latest ≥ 22.22.2); lokal Node ≥ 24.15.0 empfohlen
+
+---
+
 ## Abgeschlossen
 
 - **2026-08-03** — `@testing-library/jest-dom` 6.9.1 → 7.0.0 (+ `@testing-library/dom` als Peer)
 - **2026-08-10** — `@types/node` 25.9.5 → 26.2.0
 - **2026-08-10** — `typescript` 6.0.3 → 7.0.2 (Side-by-Side mit `@typescript/typescript6` für Tooling)
+- **2026-08-10** — `jsdom` 29.1.1 → 30.0.1 (+ Override für `jest-environment-jsdom`, Progress-CSS-Fix)
 
 ## Blockiert
 
@@ -167,4 +210,4 @@ Keine blockierten Pakete.
 
 ## Abschluss
 
-Alle 3 Major-Kandidaten aus der universellen Analyse (2026-08-03) sind migriert. Der Migrationsplan ist vollständig abgearbeitet. Eine neue universelle Analyse ist ab sofort wieder erlaubt.
+Alle 4 Major-Kandidaten (3 aus Analyse 2026-08-03, 1 aus Analyse 2026-08-10) sind migriert. Der Migrationsplan ist vollständig abgearbeitet. Eine neue universelle Analyse ist ab sofort wieder erlaubt.
