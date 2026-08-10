@@ -2,7 +2,8 @@
 
 **Projekt:** nuernbergspots-admin-fe  
 **Erstellt:** 2026-08-03  
-**Status:** in-progress  
+**Abgeschlossen:** 2026-08-10  
+**Status:** fertig  
 **Regel:** Maximal 1 Major-Upgrade pro Durchlauf  
 **Analyse:** Alle `dependencies` + `devDependencies` aus `package.json` (universell)  
 **Sperrregel:** Dieser Plan muss vollständig abgearbeitet sein (`fertig`), bevor der Skill erneut analysiert und ein neues Markdown anlegt
@@ -13,7 +14,7 @@
 | --------------------------- | ------- | --------------- | ------ | --------- |
 | `@testing-library/jest-dom` | 6.9.1   | 7.0.0           | done   | hoch      |
 | `@types/node`               | 25.9.5  | 26.2.0          | done   | mittel    |
-| `typescript`                | 6.0.3   | 7.0.2           | open   | niedrig   |
+| `typescript`                | 6.0.3   | 7.0.2           | done   | niedrig   |
 
 **Status-Werte:** `open` | `in-progress` | `done` | `blocked`
 
@@ -108,15 +109,62 @@ npm outdated
 
 ---
 
+### 2026-08-10 — `typescript` (Major 6 → 7)
+
+**Status:** done
+
+#### Breaking Changes
+
+- [x] **Native Go-Compiler** — kein programmatisches Compiler-API in 7.0 (typescript-eslint, ts-jest benötigen TS 6 API)
+- [x] `ignoreDeprecations: "6.0"` in TS 7 nicht mehr akzeptiert (entfernt aus `jest.config.js`)
+- [x] Entfernte tsconfig-Optionen: `baseUrl`, `moduleResolution: node/node10`, `target: es5`, `downlevelIteration` — Projekt bereits kompatibel (`moduleResolution: bundler`)
+- [x] `types` default `[]` in TS 7 — Projekt nutzt keine globalen `@types` ohne Import; keine Anpassung nötig
+- [x] Template-Literal-Typen: Unicode-Codepoints statt UTF-16-Surrogatpaare — kein betroffener Code im Projekt
+
+#### Betroffene Bereiche
+
+- [x] `package.json` — Side-by-Side-Setup (Microsoft-Empfehlung):
+  - `typescript`: `npm:@typescript/typescript6@^6.0.2` (ESLint, ts-jest Peer)
+  - `@typescript/native`: `npm:typescript@^7.0.2` (Compiler `tsc` für Build/Type-Check)
+- [x] `jest.config.js` — `ignoreDeprecations: '6.0'` entfernt
+- [x] `tsconfig.app.json`, `tsconfig.node.json` — bereits TS-7-kompatibel (bundler, kein baseUrl)
+
+#### Migrationsschritte
+
+- [x] `npm uninstall typescript`
+- [x] `npm install -D typescript@npm:@typescript/typescript6@^6.0.2 @typescript/native@npm:typescript@^7.0.2`
+- [x] `ignoreDeprecations` aus `jest.config.js` entfernen
+- [x] `rm -rf node_modules && npm ci`
+- [x] `npm run validate`
+- [x] `npm run build`
+- [x] Preview Smoke (`curl` → HTTP 200)
+
+#### Validierung
+
+- [x] `npm ci`
+- [x] `npm run validate` (2058 Tests bestanden)
+- [x] `npm run build`
+- [x] Dev-Server / Preview Smoke (HTTP 200)
+
+#### Notizen
+
+- **Side-by-Side erforderlich:** `typescript-eslint@8.x` und `ts-jest@29.x` unterstützen TS 7 nicht (kein Compiler-API). Direktes Upgrade auf `typescript@7` führt zu ESLint-Crash.
+- Binaries: `tsc` → TS 7.0.2 (`@typescript/native`), `tsc6` → TS 6.0.3 (`typescript`-Alias)
+- Bestehende Scripts (`type-check`, `build`) nutzen `tsc` unverändert — zeigt auf TS 7
+- Follow-up: Wenn `typescript-eslint` TS 7.1+ API unterstützt, Side-by-Side-Setup vereinfachen
+
+---
+
 ## Abgeschlossen
 
 - **2026-08-03** — `@testing-library/jest-dom` 6.9.1 → 7.0.0 (+ `@testing-library/dom` als Peer)
 - **2026-08-10** — `@types/node` 25.9.5 → 26.2.0
+- **2026-08-10** — `typescript` 6.0.3 → 7.0.2 (Side-by-Side mit `@typescript/typescript6` für Tooling)
 
 ## Blockiert
 
-<!-- Pakete die nicht migriert werden konnten — mit Begründung -->
+Keine blockierten Pakete.
 
 ## Abschluss
 
-<!-- Nur ausfüllen wenn alle Einträge done oder bewusst blocked sind -->
+Alle 3 Major-Kandidaten aus der universellen Analyse (2026-08-03) sind migriert. Der Migrationsplan ist vollständig abgearbeitet. Eine neue universelle Analyse ist ab sofort wieder erlaubt.

@@ -16,7 +16,6 @@ export default {
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
           isolatedModules: true,
-          ignoreDeprecations: '6.0',
         },
         diagnostics: {
           warnOnly: true,
