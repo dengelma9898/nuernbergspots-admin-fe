@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { format, isFuture, isPast, isWithinInterval } from 'date-fns';
 import { de } from 'date-fns/locale';
@@ -26,6 +26,7 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 import { LoadingButton } from '@/components/LoadingButton';
 import { Badge } from '@/components/ui/badge';
 import {
+  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -55,9 +56,24 @@ export interface EventCardProps {
   isSelectionMode?: boolean;
   isSelected?: boolean;
   onToggleSelection?: (id: string) => void;
+  disableAnimation?: boolean;
 }
 
-export const EventCard: React.FC<EventCardProps> = ({
+const getStableFallbackImage = (
+  cat: EventCategory | undefined,
+  seed: string
+): string | undefined => {
+  if (!cat?.fallbackImages?.length) {
+    return undefined;
+  }
+  let hash = 0;
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash + seed.charCodeAt(index)) % cat.fallbackImages.length;
+  }
+  return cat.fallbackImages[hash];
+};
+
+const EventCardComponent: React.FC<EventCardProps> = ({
   event,
   category,
   onDelete,
@@ -72,6 +88,7 @@ export const EventCard: React.FC<EventCardProps> = ({
   isSelectionMode = false,
   isSelected = false,
   onToggleSelection,
+  disableAnimation = false,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -195,33 +212,35 @@ export const EventCard: React.FC<EventCardProps> = ({
     };
   };
 
-  const getRandomFallbackImage = (cat?: EventCategory): string | undefined => {
-    if (!cat?.fallbackImages?.length) return undefined;
-    const randomIndex = Math.floor(Math.random() * cat.fallbackImages.length);
-    return cat.fallbackImages[randomIndex];
-  };
-
-  const status = getEventStatus(event);
-  const fallbackImage = getRandomFallbackImage(category);
+  const status = useMemo(() => getEventStatus(event), [event]);
+  const fallbackImage = useMemo(
+    () => getStableFallbackImage(category, event.id),
+    [category, event.id]
+  );
   const hasVisibleImage = Boolean(
     event.titleImageUrl || (event.imageUrls && event.imageUrls.length > 0) || fallbackImage
   );
+  const eventDateTime = useMemo(() => getEventDateTime(event), [event]);
 
-  return (
-    <AnimatedCard
-      index={index}
-      className={cn(
-        cardPreset,
-        'flex flex-col relative',
-        hasVisibleImage && 'pt-0 overflow-hidden',
-        isSelectionMode && 'cursor-pointer transition-all duration-300',
-        isSelectionMode && isSelected && 'ring-4 ring-primary ring-offset-2 ring-offset-background'
-      )}
-      onClick={isSelectionMode ? handleCardClick : undefined}
-    >
+  const cardClassName = cn(
+    cardPreset,
+    'flex flex-col relative',
+    hasVisibleImage && 'pt-0 overflow-hidden',
+    isSelectionMode && 'cursor-pointer transition-all duration-300',
+    isSelectionMode && isSelected && 'ring-4 ring-primary ring-offset-2 ring-offset-background'
+  );
+
+  const cardBody = (
+    <>
       {event.titleImageUrl ? (
         <div className="relative h-48 w-full">
-          <img src={event.titleImageUrl} alt={event.title} className="object-cover w-full h-full" />
+          <img
+            src={event.titleImageUrl}
+            alt={event.title}
+            className="object-cover w-full h-full"
+            loading="lazy"
+            decoding="async"
+          />
           {event.imageUrls && event.imageUrls.length > 0 && (
             <div className="absolute bottom-2 left-2 bg-background/90 text-foreground text-xs px-2 py-1 rounded-lg border border-secondary">
               +{event.imageUrls.length} weitere Bilder
@@ -230,7 +249,13 @@ export const EventCard: React.FC<EventCardProps> = ({
         </div>
       ) : event.imageUrls && event.imageUrls.length > 0 ? (
         <div className="relative h-48 w-full">
-          <img src={event.imageUrls[0]} alt={event.title} className="object-cover w-full h-full" />
+          <img
+            src={event.imageUrls[0]}
+            alt={event.title}
+            className="object-cover w-full h-full"
+            loading="lazy"
+            decoding="async"
+          />
           {event.imageUrls.length > 1 && (
             <Badge
               variant="secondary"
@@ -242,7 +267,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           {event.isPromoted && (
             <Badge className="absolute top-2 left-2 bg-tertiary text-tertiary-foreground border-secondary">
               <Star className="mr-1 h-3 w-3 fill-current" />
-              Promoted
+              Hervorgehoben
             </Badge>
           )}
         </div>
@@ -252,6 +277,8 @@ export const EventCard: React.FC<EventCardProps> = ({
             src={fallbackImage}
             alt={`${event.title} - Kategoriebild`}
             className="object-cover w-full h-full opacity-80"
+            loading="lazy"
+            decoding="async"
           />
           <Badge
             variant="secondary"
@@ -263,7 +290,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           {event.isPromoted && (
             <Badge className="absolute top-2 left-2 bg-tertiary text-tertiary-foreground border-secondary">
               <Star className="mr-1 h-3 w-3 fill-current" />
-              Promoted
+              Hervorgehoben
             </Badge>
           )}
         </div>
@@ -294,9 +321,7 @@ export const EventCard: React.FC<EventCardProps> = ({
               <Star className="h-4 w-4 text-tertiary fill-current shrink-0 mt-1" />
             )}
           </div>
-          <CardDescription className="text-muted-foreground">
-            {getEventDateTime(event)}
-          </CardDescription>
+          <CardDescription className="text-muted-foreground">{eventDateTime}</CardDescription>
           <div className="flex flex-wrap items-center gap-2">
             {category ? (
               <Badge
@@ -362,7 +387,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             {event.isPromoted ? (
               <>
                 <Star className="mr-2 h-4 w-4 text-tertiary fill-current" />
-                <span className="text-tertiary font-medium">Promoted Event</span>
+                <span className="text-tertiary font-medium">Hervorgehobenes Event</span>
               </>
             ) : (
               <>
@@ -470,6 +495,45 @@ export const EventCard: React.FC<EventCardProps> = ({
           </div>
         )}
       </CardFooter>
+    </>
+  );
+
+  if (disableAnimation) {
+    return (
+      <Card className={cardClassName} onClick={isSelectionMode ? handleCardClick : undefined}>
+        {cardBody}
+      </Card>
+    );
+  }
+
+  return (
+    <AnimatedCard
+      index={index}
+      className={cardClassName}
+      onClick={isSelectionMode ? handleCardClick : undefined}
+    >
+      {cardBody}
     </AnimatedCard>
   );
 };
+
+function areEventCardPropsEqual(prev: EventCardProps, next: EventCardProps): boolean {
+  return (
+    prev.event === next.event &&
+    prev.category === next.category &&
+    prev.showApprove === next.showApprove &&
+    prev.isApproving === next.isApproving &&
+    prev.isSelectionMode === next.isSelectionMode &&
+    prev.isSelected === next.isSelected &&
+    prev.isPreview === next.isPreview &&
+    prev.showDeleteButton === next.showDeleteButton &&
+    prev.disableAnimation === next.disableAnimation &&
+    prev.onDelete === next.onDelete &&
+    prev.onCopy === next.onCopy &&
+    prev.onApprove === next.onApprove &&
+    prev.onToggleSelection === next.onToggleSelection &&
+    prev.onEdit === next.onEdit
+  );
+}
+
+export const EventCard = React.memo(EventCardComponent, areEventCardPropsEqual);

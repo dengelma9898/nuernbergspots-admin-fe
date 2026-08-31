@@ -3,6 +3,8 @@ import {
   BulkUpdateEventCategoryRequest,
   BulkUpdateEventCategoryResult,
 } from '../models/events';
+import { EventsListQueryParams, EventsListResponse } from '../models/events-list';
+import { serializeEventsListQuery } from '../utils/eventListQuery';
 import { useApi, endpoints } from '../lib/api';
 
 /**
@@ -50,7 +52,24 @@ export function useEventService() {
     },
 
     /**
-     * Lädt alle ausstehenden Events (nur admin / super_admin).
+     * Paginierte Event-Liste mit serverseitigen Filtern (GET /events?page=…).
+     */
+    getEventsList: async (params: EventsListQueryParams): Promise<EventsListResponse> => {
+      const query = serializeEventsListQuery(params);
+      return api.getData<EventsListResponse>(`${endpoints.events}?${query}`);
+    },
+
+    /**
+     * CSV-Export mit denselben Filtern wie die paginierte Liste.
+     */
+    exportEventsList: async (params: EventsListQueryParams): Promise<string> => {
+      const { page: _page, limit: _limit, ...filterParams } = params;
+      const query = serializeEventsListQuery(filterParams, { includePaginationDefaults: false });
+      return api.getText(`${endpoints.events}/export?${query}`);
+    },
+
+    /**
+     * @deprecated Verwende getEventsList({ approval: 'pending' }).
      */
     getPendingEvents: async (): Promise<Event[]> => {
       return api.getData<Event[]>(`${endpoints.events}/pending`);

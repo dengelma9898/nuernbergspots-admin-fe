@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 function readParam(
@@ -9,6 +9,11 @@ function readParam(
 ) {
   const value = searchParams.get(key) || '';
   return allowed.includes(value) ? value : fallback;
+}
+
+function readPage(searchParams: URLSearchParams): number {
+  const rawPage = Number.parseInt(searchParams.get('page') || '1', 10);
+  return Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 }
 
 export function useEventListFilters() {
@@ -42,6 +47,8 @@ export function useEventListFilters() {
   );
   const [dateFilter, setDateFilter] = useState<string>(initialDateFilter);
   const [approvalFilter, setApprovalFilter] = useState<string>(initialApprovalFilter);
+  const [page, setPage] = useState<number>(() => readPage(searchParams));
+  const isFirstFilterEffect = useRef(true);
 
   useEffect(() => {
     if (timeFilter !== 'week' && selectedWeek) {
@@ -51,6 +58,23 @@ export function useEventListFilters() {
       setSelectedMonth('');
     }
   }, [timeFilter, selectedMonth, selectedWeek]);
+
+  useEffect(() => {
+    if (isFirstFilterEffect.current) {
+      isFirstFilterEffect.current = false;
+      return;
+    }
+    setPage(1);
+  }, [
+    searchQuery,
+    statusFilter,
+    categoryFilter,
+    timeFilter,
+    selectedWeek,
+    selectedMonth,
+    dateFilter,
+    approvalFilter,
+  ]);
 
   useEffect(() => {
     const nextParams = new URLSearchParams(searchParams);
@@ -102,6 +126,12 @@ export function useEventListFilters() {
       nextParams.delete('approval');
     }
 
+    if (page > 1) {
+      nextParams.set('page', String(page));
+    } else {
+      nextParams.delete('page');
+    }
+
     if (nextParams.toString() !== searchParams.toString()) {
       setSearchParams(nextParams, { replace: true });
     }
@@ -109,6 +139,7 @@ export function useEventListFilters() {
     approvalFilter,
     categoryFilter,
     dateFilter,
+    page,
     searchParams,
     searchQuery,
     selectedWeek,
@@ -145,6 +176,53 @@ export function useEventListFilters() {
     }
   };
 
+  const resetAllFilters = () => {
+    setSearchQuery('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setTimeFilter('all');
+    setSelectedWeek('');
+    setSelectedMonth('');
+    setDateFilter('all');
+    setApprovalFilter('all');
+    setPage(1);
+  };
+
+  const hasActiveFilters =
+    searchQuery !== '' ||
+    statusFilter !== 'all' ||
+    categoryFilter !== 'all' ||
+    timeFilter !== 'all' ||
+    selectedWeek !== '' ||
+    selectedMonth !== '' ||
+    dateFilter !== 'all' ||
+    approvalFilter !== 'all';
+
+  const listQuery = useMemo(
+    () => ({
+      searchQuery,
+      statusFilter,
+      approvalFilter,
+      categoryFilter,
+      dateFilter,
+      timeFilter,
+      selectedWeek,
+      selectedMonth,
+      page,
+    }),
+    [
+      searchQuery,
+      statusFilter,
+      approvalFilter,
+      categoryFilter,
+      dateFilter,
+      timeFilter,
+      selectedWeek,
+      selectedMonth,
+      page,
+    ]
+  );
+
   return {
     searchQuery,
     setSearchQuery,
@@ -162,7 +240,12 @@ export function useEventListFilters() {
     setDateFilter,
     approvalFilter,
     setApprovalFilter,
+    page,
+    setPage,
     handleTimeFilterChange,
     handleDateFilterChange,
+    resetAllFilters,
+    hasActiveFilters,
+    listQuery,
   };
 }

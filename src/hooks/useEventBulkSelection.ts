@@ -1,19 +1,20 @@
-import { useMemo, useState, type MutableRefObject } from 'react';
+import { useCallback, useMemo, useState, type MutableRefObject } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Event, BulkUpdateEventCategoryResult } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { showSuccessMessage, showUserFriendlyError } from '@/utils/errorUtils';
 import { applyBulkCategoryResult, BULK_CATEGORY_MAX_EVENTS } from '@/utils/eventBulkUtils';
-import { filterEvents, EventListFilterParams } from '@/utils/eventListUtils';
+import { isEventPast } from '@/utils/eventFilterUtils';
 import type { useEventService } from '@/services/eventService';
 
 interface UseEventBulkSelectionParams {
   events: Event[];
   categories: EventCategory[];
   categoryFilter: string;
-  filterParams: Omit<EventListFilterParams, 'isSelectionMode'>;
+  isSelectionMode: boolean;
   setEvents: (updater: Event[] | ((prev: Event[]) => Event[])) => void;
+  reloadList: () => Promise<boolean>;
   eventServiceRef: MutableRefObject<ReturnType<typeof useEventService>>;
 }
 
@@ -21,8 +22,8 @@ export function useEventBulkSelection({
   events,
   categories,
   categoryFilter,
-  filterParams,
   setEvents,
+  reloadList,
   eventServiceRef,
 }: UseEventBulkSelectionParams) {
   const navigate = useNavigate();
@@ -35,9 +36,9 @@ export function useEventBulkSelection({
   );
   const [bulkPartialDialogOpen, setBulkPartialDialogOpen] = useState(false);
 
-  const filteredEvents = useMemo(
-    () => filterEvents(events, { ...filterParams, isSelectionMode }),
-    [events, filterParams, isSelectionMode]
+  const selectableEvents = useMemo(
+    () => (isSelectionMode ? events.filter(event => !isEventPast(event)) : events),
+    [events, isSelectionMode]
   );
 
   const exitSelectionMode = () => {
@@ -53,7 +54,7 @@ export function useEventBulkSelection({
     }
   };
 
-  const toggleEventSelection = (eventId: string) => {
+  const toggleEventSelection = useCallback((eventId: string) => {
     setSelectedEventIds(prev => {
       const newSet = new Set(prev);
       if (newSet.has(eventId)) {
@@ -69,13 +70,13 @@ export function useEventBulkSelection({
       }
       return newSet;
     });
-  };
+  }, []);
 
   const selectAllVisibleEvents = () => {
-    const visibleIds = filteredEvents.map(e => e.id);
+    const visibleIds = selectableEvents.map(event => event.id);
     if (visibleIds.length > BULK_CATEGORY_MAX_EVENTS) {
       toast.warning('Auswahllimit', {
-        description: `Es wurden nur die ersten ${BULK_CATEGORY_MAX_EVENTS} von ${visibleIds.length} Events ausgewählt.`,
+        description: `Es wurden nur die ersten ${BULK_CATEGORY_MAX_EVENTS} von ${visibleIds.length} Events auf dieser Seite ausgewählt.`,
       });
       setSelectedEventIds(new Set(visibleIds.slice(0, BULK_CATEGORY_MAX_EVENTS)));
       return;
@@ -89,8 +90,8 @@ export function useEventBulkSelection({
 
   const handleGenerateImage = () => {
     const eventsForImage = isSelectionMode
-      ? filteredEvents.filter(e => selectedEventIds.has(e.id))
-      : filteredEvents;
+      ? selectableEvents.filter(event => selectedEventIds.has(event.id))
+      : selectableEvents;
 
     navigate('/events/image-editor', {
       state: {
@@ -121,8 +122,7 @@ export function useEventBulkSelection({
         eventIds: [...selectedEventIds],
         categoryId,
       });
-      const nextEvents = applyBulkCategoryResult(events, result);
-      setEvents(nextEvents);
+      setEvents(prevEvents => applyBulkCategoryResult(prevEvents, result));
 
       if (result.failed === 0) {
         showSuccessMessage(toast, {
@@ -131,6 +131,7 @@ export function useEventBulkSelection({
         });
         setBulkCategoryDialogOpen(false);
         exitSelectionMode();
+        await reloadList();
       } else {
         setBulkPartialResult(result);
         setBulkPartialDialogOpen(true);
@@ -138,6 +139,7 @@ export function useEventBulkSelection({
         toast.warning('Teilweise erfolgreich', {
           description: `${result.successful} von ${result.total} Events aktualisiert, ${result.failed} fehlgeschlagen.`,
         });
+        await reloadList();
       }
     } catch (error) {
       console.error('Fehler beim Bulk-Kategorie-Update:', error);
@@ -161,14 +163,14 @@ export function useEventBulkSelection({
   };
 
   const selectedEventsForBulk = useMemo(
-    () => filteredEvents.filter(e => selectedEventIds.has(e.id)),
-    [filteredEvents, selectedEventIds]
+    () => selectableEvents.filter(event => selectedEventIds.has(event.id)),
+    [selectableEvents, selectedEventIds]
   );
 
   return {
     isSelectionMode,
     selectedEventIds,
-    filteredEvents,
+    visibleEvents: selectableEvents,
     bulkCategoryDialogOpen,
     setBulkCategoryDialogOpen,
     bulkSubmitting,

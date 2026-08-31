@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EventList, EventCard } from '../EventList';
 import * as eventFilterUtils from '@/utils/eventFilterUtils';
@@ -106,8 +106,8 @@ jest.mock('@/components/ui/select', () => ({
       {children}
     </div>
   ),
-  SelectTrigger: ({ children, className }: any) => (
-    <div className={className} data-testid="select-trigger">
+  SelectTrigger: ({ children, className, ...props }: any) => (
+    <div className={className} data-testid="select-trigger" {...props}>
       {children}
     </div>
   ),
@@ -120,6 +120,20 @@ jest.mock('@/components/ui/calendar-week-select', () => ({
       Week Select
     </div>
   ),
+}));
+
+jest.mock('@tanstack/react-virtual', () => ({
+  useWindowVirtualizer: ({ count }: { count: number }) => ({
+    getTotalSize: () => count * 400,
+    measureElement: jest.fn(),
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        index,
+        key: `virtual-${index}`,
+        start: index * 400,
+        size: 400,
+      })),
+  }),
 }));
 
 jest.mock('@/components/ui/skeleton', () => ({
@@ -205,8 +219,29 @@ jest.mock('@/utils/iconUtils', () => ({
 }));
 
 const mockNavigate = jest.fn();
+
+function createEventsListResponse(events: Event[]) {
+  return {
+    data: events,
+    meta: {
+      page: 1,
+      limit: 50,
+      total: events.length,
+      totalPages: events.length > 0 ? 1 : 0,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+    facets: {
+      pendingCount: 0,
+      monthOptions: [{ key: '2024-06', label: 'Juni 2024' }],
+    },
+  };
+}
+
 const mockEventService = {
   getEvents: jest.fn(),
+  getEventsList: jest.fn(),
+  exportEventsList: jest.fn(),
   getPendingEvents: jest.fn(),
   approveEvent: jest.fn(),
   deleteEvent: jest.fn(),
@@ -318,8 +353,15 @@ const renderWithRouter = (component: React.ReactElement) => {
 };
 
 describe('EventList Component', () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockEventService.getEventsList.mockReset();
+    mockEventService.exportEventsList.mockReset();
+    window.history.pushState({}, '', '/events');
     (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
     (useEventService as jest.Mock).mockReturnValue(mockEventService);
     (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
@@ -328,12 +370,10 @@ describe('EventList Component', () => {
     mockUserService.getUserProfile.mockResolvedValue({ userType: 'user' });
 
     // Standard mock setup
-    mockEventService.getEvents.mockResolvedValue([
-      mockEvent,
-      mockPastEvent,
-      mockFutureEvent,
-      mockRunningEvent,
-    ]);
+    mockEventService.getEventsList.mockResolvedValue(
+      createEventsListResponse([mockEvent, mockPastEvent, mockFutureEvent, mockRunningEvent])
+    );
+    mockEventService.exportEventsList.mockResolvedValue('id,title\n');
     mockEventService.getPendingEvents.mockResolvedValue([]);
     mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
 
@@ -375,7 +415,7 @@ describe('EventList Component', () => {
     });
 
     it('sollte Loading-State mit Skeleton-Animationen anzeigen', () => {
-      mockEventService.getEvents.mockImplementation(
+      mockEventService.getEventsList.mockImplementation(
         () => new Promise(() => {}) // Never resolves
       );
 
@@ -402,19 +442,18 @@ describe('EventList Component', () => {
   });
 
   describe('Data Loading', () => {
-    it('sollte Events, Pending-Liste und Kategorien beim Mount laden', async () => {
+    it('sollte Events-Liste und Kategorien beim Mount laden', async () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
-        expect(mockEventService.getEvents).toHaveBeenCalledTimes(1);
-        expect(mockEventService.getPendingEvents).toHaveBeenCalledTimes(1);
+        expect(mockEventService.getEventsList).toHaveBeenCalledTimes(1);
         expect(mockEventCategoryService.getCategories).toHaveBeenCalledTimes(1);
       });
     });
 
     it('sollte Fehler beim Laden der Daten behandeln', async () => {
       const mockToast = require('sonner').toast;
-      mockEventService.getEvents.mockRejectedValue(new Error('API Error'));
+      mockEventService.getEventsList.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EventList />);
 
@@ -561,10 +600,11 @@ describe('EventList Component', () => {
     });
 
     it('sollte alle Filter-Selects rendern', () => {
-      expect(screen.getByText('Zeitraum-Status')).toBeInTheDocument();
-      expect(screen.getByText('Freigabe filtern')).toBeInTheDocument();
-      expect(screen.getByText('Kategorie filtern')).toBeInTheDocument();
-      expect(screen.getByText('Zeitraum filtern')).toBeInTheDocument();
+      expect(screen.getByLabelText('Event-Status filtern')).toBeInTheDocument();
+      expect(screen.getByLabelText('Moderation filtern')).toBeInTheDocument();
+      expect(screen.getByLabelText('Kategorie filtern')).toBeInTheDocument();
+      expect(screen.getByLabelText('Zeitraum eingrenzen')).toBeInTheDocument();
+      expect(screen.getByLabelText('Datumsangabe filtern')).toBeInTheDocument();
     });
 
     it('sollte Kategorie-Filter mit Kategorien befüllen', async () => {
@@ -587,9 +627,9 @@ describe('EventList Component', () => {
 
     it('sollte Event-Gruppen-Header anzeigen', async () => {
       await waitFor(() => {
-        expect(screen.getAllByText('Laufende Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Zukünftige Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Vergangene Events')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Läuft')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Kommend')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Beendet')[0]).toBeInTheDocument();
       });
     });
 
@@ -598,22 +638,27 @@ describe('EventList Component', () => {
         // Prüfe dass mindestens ein Event angezeigt wird
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
         // Überprüfe dass Event-Gruppen-Header vorhanden sind
-        expect(screen.getAllByText('Laufende Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Zukünftige Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Vergangene Events')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Läuft')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Kommend')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Beendet')[0]).toBeInTheDocument();
       });
     });
   });
 
   describe('Empty State', () => {
-    it('sollte "Keine Events gefunden" anzeigen wenn keine Events vorhanden', async () => {
-      mockEventService.getEvents.mockResolvedValue([]);
+    beforeEach(() => {
+      mockEventService.getEventsList.mockResolvedValue(createEventsListResponse([]));
+      mockEventCategoryService.getCategories.mockResolvedValue([]);
+      mockEventService.getPendingEvents.mockResolvedValue([]);
+    });
 
+    it('sollte Empty-State anzeigen wenn keine Events vorhanden', async () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Keine Events gefunden.')).toBeInTheDocument();
+        expect(screen.getByText('Keine Events vorhanden.')).toBeInTheDocument();
       });
+      expect(screen.getAllByRole('button', { name: 'Event hinzufügen' }).length).toBeGreaterThan(0);
     });
   });
 

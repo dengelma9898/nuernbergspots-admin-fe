@@ -221,6 +221,10 @@ export function sortMonthKeys(groupedEventsByMonth: Record<string, EventMonthGro
   });
 }
 
+export function buildCategoryMap(categories: EventCategory[]): Map<string, EventCategory> {
+  return new Map(categories.map(category => [category.id, category]));
+}
+
 export function getMonthOptions(events: Event[]): { key: string; label: string }[] {
   const monthKeys = new Set<string>();
   for (const event of events) {

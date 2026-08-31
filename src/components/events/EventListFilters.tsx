@@ -33,6 +33,8 @@ interface EventListFiltersProps {
   monthOptions: { key: string; label: string }[];
 }
 
+const filterTriggerClass = cn(inputPreset, 'w-full min-w-[9.5rem] sm:w-auto sm:min-w-[10.5rem]');
+
 export function EventListFilters({
   searchQuery,
   onSearchQueryChange,
@@ -54,88 +56,94 @@ export function EventListFilters({
   monthOptions,
 }: EventListFiltersProps) {
   return (
-    <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-      <div className="relative flex-1 mb-2 md:mb-0">
+    <div className="flex flex-col gap-3">
+      <div className="relative w-full">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Nach Event-Namen suchen..."
           value={searchQuery}
           onChange={e => onSearchQueryChange(e.target.value)}
           className={cn(inputPreset, 'pl-10')}
+          aria-label="Nach Event-Namen suchen"
         />
       </div>
-      <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[200px] mb-2 md:mb-0')}>
-          <SelectValue placeholder="Zeitraum-Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Alle Zeiträume (Status)</SelectItem>
-          <SelectItem value="past">Vergangene Events</SelectItem>
-          <SelectItem value="running">Laufende Events</SelectItem>
-          <SelectItem value="future">Zukünftige Events</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select value={approvalFilter} onValueChange={onApprovalFilterChange}>
-        <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[200px] mb-2 md:mb-0')}>
-          <SelectValue placeholder="Freigabe filtern" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Alle Freigaben</SelectItem>
-          <SelectItem value="pending">Ausstehend</SelectItem>
-          <SelectItem value="active">Freigegeben</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
-        <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[180px] mb-2 md:mb-0')}>
-          <SelectValue placeholder="Kategorie filtern" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Alle Kategorien</SelectItem>
-          <SelectItem value="no-category">Ohne Kategorie</SelectItem>
-          {categories.map(category => (
-            <SelectItem key={category.id} value={category.id}>
-              {category.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Select value={timeFilter} onValueChange={onTimeFilterChange}>
-        <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[180px]')}>
-          <SelectValue placeholder="Zeitraum filtern" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Alle Zeiträume</SelectItem>
-          <SelectItem value="week">Kalenderwoche</SelectItem>
-          <SelectItem value="month">Monat</SelectItem>
-        </SelectContent>
-      </Select>
-      {timeFilter === 'week' && (
-        <CalendarWeekSelect value={selectedWeek} onChange={onSelectedWeekChange} />
-      )}
-      {timeFilter === 'month' && (
-        <Select value={selectedMonth} onValueChange={onSelectedMonthChange}>
-          <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[220px]')}>
-            <SelectValue placeholder="Monat auswählen" />
+      <div className="flex flex-wrap gap-2 md:gap-3">
+        <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+          <SelectTrigger className={filterTriggerClass} aria-label="Event-Status filtern">
+            <SelectValue placeholder="Event-Status" />
           </SelectTrigger>
           <SelectContent>
-            {monthOptions.map(monthOption => (
-              <SelectItem key={monthOption.key} value={monthOption.key}>
-                {monthOption.label}
+            <SelectItem value="all">Alle Status</SelectItem>
+            <SelectItem value="past">Beendet</SelectItem>
+            <SelectItem value="running">Läuft</SelectItem>
+            <SelectItem value="future">Kommend</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={approvalFilter} onValueChange={onApprovalFilterChange}>
+          <SelectTrigger className={filterTriggerClass} aria-label="Moderation filtern">
+            <SelectValue placeholder="Moderation" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Moderation</SelectItem>
+            <SelectItem value="pending">Ausstehend</SelectItem>
+            <SelectItem value="active">Freigegeben</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={categoryFilter} onValueChange={onCategoryFilterChange}>
+          <SelectTrigger className={filterTriggerClass} aria-label="Kategorie filtern">
+            <SelectValue placeholder="Kategorie" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Kategorien</SelectItem>
+            <SelectItem value="no-category">Ohne Kategorie</SelectItem>
+            {categories.map(category => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
-      )}
-      <Select value={dateFilter} onValueChange={onDateFilterChange}>
-        <SelectTrigger className={cn(inputPreset, 'w-full sm:w-[180px]')}>
-          <SelectValue placeholder="Datum filtern" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Alle Events</SelectItem>
-          <SelectItem value="with-date">Mit Datum</SelectItem>
-          <SelectItem value="no-date">Ohne Datum</SelectItem>
-        </SelectContent>
-      </Select>
+        <Select value={timeFilter} onValueChange={onTimeFilterChange}>
+          <SelectTrigger className={filterTriggerClass} aria-label="Zeitraum eingrenzen">
+            <SelectValue placeholder="Zeitraum eingrenzen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Gesamt</SelectItem>
+            <SelectItem value="week">Kalenderwoche</SelectItem>
+            <SelectItem value="month">Monat</SelectItem>
+          </SelectContent>
+        </Select>
+        {timeFilter === 'week' && (
+          <CalendarWeekSelect value={selectedWeek} onChange={onSelectedWeekChange} />
+        )}
+        {timeFilter === 'month' && (
+          <Select value={selectedMonth} onValueChange={onSelectedMonthChange}>
+            <SelectTrigger
+              className={cn(filterTriggerClass, 'sm:min-w-[12rem]')}
+              aria-label="Monat auswählen"
+            >
+              <SelectValue placeholder="Monat auswählen" />
+            </SelectTrigger>
+            <SelectContent>
+              {monthOptions.map(monthOption => (
+                <SelectItem key={monthOption.key} value={monthOption.key}>
+                  {monthOption.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+        <Select value={dateFilter} onValueChange={onDateFilterChange}>
+          <SelectTrigger className={filterTriggerClass} aria-label="Datumsangabe filtern">
+            <SelectValue placeholder="Datumsangabe" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alle Datumsarten</SelectItem>
+            <SelectItem value="with-date">Mit Datum</SelectItem>
+            <SelectItem value="no-date">Ohne Datum</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 }

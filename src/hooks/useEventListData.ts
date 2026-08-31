@@ -1,125 +1,133 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
+import { EventListQueryInput, EventsListFacets, PaginationMeta } from '@/models/events-list';
 import { UserType } from '@/models/users';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { useUserService } from '@/services/userService';
 import { showSuccessMessage, showUserFriendlyError } from '@/utils/errorUtils';
-import {
-  getEventListCache,
-  mergeAdminEvents,
-  shouldUseEventListCache,
-  updateEventListCache,
-} from '@/utils/eventListUtils';
+import { buildEventsListQueryParams } from '@/utils/eventListQuery';
 
-export function useEventListData() {
-  const cachedData = getEventListCache();
-  const [events, setEvents] = useState<Event[]>(cachedData?.events ?? []);
-  const [categories, setCategories] = useState<EventCategory[]>(cachedData?.categories ?? []);
-  const [pendingAccess, setPendingAccess] = useState<boolean>(cachedData?.pendingAccess ?? false);
-  const [loading, setLoading] = useState(!cachedData);
+const EMPTY_FACETS: EventsListFacets = { monthOptions: [] };
+const shouldUseEventCategoryCache = process.env.NODE_ENV !== 'test';
+
+let cachedEventCategories: EventCategory[] | null = null;
+
+export function useEventListData(listQuery: EventListQueryInput) {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [meta, setMeta] = useState<PaginationMeta | null>(null);
+  const [facets, setFacets] = useState<EventsListFacets>(EMPTY_FACETS);
+  const [categories, setCategories] = useState<EventCategory[]>(
+    shouldUseEventCategoryCache && cachedEventCategories ? cachedEventCategories : []
+  );
+  const [loading, setLoading] = useState(true);
   const [approvingEventId, setApprovingEventId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<UserType | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isLoadingRef = useRef(false);
+  const listRequestIdRef = useRef(0);
+  const categoriesLoadedRef = useRef(shouldUseEventCategoryCache && cachedEventCategories !== null);
   const eventService = useEventService();
   const eventServiceRef = useRef(eventService);
   eventServiceRef.current = eventService;
   const eventCategoryService = useEventCategoryService();
+  const eventCategoryServiceRef = useRef(eventCategoryService);
+  eventCategoryServiceRef.current = eventCategoryService;
   const userService = useUserService();
   const userServiceRef = useRef(userService);
   userServiceRef.current = userService;
   const { getUserId } = useAuth();
 
   const isAdminOrSuperAdmin = userRole === UserType.ADMIN || userRole === UserType.SUPER_ADMIN;
+  const pendingAccess = isAdminOrSuperAdmin;
+  const pendingModerationCount = facets.pendingCount ?? 0;
+  const monthOptions = facets.monthOptions;
 
-  const syncCache = (
-    nextEvents: Event[],
-    nextCategories: EventCategory[],
-    nextPendingAccess: boolean
-  ) => {
-    updateEventListCache(nextEvents, nextCategories, nextPendingAccess);
-  };
+  const apiQueryParams = useMemo(() => buildEventsListQueryParams(listQuery), [listQuery]);
 
-  const loadData = async (forceRefresh = false): Promise<boolean> => {
-    if (isLoadingRef.current) {
-      return false;
-    }
-    if (loading && !forceRefresh) {
-      return false;
-    }
-    const cache = getEventListCache();
-    if (!forceRefresh && shouldUseEventListCache && cache) {
-      setEvents(cache.events);
-      setCategories(cache.categories);
-      setPendingAccess(cache.pendingAccess);
-      setLoading(false);
-      return true;
-    }
+  const loadList = useCallback(
+    async (options?: { silent?: boolean }) => {
+      const requestId = ++listRequestIdRef.current;
 
-    isLoadingRef.current = true;
-    try {
-      setLoading(true);
-      const [fetchedEvents, fetchedCategories] = await Promise.all([
-        eventService.getEvents(),
-        eventCategoryService.getCategories(),
-      ]);
-
-      let pendingList: Event[] = [];
-      let nextPendingAccess = false;
-      try {
-        pendingList = await eventService.getPendingEvents();
-        nextPendingAccess = true;
-      } catch (pendingError: unknown) {
-        const status = (pendingError as { status?: number }).status;
-        if (status !== 403) {
-          console.error('Fehler beim Laden ausstehender Events:', pendingError);
-          showUserFriendlyError(
-            pendingError,
-            toast,
-            () => {
-              void loadData(true);
-            },
-            'load-pending-events'
-          );
-        }
-        pendingList = [];
-        nextPendingAccess = false;
+      if (!options?.silent) {
+        setLoading(true);
       }
 
-      const mergedEvents = mergeAdminEvents(fetchedEvents, pendingList);
-      setEvents(mergedEvents);
-      setCategories(fetchedCategories);
-      setPendingAccess(nextPendingAccess);
-      syncCache(mergedEvents, fetchedCategories, nextPendingAccess);
-      return true;
-    } catch (error) {
-      console.error('Fehler beim Laden der Daten:', error);
-      showUserFriendlyError(error, toast, () => loadData(forceRefresh), 'load-event');
-      return false;
-    } finally {
-      isLoadingRef.current = false;
-      setLoading(false);
-    }
-  };
+      try {
+        const response = await eventServiceRef.current.getEventsList(apiQueryParams);
+        if (requestId !== listRequestIdRef.current) {
+          return false;
+        }
+        setEvents(response.data);
+        setMeta(response.meta);
+        setFacets(response.facets ?? EMPTY_FACETS);
+        return true;
+      } catch (error) {
+        if (requestId !== listRequestIdRef.current) {
+          return false;
+        }
+        console.error('Fehler beim Laden der Events:', error);
+        showUserFriendlyError(error, toast, () => void loadList(options), 'load-event');
+        return false;
+      } finally {
+        if (requestId === listRequestIdRef.current) {
+          setLoading(false);
+        }
+      }
+    },
+    [apiQueryParams]
+  );
 
   useEffect(() => {
-    if (shouldUseEventListCache && getEventListCache()) {
-      const cache = getEventListCache()!;
-      setEvents(cache.events);
-      setCategories(cache.categories);
-      setPendingAccess(cache.pendingAccess);
-      setLoading(false);
+    if (categoriesLoadedRef.current) {
       return;
     }
-    loadData(true);
+
+    let cancelled = false;
+
+    const loadCategoriesOnce = async () => {
+      try {
+        const fetchedCategories = await eventCategoryServiceRef.current.getCategories();
+        if (cancelled) {
+          return;
+        }
+        if (shouldUseEventCategoryCache) {
+          cachedEventCategories = fetchedCategories;
+        }
+        categoriesLoadedRef.current = true;
+        setCategories(fetchedCategories);
+      } catch (error) {
+        if (cancelled) {
+          return;
+        }
+        console.error('Fehler beim Laden der Kategorien:', error);
+        showUserFriendlyError(
+          error,
+          toast,
+          () => {
+            categoriesLoadedRef.current = false;
+            void loadCategoriesOnce();
+          },
+          'load-event-categories'
+        );
+      }
+    };
+
+    void loadCategoriesOnce();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  useEffect(() => {
+    void loadList();
+  }, [loadList]);
 
   useEffect(() => {
     const loadUserRole = async () => {
@@ -135,10 +143,10 @@ export function useEventListData() {
     void loadUserRole();
   }, [getUserId]);
 
-  const handleDelete = (eventId: string) => {
+  const handleDelete = useCallback((eventId: string) => {
     setEventToDelete(eventId);
     setDeleteDialogOpen(true);
-  };
+  }, []);
 
   const confirmDelete = async () => {
     if (!eventToDelete) return;
@@ -149,13 +157,9 @@ export function useEventListData() {
         title: 'Event gelöscht',
         description: 'Das Event wurde erfolgreich gelöscht.',
       });
-      setEvents(prevEvents => {
-        const nextEvents = prevEvents.filter(event => event.id !== eventToDelete);
-        syncCache(nextEvents, categories, pendingAccess);
-        return nextEvents;
-      });
       setDeleteDialogOpen(false);
       setEventToDelete(null);
+      await loadList({ silent: true });
     } catch (error) {
       console.error('Fehler beim Löschen des Events:', error);
       showUserFriendlyError(error, toast, () => confirmDelete(), 'delete-event');
@@ -164,35 +168,39 @@ export function useEventListData() {
     }
   };
 
-  const handleApproveEvent = async (eventId: string) => {
-    if (approvingEventId !== null || loading) {
-      return;
-    }
-    try {
-      setApprovingEventId(eventId);
-      const updated = await eventService.approveEvent(eventId);
-      setEvents(prevEvents => {
-        const nextEvents = prevEvents.map(e => (e.id === eventId ? { ...e, ...updated } : e));
-        syncCache(nextEvents, categories, pendingAccess);
-        return nextEvents;
-      });
-      showSuccessMessage(toast, {
-        title: 'Event freigegeben',
-        description: 'Das Event ist jetzt aktiv und für Nutzer sichtbar.',
-      });
-    } catch (error) {
-      console.error('Fehler bei der Freigabe:', error);
-      showUserFriendlyError(error, toast, () => void handleApproveEvent(eventId), 'approve-event');
-    } finally {
-      setApprovingEventId(null);
-    }
-  };
+  const handleApproveEvent = useCallback(
+    async (eventId: string) => {
+      if (approvingEventId !== null || loading) {
+        return;
+      }
+      try {
+        setApprovingEventId(eventId);
+        await eventService.approveEvent(eventId);
+        showSuccessMessage(toast, {
+          title: 'Event freigegeben',
+          description: 'Das Event ist jetzt aktiv und für Nutzer sichtbar.',
+        });
+        await loadList({ silent: true });
+      } catch (error) {
+        console.error('Fehler bei der Freigabe:', error);
+        showUserFriendlyError(
+          error,
+          toast,
+          () => void handleApproveEvent(eventId),
+          'approve-event'
+        );
+      } finally {
+        setApprovingEventId(null);
+      }
+    },
+    [approvingEventId, eventService, loadList, loading]
+  );
 
   const handleManualRefresh = async () => {
     if (loading) {
       return;
     }
-    const didRefresh = await loadData(true);
+    const didRefresh = await loadList();
     if (didRefresh) {
       showSuccessMessage(toast, {
         title: 'Events aktualisiert',
@@ -201,23 +209,22 @@ export function useEventListData() {
     }
   };
 
-  const setEventsWithCache = (updater: Event[] | ((prev: Event[]) => Event[])) => {
-    setEvents(prev => {
-      const nextEvents = typeof updater === 'function' ? updater(prev) : updater;
-      syncCache(nextEvents, categories, pendingAccess);
-      return nextEvents;
-    });
-  };
+  const updateEventsLocally = useCallback((updater: Event[] | ((prev: Event[]) => Event[])) => {
+    setEvents(prev => (typeof updater === 'function' ? updater(prev) : updater));
+  }, []);
 
   return {
     events,
-    setEvents: setEventsWithCache,
+    meta,
+    facets,
+    monthOptions,
+    setEvents: updateEventsLocally,
     categories,
     pendingAccess,
     loading,
     approvingEventId,
     isAdminOrSuperAdmin,
-    pendingModerationCount: events.filter(e => e.status === 'PENDING').length,
+    pendingModerationCount,
     deleteDialogOpen,
     setDeleteDialogOpen,
     eventToDelete,
@@ -227,6 +234,8 @@ export function useEventListData() {
     confirmDelete,
     handleApproveEvent,
     handleManualRefresh,
+    reloadList: loadList,
     eventServiceRef,
+    apiQueryParams,
   };
 }

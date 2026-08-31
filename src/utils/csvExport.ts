@@ -19,7 +19,11 @@ export function rowsToCsv(rows: CsvRow[]): string {
 
 export function downloadCsv(filename: string, rows: CsvRow[]): void {
   if (rows.length === 0) return;
-  const csv = rowsToCsv(rows);
+  downloadCsvContent(filename, rowsToCsv(rows));
+}
+
+export function downloadCsvContent(filename: string, csv: string): void {
+  if (!csv.trim()) return;
   const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');

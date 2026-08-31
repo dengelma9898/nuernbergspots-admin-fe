@@ -106,6 +106,7 @@ export function EventListHeader({
               onClick={onGenerateImage}
               disabled={selectedCount === 0}
               className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+              title="Ausgewählte Events im Bild-Editor öffnen"
             >
               <ImageIcon className="h-4 w-4" />
               Bild generieren ({selectedCount})
@@ -125,8 +126,9 @@ export function EventListHeader({
               variant="outline"
               onClick={onToggleSelectionMode}
               className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
+              title="Mehrere Events für Bulk-Aktionen auswählen"
             >
-              <ImageIcon className="h-4 w-4" />
+              <CheckSquare className="h-4 w-4" />
               Mehrfachauswahl
             </LoadingButton>
             <LoadingButton

@@ -3,6 +3,7 @@
 // Mock API
 const mockApi = {
   getData: jest.fn(),
+  getText: jest.fn(),
   postData: jest.fn(),
   patchData: jest.fn(),
   putData: jest.fn(),
@@ -49,6 +50,49 @@ describe('Event Service', () => {
       mockApi.getData.mockRejectedValue(new Error('Network error'));
 
       await expect(eventService.getEvents()).rejects.toThrow('Network error');
+    });
+  });
+
+  describe('getEventsList', () => {
+    it('should fetch paginated events with filters', async () => {
+      const response = {
+        data: [{ id: '1', title: 'Event 1' }],
+        meta: {
+          page: 1,
+          limit: 50,
+          total: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+      mockApi.getData.mockResolvedValue(response);
+
+      const result = await eventService.getEventsList({
+        page: 1,
+        limit: 50,
+        q: 'Konzert',
+        facets: true,
+      });
+
+      expect(mockApi.getData).toHaveBeenCalledWith(
+        expect.stringMatching(/\/events\?.*page=1.*limit=50/)
+      );
+      expect(mockApi.getData).toHaveBeenCalledWith(expect.stringContaining('q=Konzert'));
+      expect(result).toEqual(response);
+    });
+  });
+
+  describe('exportEventsList', () => {
+    it('should export filtered events as csv text', async () => {
+      mockApi.getText.mockResolvedValue('id,title\n1,Event');
+
+      const result = await eventService.exportEventsList({ q: 'Test' });
+
+      expect(mockApi.getText).toHaveBeenCalledWith(
+        expect.stringContaining('/events/export?q=Test')
+      );
+      expect(result).toBe('id,title\n1,Event');
     });
   });
 

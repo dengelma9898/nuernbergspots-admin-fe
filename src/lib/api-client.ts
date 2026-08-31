@@ -114,6 +114,20 @@ class ApiClient {
     return this.request<T>('GET', endpoint);
   }
 
+  async getText(endpoint: string): Promise<string> {
+    const headers = await this.getHeaders();
+    const response = await fetch(`${this.baseUrl}${endpoint}`, { method: 'GET', headers });
+
+    if (!response.ok) {
+      const { message } = await this.extractErrorMessage(response, response.status);
+      const error = new Error(message);
+      (error as { status?: number }).status = response.status;
+      throw error;
+    }
+
+    return response.text();
+  }
+
   async post<T>(endpoint: string, data: any, options: { isFormData?: boolean } = {}): Promise<T> {
     const body = options.isFormData ? data : JSON.stringify(data);
     return this.request<T>('POST', endpoint, {
