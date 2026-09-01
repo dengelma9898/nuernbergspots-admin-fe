@@ -1,4 +1,4 @@
-import { describe, expect, it } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 
 import { useAdminSidebar } from '@/hooks/useAdminSidebar';
 import { renderHook, act } from '@testing-library/react';

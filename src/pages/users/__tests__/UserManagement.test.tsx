@@ -1,3 +1,6 @@
+import { toast as mockToast } from 'sonner';
+import { downloadCsv } from '@/utils/csvExport';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -5,40 +8,38 @@ import { UserManagement } from '../UserManagement';
 import { User, UserType } from '@/models/users';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock services
 const mockUserService = {
-  getAllUsers: jest.fn(),
-  getBusinessUsersInReviewCount: jest.fn(),
-  searchUsers: jest.fn(),
+  getAllUsers: vi.fn(),
+  getBusinessUsersInReviewCount: vi.fn(),
+  searchUsers: vi.fn(),
 };
 
-jest.mock('@/services/userService', () => ({
+vi.mock('@/services/userService', async () => ({
   useUserService: () => mockUserService,
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-jest.mock('@/utils/csvExport', () => ({
-  downloadCsv: jest.fn(),
+vi.mock('@/utils/csvExport', async () => ({
+  downloadCsv: vi.fn(),
 }));
 
-const { toast: mockToast } = require('sonner');
-
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  format: jest.fn((date: Date, formatStr: string) => {
+vi.mock('date-fns', async () => ({
+  format: vi.fn((date: Date, formatStr: string) => {
     if (formatStr === 'dd.MM.yyyy HH:mm') {
       return '01.01.2024 10:30';
     }
@@ -49,7 +50,7 @@ jest.mock('date-fns', () => ({
   }),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
@@ -103,7 +104,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('UserManagement', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUserService.getAllUsers.mockResolvedValue(mockUsers);
   });
 
@@ -395,8 +396,6 @@ describe('UserManagement', () => {
 
   describe('CSV Export', () => {
     it('sollte User als CSV exportieren', async () => {
-      const { downloadCsv } = require('@/utils/csvExport');
-
       await act(async () => {
         renderWithRouter(<UserManagement />);
       });

@@ -1,11 +1,12 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PricingCalculator } from '../PricingCalculator';
 import { BusinessAnalytics } from '../../models/business';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -28,7 +29,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/slider', () => ({
+vi.mock('@/components/ui/slider', () => ({
   Slider: ({ value, onValueChange, min, max, step }: any) => (
     <input
       type="range"
@@ -43,7 +44,7 @@ jest.mock('@/components/ui/slider', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
     <input
       value={value}
@@ -55,7 +56,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', () => ({
   Label: ({ children, className }: any) => (
     <label className={className} data-testid="label">
       {children}
@@ -63,7 +64,7 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', () => ({
   Switch: ({ checked, onCheckedChange }: any) => (
     <input
       type="checkbox"
@@ -193,7 +194,7 @@ const mockSingleBusiness: BusinessAnalytics[] = [
 
 describe('PricingCalculator Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Component Rendering', () => {

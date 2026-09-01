@@ -1,25 +1,26 @@
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { CalendarWeekSelect } from '../calendar-week-select';
 
 // Mock date-fns functions
-jest.mock('date-fns', () => ({
-  format: jest.fn(),
-  startOfWeek: jest.fn(),
-  endOfWeek: jest.fn(),
-  addWeeks: jest.fn(),
-  subWeeks: jest.fn(),
+vi.mock('date-fns', async () => ({
+  format: vi.fn(),
+  startOfWeek: vi.fn(),
+  endOfWeek: vi.fn(),
+  addWeeks: vi.fn(),
+  subWeeks: vi.fn(),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: { code: 'de' },
 }));
 
 // Mock Button component
-jest.mock('../button', () => ({
+vi.mock('../button', async () => ({
   Button: React.forwardRef<
     HTMLButtonElement,
     React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -40,8 +41,8 @@ jest.mock('../button', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ChevronLeft: React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => (
     <svg ref={ref} data-testid="chevron-left" {...props}>
       <title>Chevron Left</title>
@@ -57,14 +58,18 @@ jest.mock('lucide-react', () => ({
 // Import mocked functions
 import { format, startOfWeek, endOfWeek, addWeeks, subWeeks } from 'date-fns';
 
-const mockFormat = format as jest.MockedFunction<typeof format>;
-const mockStartOfWeek = startOfWeek as jest.MockedFunction<typeof startOfWeek>;
-const mockEndOfWeek = endOfWeek as jest.MockedFunction<typeof endOfWeek>;
-const mockAddWeeks = addWeeks as jest.MockedFunction<typeof addWeeks>;
-const mockSubWeeks = subWeeks as jest.MockedFunction<typeof subWeeks>;
+const mockFormat = format as MockedFunction<typeof format>;
+const mockStartOfWeek = startOfWeek as MockedFunction<typeof startOfWeek>;
+const mockEndOfWeek = endOfWeek as MockedFunction<typeof endOfWeek>;
+const mockAddWeeks = addWeeks as MockedFunction<typeof addWeeks>;
+const mockSubWeeks = subWeeks as MockedFunction<typeof subWeeks>;
+
+// Vitest-Mocks sind nicht konstruierbar, daher wird `new Date()` über eine
+// Subklasse der (einmalig eingefrorenen) echten Date gestubbt.
+const OriginalDate = globalThis.Date;
 
 describe('CalendarWeekSelect Component', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
   const defaultProps = {
     value: '1',
     onChange: mockOnChange,
@@ -78,7 +83,7 @@ describe('CalendarWeekSelect Component', () => {
   const mockNextWeekDate = new Date('2024-01-22');
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockStartOfWeek.mockReturnValue(mockStartDate);
     mockEndOfWeek.mockReturnValue(mockEndDate);
@@ -92,11 +97,18 @@ describe('CalendarWeekSelect Component', () => {
       return 'mocked-date';
     });
 
-    jest.spyOn(global, 'Date').mockImplementation(() => mockCurrentDate as any);
+    // `new Date()` im Component-State soll immer mockCurrentDate liefern
+    global.Date = class extends OriginalDate {
+      constructor(..._args: any[]) {
+        super(0);
+        return mockCurrentDate as unknown as Date;
+      }
+    } as unknown as typeof Date;
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    global.Date = OriginalDate;
+    vi.restoreAllMocks();
   });
 
   describe('Basic Rendering', () => {
@@ -289,7 +301,7 @@ describe('CalendarWeekSelect Component', () => {
     });
 
     it('sollte onChange prop korrekt handhaben', async () => {
-      const customOnChange = jest.fn();
+      const customOnChange = vi.fn();
       const user = userEvent.setup();
 
       render(<CalendarWeekSelect value="1" onChange={customOnChange} />);

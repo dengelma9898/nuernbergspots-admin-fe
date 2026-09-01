@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Avatar, AvatarImage, AvatarFallback } from '../avatar';
 
 describe('Avatar Komponente', () => {

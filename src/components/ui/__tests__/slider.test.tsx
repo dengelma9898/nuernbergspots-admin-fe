@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { Slider } from '../slider';
 
 describe('Slider Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Basic Rendering', () => {
@@ -227,7 +227,7 @@ describe('Slider Component', () => {
 
   describe('Event Handling', () => {
     it('sollte onValueChange callback aufrufen', async () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
 
       render(<Slider data-testid="slider" defaultValue={[50]} onValueChange={onValueChange} />);
 

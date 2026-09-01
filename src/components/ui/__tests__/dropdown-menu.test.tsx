@@ -1,7 +1,8 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import {
   DropdownMenu,
@@ -22,8 +23,8 @@ import {
 } from '../dropdown-menu';
 
 // Mock für lucide-react Icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   CheckIcon: ({ ...props }) => (
     <svg data-testid="check-icon" {...props}>
       ✓
@@ -44,7 +45,7 @@ jest.mock('lucide-react', () => ({
 // Test DropdownMenu Komponente
 const TestDropdownMenu = ({
   open = false,
-  onOpenChange = jest.fn(),
+  onOpenChange = vi.fn(),
   ...props
 }: {
   open?: boolean;
@@ -93,7 +94,7 @@ const TestDropdownMenu = ({
 
 describe('DropdownMenu Components', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('DropdownMenu', () => {

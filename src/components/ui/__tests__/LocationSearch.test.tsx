@@ -1,22 +1,23 @@
+import type { Mock } from 'vitest';
 // LocationSearch Tests
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { LocationSearch, LocationResult } from '../LocationSearch';
 
 // Mock API Hook
-const mockApiGetData = jest.fn();
-jest.mock('@/lib/api', () => ({
+const mockApiGetData = vi.fn();
+vi.mock('@/lib/api', async () => ({
   useApi: () => ({
     getData: mockApiGetData,
   }),
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
     ({ className, ...props }, ref) => (
       <input ref={ref} data-testid="location-input" className={className} {...props} />
@@ -24,7 +25,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement> & {
@@ -43,7 +44,7 @@ jest.mock('@/components/ui/badge', () => ({
   )),
 }));
 
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
     ({ children, className, ...props }, ref) => (
       <div ref={ref} data-testid="location-card" className={className} {...props}>
@@ -60,7 +61,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('../button', () => ({
+vi.mock('../button', async () => ({
   Button: React.forwardRef<
     HTMLButtonElement,
     React.ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -83,8 +84,8 @@ jest.mock('../button', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Check: React.forwardRef<SVGSVGElement, React.SVGProps<SVGSVGElement>>((props, ref) => (
     <svg ref={ref} data-testid="check-icon" {...props}>
       <title>Check</title>
@@ -108,12 +109,12 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock utils
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', async () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }));
 
 describe('LocationSearch Component', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
   const defaultProps = {
     value: null,
     onChange: mockOnChange,
@@ -158,14 +159,14 @@ describe('LocationSearch Component', () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
     mockApiGetData.mockResolvedValue(mockSearchResults);
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   describe('Basic Rendering', () => {
@@ -200,14 +201,14 @@ describe('LocationSearch Component', () => {
 
   describe('Search Functionality', () => {
     it('sollte Suche bei Texteingabe starten', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -216,34 +217,34 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte nicht suchen bei weniger als 3 Zeichen', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Ha');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       expect(mockApiGetData).not.toHaveBeenCalled();
     });
 
     it('sollte Debouncing implementieren', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} debounce={1000} />);
 
       const input = screen.getByTestId('location-input');
 
       await user.type(input, 'Haupt');
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       expect(mockApiGetData).not.toHaveBeenCalled();
 
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       await waitFor(() => {
@@ -254,14 +255,14 @@ describe('LocationSearch Component', () => {
 
   describe('Suggestions Display', () => {
     it('sollte Vorschläge nach erfolgreicher Suche anzeigen', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -272,14 +273,14 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte MapPin Icons bei Vorschlägen anzeigen', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -289,14 +290,14 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte Vorschlag bei Klick auswählen', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -359,8 +360,8 @@ describe('LocationSearch Component', () => {
 
   describe('Error Handling', () => {
     it('sollte API-Fehler graceful handhaben', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation();
 
       mockApiGetData.mockRejectedValue(new Error('API Error'));
 
@@ -370,7 +371,7 @@ describe('LocationSearch Component', () => {
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -384,7 +385,7 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte mit leeren API-Ergebnissen umgehen', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       mockApiGetData.mockResolvedValue([]);
 
@@ -394,7 +395,7 @@ describe('LocationSearch Component', () => {
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -405,14 +406,14 @@ describe('LocationSearch Component', () => {
 
   describe('Props Handling', () => {
     it('sollte verschiedene debounce Werte handhaben', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} debounce={500} />);
 
       const input = screen.getByTestId('location-input');
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(500);
+        vi.advanceTimersByTime(500);
       });
 
       await waitFor(() => {
@@ -421,8 +422,8 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte onChange korrekt aufrufen', async () => {
-      const customOnChange = jest.fn();
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const customOnChange = vi.fn();
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       render(<LocationSearch value={null} onChange={customOnChange} />);
 
@@ -430,7 +431,7 @@ describe('LocationSearch Component', () => {
       await user.type(input, 'Hauptstraße');
 
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {
@@ -445,7 +446,7 @@ describe('LocationSearch Component', () => {
 
   describe('Integration Tests', () => {
     it('sollte kompletter Workflow funktionieren', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
@@ -455,7 +456,7 @@ describe('LocationSearch Component', () => {
 
       // 2. Debounce warten
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       // 3. Vorschläge sollten erscheinen
@@ -474,7 +475,7 @@ describe('LocationSearch Component', () => {
     });
 
     it('sollte Suche, Auswahl und Clear Workflow funktionieren', async () => {
-      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const { rerender } = render(<LocationSearch {...defaultProps} />);
 
       const input = screen.getByTestId('location-input');
@@ -482,7 +483,7 @@ describe('LocationSearch Component', () => {
       // Suche und Auswahl
       await user.type(input, 'Hauptstraße');
       act(() => {
-        jest.advanceTimersByTime(1500);
+        vi.advanceTimersByTime(1500);
       });
 
       await waitFor(() => {

@@ -1,3 +1,7 @@
+import { useNavigate } from 'react-router-dom';
+import { isFuture, isPast, isWithinInterval } from 'date-fns';
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -9,25 +13,25 @@ import { useUserService } from '../../../services/userService';
 import { useAuth } from '../../../contexts/AuthContext';
 import { Event } from '../../../models/events';
 import { EventCategory } from '../../../models/event-category';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Mock alle externen Dependencies
-jest.mock('../../../lib/api', () => ({
-  apiRequest: jest.fn(),
+vi.mock('../../../lib/api', async () => ({
+  apiRequest: vi.fn(),
 }));
-jest.mock('../../../services/eventService');
-jest.mock('../../../services/eventCategoryService');
-jest.mock('../../../services/userService');
-jest.mock('../../../contexts/AuthContext', () => ({
-  useAuth: jest.fn(),
+vi.mock('../../../services/eventService');
+vi.mock('../../../services/eventCategoryService');
+vi.mock('../../../services/userService');
+vi.mock('../../../contexts/AuthContext', async () => ({
+  useAuth: vi.fn(),
 }));
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: vi.fn(),
 }));
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -60,7 +64,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
     <button
       onClick={onClick}
@@ -74,7 +78,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant, className }: any) => (
     <span data-testid="badge" data-variant={variant} className={className}>
       {children}
@@ -82,7 +86,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
     <input
       value={value}
@@ -94,7 +98,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div data-testid="select" data-value={value} onClick={() => onValueChange?.('test-value')}>
       {children}
@@ -114,7 +118,7 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ placeholder }: any) => <div data-testid="select-value">{placeholder}</div>,
 }));
 
-jest.mock('@/components/ui/calendar-week-select', () => ({
+vi.mock('@/components/ui/calendar-week-select', async () => ({
   CalendarWeekSelect: ({ value, onChange }: any) => (
     <div data-testid="calendar-week-select" data-value={value} onClick={() => onChange?.('1')}>
       Week Select
@@ -122,10 +126,10 @@ jest.mock('@/components/ui/calendar-week-select', () => ({
   ),
 }));
 
-jest.mock('@tanstack/react-virtual', () => ({
+vi.mock('@tanstack/react-virtual', async () => ({
   useWindowVirtualizer: ({ count }: { count: number }) => ({
     getTotalSize: () => count * 400,
-    measureElement: jest.fn(),
+    measureElement: vi.fn(),
     getVirtualItems: () =>
       Array.from({ length: count }, (_, index) => ({
         index,
@@ -136,15 +140,15 @@ jest.mock('@tanstack/react-virtual', () => ({
   }),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
   Image: () => <div data-testid="image-icon">Image</div>,
   Heart: () => <div data-testid="heart-icon">Heart</div>,
@@ -170,16 +174,27 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
+// Mock eventFilterUtils (namespace is frozen under ESM, so partial-mock instead of spyOn)
+vi.mock('@/utils/eventFilterUtils', async () => {
+  const actual = await vi.importActual<typeof import('@/utils/eventFilterUtils')>(
+    '@/utils/eventFilterUtils'
+  );
+  return {
+    ...actual,
+    isEventPast: vi.fn(actual.isEventPast),
+  };
+});
+
 // Mock date-fns functions
-jest.mock('date-fns', () => {
-  const actual = jest.requireActual<typeof import('date-fns')>('date-fns');
+vi.mock('date-fns', async () => {
+  const actual = await vi.importActual<typeof import('date-fns')>('date-fns');
   return {
     ...actual,
     format: (date: Date, formatString: string, options?: any) => {
@@ -200,10 +215,10 @@ jest.mock('date-fns', () => {
       }
       return '15. Januar 2024';
     },
-    isPast: jest.fn(),
-    isFuture: jest.fn(),
-    isWithinInterval: jest.fn(),
-    startOfMonth: jest.fn((date: Date) => {
+    isPast: vi.fn(),
+    isFuture: vi.fn(),
+    isWithinInterval: vi.fn(),
+    startOfMonth: vi.fn((date: Date) => {
       const d = new Date(date);
       d.setDate(1);
       d.setHours(0, 0, 0, 0);
@@ -214,11 +229,11 @@ jest.mock('date-fns', () => {
 
 // Mock color utils
 // Mock icon utils
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn(() => <div data-testid="icon-component">Icon</div>),
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn(() => <div data-testid="icon-component">Icon</div>),
 }));
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
 function createEventsListResponse(events: Event[]) {
   return {
@@ -239,18 +254,18 @@ function createEventsListResponse(events: Event[]) {
 }
 
 const mockEventService = {
-  getEvents: jest.fn(),
-  getEventsList: jest.fn(),
-  exportEventsList: jest.fn(),
-  getPendingEvents: jest.fn(),
-  approveEvent: jest.fn(),
-  deleteEvent: jest.fn(),
+  getEvents: vi.fn(),
+  getEventsList: vi.fn(),
+  exportEventsList: vi.fn(),
+  getPendingEvents: vi.fn(),
+  approveEvent: vi.fn(),
+  deleteEvent: vi.fn(),
 };
 const mockEventCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 const mockUserService = {
-  getUserProfile: jest.fn(),
+  getUserProfile: vi.fn(),
 };
 
 // Mock-Daten
@@ -358,15 +373,15 @@ describe('EventList Component', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockEventService.getEventsList.mockReset();
     mockEventService.exportEventsList.mockReset();
     window.history.pushState({}, '', '/events');
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    (useEventService as jest.Mock).mockReturnValue(mockEventService);
-    (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
-    (useUserService as jest.Mock).mockReturnValue(mockUserService);
-    (useAuth as jest.Mock).mockReturnValue({ getUserId: () => 'user-1' });
+    (vi.mocked(useNavigate) as Mock).mockReturnValue(mockNavigate);
+    (useEventService as Mock).mockReturnValue(mockEventService);
+    (useEventCategoryService as Mock).mockReturnValue(mockEventCategoryService);
+    (useUserService as Mock).mockReturnValue(mockUserService);
+    (useAuth as Mock).mockReturnValue({ getUserId: () => 'user-1' });
     mockUserService.getUserProfile.mockResolvedValue({ userType: 'user' });
 
     // Standard mock setup
@@ -378,9 +393,9 @@ describe('EventList Component', () => {
     mockEventCategoryService.getCategories.mockResolvedValue([mockEventCategory]);
 
     // Mock date-fns return values
-    const mockIsPast = require('date-fns').isPast as jest.Mock;
-    const mockIsFuture = require('date-fns').isFuture as jest.Mock;
-    const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+    const mockIsPast = vi.mocked(isPast);
+    const mockIsFuture = vi.mocked(isFuture);
+    const mockIsWithinInterval = vi.mocked(isWithinInterval);
 
     mockIsPast.mockImplementation((date: Date) => {
       const eventDate = new Date(date);
@@ -450,7 +465,7 @@ describe('EventList Component', () => {
     });
 
     it('sollte Fehler beim Laden der Daten behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockEventService.getEventsList.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EventList />);
@@ -514,8 +529,8 @@ describe('EventList Component', () => {
     });
 
     it('sollte vergangene Events im Auswahlmodus ausblenden', async () => {
-      const isEventPastSpy = jest
-        .spyOn(eventFilterUtils, 'isEventPast')
+      const isEventPastSpy = vi
+        .mocked(eventFilterUtils.isEventPast)
         .mockImplementation(event => event.id === 'event-past');
 
       renderWithRouter(<EventList />);
@@ -663,12 +678,12 @@ describe('EventList Component', () => {
 });
 
 describe('EventCard Component', () => {
-  const mockOnDelete = jest.fn();
-  const mockOnEdit = jest.fn();
+  const mockOnDelete = vi.fn();
+  const mockOnEdit = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
+    (vi.mocked(useNavigate) as Mock).mockReturnValue(mockNavigate);
   });
 
   const renderEventCard = (props: any = {}) => {
@@ -718,9 +733,9 @@ describe('EventCard Component', () => {
 
   describe('Event Status', () => {
     it('sollte korrekten Status für vergangene Events anzeigen', () => {
-      const mockIsPast = require('date-fns').isPast as jest.Mock;
-      const mockIsFuture = require('date-fns').isFuture as jest.Mock;
-      const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+      const mockIsPast = vi.mocked(isPast);
+      const mockIsFuture = vi.mocked(isFuture);
+      const mockIsWithinInterval = vi.mocked(isWithinInterval);
 
       mockIsPast.mockReturnValue(true);
       mockIsFuture.mockReturnValue(false);
@@ -733,9 +748,9 @@ describe('EventCard Component', () => {
     });
 
     it('sollte korrekten Status für zukünftige Events anzeigen', () => {
-      const mockIsPast = require('date-fns').isPast as jest.Mock;
-      const mockIsFuture = require('date-fns').isFuture as jest.Mock;
-      const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+      const mockIsPast = vi.mocked(isPast);
+      const mockIsFuture = vi.mocked(isFuture);
+      const mockIsWithinInterval = vi.mocked(isWithinInterval);
 
       mockIsPast.mockReturnValue(false);
       mockIsFuture.mockReturnValue(true);
@@ -748,9 +763,9 @@ describe('EventCard Component', () => {
     });
 
     it('sollte korrekten Status für laufende Events anzeigen', () => {
-      const mockIsPast = require('date-fns').isPast as jest.Mock;
-      const mockIsFuture = require('date-fns').isFuture as jest.Mock;
-      const mockIsWithinInterval = require('date-fns').isWithinInterval as jest.Mock;
+      const mockIsPast = vi.mocked(isPast);
+      const mockIsFuture = vi.mocked(isFuture);
+      const mockIsWithinInterval = vi.mocked(isWithinInterval);
 
       mockIsPast.mockReturnValue(false);
       mockIsFuture.mockReturnValue(false);

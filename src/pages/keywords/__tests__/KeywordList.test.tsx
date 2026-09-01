@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -9,34 +11,34 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mocks
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Toast Mock
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 // Keyword Service Mock
 const mockKeywordService = {
-  getKeywords: jest.fn(),
-  createKeyword: jest.fn(),
-  updateKeyword: jest.fn(),
-  deleteKeyword: jest.fn(),
+  getKeywords: vi.fn(),
+  createKeyword: vi.fn(),
+  updateKeyword: vi.fn(),
+  deleteKeyword: vi.fn(),
 };
 
-jest.mock('@/services/keywordService', () => ({
+vi.mock('@/services/keywordService', async () => ({
   useKeywordService: () => mockKeywordService,
 }));
 
 // UI Component Mocks
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, ...props }: any) => (
     <div data-testid="card" {...props}>
       {children}
@@ -59,7 +61,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       data-testid="button"
@@ -75,7 +77,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, ...props }: any) => (
     <input
       data-testid="input"
@@ -87,7 +89,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/table', () => ({
+vi.mock('@/components/ui/table', async () => ({
   Table: ({ children, className }: any) => (
     <table data-testid="table" className={className}>
       {children}
@@ -104,7 +106,7 @@ jest.mock('@/components/ui/table', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open ? 'true' : 'false'}>
       {children}
@@ -118,7 +120,7 @@ jest.mock('@/components/ui/dialog', () => ({
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
-jest.mock('@/components/ui/dropdown-menu', () => ({
+vi.mock('@/components/ui/dropdown-menu', async () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuContent: ({ children }: any) => (
     <div data-testid="dropdown-menu-content">{children}</div>
@@ -133,15 +135,15 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Lucide icons mock
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -185,7 +187,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('KeywordList Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockKeywordService.getKeywords.mockResolvedValue(mockKeywords);
   });
 
@@ -243,7 +245,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Fehler beim Laden der Keywords behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockKeywordService.getKeywords.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<KeywordList />);
@@ -332,7 +334,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte neues Keyword erstellen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       const newKeyword: Keyword = {
         id: 'new-keyword',
         name: 'Neues Keyword',
@@ -372,7 +374,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Fehler bei leerem Namen anzeigen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
 
       renderWithRouter(<KeywordList />);
 
@@ -431,7 +433,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Fehler beim Erstellen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockKeywordService.createKeyword.mockRejectedValue(new Error('Create Error'));
 
       renderWithRouter(<KeywordList />);
@@ -479,7 +481,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Keyword aktualisieren', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       const updatedKeyword = { ...singleKeyword, name: 'Updated Pizza' };
       mockKeywordService.updateKeyword.mockResolvedValue(updatedKeyword);
 
@@ -509,7 +511,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Fehler beim Aktualisieren behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockKeywordService.updateKeyword.mockRejectedValue(new Error('Update Error'));
 
       // Trigger dropdown and click edit
@@ -541,7 +543,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Keyword löschen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockKeywordService.deleteKeyword.mockResolvedValue(undefined);
 
       // Trigger dropdown menu and click delete
@@ -559,7 +561,7 @@ describe('KeywordList Component', () => {
     });
 
     it('sollte Fehler beim Löschen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockKeywordService.deleteKeyword.mockRejectedValue(new Error('Delete Error'));
 
       // Trigger dropdown menu and click delete

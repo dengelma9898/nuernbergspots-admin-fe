@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Button } from '../button';
 
 describe('Button Component', () => {
@@ -109,7 +109,7 @@ describe('Button Component', () => {
 
   describe('Interaktionen', () => {
     it('sollte onClick Event korrekt behandeln', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Button onClick={handleClick}>Click me</Button>);
 
       const button = screen.getByRole('button');
@@ -119,7 +119,7 @@ describe('Button Component', () => {
     });
 
     it('sollte disabled State korrekt behandeln', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Button disabled onClick={handleClick}>
           Disabled

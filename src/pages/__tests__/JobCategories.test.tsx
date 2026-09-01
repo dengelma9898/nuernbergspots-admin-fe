@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -10,14 +12,14 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div data-testid="card" className={className}>
       {children}
@@ -36,7 +38,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, size, className, asChild }: any) => {
     const Component = asChild ? 'div' : 'button';
     return (
@@ -54,7 +56,7 @@ jest.mock('@/components/ui/button', () => ({
   },
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, type, className }: any) => (
     <input
       value={value}
@@ -67,7 +69,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/table', () => ({
+vi.mock('@/components/ui/table', async () => ({
   Table: ({ children, className }: any) => (
     <table data-testid="table" className={className}>
       {children}
@@ -88,7 +90,7 @@ jest.mock('@/components/ui/table', () => ({
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   // Kein onClick auf dem Wrapper: sonst schließt jeder Klick im Dialog (z. B. „Hinzufügen“) den Dialog und bricht Tests.
   Dialog: ({ children, open }: any) => (
     <div data-testid="dialog" data-open={open}>
@@ -108,7 +110,7 @@ jest.mock('@/components/ui/dialog', () => ({
   },
 }));
 
-jest.mock('@/components/ui/dropdown-menu', () => ({
+vi.mock('@/components/ui/dropdown-menu', async () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuContent: ({ children, align }: any) => (
     <div data-testid="dropdown-menu-content" data-align={align}>
@@ -127,8 +129,8 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -140,35 +142,35 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 // Mock Services
 const mockJobCategoryService = {
-  getCategories: jest.fn(),
-  createCategory: jest.fn(),
-  updateCategory: jest.fn(),
-  deleteCategory: jest.fn(),
-  getCategory: jest.fn(),
-  updateFallbackImages: jest.fn(),
-  deleteFallbackImage: jest.fn(),
+  getCategories: vi.fn(),
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+  deleteCategory: vi.fn(),
+  getCategory: vi.fn(),
+  updateFallbackImages: vi.fn(),
+  deleteFallbackImage: vi.fn(),
 };
 
-jest.mock('@/services/jobCategoryService', () => ({
+vi.mock('@/services/jobCategoryService', async () => ({
   useJobCategoryService: () => mockJobCategoryService,
 }));
 
 // Mock icon utils
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn(() => <div data-testid="icon-component">Icon</div>),
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn(() => <div data-testid="icon-component">Icon</div>),
 }));
 
 // Mock IconPicker
-jest.mock('@/components/ui/icon-picker', () => ({
+vi.mock('@/components/ui/icon-picker', async () => ({
   IconPicker: ({ value, onChange }: any) => (
     <div data-testid="icon-picker" onClick={() => onChange('test-icon')} data-value={value}>
       IconPicker: {value}
@@ -177,7 +179,7 @@ jest.mock('@/components/ui/icon-picker', () => ({
 }));
 
 // Mock skeleton component
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
@@ -185,8 +187,8 @@ jest.mock('@/components/ui/skeleton', () => ({
 
 // Mock color utils
 // Mock URL methods
-global.URL.createObjectURL = jest.fn(() => 'mock-url');
-global.URL.revokeObjectURL = jest.fn();
+global.URL.createObjectURL = vi.fn(() => 'mock-url');
+global.URL.revokeObjectURL = vi.fn();
 
 describe('JobCategories Component', () => {
   const user = userEvent.setup();
@@ -214,7 +216,7 @@ describe('JobCategories Component', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockJobCategoryService.getCategories.mockResolvedValue([
       mockCategory,
       mockCategoryWithoutOptionalFields,
@@ -340,7 +342,6 @@ describe('JobCategories Component', () => {
   });
 
   it('creates new category successfully', async () => {
-    const { toast } = require('sonner');
     renderComponent();
 
     await waitFor(() => {
@@ -380,7 +381,6 @@ describe('JobCategories Component', () => {
   });
 
   it('shows error when creating category without name', async () => {
-    const { toast } = require('sonner');
     renderComponent();
 
     await waitFor(() => {
@@ -427,7 +427,6 @@ describe('JobCategories Component', () => {
   });
 
   it('updates category successfully', async () => {
-    const { toast } = require('sonner');
     renderComponent();
 
     await waitFor(() => {
@@ -471,7 +470,6 @@ describe('JobCategories Component', () => {
   });
 
   it('deletes category successfully', async () => {
-    const { toast } = require('sonner');
     renderComponent();
 
     await waitFor(() => {
@@ -489,7 +487,6 @@ describe('JobCategories Component', () => {
   });
 
   it('handles creation error gracefully', async () => {
-    const { toast } = require('sonner');
     mockJobCategoryService.createCategory.mockRejectedValue(new Error('Creation failed'));
 
     renderComponent();
@@ -520,7 +517,6 @@ describe('JobCategories Component', () => {
   });
 
   it('handles update error gracefully', async () => {
-    const { toast } = require('sonner');
     mockJobCategoryService.updateCategory.mockRejectedValue(new Error('Update failed'));
 
     renderComponent();
@@ -546,7 +542,6 @@ describe('JobCategories Component', () => {
   });
 
   it('handles delete error gracefully', async () => {
-    const { toast } = require('sonner');
     mockJobCategoryService.deleteCategory.mockRejectedValue(new Error('Delete failed'));
 
     renderComponent();
@@ -565,7 +560,6 @@ describe('JobCategories Component', () => {
   });
 
   it('handles loading error gracefully', async () => {
-    const { toast } = require('sonner');
     mockJobCategoryService.getCategories.mockRejectedValue(new Error('Loading failed'));
 
     renderComponent();

@@ -1,16 +1,17 @@
+import type { Mock } from 'vitest';
 // Business User Service Tests
 
 // Mock API
 const mockApi = {
-  getData: jest.fn(),
-  postData: jest.fn(),
-  patchData: jest.fn(),
-  putData: jest.fn(),
-  deleteData: jest.fn(),
-  get: jest.fn(),
-  post: jest.fn(),
-  patch: jest.fn(),
-  delete: jest.fn(),
+  getData: vi.fn(),
+  postData: vi.fn(),
+  patchData: vi.fn(),
+  putData: vi.fn(),
+  deleteData: vi.fn(),
+  get: vi.fn(),
+  post: vi.fn(),
+  patch: vi.fn(),
+  delete: vi.fn(),
 };
 
 // Mock Auth Context
@@ -23,18 +24,18 @@ const mockAuth = {
   user: mockUser as any,
 };
 
-jest.mock('../../lib/api', () => ({
+vi.mock('../../lib/api', async () => ({
   useApi: () => mockApi,
 }));
 
-jest.mock('../../contexts/AuthContext', () => ({
+vi.mock('../../contexts/AuthContext', async () => ({
   useAuth: () => mockAuth,
 }));
 
 // Mock React
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useMemo: jest.fn(fn => fn()),
+vi.mock('react', async () => ({
+  ...(await vi.importActual('react')),
+  useMemo: vi.fn(fn => fn()),
 }));
 
 import { useBusinessUserService } from '../businessUserService';
@@ -43,7 +44,7 @@ describe('Business User Service', () => {
   let businessUserService: ReturnType<typeof useBusinessUserService>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAuth.user = mockUser; // Reset user
     businessUserService = useBusinessUserService();
   });

@@ -1,3 +1,7 @@
+import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
+import { toast } from 'sonner';
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter, useParams, useNavigate } from 'react-router-dom';
@@ -6,44 +10,44 @@ import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 
 // Mock dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-  useNavigate: jest.fn(),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useParams: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-jest.mock('@/services/eventService', () => ({
-  useEventService: jest.fn(),
+vi.mock('@/services/eventService', async () => ({
+  useEventService: vi.fn(),
 }));
 
-jest.mock('@/services/eventCategoryService', () => ({
-  useEventCategoryService: jest.fn(),
+vi.mock('@/services/eventCategoryService', async () => ({
+  useEventCategoryService: vi.fn(),
 }));
 
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn(() => <span data-testid="mock-icon">Icon</span>),
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn(() => <span data-testid="mock-icon">Icon</span>),
 }));
 
-jest.mock('date-fns', () => ({
-  format: jest.fn((date, formatStr) => '01. Januar 2024 10:00'),
-  isPast: jest.fn(() => false),
-  isFuture: jest.fn(() => true),
-  isWithinInterval: jest.fn(() => false),
+vi.mock('date-fns', async () => ({
+  format: vi.fn((date, formatStr) => '01. Januar 2024 10:00'),
+  isPast: vi.fn(() => false),
+  isFuture: vi.fn(() => true),
+  isWithinInterval: vi.fn(() => false),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, ...props }: any) => (
     <button onClick={onClick} data-variant={variant} {...props}>
       {children}
@@ -51,23 +55,23 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ onChange, value, ...props }: any) => (
     <input value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/textarea', () => ({
+vi.mock('@/components/ui/textarea', async () => ({
   Textarea: ({ onChange, value, ...props }: any) => (
     <textarea value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }));
 
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, ...props }: any) => (
     <div data-testid="card" {...props}>
       {children}
@@ -90,7 +94,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, ...props }: any) => (
     <input
       type="checkbox"
@@ -101,7 +105,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant, className, style, ...props }: any) => (
     <span data-testid="badge" data-variant={variant} className={className} style={style} {...props}>
       {children}
@@ -109,7 +113,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div data-testid="select">
       <div onClick={() => onValueChange?.('category-1')}>{children}</div>
@@ -125,7 +129,7 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ placeholder }: any) => <span>{placeholder}</span>,
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open }: any) => (open ? <div data-testid="dialog">{children}</div> : null),
   DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
   DialogDescription: ({ children }: any) => <div data-testid="dialog-description">{children}</div>,
@@ -134,7 +138,7 @@ jest.mock('@/components/ui/dialog', () => ({
   DialogTitle: ({ children }: any) => <h2 data-testid="dialog-title">{children}</h2>,
 }));
 
-jest.mock('@/components/ui/LocationSearch', () => ({
+vi.mock('@/components/ui/LocationSearch', async () => ({
   LocationSearch: ({ value, onChange, placeholder }: any) => (
     <input
       data-testid="location-search"
@@ -153,15 +157,15 @@ jest.mock('@/components/ui/LocationSearch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock Lucide icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   MapPin: () => <span data-testid="map-pin-icon">MapPin</span>,
   Calendar: () => <span data-testid="calendar-icon">Calendar</span>,
   Heart: () => <span data-testid="heart-icon">Heart</span>,
@@ -225,22 +229,22 @@ const mockCategory: EventCategory = {
 };
 
 const mockEventService = {
-  getEvent: jest.fn(),
-  approveEvent: jest.fn(),
-  updateEvent: jest.fn(),
-  deleteEvent: jest.fn(),
-  uploadEventImage: jest.fn(),
-  deleteEventImage: jest.fn(),
-  uploadEventTitleImage: jest.fn(),
+  getEvent: vi.fn(),
+  approveEvent: vi.fn(),
+  updateEvent: vi.fn(),
+  deleteEvent: vi.fn(),
+  uploadEventImage: vi.fn(),
+  deleteEventImage: vi.fn(),
+  uploadEventTitleImage: vi.fn(),
 };
 
 const mockEventCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
-const mockNavigate = jest.fn();
-const mockUseParams = useParams as jest.MockedFunction<typeof useParams>;
-const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
+const mockNavigate = vi.fn();
+const mockUseParams = useParams as MockedFunction<typeof useParams>;
+const mockUseNavigate = useNavigate as MockedFunction<typeof useNavigate>;
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
@@ -248,14 +252,12 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('EventDetail Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseParams.mockReturnValue({ id: 'event-1' });
     mockUseNavigate.mockReturnValue(mockNavigate);
 
-    require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(
-      mockEventCategoryService
-    );
+    vi.mocked(useEventService).mockReturnValue(mockEventService);
+    vi.mocked(useEventCategoryService).mockReturnValue(mockEventCategoryService);
 
     mockEventService.getEvent.mockResolvedValue(mockEvent);
     mockEventService.approveEvent.mockResolvedValue({ ...mockEvent, status: 'ACTIVE' });
@@ -330,7 +332,7 @@ describe('EventDetail Component', () => {
 
     it('sollte Fehler beim Laden behandeln', async () => {
       mockEventService.getEvent.mockRejectedValue(new Error('API Error'));
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
 
       renderWithRouter(<EventDetail />);
 

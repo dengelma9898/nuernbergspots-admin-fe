@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Skeleton } from '../skeleton';
 
 describe('Skeleton Komponente', () => {
@@ -57,7 +57,7 @@ describe('Skeleton Komponente', () => {
     });
 
     it('sollte onClick Handler akzeptieren', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(<Skeleton onClick={handleClick} data-testid="skeleton" />);
       const skeleton = screen.getByTestId('skeleton');
 

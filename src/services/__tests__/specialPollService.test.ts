@@ -1,18 +1,18 @@
 // Special Poll Service Tests
 
 const mockApi = {
-  getData: jest.fn(),
-  postData: jest.fn(),
-  patchData: jest.fn(),
-  putData: jest.fn(),
-  deleteData: jest.fn(),
-  get: jest.fn(),
-  post: jest.fn(),
-  patch: jest.fn(),
-  delete: jest.fn(),
+  getData: vi.fn(),
+  postData: vi.fn(),
+  patchData: vi.fn(),
+  putData: vi.fn(),
+  deleteData: vi.fn(),
+  get: vi.fn(),
+  post: vi.fn(),
+  patch: vi.fn(),
+  delete: vi.fn(),
 };
 
-jest.mock('../../lib/api', () => ({
+vi.mock('../../lib/api', async () => ({
   useApi: () => mockApi,
   endpoints: {
     specialPolls: (opts?: { highlighted?: boolean }) =>
@@ -25,9 +25,9 @@ jest.mock('../../lib/api', () => ({
   },
 }));
 
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useMemo: jest.fn(fn => fn()),
+vi.mock('react', async () => ({
+  ...(await vi.importActual('react')),
+  useMemo: vi.fn(fn => fn()),
 }));
 
 import { SpecialPollResponse, SpecialPollStatus } from '@/models/specialPoll';
@@ -38,7 +38,7 @@ describe('Special Poll Service', () => {
   let specialPollService: ReturnType<typeof useSpecialPollService>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     specialPollService = useSpecialPollService();
   });
 

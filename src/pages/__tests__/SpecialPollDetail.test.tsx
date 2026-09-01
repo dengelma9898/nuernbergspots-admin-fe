@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,26 +11,30 @@ import { UserType } from '@/models/users';
 
 import SpecialPollDetail from '../SpecialPollDetail';
 
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@/contexts/AuthContext', () => ({
+// Stabiles getUserId: verhindert, dass der loadUserRole-Effekt durch eine neue
+// Funktionsidentität mehrfach läuft (war unter Vitest flaky -> 2. Aufruf setzte
+// die Rolle wieder auf SUPER_ADMIN und zeigte die Moderation-Controls).
+const mockGetUserId = () => 'moderator-own-id';
+vi.mock('@/contexts/AuthContext', async () => ({
   useAuth: () => ({
-    getUserId: () => 'moderator-own-id',
+    getUserId: mockGetUserId,
   }),
 }));
 
-const mockGetUserProfile = jest.fn();
-jest.mock('@/services/userService', () => ({
+const mockGetUserProfile = vi.fn();
+vi.mock('@/services/userService', async () => ({
   useUserService: () => ({
     getUserProfile: mockGetUserProfile,
   }),
 }));
 
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card-header">{children}</div>
@@ -44,7 +50,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, className }: any) => (
     <span data-testid="badge" className={className}>
       {children}
@@ -52,7 +58,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, variant, size, type = 'button', className, ...props }: any) => (
     <button
       type={type}
@@ -67,7 +73,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, onKeyDown, disabled }: any) => (
     <input
       value={value}
@@ -80,7 +86,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
       {children}
@@ -103,7 +109,7 @@ jest.mock('@/components/ui/dialog', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ children, value, onValueChange, disabled }: any) => (
     <div
       data-testid="select"
@@ -132,15 +138,15 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ children }: any) => <span data-testid="select-value">{children}</span>,
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: (props: any) => <div data-slot="skeleton" {...props} />,
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => <label htmlFor={htmlFor}>{children}</label>,
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, disabled, id }: any) => (
     <button
       type="button"
@@ -155,7 +161,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/LoadingButton', () => ({
+vi.mock('@/components/LoadingButton', async () => ({
   LoadingButton: ({ children, isLoading, loadingText, onClick, type, ...props }: any) => (
     <button
       {...props}
@@ -168,35 +174,35 @@ jest.mock('@/components/LoadingButton', () => ({
   ),
 }));
 
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 const mockSpecialPollService = {
-  getSpecialPoll: jest.fn(),
-  addResponse: jest.fn(),
-  updateResponses: jest.fn(),
-  updateSpecialPollStatus: jest.fn(),
-  updateSpecialPollHighlight: jest.fn(),
-  removeResponse: jest.fn(),
-  removeSpecialPoll: jest.fn(),
-  upvoteResponse: jest.fn(),
+  getSpecialPoll: vi.fn(),
+  addResponse: vi.fn(),
+  updateResponses: vi.fn(),
+  updateSpecialPollStatus: vi.fn(),
+  updateSpecialPollHighlight: vi.fn(),
+  removeResponse: vi.fn(),
+  removeSpecialPoll: vi.fn(),
+  upvoteResponse: vi.fn(),
 };
 
-jest.mock('@/services/specialPollService', () => ({
+vi.mock('@/services/specialPollService', async () => ({
   useSpecialPollService: () => mockSpecialPollService,
 }));
 
-jest.mock('date-fns', () => ({
-  format: jest.fn((date: unknown, formatStr: string) => {
+vi.mock('date-fns', async () => ({
+  format: vi.fn((date: unknown, formatStr: string) => {
     if (formatStr.includes('HH:mm')) {
       return '15.01.2024 14:30';
     }
@@ -204,13 +210,12 @@ jest.mock('date-fns', () => ({
   }),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
 describe('SpecialPollDetail Component', () => {
   const user = userEvent.setup();
-  const { toast } = require('sonner');
 
   const mockPoll = {
     id: 'test-poll-id',
@@ -240,7 +245,7 @@ describe('SpecialPollDetail Component', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetUserProfile.mockResolvedValue({ userType: UserType.SUPER_ADMIN });
     mockSpecialPollService.getSpecialPoll.mockResolvedValue(mockPoll);
   });
@@ -410,7 +415,7 @@ describe('SpecialPollDetail Component', () => {
         'test-poll-id',
         'My new response'
       );
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Antwort wurde hinzugefügt');
+      expectToastSuccessTitle(toast.success as Mock, 'Antwort wurde hinzugefügt');
     });
   });
 
@@ -507,7 +512,7 @@ describe('SpecialPollDetail Component', () => {
       expect(mockSpecialPollService.updateSpecialPollStatus).toHaveBeenCalledWith('test-poll-id', {
         status: 'PENDING',
       });
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Status wurde aktualisiert');
+      expectToastSuccessTitle(toast.success as Mock, 'Status wurde aktualisiert');
     });
   });
 

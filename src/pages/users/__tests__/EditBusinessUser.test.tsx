@@ -1,3 +1,4 @@
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -10,13 +11,13 @@ import { toast } from 'sonner';
 import { expectToastErrorTitleContains } from '@/test-utils/sonnerAssertions';
 
 // Mock API module
-jest.mock('@/lib/api', () => ({
-  useApi: jest.fn(() => ({
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-    patch: jest.fn(),
+vi.mock('@/lib/api', async () => ({
+  useApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
   })),
   endpoints: {
     businesses: '/businesses',
@@ -29,33 +30,33 @@ jest.mock('@/lib/api', () => ({
 }));
 
 // Mock Auth Context
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
+vi.mock('@/contexts/AuthContext', async () => ({
+  useAuth: vi.fn(() => ({
     user: { uid: 'test-user', email: 'test@example.com' },
     loading: false,
   })),
 }));
 
 // Mock der Services
-jest.mock('@/services/businessUserService');
-jest.mock('@/services/businessService');
-const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<
+vi.mock('@/services/businessUserService');
+vi.mock('@/services/businessService');
+const mockBusinessUserService = useBusinessUserService as MockedFunction<
   typeof useBusinessUserService
 >;
-const mockBusinessService = useBusinessService as jest.MockedFunction<typeof useBusinessService>;
+const mockBusinessService = useBusinessService as MockedFunction<typeof useBusinessService>;
 
 // Mock von React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock von Sonner Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -148,35 +149,35 @@ const renderWithRouter = (
 
 describe('EditBusinessUser', () => {
   const mockBusinessUserServiceInstance = {
-    getBusinessUser: jest.fn(),
-    getBusinessUsers: jest.fn(),
-    addBusinessToUser: jest.fn(),
+    getBusinessUser: vi.fn(),
+    getBusinessUsers: vi.fn(),
+    addBusinessToUser: vi.fn(),
   };
 
   const mockBusinessServiceInstance = {
-    getBusinesses: jest.fn(),
-    getBusiness: jest.fn(),
-    createBusiness: jest.fn(),
-    updateBusiness: jest.fn(),
-    deleteBusiness: jest.fn(),
-    getPendingApprovalsCount: jest.fn(),
-    getBusinessAnalytics: jest.fn(),
-    getDashboardAnalytics: jest.fn(),
-    uploadBusinessImages: jest.fn(),
-    deleteBusinessImages: jest.fn(),
-    uploadBusinessLogo: jest.fn(),
-    deleteBusinessLogo: jest.fn(),
-    getBusinessCustomerScans: jest.fn(),
-    updateNuernbergspotsReview: jest.fn(),
+    getBusinesses: vi.fn(),
+    getBusiness: vi.fn(),
+    createBusiness: vi.fn(),
+    updateBusiness: vi.fn(),
+    deleteBusiness: vi.fn(),
+    getPendingApprovalsCount: vi.fn(),
+    getBusinessAnalytics: vi.fn(),
+    getDashboardAnalytics: vi.fn(),
+    uploadBusinessImages: vi.fn(),
+    deleteBusinessImages: vi.fn(),
+    uploadBusinessLogo: vi.fn(),
+    deleteBusinessLogo: vi.fn(),
+    getBusinessCustomerScans: vi.fn(),
+    updateNuernbergspotsReview: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockNavigate.mockClear();
     mockBusinessUserService.mockReturnValue(mockBusinessUserServiceInstance);
     mockBusinessService.mockReturnValue(mockBusinessServiceInstance);
-    (toast.success as jest.Mock).mockClear();
-    (toast.error as jest.Mock).mockClear();
+    (toast.success as Mock).mockClear();
+    (toast.error as Mock).mockClear();
   });
 
   describe('Loading State', () => {
@@ -228,7 +229,7 @@ describe('EditBusinessUser', () => {
     });
 
     it('sollte Fehler beim Laden graceful handhaben', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockBusinessUserServiceInstance.getBusinessUser.mockRejectedValue(new Error('Network error'));
       mockBusinessServiceInstance.getBusinesses.mockRejectedValue(new Error('Network error'));
 
@@ -490,7 +491,7 @@ describe('EditBusinessUser', () => {
     });
 
     it('sollte Fehler beim Hinzufügen handhaben', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockBusinessUserServiceInstance.addBusinessToUser.mockRejectedValue(
         new Error('Network error')
       );
@@ -502,10 +503,7 @@ describe('EditBusinessUser', () => {
       fireEvent.click(confirmButton);
 
       await waitFor(() => {
-        expectToastErrorTitleContains(
-          toast.error as jest.Mock,
-          'Fehler beim Speichern des Geschäfts'
-        );
+        expectToastErrorTitleContains(toast.error as Mock, 'Fehler beim Speichern des Geschäfts');
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(

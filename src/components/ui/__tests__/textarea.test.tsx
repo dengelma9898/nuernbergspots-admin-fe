@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Textarea } from '../textarea';
 
 describe('Textarea Component', () => {
@@ -30,7 +30,7 @@ describe('Textarea Component', () => {
 
   describe('Interaktionen', () => {
     it('sollte onChange Event korrekt behandeln', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Textarea onChange={handleChange} />);
 
       const textarea = screen.getByRole('textbox');
@@ -47,7 +47,7 @@ describe('Textarea Component', () => {
     });
 
     it('sollte onFocus Event korrekt behandeln', () => {
-      const handleFocus = jest.fn();
+      const handleFocus = vi.fn();
       render(<Textarea onFocus={handleFocus} />);
 
       const textarea = screen.getByRole('textbox');
@@ -57,7 +57,7 @@ describe('Textarea Component', () => {
     });
 
     it('sollte onBlur Event korrekt behandeln', () => {
-      const handleBlur = jest.fn();
+      const handleBlur = vi.fn();
       render(<Textarea onBlur={handleBlur} />);
 
       const textarea = screen.getByRole('textbox');
@@ -68,7 +68,7 @@ describe('Textarea Component', () => {
     });
 
     it('sollte onKeyDown Event korrekt behandeln', () => {
-      const handleKeyDown = jest.fn();
+      const handleKeyDown = vi.fn();
       render(<Textarea onKeyDown={handleKeyDown} />);
 
       const textarea = screen.getByRole('textbox');
@@ -295,7 +295,7 @@ describe('Textarea Component', () => {
 
   describe('Form Integration', () => {
     it('sollte in einem Formular funktionieren', () => {
-      const handleSubmit = jest.fn(e => e.preventDefault());
+      const handleSubmit = vi.fn(e => e.preventDefault());
 
       render(
         <form onSubmit={handleSubmit}>

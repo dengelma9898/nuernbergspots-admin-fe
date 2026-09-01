@@ -1,3 +1,4 @@
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 /**
  * Tests für errorUtils.ts
  * Testet die zentrale Fehlerbehandlung und Erfolgsmeldungen
@@ -11,21 +12,31 @@ import {
   ErrorContext,
 } from '../errorUtils';
 
+// getUserFriendlyError als Partial-Mock (default: echte Implementierung),
+// damit showUserFriendlyError zielgerichtet übersteuert werden kann.
+vi.mock('../errorUtils', async importOriginal => {
+  const actual = await importOriginal<typeof import('../errorUtils')>();
+  return {
+    ...actual,
+    getUserFriendlyError: vi.fn(actual.getUserFriendlyError),
+  };
+});
+
 // Mock sonner toast
 const mockToast = {
-  error: jest.fn(),
-  success: jest.fn(),
-  info: jest.fn(),
+  error: vi.fn(),
+  success: vi.fn(),
+  info: vi.fn(),
 };
 
 describe('errorUtils', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.useFakeTimers();
+    vi.clearAllMocks();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('getUserFriendlyError', () => {
@@ -391,7 +402,7 @@ describe('errorUtils', () => {
 
     it('sollte Retry-Button anzeigen wenn Retry möglich und retryAction übergeben', () => {
       const error = { status: 500 };
-      const retryAction = jest.fn();
+      const retryAction = vi.fn();
 
       showUserFriendlyError(error, mockToast, retryAction);
 
@@ -407,7 +418,7 @@ describe('errorUtils', () => {
 
     it('sollte keinen Retry-Button anzeigen wenn Retry nicht möglich', () => {
       const error = { status: 400 };
-      const retryAction = jest.fn();
+      const retryAction = vi.fn();
 
       showUserFriendlyError(error, mockToast, retryAction);
 
@@ -475,9 +486,7 @@ describe('errorUtils', () => {
       const result = getUserFriendlyError(error);
       // Simuliere Fehler ohne actionHint
       const errorWithoutHint = { ...result, actionHint: undefined };
-      jest
-        .spyOn(require('../errorUtils'), 'getUserFriendlyError')
-        .mockReturnValue(errorWithoutHint);
+      vi.mocked(getUserFriendlyError).mockReturnValue(errorWithoutHint);
 
       showUserFriendlyError(error, mockToast);
 
@@ -518,7 +527,7 @@ describe('errorUtils', () => {
     });
 
     it('sollte Erfolgsmeldung mit Undo-Aktion anzeigen', () => {
-      const undoAction = jest.fn();
+      const undoAction = vi.fn();
       showSuccessMessage(mockToast, {
         title: 'Erfolgreich gelöscht',
         undoAction,
@@ -543,7 +552,7 @@ describe('errorUtils', () => {
       expect(mockToast.success).toHaveBeenCalledTimes(1);
 
       // Simuliere setTimeout
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       expect(mockToast.info).toHaveBeenCalledTimes(1);
       expect(mockToast.info).toHaveBeenCalledWith('Nächste Schritte', {
@@ -558,7 +567,7 @@ describe('errorUtils', () => {
         nextSteps: [],
       });
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       expect(mockToast.info).not.toHaveBeenCalled();
     });
@@ -568,13 +577,13 @@ describe('errorUtils', () => {
         title: 'Erfolgreich erstellt',
       });
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       expect(mockToast.info).not.toHaveBeenCalled();
     });
 
     it('sollte alle Optionen kombinieren', () => {
-      const undoAction = jest.fn();
+      const undoAction = vi.fn();
       showSuccessMessage(mockToast, {
         title: 'Erfolgreich erstellt',
         description: 'Das Event wurde erfolgreich erstellt',
@@ -591,7 +600,7 @@ describe('errorUtils', () => {
         duration: 10000,
       });
 
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
 
       expect(mockToast.info).toHaveBeenCalledWith('Nächste Schritte', {
         description: 'Schritt 1',

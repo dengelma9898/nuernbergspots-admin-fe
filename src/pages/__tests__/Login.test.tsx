@@ -1,23 +1,24 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Login } from '../Login';
 
 // Mock Auth Context
-const mockLogin = jest.fn();
-jest.mock('../../contexts/AuthContext', () => ({
+const mockLogin = vi.fn();
+vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => ({
     login: mockLogin,
     loading: false,
     user: null,
     isAuthenticated: false,
-    logout: jest.fn(),
+    logout: vi.fn(),
   }),
 }));
 
 // Mock React Router
-jest.mock('react-router-dom', () => ({
-  useNavigate: () => jest.fn(),
+vi.mock('react-router-dom', () => ({
+  useNavigate: () => vi.fn(),
 }));
 
 describe('Login Component', () => {

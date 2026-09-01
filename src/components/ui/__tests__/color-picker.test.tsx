@@ -1,12 +1,13 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import userEvent from '@testing-library/user-event';
 
 import { ColorPicker } from '../color-picker';
 
 // Mock the Input component
-jest.mock('../input', () => ({
+vi.mock('../input', () => ({
   Input: React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
     ({ className, type, ...props }, ref) => (
       <input
@@ -21,7 +22,7 @@ jest.mock('../input', () => ({
 }));
 
 describe('ColorPicker Component', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
 
   beforeEach(() => {
     mockOnChange.mockClear();

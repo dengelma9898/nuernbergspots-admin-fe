@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -7,56 +8,56 @@ import { JobOffer } from '@/models/job-offer';
 import { JobCategory } from '@/models/job-category';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-const mockUseParams = jest.fn();
+const mockNavigate = vi.fn();
+const mockUseParams = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
 }));
 
 // Mock services
 const mockJobOfferService = {
-  getJobOffers: jest.fn(),
-  getJobOffer: jest.fn(),
-  createJobOffer: jest.fn(),
-  updateJobOffer: jest.fn(),
-  deleteJobOffer: jest.fn(),
-  updateImages: jest.fn(),
-  updateCompanyLogo: jest.fn(),
+  getJobOffers: vi.fn(),
+  getJobOffer: vi.fn(),
+  createJobOffer: vi.fn(),
+  updateJobOffer: vi.fn(),
+  deleteJobOffer: vi.fn(),
+  updateImages: vi.fn(),
+  updateCompanyLogo: vi.fn(),
 };
 
 const mockJobCategoryService = {
-  getCategories: jest.fn(),
-  getCategory: jest.fn(),
-  createCategory: jest.fn(),
-  updateCategory: jest.fn(),
-  deleteCategory: jest.fn(),
-  updateFallbackImages: jest.fn(),
-  deleteFallbackImage: jest.fn(),
+  getCategories: vi.fn(),
+  getCategory: vi.fn(),
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+  deleteCategory: vi.fn(),
+  updateFallbackImages: vi.fn(),
+  deleteFallbackImage: vi.fn(),
 };
 
-jest.mock('@/services/jobOfferService', () => ({
+vi.mock('@/services/jobOfferService', async () => ({
   useJobOfferService: () => mockJobOfferService,
 }));
 
-jest.mock('@/services/jobCategoryService', () => ({
+vi.mock('@/services/jobCategoryService', async () => ({
   useJobCategoryService: () => mockJobCategoryService,
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 import { toast } from 'sonner';
 
 // Mock LocationSearch component
-jest.mock('@/components/ui/LocationSearch', () => ({
+vi.mock('@/components/ui/LocationSearch', async () => ({
   LocationSearch: ({ onChange, value, placeholder }: any) => (
     <div data-testid="location-search">
       <input
@@ -91,22 +92,22 @@ jest.mock('@/components/ui/LocationSearch', () => ({
 }));
 
 // Mock skeleton component
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock icon utils
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn((iconName: string) => (
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn((iconName: string) => (
     <span data-testid={`icon-${iconName}`}>{iconName}</span>
   )),
 }));
 
 // Mock URL methods
-global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-global.URL.revokeObjectURL = jest.fn();
+global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+global.URL.revokeObjectURL = vi.fn();
 
 // Create mock data
 const createMockJobCategory = (overrides: Partial<JobCategory> = {}): JobCategory => ({
@@ -176,9 +177,9 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('JobOfferForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (toast.success as jest.Mock).mockClear();
-    (toast.error as jest.Mock).mockClear();
+    vi.clearAllMocks();
+    (toast.success as Mock).mockClear();
+    (toast.error as Mock).mockClear();
     mockJobCategoryService.getCategories.mockResolvedValue(mockCategories);
     // Default: Create mode
     mockUseParams.mockReturnValue({ id: undefined });
@@ -276,7 +277,7 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.createJobOffer).toHaveBeenCalled();
       });
 
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Stellenangebot erstellt');
+      expectToastSuccessTitle(toast.success as Mock, 'Stellenangebot erstellt');
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
 
@@ -378,7 +379,7 @@ describe('JobOfferForm', () => {
         expect(mockJobOfferService.updateJobOffer).toHaveBeenCalled();
       });
 
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Stellenangebot aktualisiert');
+      expectToastSuccessTitle(toast.success as Mock, 'Stellenangebot aktualisiert');
       expect(mockNavigate).toHaveBeenCalledWith('/job-offers');
     });
   });

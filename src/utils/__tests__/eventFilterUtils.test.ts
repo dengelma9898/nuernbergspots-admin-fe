@@ -59,12 +59,12 @@ describe('matchesCategoryFilter', () => {
 
 describe('isEventPast', () => {
   beforeEach(() => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2024-06-15T12:00:00'));
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-06-15T12:00:00'));
   });
 
   afterEach(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('sollte Events mit vergangenem letztem Termin als vergangen markieren', () => {

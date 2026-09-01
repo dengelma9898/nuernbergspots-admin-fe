@@ -1,12 +1,13 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { format } from 'date-fns';
+import { describe, expect, it, vi } from 'vitest';
 
 import { formatAdventCalendarDate } from '@/utils/adventCalendarFormatUtils';
 
-jest.mock('date-fns', () => ({
-  format: jest.fn(() => '15. Januar 2024'),
+vi.mock('date-fns', () => ({
+  format: vi.fn(() => '15. Januar 2024'),
 }));
 
-jest.mock('date-fns/locale', () => ({ de: {} }));
+vi.mock('date-fns/locale', () => ({ de: {} }));
 
 describe('formatAdventCalendarDate', () => {
   it('formats valid dates', () => {
@@ -14,7 +15,6 @@ describe('formatAdventCalendarDate', () => {
   });
 
   it('returns fallback for invalid dates', () => {
-    const { format } = require('date-fns');
     format.mockImplementationOnce(() => {
       throw new Error('Invalid');
     });

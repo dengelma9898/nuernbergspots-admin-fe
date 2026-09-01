@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,52 +9,52 @@ let pendingApprovalsPromiseResolve: (value: number) => void;
 let usersInReviewPromiseResolve: (value: number) => void;
 let contactRequestsPromiseResolve: (value: number) => void;
 
-const mockGetPendingApprovalsCount = jest.fn();
-const mockGetBusinessUsersInReviewCount = jest.fn();
-const mockGetOpenContactRequestsCount = jest.fn();
-const mockGetAllUsers = jest.fn();
-const mockNavigate = jest.fn();
-const mockLogout = jest.fn();
+const mockGetPendingApprovalsCount = vi.fn();
+const mockGetBusinessUsersInReviewCount = vi.fn();
+const mockGetOpenContactRequestsCount = vi.fn();
+const mockGetAllUsers = vi.fn();
+const mockNavigate = vi.fn();
+const mockLogout = vi.fn();
 
-jest.mock('../../services/userService', () => ({
+vi.mock('../../services/userService', async () => ({
   useUserService: () => ({
     getBusinessUsersInReviewCount: mockGetBusinessUsersInReviewCount,
     getAllUsers: mockGetAllUsers,
   }),
 }));
 
-jest.mock('../../services/businessService', () => ({
+vi.mock('../../services/businessService', async () => ({
   useBusinessService: () => ({
     getPendingApprovalsCount: mockGetPendingApprovalsCount,
   }),
 }));
 
-jest.mock('../../services/contactService', () => ({
+vi.mock('../../services/contactService', async () => ({
   useContactService: () => ({
     getOpenContactRequestsCount: mockGetOpenContactRequestsCount,
   }),
 }));
 
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', async () => ({
   useNavigate: () => mockNavigate,
   Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
     <a href={to}>{children}</a>
   ),
 }));
 
-jest.mock('../../contexts/AuthContext', () => ({
+vi.mock('../../contexts/AuthContext', async () => ({
   useAuth: () => ({
     logout: mockLogout,
     getUserId: () => 'test-user-id',
     user: null,
-    login: jest.fn(),
+    login: vi.fn(),
     loading: false,
     isAuthenticated: false,
   }),
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className, onClick }: any) => (
     <div className={className} onClick={onClick} data-testid="card">
       {children}
@@ -65,7 +66,7 @@ jest.mock('@/components/ui/card', () => ({
   CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, className }: any) => (
     <button onClick={onClick} className={className} data-variant={variant}>
       {children}
@@ -73,13 +74,13 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/progress', () => ({
+vi.mock('@/components/ui/progress', async () => ({
   Progress: ({ value }: any) => <div data-testid="progress" data-value={value} />,
 }));
 
 // Mock Lucide Icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   User: () => <span data-testid="user-icon" />,
   Calendar: () => <span data-testid="calendar-icon" />,
   Store: () => <span data-testid="store-icon" />,
@@ -110,18 +111,18 @@ jest.mock('lucide-react', () => ({
 
 describe('Dashboard Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     mockGetAllUsers.mockResolvedValue([]);
-    window.matchMedia = jest.fn().mockImplementation(() => ({
+    window.matchMedia = vi.fn().mockImplementation(() => ({
       matches: true,
       media: '',
       onchange: null,
-      addListener: jest.fn(),
-      removeListener: jest.fn(),
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-      dispatchEvent: jest.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
     }));
 
     // Set up controlled promises for testing loading states

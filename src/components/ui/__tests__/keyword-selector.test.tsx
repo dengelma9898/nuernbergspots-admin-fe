@@ -1,21 +1,22 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { KeywordSelector } from '../keyword-selector';
 import { Keyword } from '@/models/keyword';
 
 // Mock Keyword Service
-const mockGetKeywords = jest.fn();
-jest.mock('@/services/keywordService', () => ({
+const mockGetKeywords = vi.fn();
+vi.mock('@/services/keywordService', () => ({
   useKeywordService: () => ({
     getKeywords: mockGetKeywords,
   }),
 }));
 
 // Mock Badge component
-jest.mock('../badge', () => ({
+vi.mock('../badge', () => ({
   Badge: React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement> & {
@@ -36,12 +37,12 @@ jest.mock('../badge', () => ({
 }));
 
 // Mock utils
-jest.mock('@/lib/utils', () => ({
+vi.mock('@/lib/utils', () => ({
   cn: (...classes: any[]) => classes.filter(Boolean).join(' '),
 }));
 
 describe('KeywordSelector Component', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
   const defaultProps = {
     selectedIds: [],
     onChange: mockOnChange,
@@ -80,7 +81,7 @@ describe('KeywordSelector Component', () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetKeywords.mockResolvedValue(mockKeywords);
   });
 
@@ -291,7 +292,7 @@ describe('KeywordSelector Component', () => {
     });
 
     it('sollte onChange prop korrekt handhaben', async () => {
-      const customOnChange = jest.fn();
+      const customOnChange = vi.fn();
       const user = userEvent.setup();
 
       render(<KeywordSelector selectedIds={[]} onChange={customOnChange} />);

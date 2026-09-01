@@ -1,32 +1,24 @@
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { configure } from '@testing-library/react';
+
+// RTL erkennt Fake-Timer nur über ein vorhandenes `jest`-Global (privat via
+// jestFakeTimersAreEnabled + jest.advanceTimersByTime). Min-Shim für Vitest,
+// damit waitFor() mit vi.useFakeTimers() richtig funktioniert.
+if (typeof globalThis.jest === 'undefined') {
+  globalThis.jest = {
+    advanceTimersByTime: (ms: number) => vi.advanceTimersByTime(ms),
+  };
+}
 
 // Obergrenze 10s für waitFor / findBy* (Projektstandard, siehe CONSTITUTION.md)
 configure({ asyncUtilTimeout: 10000 });
 
-// Erweitere Jest Matchers mit @testing-library/jest-dom
-declare global {
-  namespace jest {
-    interface Matchers<R> {
-      toBeInTheDocument(): R;
-      toHaveAttribute(attr: string, value?: string): R;
-      toHaveValue(value: string | number): R;
-      toBeDisabled(): R;
-      toHaveFocus(): R;
-      toBeRequired(): R;
-      toHaveClass(...classNames: string[]): R;
-      toHaveTextContent(text: string | RegExp): R;
-      toBeEmptyDOMElement(): R;
-      toHaveDisplayValue(value: string | RegExp | (string | RegExp)[]): R;
-    }
-  }
-}
-
 // Mock fetch global
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 // API-Basis-URL für src/lib/api.ts (process.env, siehe vite.config define)
-process.env.VITE_API_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
+// Unreachable Loopback-Port — wird in Tests nie kontaktiert (fetch ist gemockt).
+process.env.VITE_API_URL = process.env.VITE_API_URL || 'http://127.0.0.1:5199/api';
 
 // Mock TextEncoder/TextDecoder for Node.js environment
 if (typeof global.TextEncoder === 'undefined') {
@@ -37,74 +29,76 @@ if (typeof global.TextEncoder === 'undefined') {
 
 // Mock URL.createObjectURL for file upload tests
 let mockUrlCounter = 0;
-global.URL.createObjectURL = jest.fn(() => `mock-url-${++mockUrlCounter}`);
-global.URL.revokeObjectURL = jest.fn();
+global.URL.createObjectURL = vi.fn(() => `mock-url-${++mockUrlCounter}`);
+global.URL.revokeObjectURL = vi.fn();
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
   })),
 });
 
-// Mock IntersectionObserver
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
+// Mock IntersectionObserver / ResizeObserver (constructable classes — Vitest-Mocks
+// (vi.fn) unterstützen kein `new`, Radix-Komponenten instanziieren sie aber via `new`.)
+class IntersectionObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.IntersectionObserver = IntersectionObserverMock;
 
-// Mock ResizeObserver
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+global.ResizeObserver = ResizeObserverMock;
 
 // jsdom: Radix Select/ScrollArea etc. rufen scrollIntoView auf (siehe CONSTITUTION.md)
-Element.prototype.scrollIntoView = jest.fn();
+Element.prototype.scrollIntoView = vi.fn();
 
 // Mock React Router
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: () => vi.fn(),
   useLocation: () => ({ pathname: '/' }),
 }));
 
 // Mock Firebase
-jest.mock('./lib/firebase', () => ({
+vi.mock('./lib/firebase', () => ({
   auth: {
     currentUser: null,
-    signInWithEmailAndPassword: jest.fn(),
-    signOut: jest.fn(),
+    signInWithEmailAndPassword: vi.fn(),
+    signOut: vi.fn(),
   },
   db: {},
 }));
 
 // Mock Sonner Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    warning: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
 // Mock Auth Context
-jest.mock('./contexts/AuthContext', () => ({
+vi.mock('./contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
-    login: jest.fn(),
-    logout: jest.fn(),
+    login: vi.fn(),
+    logout: vi.fn(),
     loading: false,
     isAuthenticated: false,
   }),

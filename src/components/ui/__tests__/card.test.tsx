@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import {
   Card,
   CardHeader,
@@ -280,7 +280,7 @@ describe('Card Components', () => {
 
   describe('Interactive Cards', () => {
     it('sollte clickable Card unterstützen', () => {
-      const handleClick = jest.fn();
+      const handleClick = vi.fn();
       render(
         <Card onClick={handleClick} className="cursor-pointer" data-testid="clickable-card">
           <CardContent>Clickable Card</CardContent>

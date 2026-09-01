@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { MaterialIcon } from '../material-icon';
 
@@ -160,7 +160,7 @@ describe('MaterialIcon Component', () => {
     });
 
     it('sollte onClick events unterstützen', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(<MaterialIcon icon="button" onClick={onClick} />);
 
@@ -339,7 +339,7 @@ describe('MaterialIcon Component', () => {
           grade={200}
           opticalSize={48}
           className="text-red-500 cursor-pointer"
-          onClick={jest.fn()}
+          onClick={vi.fn()}
           aria-label="Favorite button"
           role="button"
           tabIndex={0}
@@ -367,7 +367,7 @@ describe('MaterialIcon Component', () => {
     });
 
     it('sollte als Button-Alternative funktionieren', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(
         <MaterialIcon

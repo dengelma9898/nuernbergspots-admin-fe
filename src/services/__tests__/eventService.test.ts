@@ -1,21 +1,22 @@
+import type { Mock } from 'vitest';
 // Event Service Tests
 
 // Mock API
 const mockApi = {
-  getData: jest.fn(),
-  getText: jest.fn(),
-  postData: jest.fn(),
-  patchData: jest.fn(),
-  putData: jest.fn(),
-  deleteData: jest.fn(),
-  get: jest.fn(),
-  post: jest.fn(),
-  patch: jest.fn(),
-  put: jest.fn(),
-  delete: jest.fn(),
+  getData: vi.fn(),
+  getText: vi.fn(),
+  postData: vi.fn(),
+  patchData: vi.fn(),
+  putData: vi.fn(),
+  deleteData: vi.fn(),
+  get: vi.fn(),
+  post: vi.fn(),
+  patch: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
 };
 
-jest.mock('../../lib/api', () => ({
+vi.mock('../../lib/api', () => ({
   useApi: () => mockApi,
   endpoints: {
     events: '/events',
@@ -28,7 +29,7 @@ describe('Event Service', () => {
   let eventService: ReturnType<typeof useEventService>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     eventService = useEventService();
   });
 

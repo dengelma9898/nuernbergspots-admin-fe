@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,32 +7,32 @@ import { ChatMessage, ReactionType } from '@/services/chatMessageService';
 import { User, UserProfile, UserType } from '@/models/users';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-const mockUseParams = jest.fn();
+const mockNavigate = vi.fn();
+const mockUseParams = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
 }));
 
 // Mock services
 const mockChatMessageService = {
-  getMessages: jest.fn(),
-  createMessage: jest.fn(),
-  updateMessage: jest.fn(),
-  deleteMessage: jest.fn(),
-  adminUpdateMessage: jest.fn(),
-  adminDeleteMessage: jest.fn(),
-  addReaction: jest.fn(),
-  removeReaction: jest.fn(),
+  getMessages: vi.fn(),
+  createMessage: vi.fn(),
+  updateMessage: vi.fn(),
+  deleteMessage: vi.fn(),
+  adminUpdateMessage: vi.fn(),
+  adminDeleteMessage: vi.fn(),
+  addReaction: vi.fn(),
+  removeReaction: vi.fn(),
 };
 
 const mockUserService = {
-  getUserProfile: jest.fn(),
+  getUserProfile: vi.fn(),
 };
 
-jest.mock('@/services/chatMessageService', () => ({
+vi.mock('@/services/chatMessageService', async () => ({
   useChatMessageService: () => mockChatMessageService,
   ReactionType: {
     LIKE: 'like',
@@ -43,38 +44,38 @@ jest.mock('@/services/chatMessageService', () => ({
   },
 }));
 
-jest.mock('@/services/userService', () => ({
+vi.mock('@/services/userService', async () => ({
   useUserService: () => mockUserService,
 }));
 
 // Mock skeleton component
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock auth context
-const mockGetUserId = jest.fn();
-jest.mock('@/contexts/AuthContext', () => ({
+const mockGetUserId = vi.fn();
+vi.mock('@/contexts/AuthContext', async () => ({
   useAuth: () => ({
     getUserId: mockGetUserId,
   }),
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 import { toast } from 'sonner';
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  format: jest.fn((date: Date, formatStr: string) => {
+vi.mock('date-fns', async () => ({
+  format: vi.fn((date: Date, formatStr: string) => {
     if (formatStr === 'HH:mm') {
       return '10:30';
     }
@@ -141,9 +142,9 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('ChatMessages', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (toast.success as jest.Mock).mockClear();
-    (toast.error as jest.Mock).mockClear();
+    vi.clearAllMocks();
+    (toast.success as Mock).mockClear();
+    (toast.error as Mock).mockClear();
 
     mockUseParams.mockReturnValue({ chatroomId: 'chatroom-1' });
     mockGetUserId.mockReturnValue('user-1');

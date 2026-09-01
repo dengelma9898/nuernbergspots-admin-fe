@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Input } from '../input';
 
 describe('Input Component', () => {
@@ -88,7 +88,7 @@ describe('Input Component', () => {
 
   describe('Interaktionen', () => {
     it('sollte onChange Event korrekt behandeln', () => {
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
       render(<Input onChange={handleChange} />);
 
       const input = screen.getByRole('textbox');
@@ -105,7 +105,7 @@ describe('Input Component', () => {
     });
 
     it('sollte onFocus Event korrekt behandeln', () => {
-      const handleFocus = jest.fn();
+      const handleFocus = vi.fn();
       render(<Input onFocus={handleFocus} />);
 
       const input = screen.getByRole('textbox');
@@ -115,7 +115,7 @@ describe('Input Component', () => {
     });
 
     it('sollte onBlur Event korrekt behandeln', () => {
-      const handleBlur = jest.fn();
+      const handleBlur = vi.fn();
       render(<Input onBlur={handleBlur} />);
 
       const input = screen.getByRole('textbox');
@@ -126,7 +126,7 @@ describe('Input Component', () => {
     });
 
     it('sollte onKeyDown Event korrekt behandeln', () => {
-      const handleKeyDown = jest.fn();
+      const handleKeyDown = vi.fn();
       render(<Input onKeyDown={handleKeyDown} />);
 
       const input = screen.getByRole('textbox');

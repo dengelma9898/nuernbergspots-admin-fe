@@ -1,14 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { Popover, PopoverTrigger, PopoverContent, PopoverAnchor } from '../popover';
 
 // Test Popover Komponente für bessere Testbarkeit
 const TestPopover = ({
   open,
-  onOpenChange = jest.fn(),
+  onOpenChange = vi.fn(),
   children,
   ...props
 }: {
@@ -33,7 +33,7 @@ const TestPopover = ({
 describe('Popover Components', () => {
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Popover', () => {
@@ -52,7 +52,7 @@ describe('Popover Components', () => {
     });
 
     it('sollte controlled open state unterstützen', () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       const { rerender } = render(<TestPopover open={false} onOpenChange={onOpenChange} />);
 
@@ -127,7 +127,7 @@ describe('Popover Components', () => {
 
     it('sollte onClick Handler unterstützen', async () => {
       const user = userEvent.setup();
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(
         <Popover>
@@ -368,7 +368,7 @@ describe('Popover Components', () => {
 
     it('sollte onOpenChange callback aufrufen', async () => {
       const user = userEvent.setup();
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(<TestPopover onOpenChange={onOpenChange} />);
 

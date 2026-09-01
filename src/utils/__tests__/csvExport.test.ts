@@ -1,4 +1,5 @@
-import { describe, expect, it, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
+import type { MockInstance } from 'vitest';
 
 import { downloadCsv, rowsToCsv } from '@/utils/csvExport';
 
@@ -23,23 +24,23 @@ describe('csvExport', () => {
   });
 
   describe('downloadCsv', () => {
-    let clickSpy: jest.Sp;
+    let clickSpy: MockInstance;
 
     beforeEach(() => {
-      clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-      URL.createObjectURL = jest.fn(() => 'blob:mock');
-      URL.revokeObjectURL = jest.fn();
+      clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
+      URL.createObjectURL = vi.fn(() => 'blob:mock');
+      URL.revokeObjectURL = vi.fn();
     });
 
     afterEach(() => {
       clickSpy.mockRestore();
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('creates download link with UTF-8 BOM', () => {
       downloadCsv('export', [{ id: '1', name: 'Test' }]);
       expect(URL.createObjectURL).toHaveBeenCalled();
-      const blob = (URL.createObjectURL as jest.Mock).mock.calls[0][0] as Blob;
+      const blob = (URL.createObjectURL as Mock).mock.calls[0][0] as Blob;
       expect(blob.type).toBe('text/csv;charset=utf-8;');
       expect(clickSpy).toHaveBeenCalled();
     });

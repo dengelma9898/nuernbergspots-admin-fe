@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -7,33 +9,33 @@ import { BusinessCategory } from '@/models/business-category';
 import { expectToastErrorTitleContains } from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
-  useSearchParams: () => [new URLSearchParams(), jest.fn()],
+  useSearchParams: () => [new URLSearchParams(), vi.fn()],
 }));
 
 // Mock Services
 const mockBusinessService = {
-  getBusinesses: jest.fn(),
-  deleteBusiness: jest.fn(),
+  getBusinesses: vi.fn(),
+  deleteBusiness: vi.fn(),
 };
 
 const mockBusinessCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
-jest.mock('@/services/businessService', () => ({
+vi.mock('@/services/businessService', async () => ({
   useBusinessService: () => mockBusinessService,
 }));
 
-jest.mock('@/services/businessCategoryService', () => ({
+vi.mock('@/services/businessCategoryService', async () => ({
   useBusinessCategoryService: () => mockBusinessCategoryService,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -50,7 +52,7 @@ jest.mock('@/components/ui/card', () => ({
   CardDescription: ({ children }: any) => <div data-testid="card-description">{children}</div>,
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, size, className }: any) => (
     <button
       onClick={onClick}
@@ -64,7 +66,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant, className }: any) => (
     <span data-testid="badge" data-variant={variant} className={className}>
       {children}
@@ -72,7 +74,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, className }: any) => (
     <input
       value={value}
@@ -84,7 +86,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => (
     <label htmlFor={htmlFor} data-testid="label">
       {children}
@@ -92,7 +94,7 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
     <input
       type="checkbox"
@@ -105,8 +107,8 @@ jest.mock('@/components/ui/switch', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   MapPin: () => <div data-testid="map-pin-icon">MapPin</div>,
   Phone: () => <div data-testid="phone-icon">Phone</div>,
   Mail: () => <div data-testid="mail-icon">Mail</div>,
@@ -125,15 +127,15 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
+vi.mock('date-fns', async () => ({
   format: () => '15. Januar 2024',
 }));
 
@@ -246,7 +248,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('BusinessList Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBusinessService.getBusinesses.mockResolvedValue(mockBusinesses);
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
   });
@@ -301,7 +303,7 @@ describe('BusinessList Component', () => {
     });
 
     it('sollte Fehler beim Laden der Daten behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.getBusinesses.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<BusinessList />);
@@ -516,11 +518,11 @@ describe('BusinessList Component', () => {
 });
 
 describe('BusinessCard Component', () => {
-  const mockOnEdit = jest.fn();
-  const mockOnDelete = jest.fn();
+  const mockOnEdit = vi.fn();
+  const mockOnDelete = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
   });
 

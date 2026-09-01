@@ -1,3 +1,4 @@
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,12 +7,12 @@ import { useBusinessUserService } from '@/services/businessUserService';
 import { BusinessUser } from '@/services/businessUserService';
 
 // Mock API module
-jest.mock('@/lib/api', () => ({
-  useApi: jest.fn(() => ({
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
+vi.mock('@/lib/api', async () => ({
+  useApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
   })),
   endpoints: {
     businesses: '/businesses',
@@ -24,23 +25,23 @@ jest.mock('@/lib/api', () => ({
 }));
 
 // Mock Auth Context
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
+vi.mock('@/contexts/AuthContext', async () => ({
+  useAuth: vi.fn(() => ({
     user: { uid: 'test-user', email: 'test@example.com' },
     loading: false,
   })),
 }));
 
 // Mock der Services
-jest.mock('@/services/businessUserService');
-const mockBusinessUserService = useBusinessUserService as jest.MockedFunction<
+vi.mock('@/services/businessUserService');
+const mockBusinessUserService = useBusinessUserService as MockedFunction<
   typeof useBusinessUserService
 >;
 
 // Mock von React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
@@ -79,13 +80,13 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('BusinessUserList', () => {
   const mockService = {
-    getBusinessUsers: jest.fn(),
-    getBusinessUser: jest.fn(),
-    addBusinessToUser: jest.fn(),
+    getBusinessUsers: vi.fn(),
+    getBusinessUser: vi.fn(),
+    addBusinessToUser: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockNavigate.mockClear();
     mockBusinessUserService.mockReturnValue(mockService);
   });
@@ -145,7 +146,7 @@ describe('BusinessUserList', () => {
     });
 
     it('sollte Fehler beim Laden graceful handhaben', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockService.getBusinessUsers.mockRejectedValue(new Error('Network error'));
 
       renderWithRouter(<BusinessUserList />);

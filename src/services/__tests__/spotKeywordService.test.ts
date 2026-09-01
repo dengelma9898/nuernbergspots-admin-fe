@@ -1,14 +1,14 @@
 const mockApi = {
-  getData: jest.fn(),
-  postData: jest.fn(),
-  patchData: jest.fn(),
-  putData: jest.fn(),
-  deleteData: jest.fn(),
-  get: jest.fn(),
-  post: jest.fn(),
+  getData: vi.fn(),
+  postData: vi.fn(),
+  patchData: vi.fn(),
+  putData: vi.fn(),
+  deleteData: vi.fn(),
+  get: vi.fn(),
+  post: vi.fn(),
 };
 
-jest.mock('../../lib/api', () => ({
+vi.mock('../../lib/api', () => ({
   useApi: () => mockApi,
   endpoints: {
     spotKeywords: '/spot-keywords',
@@ -27,7 +27,7 @@ describe('spotKeywordService', () => {
   let service: ReturnType<typeof useSpotKeywordService>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     service = useSpotKeywordService();
   });
 

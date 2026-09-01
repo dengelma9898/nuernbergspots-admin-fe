@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,50 +7,50 @@ import { ChatroomManagement } from '../ChatroomManagement';
 import { Chatroom } from '@/models/chatroom';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock services
 const mockChatroomService = {
-  getChatrooms: jest.fn(),
-  getChatroom: jest.fn(),
-  createChatroom: jest.fn(),
-  updateChatroom: jest.fn(),
-  deleteChatroom: jest.fn(),
-  addParticipant: jest.fn(),
-  removeParticipant: jest.fn(),
-  getLastMessages: jest.fn(),
-  uploadChatroomImage: jest.fn(),
-  removeChatroomImage: jest.fn(),
+  getChatrooms: vi.fn(),
+  getChatroom: vi.fn(),
+  createChatroom: vi.fn(),
+  updateChatroom: vi.fn(),
+  deleteChatroom: vi.fn(),
+  addParticipant: vi.fn(),
+  removeParticipant: vi.fn(),
+  getLastMessages: vi.fn(),
+  uploadChatroomImage: vi.fn(),
+  removeChatroomImage: vi.fn(),
 };
 
-jest.mock('@/services/chatroomService', () => ({
+vi.mock('@/services/chatroomService', async () => ({
   useChatroomService: () => mockChatroomService,
 }));
 
 // Mock skeleton component
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 import { toast } from 'sonner';
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  format: jest.fn((date: Date, formatStr: string) => {
+vi.mock('date-fns', async () => ({
+  format: vi.fn((date: Date, formatStr: string) => {
     if (formatStr === 'dd.MM.yyyy') {
       return '01.01.2024';
     }
@@ -58,8 +59,8 @@ jest.mock('date-fns', () => ({
 }));
 
 // Mock URL methods for file handling
-global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-global.URL.revokeObjectURL = jest.fn();
+global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+global.URL.revokeObjectURL = vi.fn();
 
 // Create mock data
 const createMockChatroom = (overrides: Partial<Chatroom> = {}): Chatroom => ({
@@ -103,9 +104,9 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('ChatroomManagement', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (toast.success as jest.Mock).mockClear();
-    (toast.error as jest.Mock).mockClear();
+    vi.clearAllMocks();
+    (toast.success as Mock).mockClear();
+    (toast.error as Mock).mockClear();
     mockChatroomService.getChatrooms.mockResolvedValue(mockChatrooms);
   });
 
@@ -323,7 +324,7 @@ describe('ChatroomManagement', () => {
         });
       });
 
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich erstellt');
+      expectToastSuccessTitle(toast.success as Mock, 'Chatroom wurde erfolgreich erstellt');
     });
 
     it('sollte Fehler bei Chatroom-Erstellung handhaben', async () => {
@@ -416,10 +417,7 @@ describe('ChatroomManagement', () => {
         });
       });
 
-      expectToastSuccessTitle(
-        toast.success as jest.Mock,
-        'Chatroom wurde erfolgreich aktualisiert'
-      );
+      expectToastSuccessTitle(toast.success as Mock, 'Chatroom wurde erfolgreich aktualisiert');
     });
 
     it('sollte Fehler bei Chatroom-Aktualisierung handhaben', async () => {
@@ -490,7 +488,7 @@ describe('ChatroomManagement', () => {
         expect(mockChatroomService.deleteChatroom).toHaveBeenCalledWith('chatroom-1');
       });
 
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Chatroom wurde erfolgreich gelöscht');
+      expectToastSuccessTitle(toast.success as Mock, 'Chatroom wurde erfolgreich gelöscht');
     });
 
     it('sollte Fehler bei Chatroom-Löschung handhaben', async () => {

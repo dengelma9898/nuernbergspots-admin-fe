@@ -159,7 +159,7 @@
         "reference": "CONSTITUTION.md — §5.4 KI-Verifikation geänderter UI",
         "rules": [
           "Umfang = nur die diff-eigenen Komponenten/Surfaces, kein Voll-App-Audit bei kleinen Änderungen",
-          "Neue Erwartungen auf DOM-Ebene asserten (Text, aria-label, Klassen wie size-11/h-11, Empty-State, entfernte Controls) über Jest + React Testing Library",
+          "Neue Erwartungen auf DOM-Ebene asserten (Text, aria-label, Klassen wie size-11/h-11, Empty-State, entfernte Controls) über Vitest + React Testing Library",
           "Icon-only-Buttons ohne sichtbaren Text benötigen aria-label/sr-only (Gegenprobe bei a11y)",
           "Kontrast-/Farbänderungen sichtbar plausibilisieren; Farbtokens statt Hardcode",
           "Geänderte UI-Flows: Playwright-Specs anpassen — neue/interaktive Elemente abdecken, überholte Assertions entfernen (Ziel: gute E2E-Abdeckung, keine veralteten Specs)",

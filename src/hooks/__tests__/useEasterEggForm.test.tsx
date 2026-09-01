@@ -1,40 +1,40 @@
 import React from 'react';
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { useEasterEggForm } from '@/hooks/useEasterEggForm';
 
-const mockNavigate = jest.fn();
-const mockCreate = jest.fn();
-const mockGetById = jest.fn();
+const mockNavigate = vi.fn();
+const mockCreate = vi.fn();
+const mockGetById = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@/services/easterEggService', () => ({
+vi.mock('@/services/easterEggService', async () => ({
   useEasterEggService: () => ({
     create: mockCreate,
-    update: jest.fn(),
+    update: vi.fn(),
     getById: mockGetById,
-    uploadImage: jest.fn(),
+    uploadImage: vi.fn(),
   }),
 }));
 
-jest.mock('@/hooks/useValidatedImageUpload', () => ({
+vi.mock('@/hooks/useValidatedImageUpload', async () => ({
   useValidatedImageUpload: () => ({
     files: [],
     previewUrls: [],
     error: null,
-    handleFileChange: jest.fn(),
-    clearImages: jest.fn(),
+    handleFileChange: vi.fn(),
+    clearImages: vi.fn(),
   }),
 }));
 
-jest.mock('sonner', () => ({
-  toast: { success: jest.fn(), error: jest.fn() },
+vi.mock('sonner', async () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 const createWrapper = (path: string) =>
@@ -50,7 +50,7 @@ const createWrapper = (path: string) =>
 
 describe('useEasterEggForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockCreate.mockResolvedValue({ id: 'egg-1' });
   });
 
@@ -61,7 +61,7 @@ describe('useEasterEggForm', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
       } as unknown as React.FormEvent);
     });
 
@@ -92,7 +92,7 @@ describe('useEasterEggForm', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
       } as unknown as React.FormEvent);
     });
 

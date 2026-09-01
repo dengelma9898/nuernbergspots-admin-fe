@@ -1,27 +1,30 @@
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EventCategoryList } from '../EventCategoryList';
 import { useEventCategoryService } from '../../../services/eventCategoryService';
 import { EventCategory } from '../../../models/event-category';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import {
   expectToastErrorTitleContains,
   expectToastSuccessTitle,
 } from '@/test-utils/sonnerAssertions';
 
 // Mock alle externen Dependencies
-jest.mock('../../../lib/api', () => ({
-  apiRequest: jest.fn(),
+vi.mock('../../../lib/api', async () => ({
+  apiRequest: vi.fn(),
 }));
-jest.mock('../../../services/eventCategoryService');
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
+vi.mock('../../../services/eventCategoryService');
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: vi.fn(),
 }));
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -44,7 +47,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className, asChild }: any) => {
     if (asChild) {
       return (
@@ -68,7 +71,7 @@ jest.mock('@/components/ui/button', () => ({
   },
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, type, className }: any) => (
     <input
       type={type}
@@ -81,7 +84,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/table', () => ({
+vi.mock('@/components/ui/table', async () => ({
   Table: ({ children, className }: any) => (
     <table className={className} data-testid="table">
       {children}
@@ -98,7 +101,7 @@ jest.mock('@/components/ui/table', () => ({
   TableRow: ({ children }: any) => <tr data-testid="table-row">{children}</tr>,
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open}>
       {children}
@@ -116,7 +119,7 @@ jest.mock('@/components/ui/dialog', () => ({
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
-jest.mock('@/components/ui/dropdown-menu', () => ({
+vi.mock('@/components/ui/dropdown-menu', async () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuContent: ({ children }: any) => (
     <div data-testid="dropdown-menu-content">{children}</div>
@@ -131,7 +134,7 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/icon-picker', () => ({
+vi.mock('@/components/ui/icon-picker', async () => ({
   IconPicker: ({ value, onChange }: any) => (
     <div data-testid="icon-picker" data-value={value} onClick={() => onChange?.('test-icon')}>
       Icon Picker
@@ -139,15 +142,15 @@ jest.mock('@/components/ui/icon-picker', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -159,26 +162,26 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock color utils
 // Mock icon utils
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn(() => <div data-testid="icon-component">Icon</div>),
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn(() => <div data-testid="icon-component">Icon</div>),
 }));
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 const mockEventCategoryService = {
-  getCategories: jest.fn(),
-  createCategory: jest.fn(),
-  updateCategory: jest.fn(),
-  deleteCategory: jest.fn(),
-  updateFallbackImages: jest.fn(),
+  getCategories: vi.fn(),
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+  deleteCategory: vi.fn(),
+  updateFallbackImages: vi.fn(),
 };
 
 // Mock-Daten
@@ -210,9 +213,9 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('EventCategoryList Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
+    vi.clearAllMocks();
+    (vi.mocked(useNavigate) as Mock).mockReturnValue(mockNavigate);
+    (useEventCategoryService as Mock).mockReturnValue(mockEventCategoryService);
 
     mockEventCategoryService.getCategories.mockResolvedValue([
       mockEventCategory,
@@ -282,7 +285,7 @@ describe('EventCategoryList Component', () => {
     });
 
     it('sollte Fehler beim Laden der Kategorien behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockEventCategoryService.getCategories.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EventCategoryList />);
@@ -355,7 +358,7 @@ describe('EventCategoryList Component', () => {
 
   describe('Category Creation', () => {
     it('sollte neue Kategorie erfolgreich erstellen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       renderWithRouter(<EventCategoryList />);
 
       // Dialog öffnen
@@ -392,7 +395,7 @@ describe('EventCategoryList Component', () => {
     });
 
     it('sollte Fehler anzeigen wenn Name fehlt', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       renderWithRouter(<EventCategoryList />);
 
       // Dialog öffnen
@@ -411,7 +414,7 @@ describe('EventCategoryList Component', () => {
     });
 
     it('sollte Fehler beim Erstellen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockEventCategoryService.createCategory.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EventCategoryList />);
@@ -454,7 +457,7 @@ describe('EventCategoryList Component', () => {
     });
 
     it('sollte Kategorie erfolgreich aktualisieren', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       renderWithRouter(<EventCategoryList />);
 
       await waitFor(() => {
@@ -484,7 +487,7 @@ describe('EventCategoryList Component', () => {
 
   describe('Category Deletion', () => {
     it('sollte Kategorie erfolgreich löschen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       renderWithRouter(<EventCategoryList />);
 
       await waitFor(() => {
@@ -504,7 +507,7 @@ describe('EventCategoryList Component', () => {
     });
 
     it('sollte Fehler beim Löschen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockEventCategoryService.deleteCategory.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EventCategoryList />);

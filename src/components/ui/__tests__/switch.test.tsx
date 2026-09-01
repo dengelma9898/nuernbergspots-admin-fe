@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Switch } from '../switch';
 
 describe('Switch Komponente', () => {
@@ -76,7 +76,7 @@ describe('Switch Komponente', () => {
   describe('Interaktionen', () => {
     it('sollte auf Klick reagieren', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
 
       render(<Switch onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
@@ -102,7 +102,7 @@ describe('Switch Komponente', () => {
 
     it('sollte nicht reagieren wenn disabled', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
 
       render(<Switch disabled onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');
@@ -135,7 +135,7 @@ describe('Switch Komponente', () => {
 
     it('sollte als controlled component funktionieren', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
 
       const { rerender } = render(
         <Switch checked={false} onCheckedChange={handleChange} data-testid="switch" />
@@ -229,7 +229,7 @@ describe('Switch Komponente', () => {
   describe('Edge Cases', () => {
     it('sollte mit schnellen aufeinanderfolgenden Klicks umgehen', async () => {
       const user = userEvent.setup();
-      const handleChange = jest.fn();
+      const handleChange = vi.fn();
 
       render(<Switch onCheckedChange={handleChange} data-testid="switch" />);
       const switchElement = screen.getByTestId('switch');

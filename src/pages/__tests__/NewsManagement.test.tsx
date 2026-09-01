@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,22 +7,22 @@ import NewsManagement from '../NewsManagement';
 import { NewsItem, TextNewsItem, ImageNewsItem, PollNewsItem } from '@/models/news';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock Auth Context
-const mockGetUserId = jest.fn();
-jest.mock('@/contexts/AuthContext', () => ({
+const mockGetUserId = vi.fn();
+vi.mock('@/contexts/AuthContext', async () => ({
   useAuth: () => ({
     getUserId: mockGetUserId,
   }),
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div data-testid="card" className={className}>
       {children}
@@ -34,7 +35,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant, className }: any) => (
     <span data-testid="badge" data-variant={variant} className={className}>
       {children}
@@ -42,7 +43,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({
     children,
     onClick,
@@ -78,7 +79,7 @@ jest.mock('@/components/ui/button', () => ({
   },
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, disabled, className, autoFocus, type, id }: any) => (
     <input
       value={value}
@@ -94,7 +95,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/textarea', () => ({
+vi.mock('@/components/ui/textarea', async () => ({
   Textarea: ({ value, onChange, placeholder, disabled }: any) => (
     <textarea
       value={value}
@@ -106,7 +107,7 @@ jest.mock('@/components/ui/textarea', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
       {children}
@@ -129,7 +130,7 @@ jest.mock('@/components/ui/dialog', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/alert-dialog', () => ({
+vi.mock('@/components/ui/alert-dialog', async () => ({
   AlertDialog: ({ children, open, onOpenChange }: any) => (
     <div
       data-testid="alert-dialog"
@@ -166,7 +167,7 @@ jest.mock('@/components/ui/alert-dialog', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, disabled, id }: any) => (
     <input
       type="checkbox"
@@ -179,7 +180,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => (
     <label htmlFor={htmlFor} data-testid="label">
       {children}
@@ -187,15 +188,15 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Loader2: () => <div data-testid="loader2-icon">Loader2</div>,
   UserCircle: () => <div data-testid="user-circle-icon">UserCircle</div>,
   Image: () => <div data-testid="image-icon">Image</div>,
@@ -215,10 +216,10 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock toast
-const mockToastSuccess = jest.fn();
-const mockToastError = jest.fn();
+const mockToastSuccess = vi.fn();
+const mockToastError = vi.fn();
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
     success: (...args: any[]) => mockToastSuccess(...args),
     error: (...args: any[]) => mockToastError(...args),
@@ -227,36 +228,36 @@ jest.mock('sonner', () => ({
 
 // Mock News Service
 const mockNewsService = {
-  getAll: jest.fn(),
-  createTextNews: jest.fn(),
-  createImageNews: jest.fn(),
-  updateNewsImages: jest.fn(),
-  createPollNews: jest.fn(),
-  delete: jest.fn(),
+  getAll: vi.fn(),
+  createTextNews: vi.fn(),
+  createImageNews: vi.fn(),
+  updateNewsImages: vi.fn(),
+  createPollNews: vi.fn(),
+  delete: vi.fn(),
 };
 
-jest.mock('@/services/newsService', () => ({
+vi.mock('@/services/newsService', async () => ({
   useNewsService: () => mockNewsService,
 }));
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  formatDistanceToNow: jest.fn(() => 'vor 2 Stunden'),
-  format: jest.fn((date, formatStr) => {
+vi.mock('date-fns', async () => ({
+  formatDistanceToNow: vi.fn(() => 'vor 2 Stunden'),
+  format: vi.fn((date, formatStr) => {
     if (formatStr === 'yyyy-MM') return '2024-01';
     if (formatStr === 'MMMM yyyy') return 'Januar 2024';
     return '2024-01-15';
   }),
-  startOfMonth: jest.fn(date => new Date(date.getFullYear(), date.getMonth(), 1)),
+  startOfMonth: vi.fn(date => new Date(date.getFullYear(), date.getMonth(), 1)),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
 // Mock scrollTo for JSDOM
 Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
-  value: jest.fn(),
+  value: vi.fn(),
   writable: true,
 });
 
@@ -311,7 +312,7 @@ describe('NewsManagement Component', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetUserId.mockReturnValue('user-1');
     mockNewsService.getAll.mockResolvedValue([mockTextNews, mockImageNews, mockPollNews]);
     mockNewsService.delete.mockResolvedValue(undefined);

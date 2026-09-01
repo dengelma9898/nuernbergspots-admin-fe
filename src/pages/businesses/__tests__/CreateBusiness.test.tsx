@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -11,39 +13,39 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock Services
 const mockBusinessService = {
-  createBusiness: jest.fn(),
+  createBusiness: vi.fn(),
 };
 
 const mockBusinessCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
 const mockKeywordService = {
-  getKeyword: jest.fn(),
+  getKeyword: vi.fn(),
 };
 
-jest.mock('@/services/businessService', () => ({
+vi.mock('@/services/businessService', async () => ({
   useBusinessService: () => mockBusinessService,
 }));
 
-jest.mock('@/services/businessCategoryService', () => ({
+vi.mock('@/services/businessCategoryService', async () => ({
   useBusinessCategoryService: () => mockBusinessCategoryService,
 }));
 
-jest.mock('@/services/keywordService', () => ({
+vi.mock('@/services/keywordService', async () => ({
   useKeywordService: () => mockKeywordService,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children }: any) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
   CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
@@ -51,7 +53,7 @@ jest.mock('@/components/ui/card', () => ({
   CardDescription: ({ children }: any) => <div data-testid="card-description">{children}</div>,
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, disabled }: any) => (
     <button onClick={onClick} disabled={disabled} data-testid="button" data-variant={variant}>
       {children}
@@ -59,7 +61,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, id, type, maxLength }: any) => (
     <input
       value={value}
@@ -73,7 +75,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/textarea', () => ({
+vi.mock('@/components/ui/textarea', async () => ({
   Textarea: ({ value, onChange, placeholder, id, className }: any) => (
     <textarea
       value={value}
@@ -86,7 +88,7 @@ jest.mock('@/components/ui/textarea', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => (
     <label htmlFor={htmlFor} data-testid="label">
       {children}
@@ -94,15 +96,27 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
-  Badge: ({ children, variant, className, onClick }: any) => (
-    <span data-testid="badge" data-variant={variant} className={className} onClick={onClick}>
-      {children}
-    </span>
-  ),
+vi.mock('@/components/ui/badge', async () => ({
+  Badge: ({ children, variant, className, onClick }: any) => {
+    const variantClasses =
+      variant === 'default'
+        ? 'bg-primary text-primary-foreground'
+        : 'border-secondary text-foreground';
+    return (
+      <span
+        data-testid="badge"
+        data-slot="badge"
+        data-variant={variant}
+        className={`${variantClasses} ${className ?? ''}`.trim()}
+        onClick={onClick}
+      >
+        {children}
+      </span>
+    );
+  },
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
     <input
       type="checkbox"
@@ -114,7 +128,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/LocationSearch', () => ({
+vi.mock('@/components/ui/LocationSearch', async () => ({
   LocationSearch: ({ value, onChange, placeholder }: any) => (
     <input
       data-testid="location-search"
@@ -130,17 +144,19 @@ jest.mock('@/components/ui/LocationSearch', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Trash2: () => <div data-testid="trash-icon">Trash2</div>,
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
@@ -184,7 +200,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('CreateBusiness Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBusinessCategoryService.getCategories.mockResolvedValue([mockBusinessCategory]);
     // Pro Keyword-ID ein eigenes Objekt zurückgeben — sonst liefert getKeyword immer dasselbe
     // Objekt (z. B. zweimal keyword-1) und React meldet doppelte Keys in keywords.map.
@@ -272,7 +288,7 @@ describe('CreateBusiness Component', () => {
     });
 
     it('sollte Fehler beim Laden der Kategorien behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.getCategories.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<CreateBusiness />);
@@ -360,21 +376,23 @@ describe('CreateBusiness Component', () => {
     it('sollte Kategorie auswählen und abwählen können', async () => {
       renderWithRouter(<CreateBusiness />);
 
-      await waitFor(() => {
-        const categoryBadge = screen.getByText('Restaurant').closest('[data-slot="badge"]');
-
-        // Kategorie auswählen — Badge wechselt auf default-Variant
-        fireEvent.click(categoryBadge!);
-        expect(categoryBadge).toHaveClass('bg-primary');
-
-        // Kategorie abwählen
-        fireEvent.click(categoryBadge!);
-        expect(categoryBadge).toHaveClass('border-secondary');
+      const categoryBadge = await waitFor(() => {
+        const badge = screen.getByText('Restaurant').closest('[data-slot="badge"]') as HTMLElement;
+        expect(badge).not.toBeNull();
+        return badge;
       });
+
+      // Kategorie auswählen — Badge wechselt auf default-Variant
+      fireEvent.click(categoryBadge);
+      expect(categoryBadge).toHaveClass('bg-primary');
+
+      // Kategorie abwählen
+      fireEvent.click(categoryBadge);
+      expect(categoryBadge).toHaveClass('border-secondary');
     });
 
     it('sollte maximal 3 Kategorien auswählen können', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       const threeCategories = [
         { ...mockBusinessCategory, id: 'cat-1', name: 'Restaurant' },
         { ...mockBusinessCategory, id: 'cat-2', name: 'Café' },
@@ -421,17 +439,19 @@ describe('CreateBusiness Component', () => {
         fireEvent.click(categoryBadge);
       });
 
-      await waitFor(() => {
-        const keywordBadge = screen.getAllByText('Pizza')[0].closest('[data-slot="badge"]');
-
-        // Keyword auswählen — Badge wechselt auf default-Variant
-        fireEvent.click(keywordBadge!);
-        expect(keywordBadge).toHaveClass('bg-primary');
-
-        // Keyword abwählen
-        fireEvent.click(keywordBadge!);
-        expect(keywordBadge).toHaveClass('border-secondary');
+      const keywordBadge = await waitFor(() => {
+        const badge = screen.getAllByText('Pizza')[0].closest('[data-slot="badge"]') as HTMLElement;
+        expect(badge).not.toBeNull();
+        return badge;
       });
+
+      // Keyword auswählen — Badge wechselt auf default-Variant
+      fireEvent.click(keywordBadge);
+      expect(keywordBadge).toHaveClass('bg-primary');
+
+      // Keyword abwählen
+      fireEvent.click(keywordBadge);
+      expect(keywordBadge).toHaveClass('border-secondary');
     });
   });
 
@@ -482,14 +502,17 @@ describe('CreateBusiness Component', () => {
     it('sollte Fehler anzeigen wenn kein Tag für neuen Zeitraum ausgewählt ist', async () => {
       renderWithRouter(<CreateBusiness />);
 
-      await waitFor(() => {
-        // Button sollte disabled sein wenn keine Tage für neuen Zeitraum ausgewählt sind
-        const addButton = screen.getByText('Zeitraum hinzufügen');
-        expect(addButton).toBeDisabled();
-
-        // Teste das disabled-Verhalten anstatt Toast, da disabled Buttons keinen Toast auslösen
-        expect(addButton).toHaveAttribute('disabled');
+      const addButton = await waitFor(() => {
+        const button = screen.getByText('Zeitraum hinzufügen').closest('button') as HTMLElement;
+        expect(button).not.toBeNull();
+        return button;
       });
+
+      // Button sollte disabled sein wenn keine Tage für neuen Zeitraum ausgewählt sind
+      expect(addButton).toBeDisabled();
+
+      // Teste das disabled-Verhalten anstatt Toast, da disabled Buttons keinen Toast auslösen
+      expect(addButton).toHaveAttribute('disabled');
     });
 
     it('sollte Zeitraum löschen können', async () => {
@@ -504,12 +527,17 @@ describe('CreateBusiness Component', () => {
     it('sollte Wochentage für Zeitraum togglen können', async () => {
       renderWithRouter(<CreateBusiness />);
 
-      await waitFor(() => {
-        const montag = screen.getAllByText('Montag')[0].closest('[data-slot="badge"]');
-        fireEvent.click(montag!);
-
-        expect(montag).toHaveClass('bg-primary');
+      const montag = await waitFor(() => {
+        // [1] = Montag-Tag im neuen Zeitraum (noch nicht ausgewählt)
+        const badge = screen
+          .getAllByText('Montag')[1]
+          .closest('[data-slot="badge"]') as HTMLElement;
+        expect(badge).not.toBeNull();
+        return badge;
       });
+
+      fireEvent.click(montag);
+      expect(montag).toHaveClass('bg-primary');
     });
   });
 
@@ -551,7 +579,7 @@ describe('CreateBusiness Component', () => {
 
   describe('Form Submission', () => {
     it('sollte Geschäft erfolgreich erstellen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.createBusiness.mockResolvedValue({ id: 'new-business-id' });
 
       renderWithRouter(<CreateBusiness />);
@@ -595,7 +623,7 @@ describe('CreateBusiness Component', () => {
     });
 
     it('sollte Fehler beim Erstellen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.createBusiness.mockRejectedValue(new Error('Create Error'));
 
       renderWithRouter(<CreateBusiness />);
@@ -624,10 +652,17 @@ describe('CreateBusiness Component', () => {
       await waitFor(() => {
         const nameInput = screen.getByLabelText('Name des Geschäfts');
         fireEvent.change(nameInput, { target: { value: 'Test Restaurant' } });
+      });
 
-        const submitButton = screen.getByText('Geschäft erstellen');
-        fireEvent.click(submitButton);
+      const submitButton = await waitFor(() => {
+        const button = screen.getByText('Geschäft erstellen').closest('button') as HTMLElement;
+        expect(button).not.toBeNull();
+        return button;
+      });
 
+      fireEvent.click(submitButton);
+
+      await waitFor(() => {
         expect(screen.getByText('Wird erstellt...')).toBeInTheDocument();
         expect(submitButton).toBeDisabled();
       });

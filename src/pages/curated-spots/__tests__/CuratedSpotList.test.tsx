@@ -1,44 +1,44 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { CuratedSpotList } from '../CuratedSpotList';
 
-const mockNavigate = jest.fn();
-const mockListAdmin = jest.fn();
-const mockGetUserProfile = jest.fn();
+const mockNavigate = vi.fn();
+const mockListAdmin = vi.fn();
+const mockGetUserProfile = vi.fn();
 
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@/services/curatedSpotService', () => ({
+vi.mock('@/services/curatedSpotService', () => ({
   useCuratedSpotService: () => ({
     listAdmin: mockListAdmin,
   }),
 }));
 
-jest.mock('@/services/userService', () => ({
+vi.mock('@/services/userService', () => ({
   useUserService: () => ({
     getUserProfile: mockGetUserProfile,
   }),
 }));
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({
     getUserId: () => 'admin-id',
   }),
 }));
 
-jest.mock('sonner', () => ({
-  toast: { error: jest.fn(), success: jest.fn() },
+vi.mock('sonner', () => ({
+  toast: { error: vi.fn(), success: vi.fn() },
 }));
 
-jest.mock('@/utils/errorUtils', () => ({
-  showUserFriendlyError: jest.fn(),
-  showSuccessMessage: jest.fn(),
+vi.mock('@/utils/errorUtils', () => ({
+  showUserFriendlyError: vi.fn(),
+  showSuccessMessage: vi.fn(),
 }));
 
 describe('CuratedSpotList', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetUserProfile.mockResolvedValue({ userType: 'admin' });
   });
 

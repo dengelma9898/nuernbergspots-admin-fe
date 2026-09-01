@@ -1,18 +1,19 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { toast } from 'sonner';
 
 import { Toaster } from '../sonner';
 
 // Mock für next-themes
-const mockUseTheme = jest.fn();
-jest.mock('next-themes', () => ({
+const mockUseTheme = vi.fn();
+vi.mock('next-themes', () => ({
   useTheme: () => mockUseTheme(),
 }));
 
 // Mock für sonner - Vereinfachtes aber realistisches Mock
-jest.mock('sonner', () => ({
+vi.mock('sonner', () => ({
   Toaster: React.forwardRef<HTMLDivElement, any>(
     ({ children, theme, className, style, position, duration, ...props }, ref) => (
       <div
@@ -30,23 +31,23 @@ jest.mock('sonner', () => ({
     )
   ),
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    warning: jest.fn(),
-    custom: jest.fn(),
-    dismiss: jest.fn(),
-    promise: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
+    custom: vi.fn(),
+    dismiss: vi.fn(),
+    promise: vi.fn(),
   },
 }));
 
 describe('Toaster (Sonner) Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     // Standard Theme-Mock
     mockUseTheme.mockReturnValue({
       theme: 'light',
-      setTheme: jest.fn(),
+      setTheme: vi.fn(),
       resolvedTheme: 'light',
     });
   });
@@ -79,7 +80,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte light theme korrekt setzen', () => {
       mockUseTheme.mockReturnValue({
         theme: 'light',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'light',
       });
 
@@ -92,7 +93,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte dark theme korrekt setzen', () => {
       mockUseTheme.mockReturnValue({
         theme: 'dark',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'dark',
       });
 
@@ -105,7 +106,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte system theme als Fallback verwenden', () => {
       mockUseTheme.mockReturnValue({
         theme: undefined,
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: undefined,
       });
 
@@ -118,7 +119,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte system theme korrekt setzen', () => {
       mockUseTheme.mockReturnValue({
         theme: 'system',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'system',
       });
 
@@ -264,7 +265,7 @@ describe('Toaster (Sonner) Component', () => {
       // Switch to dark theme
       mockUseTheme.mockReturnValue({
         theme: 'dark',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'dark',
       });
 
@@ -277,7 +278,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte Theme-Prop überschreiben können', () => {
       mockUseTheme.mockReturnValue({
         theme: 'light',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'light',
       });
 
@@ -396,7 +397,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte mit null Theme umgehen (explizit null)', () => {
       mockUseTheme.mockReturnValue({
         theme: null,
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: null,
       });
 
@@ -421,7 +422,7 @@ describe('Toaster (Sonner) Component', () => {
     it('sollte kompletten Toaster mit allen Features rendern', () => {
       mockUseTheme.mockReturnValue({
         theme: 'dark',
-        setTheme: jest.fn(),
+        setTheme: vi.fn(),
         resolvedTheme: 'dark',
       });
 

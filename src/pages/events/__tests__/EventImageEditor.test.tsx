@@ -1,3 +1,8 @@
+import { useEventService } from '@/services/eventService';
+import { useEventCategoryService } from '@/services/eventCategoryService';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { BrowserRouter, useParams, useNavigate, useLocation } from 'react-router-dom';
@@ -6,54 +11,54 @@ import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 
 // Mock dependencies
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useParams: jest.fn(),
-  useNavigate: jest.fn(),
-  useLocation: jest.fn(),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useParams: vi.fn(),
+  useNavigate: vi.fn(),
+  useLocation: vi.fn(),
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-jest.mock('@/services/eventService', () => ({
-  useEventService: jest.fn(),
+vi.mock('@/services/eventService', async () => ({
+  useEventService: vi.fn(),
 }));
 
-jest.mock('@/services/eventCategoryService', () => ({
-  useEventCategoryService: jest.fn(),
+vi.mock('@/services/eventCategoryService', async () => ({
+  useEventCategoryService: vi.fn(),
 }));
 
-jest.mock('html-to-image', () => ({
-  toPng: jest.fn(() => Promise.resolve('data:image/png;base64,test')),
+vi.mock('html-to-image', async () => ({
+  toPng: vi.fn(() => Promise.resolve('data:image/png;base64,test')),
 }));
 
-jest.mock('date-fns', () => ({
-  format: jest.fn(() => 'Mo. 01.01.'),
-  isSameDay: jest.fn(() => false),
-  isWithinInterval: jest.fn(() => false),
-  startOfDay: jest.fn(() => new Date()),
+vi.mock('date-fns', async () => ({
+  format: vi.fn(() => 'Mo. 01.01.'),
+  isSameDay: vi.fn(() => false),
+  isWithinInterval: vi.fn(() => false),
+  startOfDay: vi.fn(() => new Date()),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
-jest.mock('simple-icons', () => ({
+vi.mock('simple-icons', async () => ({
   siInstagram: {},
   siFacebook: {},
   siTiktok: {},
 }));
 
 // Mock the logo import
-jest.mock('@/assets/Logo_nuernbergspots.png', () => 'mocked-logo.png');
+vi.mock('@/assets/Logo_nuernbergspots.png', async () => ({ default: 'mocked-logo.png' }));
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, className, ...props }: any) => (
     <button onClick={onClick} data-variant={variant} className={className} {...props}>
       {children}
@@ -61,23 +66,23 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ onChange, value, ...props }: any) => (
     <input value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/textarea', () => ({
+vi.mock('@/components/ui/textarea', async () => ({
   Textarea: ({ onChange, value, ...props }: any) => (
     <textarea value={value || ''} onChange={onChange} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, ...props }: any) => <label {...props}>{children}</label>,
 }));
 
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className, ...props }: any) => (
     <div data-testid="card" className={className} {...props}>
       {children}
@@ -100,7 +105,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/slider', () => ({
+vi.mock('@/components/ui/slider', async () => ({
   Slider: ({ value, onValueChange, min, max, step, ...props }: any) => (
     <input
       data-testid="slider"
@@ -115,7 +120,7 @@ jest.mock('@/components/ui/slider', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/tabs', () => ({
+vi.mock('@/components/ui/tabs', async () => ({
   Tabs: ({ children, defaultValue }: any) => (
     <div data-testid="tabs" data-default-value={defaultValue}>
       {children}
@@ -134,7 +139,7 @@ jest.mock('@/components/ui/tabs', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/color-picker', () => ({
+vi.mock('@/components/ui/color-picker', async () => ({
   ColorPicker: ({ value, onChange, ...props }: any) => (
     <input
       data-testid="color-picker"
@@ -146,7 +151,7 @@ jest.mock('@/components/ui/color-picker', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div data-testid="select">
       <div onClick={() => onValueChange?.('test-value')}>{children}</div>
@@ -163,8 +168,8 @@ jest.mock('@/components/ui/select', () => ({
 }));
 
 // Mock Lucide icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Download: () => <span data-testid="download-icon">Download</span>,
   Settings: () => <span data-testid="settings-icon">Settings</span>,
   Palette: () => <span data-testid="palette-icon">Palette</span>,
@@ -219,17 +224,17 @@ const mockCategory: EventCategory = {
 };
 
 const mockEventService = {
-  getEvent: jest.fn(),
+  getEvent: vi.fn(),
 };
 
 const mockEventCategoryService = {
-  getCategory: jest.fn(),
+  getCategory: vi.fn(),
 };
 
-const mockNavigate = jest.fn();
-const mockUseParams = useParams as jest.MockedFunction<typeof useParams>;
-const mockUseNavigate = useNavigate as jest.MockedFunction<typeof useNavigate>;
-const mockUseLocation = useLocation as jest.MockedFunction<typeof useLocation>;
+const mockNavigate = vi.fn();
+const mockUseParams = useParams as MockedFunction<typeof useParams>;
+const mockUseNavigate = useNavigate as MockedFunction<typeof useNavigate>;
+const mockUseLocation = useLocation as MockedFunction<typeof useLocation>;
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
@@ -237,7 +242,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('EventImageEditor Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockUseParams.mockReturnValue({});
     mockUseNavigate.mockReturnValue(mockNavigate);
     mockUseLocation.mockReturnValue({
@@ -251,10 +256,8 @@ describe('EventImageEditor Component', () => {
       key: 'default',
     });
 
-    require('@/services/eventService').useEventService.mockReturnValue(mockEventService);
-    require('@/services/eventCategoryService').useEventCategoryService.mockReturnValue(
-      mockEventCategoryService
-    );
+    vi.mocked(useEventService).mockReturnValue(mockEventService);
+    vi.mocked(useEventCategoryService).mockReturnValue(mockEventCategoryService);
 
     mockEventService.getEvent.mockResolvedValue(mockEvent);
     mockEventCategoryService.getCategory.mockResolvedValue(mockCategory);
@@ -345,7 +348,7 @@ describe('EventImageEditor Component', () => {
         key: 'default',
       });
       mockEventService.getEvent.mockRejectedValue(new Error('API Error'));
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
 
       renderWithRouter(<EventImageEditor />);
 
@@ -505,7 +508,7 @@ describe('EventImageEditor Component', () => {
       renderWithRouter(<EventImageEditor />);
 
       // Da date-fns gemockt ist, sollte das gemockte Format verwendet werden
-      const formatMock = require('date-fns').format;
+      const formatMock = format;
       expect(formatMock).toBeDefined();
     });
   });

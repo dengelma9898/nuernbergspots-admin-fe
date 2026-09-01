@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -9,41 +11,41 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mocks
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Toast Mock
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 // Business Category Service Mock
 const mockBusinessCategoryService = {
-  getCategories: jest.fn(),
-  createCategory: jest.fn(),
-  updateCategory: jest.fn(),
-  deleteCategory: jest.fn(),
+  getCategories: vi.fn(),
+  createCategory: vi.fn(),
+  updateCategory: vi.fn(),
+  deleteCategory: vi.fn(),
 };
 
-jest.mock('@/services/businessCategoryService', () => ({
+vi.mock('@/services/businessCategoryService', async () => ({
   useBusinessCategoryService: () => mockBusinessCategoryService,
 }));
 
 // Icon Utils Mock
-jest.mock('@/utils/iconUtils', () => ({
-  getIconComponent: jest.fn((iconName: string) => (
+vi.mock('@/utils/iconUtils', async () => ({
+  getIconComponent: vi.fn((iconName: string) => (
     <div data-testid={`icon-${iconName}`}>Icon: {iconName}</div>
   )),
 }));
 
 // UI Component Mocks
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, ...props }: any) => (
     <div data-testid="card" {...props}>
       {children}
@@ -66,7 +68,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, size, className, ...props }: any) => (
     <button
       data-testid="button"
@@ -82,7 +84,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, ...props }: any) => (
     <input
       data-testid="input"
@@ -94,7 +96,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/table', () => ({
+vi.mock('@/components/ui/table', async () => ({
   Table: ({ children, className }: any) => (
     <table data-testid="table" className={className}>
       {children}
@@ -111,7 +113,7 @@ jest.mock('@/components/ui/table', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
       {children}
@@ -125,7 +127,7 @@ jest.mock('@/components/ui/dialog', () => ({
   DialogTrigger: ({ children, asChild }: any) => <div data-testid="dialog-trigger">{children}</div>,
 }));
 
-jest.mock('@/components/ui/dropdown-menu', () => ({
+vi.mock('@/components/ui/dropdown-menu', async () => ({
   DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
   DropdownMenuContent: ({ children }: any) => (
     <div data-testid="dropdown-menu-content">{children}</div>
@@ -140,7 +142,7 @@ jest.mock('@/components/ui/dropdown-menu', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/icon-picker', () => ({
+vi.mock('@/components/ui/icon-picker', async () => ({
   IconPicker: ({ value, onChange }: any) => (
     <div data-testid="icon-picker">
       <input
@@ -153,7 +155,7 @@ jest.mock('@/components/ui/icon-picker', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/keyword-selector', () => ({
+vi.mock('@/components/ui/keyword-selector', async () => ({
   KeywordSelector: ({ selectedIds, onChange }: any) => (
     <div data-testid="keyword-selector">
       <button
@@ -174,8 +176,8 @@ jest.mock('@/components/ui/keyword-selector', () => ({
 }));
 
 // Lucide icons mock
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
   MoreHorizontal: () => <div data-testid="more-horizontal-icon">MoreHorizontal</div>,
   Pencil: () => <div data-testid="pencil-icon">Pencil</div>,
@@ -233,7 +235,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('CategoryList Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockBusinessCategoryService.getCategories.mockResolvedValue(mockCategories);
   });
 
@@ -295,7 +297,7 @@ describe('CategoryList Component', () => {
     });
 
     it('sollte Fehler beim Laden der Kategorien behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.getCategories.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<CategoryList />);
@@ -379,7 +381,7 @@ describe('CategoryList Component', () => {
     });
 
     it.skip('sollte neue Kategorie erstellen (DEAKTIVIERT - Endlosschleife)', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       const newCategory: BusinessCategory = {
         id: 'new-category',
         name: 'Neue Kategorie',
@@ -426,7 +428,7 @@ describe('CategoryList Component', () => {
     });
 
     it.skip('sollte Fehler bei leerem Namen anzeigen (DEAKTIVIERT - Endlosschleife)', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
 
       renderWithRouter(<CategoryList />);
 
@@ -443,7 +445,7 @@ describe('CategoryList Component', () => {
     });
 
     it.skip('sollte Fehler beim Erstellen behandeln (DEAKTIVIERT - Endlosschleife)', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.createCategory.mockRejectedValue(new Error('Create Error'));
 
       renderWithRouter(<CategoryList />);
@@ -485,7 +487,7 @@ describe('CategoryList Component', () => {
     });
 
     it.skip('sollte Kategorie aktualisieren (DEAKTIVIERT - Endlosschleife)', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       const updatedCategory = { ...mockCategory, name: 'Updated Restaurant' };
       mockBusinessCategoryService.updateCategory.mockResolvedValue(updatedCategory);
 
@@ -522,7 +524,7 @@ describe('CategoryList Component', () => {
     });
 
     it('sollte Kategorie löschen', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.deleteCategory.mockResolvedValue(undefined);
 
       const deleteButtons = screen.getAllByTestId('trash2-icon');
@@ -535,7 +537,7 @@ describe('CategoryList Component', () => {
     });
 
     it('sollte Fehler beim Löschen behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.deleteCategory.mockRejectedValue(new Error('Delete Error'));
 
       const deleteButtons = screen.getAllByTestId('trash2-icon');

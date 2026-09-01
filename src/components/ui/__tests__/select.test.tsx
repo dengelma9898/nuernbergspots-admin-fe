@@ -1,23 +1,24 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // JSdom polyfills for missing APIs
 Object.defineProperty(Element.prototype, 'hasPointerCapture', {
-  value: jest.fn(() => false),
+  value: vi.fn(() => false),
 });
 
 Object.defineProperty(Element.prototype, 'scrollIntoView', {
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 Object.defineProperty(Element.prototype, 'releasePointerCapture', {
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 Object.defineProperty(Element.prototype, 'setPointerCapture', {
-  value: jest.fn(),
+  value: vi.fn(),
 });
 
 import {
@@ -34,8 +35,8 @@ import {
 } from '../select';
 
 // Mock für lucide-react Icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   CheckIcon: () => <svg data-testid="check-icon">✓</svg>,
   ChevronDownIcon: () => <svg data-testid="chevron-down-icon">↓</svg>,
   ChevronUpIcon: () => <svg data-testid="chevron-up-icon">↑</svg>,
@@ -44,7 +45,7 @@ jest.mock('lucide-react', () => ({
 // Test Select Komponente für bessere Testbarkeit
 const TestSelect = ({
   value,
-  onValueChange = jest.fn(),
+  onValueChange = vi.fn(),
   children,
   defaultOpen = false,
   ...props
@@ -83,7 +84,7 @@ const TestSelect = ({
 describe('Select Components', () => {
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Select', () => {
@@ -546,7 +547,7 @@ describe('Select Components', () => {
 
   describe('Vollständiger Select Test', () => {
     it('sollte alle Komponenten zusammen korrekt rendern', () => {
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
 
       render(
         <Select onValueChange={onValueChange} defaultOpen>

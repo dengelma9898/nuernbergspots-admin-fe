@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
@@ -11,45 +13,45 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => ({ id: 'business-1' }),
 }));
 
 // Mock Services
 const mockBusinessService = {
-  getBusiness: jest.fn(),
-  updateBusiness: jest.fn(),
-  updateNuernbergspotsReview: jest.fn(),
-  uploadLogo: jest.fn(),
-  uploadBusinessImages: jest.fn(),
-  uploadReviewImages: jest.fn(),
+  getBusiness: vi.fn(),
+  updateBusiness: vi.fn(),
+  updateNuernbergspotsReview: vi.fn(),
+  uploadLogo: vi.fn(),
+  uploadBusinessImages: vi.fn(),
+  uploadReviewImages: vi.fn(),
 };
 
 const mockBusinessCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
 const mockKeywordService = {
-  getKeyword: jest.fn(),
+  getKeyword: vi.fn(),
 };
 
-jest.mock('@/services/businessService', () => ({
+vi.mock('@/services/businessService', async () => ({
   useBusinessService: () => mockBusinessService,
 }));
 
-jest.mock('@/services/businessCategoryService', () => ({
+vi.mock('@/services/businessCategoryService', async () => ({
   useBusinessCategoryService: () => mockBusinessCategoryService,
 }));
 
-jest.mock('@/services/keywordService', () => ({
+vi.mock('@/services/keywordService', async () => ({
   useKeywordService: () => mockKeywordService,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -61,8 +63,8 @@ jest.mock('@/components/ui/card', () => ({
   CardDescription: ({ children }: any) => <div data-testid="card-description">{children}</div>,
 }));
 
-jest.mock('@/components/ui/button', () => ({
-  buttonVariants: jest.fn((props: { variant?: string } = {}) => {
+vi.mock('@/components/ui/button', async () => ({
+  buttonVariants: vi.fn((props: { variant?: string } = {}) => {
     const baseClasses = 'inline-flex items-center justify-center rounded-md text-sm font-medium';
     const variantClasses: Record<string, string> = {
       default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -87,7 +89,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, id, type, className }: any) => (
     <input
       value={value}
@@ -101,7 +103,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/textarea', () => ({
+vi.mock('@/components/ui/textarea', async () => ({
   Textarea: ({ value, onChange, placeholder, className, id }: any) => (
     <textarea
       id={id}
@@ -114,7 +116,7 @@ jest.mock('@/components/ui/textarea', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => (
     <label htmlFor={htmlFor} data-testid="label">
       {children}
@@ -122,7 +124,7 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant, className, onClick }: any) => (
     <span data-testid="badge" data-variant={variant} className={className} onClick={onClick}>
       {children}
@@ -130,7 +132,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
     <input
       type="checkbox"
@@ -142,7 +144,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ value, onValueChange, children }: any) => (
     <div data-testid="select-container">
       <select
@@ -164,7 +166,7 @@ jest.mock('@/components/ui/select', () => ({
   SelectValue: ({ placeholder }: any) => <></>,
 }));
 
-jest.mock('@/components/ui/LocationSearch', () => ({
+vi.mock('@/components/ui/LocationSearch', async () => ({
   LocationSearch: ({ value, onChange, placeholder }: any) => (
     <div data-testid="location-search">
       <input
@@ -202,8 +204,8 @@ jest.mock('@/components/ui/LocationSearch', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Trash2: () => <div data-testid="trash-icon">Trash2</div>,
   Upload: () => <div data-testid="upload-icon">Upload</div>,
@@ -211,10 +213,10 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
@@ -327,7 +329,7 @@ const openSaveDialogAndConfirm = async () => {
 
 describe('EditBusiness Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Stabilize mock responses to prevent infinite loops
     mockBusinessService.getBusiness.mockResolvedValue(mockBusiness);
@@ -420,7 +422,7 @@ describe('EditBusiness Component', () => {
     });
 
     it('sollte Fehler beim Laden der Business-Daten behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.getBusiness.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EditBusiness />);
@@ -432,7 +434,7 @@ describe('EditBusiness Component', () => {
     });
 
     it('sollte Fehler beim Laden der Kategorien behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessCategoryService.getCategories.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<EditBusiness />);
@@ -618,7 +620,7 @@ describe('EditBusiness Component', () => {
     it('sollte Status ändern können', async () => {
       renderWithRouter(<EditBusiness />);
 
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
 
       await waitFor(() => {
@@ -642,7 +644,7 @@ describe('EditBusiness Component', () => {
     it('sollte Fehler beim Status-Update behandeln', async () => {
       renderWithRouter(<EditBusiness />);
 
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.updateBusiness.mockRejectedValue(new Error('Update Error'));
 
       await waitFor(() => {
@@ -674,7 +676,7 @@ describe('EditBusiness Component', () => {
     it('sollte Promoted-Status ändern können', async () => {
       renderWithRouter(<EditBusiness />);
 
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
 
       await waitFor(() => {
@@ -996,7 +998,7 @@ describe('EditBusiness Component', () => {
     it('sollte Änderungen erfolgreich speichern', async () => {
       renderWithRouter(<EditBusiness />);
 
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.updateNuernbergspotsReview.mockResolvedValue(undefined);
       mockBusinessService.updateBusiness.mockResolvedValue(undefined);
 
@@ -1053,7 +1055,7 @@ describe('EditBusiness Component', () => {
     it('sollte Fehler beim Speichern behandeln', async () => {
       renderWithRouter(<EditBusiness />);
 
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.updateBusiness.mockRejectedValue(new Error('Update Error'));
 
       await waitFor(() => {

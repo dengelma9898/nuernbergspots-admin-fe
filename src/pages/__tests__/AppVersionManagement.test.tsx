@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,14 +8,14 @@ import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { AppVersionManagement } from '../AppVersionManagement';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card-header">{children}</div>
@@ -29,7 +31,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className, type }: any) => (
     <button
       onClick={onClick}
@@ -44,7 +46,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, disabled, placeholder, id, className, pattern }: any) => (
     <input
       id={id}
@@ -59,7 +61,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor }: any) => (
     <label htmlFor={htmlFor} data-testid="label">
       {children}
@@ -67,34 +69,34 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Info: () => <div data-testid="info-icon">Info</div>,
   Save: () => <div data-testid="save-icon">Save</div>,
 }));
 
 // Mock Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock error utils
-jest.mock('@/utils/errorUtils', () => ({
-  showUserFriendlyError: jest.fn((error, toast, retry, key) => {
+vi.mock('@/utils/errorUtils', async () => ({
+  showUserFriendlyError: vi.fn((error, toast, retry, key) => {
     toast.error(`Fehler beim ${key}`);
   }),
-  showSuccessMessage: jest.fn((toast, options) => {
+  showSuccessMessage: vi.fn((toast, options) => {
     toast.success(options.title, {
       description: options.description,
     });
@@ -103,22 +105,21 @@ jest.mock('@/utils/errorUtils', () => ({
 
 // Mock AppVersion Service
 const mockAppVersionService = {
-  getMinimumVersion: jest.fn(),
-  setMinimumVersion: jest.fn(),
-  getAllChangelogs: jest.fn().mockResolvedValue([]),
-  getChangelogByVersion: jest.fn().mockResolvedValue(null),
+  getMinimumVersion: vi.fn(),
+  setMinimumVersion: vi.fn(),
+  getAllChangelogs: vi.fn().mockResolvedValue([]),
+  getChangelogByVersion: vi.fn().mockResolvedValue(null),
 };
 
-jest.mock('@/services/appVersionService', () => ({
+vi.mock('@/services/appVersionService', async () => ({
   useAppVersionService: () => mockAppVersionService,
 }));
 
 describe('AppVersionManagement Component', () => {
   const user = userEvent.setup();
-  const { toast } = require('sonner');
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAppVersionService.getMinimumVersion.mockResolvedValue({
       id: 'current',
       minimumVersion: '1.2.3',
@@ -292,7 +293,7 @@ describe('AppVersionManagement Component', () => {
       expect(mockAppVersionService.setMinimumVersion).toHaveBeenCalledWith({
         minimumVersion: '2.0.0',
       });
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Mindestversion aktualisiert');
+      expectToastSuccessTitle(toast.success as Mock, 'Mindestversion aktualisiert');
     });
   });
 

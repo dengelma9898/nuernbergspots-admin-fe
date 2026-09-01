@@ -32,7 +32,7 @@ React-Admin-Dashboard zur Verwaltung der Nürnbergspots-Plattform: Geschäfte, E
 - **State:** React Context (AuthContext)
 - **HTTP:** Axios über `ApiClient` mit Token-Caching
 - **Auth:** Firebase Authentication
-- **Tests:** Jest + React Testing Library; E2E mit Playwright
+- **Tests:** Vitest + React Testing Library; E2E mit Playwright
 - **Deploy:** Firebase Hosting, GitHub Actions
 
 ### 2.3 Projektstruktur
@@ -47,7 +47,7 @@ src/
 ├── hooks/            # Custom Hooks (Page-Logik)
 ├── lib/              # Utilities, designTokens, ApiClient
 ├── utils/            # Helper (errorUtils, csvExport)
-├── test-utils/       # Jest-Hilfen, Mocks
+├── test-utils/       # Test-Hilfen, Mocks
 └── assets/
 ```
 
@@ -79,8 +79,8 @@ E2E optional: `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD` (`.env.e2e.local`, Vorlage
 npm run dev              # vite (default)
 npm run start:dev        # vite --mode dev
 npm run build            # tsc && vite build
-npm run test             # jest (--testTimeout=10000)
-npm run test:coverage    # jest mit Coverage
+npm run test             # vitest run (testTimeout=10000 in vitest.config)
+npm run test:coverage    # vitest run --coverage
 npm run test:e2e         # playwright (nicht in validate)
 npm run validate         # type-check + lint + format:check + test
 ```
@@ -233,7 +233,7 @@ Jede Page muss explizit rendern für:
 Nach jeder Änderung an UI-Komponenten (Copy, Labels, Klassen, A11y-Attribute, Empty-/Error-States, neue/entfernte Controls) muss eine **KI die Änderung selbst verifizieren** — beschränkt auf die **tatsächlich geänderten Stellen**:
 
 1. **Nur das Geänderte prüfen** — kein Voll-App-Audit bei einer kleinen Änderung. Umfang = die diff-eigenen Komponenten/Surfaces.
-2. **DOM-Ebene nachweisen** — die neue Erwartung asserten (Text, `aria-label`, Klassen wie `size-11`/`h-11`, Empty-State, ausgeführter Back-Arrow entfernt) über Jest + React Testing Library.
+2. **DOM-Ebene nachweisen** — die neue Erwartung asserten (Text, `aria-label`, Klassen wie `size-11`/`h-11`, Empty-State, ausgeführter Back-Arrow entfernt) über Vitest + React Testing Library.
 3. **Gegenprobe bei a11y-Attributen** — Icon-only-Buttons ohne sichtbaren Text benötigen `aria-label`/`sr-only`.
 4. **Kontrast-/Farbänderungen** sichtbar (nicht nur via Unit-Test) plausibilisieren; Farbto­ken statt Hardcode.
 5. **Playwright-Pflege** — bei geänderten UI-Flows E2E-Spec (**Playwright**) anpassen: neue/interaktive Elemente abdecken, überholte Assertions entfernen. Ziel: gute E2E-Abdeckung der Kern-Flows, keine veralteten Specs.
@@ -316,12 +316,12 @@ Domänen-Endpunkte (Auszug — vollständig in Services):
 
 ### 7.3 Konfiguration
 
-- Jest: `jest.config.js` — `testTimeout: 10000`
+- Vitest: `vitest.config.ts` — `testTimeout: 10000`, jsdom, `globals: true`
 - Playwright: `playwright.config.ts`
-- Setup: `src/setupTests.ts` — `asyncUtilTimeout: 10000`, `scrollIntoView`-Mock für Radix
-- Test-Utils: `src/shared/__tests__/test-utils.tsx`
+- Setup: `src/setupTests.ts` — `asyncUtilTimeout: 10000`, `scrollIntoView`-Mock für Radix, RTL-FakeTimer-Shim (`global.jest.advanceTimersByTime`)
+- Test-Utils: `src/shared/__tests__/test-utils.tsx`, `src/test-utils/sonnerAssertions.ts`
 
-**Temporär ausgeschlossen:** `CreateBusiness.test.tsx` via `testPathIgnorePatterns`.
+**Temporär ausgeschlossen:** `src/pages/businesses/__tests__/CreateBusiness.test.tsx` via `test.exclude` in `vitest.config.ts`.
 
 ### 7.4 E2E
 
@@ -340,10 +340,10 @@ Domänen-Endpunkte (Auszug — vollständig in Services):
 ### 7.6 Coverage
 
 - **Ziel:** 80–90% (`.cursorrules`)
-- **Jest-Floor (enforced):** ~54% Lines / ~53% Statements in `jest.config.js` — schrittweise erhöhen
-- Ausgeschlossen: `*.d.ts`, `main.tsx`, Re-exports, Test-Dateien
+- **Coverage-Floor (enforced):** Statements 54 / Branches 47 / Functions 50 / Lines 56 via `thresholds` in `vitest.config.ts` (Provider `v8`; misst ~1-2 Punkte niedriger als das frühere Istanbul+Jest) — schrittweise erhöhen
+- Ausgeschlossen: `*.d.ts`, `main.tsx`, Re-exports, Test-Dateien, `src/test-utils/**`
 
-### 7.7 Jest-Stubs (ESM)
+### 7.7 ESM-Stubs
 
 - `src/test-utils/mocks/react-markdown.tsx`
 - `src/test-utils/mocks/remark-gfm.ts`
@@ -369,5 +369,5 @@ Page-Split-Verifikation: Checkliste in [`docs/app_review.html`](docs/app_review.
 
 - [shadcn/ui](https://ui.shadcn.com/)
 - [Tailwind CSS](https://tailwindcss.com/docs)
-- [Jest](https://jestjs.io/docs/getting-started)
+- [Vitest](https://vitest.dev/guide/)
 - [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/)

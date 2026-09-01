@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,32 +7,32 @@ import { useEventService } from '@/services/eventService';
 import { useEventCategoryService } from '@/services/eventCategoryService';
 import { parseCsvFile, buildCsvFile } from '@/utils/csvEventParser';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(() => jest.fn()),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: vi.fn(() => vi.fn()),
 }));
 
-jest.mock('@/services/eventService');
-jest.mock('@/services/eventCategoryService');
-jest.mock('@/utils/csvEventParser', () => ({
-  ...jest.requireActual('@/utils/csvEventParser'),
-  parseCsvFile: jest.fn(),
-  buildCsvFile: jest.fn(),
+vi.mock('@/services/eventService');
+vi.mock('@/services/eventCategoryService');
+vi.mock('@/utils/csvEventParser', async () => ({
+  ...(await vi.importActual('@/utils/csvEventParser')),
+  parseCsvFile: vi.fn(),
+  buildCsvFile: vi.fn(),
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    warning: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    warning: vi.fn(),
   },
 }));
 
-jest.mock('@/utils/errorUtils', () => ({
-  showUserFriendlyError: jest.fn(),
+vi.mock('@/utils/errorUtils', async () => ({
+  showUserFriendlyError: vi.fn(),
 }));
 
-jest.mock('@/components/motion', () => ({
+vi.mock('@/components/motion', async () => ({
   motion: {
     div: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
       <div {...props}>{children}</div>
@@ -40,7 +41,7 @@ jest.mock('@/components/motion', () => ({
   AnimatePresence: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
 
-jest.mock('@/components/LoadingButton', () => ({
+vi.mock('@/components/LoadingButton', async () => ({
   LoadingButton: ({ children, onClick, disabled, isLoading }: any) => (
     <button onClick={onClick} disabled={disabled || isLoading}>
       {children}
@@ -48,7 +49,7 @@ jest.mock('@/components/LoadingButton', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, id }: any) => (
     <input
       id={id}
@@ -64,12 +65,12 @@ const CSV_HEADER =
   'Titel,Beschreibung,Startdatum,Enddatum,Startzeit,Endzeit,Veranstaltungsort,Kategorien,Preis,Tickets,E-Mail,Telefon,Webseite,Social Media,Bild-URL,Detail-URL';
 
 const mockEventService = {
-  importEventsFromCsv: jest.fn(),
-  getEvent: jest.fn(),
+  importEventsFromCsv: vi.fn(),
+  getEvent: vi.fn(),
 };
 
 const mockEventCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
 const createCsvFile = (): File =>
@@ -86,11 +87,11 @@ const renderPage = () =>
 
 describe('CsvEventImport', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useEventService as jest.Mock).mockReturnValue(mockEventService);
-    (useEventCategoryService as jest.Mock).mockReturnValue(mockEventCategoryService);
+    vi.clearAllMocks();
+    (useEventService as Mock).mockReturnValue(mockEventService);
+    (useEventCategoryService as Mock).mockReturnValue(mockEventCategoryService);
     mockEventCategoryService.getCategories.mockResolvedValue([]);
-    (parseCsvFile as jest.Mock).mockResolvedValue([
+    (parseCsvFile as Mock).mockResolvedValue([
       {
         rowIndex: 1,
         data: {
@@ -113,7 +114,7 @@ describe('CsvEventImport', () => {
         },
       },
     ]);
-    (buildCsvFile as jest.Mock).mockImplementation(
+    (buildCsvFile as Mock).mockImplementation(
       (rows: unknown[], name: string) =>
         new File(['filtered'], `${name}-auswahl.csv`, { type: 'text/csv' })
     );

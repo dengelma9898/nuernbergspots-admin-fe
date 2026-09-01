@@ -1,3 +1,6 @@
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -5,21 +8,21 @@ import { Analytics } from '../Analytics';
 import { useBusinessService } from '../../services/businessService';
 import { useAnalyticsService } from '../../services/analyticsService';
 import { DashboardAnalytics, BusinessAnalytics, CustomerScan } from '../../models/business';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 // Mock alle externen Dependencies
-jest.mock('../../lib/api', () => ({
-  apiRequest: jest.fn(),
+vi.mock('../../lib/api', async () => ({
+  apiRequest: vi.fn(),
 }));
-jest.mock('../../services/businessService');
-jest.mock('../../services/analyticsService');
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
+vi.mock('../../services/businessService');
+vi.mock('../../services/analyticsService');
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useNavigate: vi.fn(),
 }));
 
 // Mock shadcn/ui components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -47,7 +50,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/progress', () => ({
+vi.mock('@/components/ui/progress', async () => ({
   Progress: ({ value, className }: any) => (
     <div className={className} data-testid="progress" data-value={value}>
       Progress: {value}%
@@ -55,7 +58,7 @@ jest.mock('@/components/ui/progress', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
     <button
       onClick={onClick}
@@ -69,7 +72,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className }: any) => (
     <div className={className} data-testid="skeleton">
       Loading...
@@ -77,7 +80,7 @@ jest.mock('@/components/ui/skeleton', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/select', () => ({
+vi.mock('@/components/ui/select', async () => ({
   Select: ({ children, value, onValueChange }: any) => (
     <div
       data-testid="select"
@@ -102,8 +105,8 @@ jest.mock('@/components/ui/select', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Store: () => <div data-testid="store-icon">Store</div>,
   TrendingUp: () => <div data-testid="trending-up-icon">TrendingUp</div>,
   TrendingDown: () => <div data-testid="trending-down-icon">TrendingDown</div>,
@@ -119,15 +122,15 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock PricingCalculator component
-jest.mock('@/components/PricingCalculator', () => ({
+vi.mock('@/components/PricingCalculator', async () => ({
   PricingCalculator: ({ analytics }: any) => (
     <div data-testid="pricing-calculator">
       Pricing Calculator: {analytics?.length || 0} businesses
@@ -135,12 +138,12 @@ jest.mock('@/components/PricingCalculator', () => ({
   ),
 }));
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 const mockBusinessService = {
-  getCustomerScans: jest.fn(),
+  getCustomerScans: vi.fn(),
 };
 const mockAnalyticsService = {
-  calculateDashboardAnalytics: jest.fn(),
+  calculateDashboardAnalytics: vi.fn(),
 };
 
 // Mock-Daten
@@ -233,10 +236,10 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('Analytics Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (require('react-router-dom').useNavigate as jest.Mock).mockReturnValue(mockNavigate);
-    (useBusinessService as jest.Mock).mockReturnValue(mockBusinessService);
-    (useAnalyticsService as jest.Mock).mockReturnValue(mockAnalyticsService);
+    vi.clearAllMocks();
+    (vi.mocked(useNavigate) as Mock).mockReturnValue(mockNavigate);
+    (useBusinessService as Mock).mockReturnValue(mockBusinessService);
+    (useAnalyticsService as Mock).mockReturnValue(mockAnalyticsService);
 
     // Standard mock setup
     mockBusinessService.getCustomerScans.mockResolvedValue(mockCustomerScans);
@@ -333,7 +336,7 @@ describe('Analytics Component', () => {
     });
 
     it('sollte Fehler beim Laden der Analytics behandeln', async () => {
-      const mockToast = require('sonner').toast;
+      const mockToast = toast;
       mockBusinessService.getCustomerScans.mockRejectedValue(new Error('API Error'));
 
       renderWithRouter(<Analytics />);
@@ -647,7 +650,7 @@ describe('Analytics Component', () => {
 
   describe('Error Handling', () => {
     it('sollte Konsolen-Fehler bei Analytics-Laden loggen', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       mockBusinessService.getCustomerScans.mockRejectedValue(new Error('Network Error'));
 
       renderWithRouter(<Analytics />);

@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../tabs';
 
 describe('Tabs Komponente', () => {
@@ -491,7 +491,7 @@ describe('Tabs Komponente', () => {
 
     it('sollte onValueChange callback aufrufen', async () => {
       const user = userEvent.setup();
-      const onValueChange = jest.fn();
+      const onValueChange = vi.fn();
 
       render(
         <Tabs defaultValue="tab1" onValueChange={onValueChange}>

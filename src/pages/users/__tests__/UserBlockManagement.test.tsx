@@ -1,3 +1,4 @@
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,13 +7,13 @@ import { useUserService } from '@/services/userService';
 import { User, UserType } from '@/models/users';
 
 // Mock API module
-jest.mock('@/lib/api', () => ({
-  useApi: jest.fn(() => ({
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    patch: jest.fn(),
-    delete: jest.fn(),
+vi.mock('@/lib/api', async () => ({
+  useApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
   })),
   endpoints: {
     users: '/users',
@@ -23,29 +24,29 @@ jest.mock('@/lib/api', () => ({
 }));
 
 // Mock Auth Context
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
+vi.mock('@/contexts/AuthContext', async () => ({
+  useAuth: vi.fn(() => ({
     user: { uid: 'test-user', email: 'test@example.com' },
     loading: false,
   })),
 }));
 
 // Mock der Services
-jest.mock('@/services/userService');
-const mockUserService = useUserService as jest.MockedFunction<typeof useUserService>;
+vi.mock('@/services/userService');
+const mockUserService = useUserService as MockedFunction<typeof useUserService>;
 
 // Mock von React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -81,13 +82,13 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('UserBlockManagement', () => {
   const mockService = {
-    getAllUsers: jest.fn(),
-    blockUser: jest.fn(),
-    searchUsers: jest.fn(),
+    getAllUsers: vi.fn(),
+    blockUser: vi.fn(),
+    searchUsers: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockNavigate.mockClear();
     mockUserService.mockReturnValue(mockService as any);
   });

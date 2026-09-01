@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import {
   Table,
@@ -69,7 +69,7 @@ const TestTable = ({ children, ...props }: { children?: React.ReactNode }) => (
 describe('Table Components', () => {
   beforeEach(() => {
     // Reset mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Table', () => {
@@ -700,7 +700,7 @@ describe('Table Components', () => {
   describe('Interaktionen', () => {
     it('sollte Row Click Handler unterstützen', async () => {
       const user = userEvent.setup();
-      const onRowClick = jest.fn();
+      const onRowClick = vi.fn();
 
       render(
         <Table>
@@ -718,7 +718,7 @@ describe('Table Components', () => {
 
     it('sollte Cell Click Handler unterstützen', async () => {
       const user = userEvent.setup();
-      const onCellClick = jest.fn();
+      const onCellClick = vi.fn();
 
       render(
         <Table>

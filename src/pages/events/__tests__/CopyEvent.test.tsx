@@ -5,44 +5,44 @@ import { CopyEvent } from '../CopyEvent';
 import { EventCategory } from '@/models/event-category';
 import { Event } from '@/models/events';
 
-const mockNavigate = jest.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
   useParams: () => ({ id: 'event-1' }),
 }));
 
 const mockEventService = {
-  getEvent: jest.fn(),
-  createEvent: jest.fn(),
-  uploadEventTitleImage: jest.fn(),
-  uploadEventImages: jest.fn(),
-  setEventTitleImage: jest.fn(),
-  updateEventImages: jest.fn(),
+  getEvent: vi.fn(),
+  createEvent: vi.fn(),
+  uploadEventTitleImage: vi.fn(),
+  uploadEventImages: vi.fn(),
+  setEventTitleImage: vi.fn(),
+  updateEventImages: vi.fn(),
 };
 
 const mockEventCategoryService = {
-  getCategories: jest.fn(),
+  getCategories: vi.fn(),
 };
 
-jest.mock('@/services/eventService', () => ({
+vi.mock('@/services/eventService', async () => ({
   useEventService: () => mockEventService,
 }));
 
-jest.mock('@/services/eventCategoryService', () => ({
+vi.mock('@/services/eventCategoryService', async () => ({
   useEventCategoryService: () => mockEventCategoryService,
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
-jest.mock('@/components/ui/LocationSearch', () => ({
+vi.mock('@/components/ui/LocationSearch', async () => ({
   LocationSearch: ({ placeholder }: { placeholder?: string }) => (
     <div data-testid="location-search">{placeholder}</div>
   ),
@@ -87,10 +87,10 @@ const mockCategories: EventCategory[] = [
 
 describe('CopyEvent', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockEventService.getEvent.mockResolvedValue(mockEvent);
     mockEventCategoryService.getCategories.mockResolvedValue(mockCategories);
-    global.fetch = jest.fn().mockRejectedValue(new Error('CORS'));
+    global.fetch = vi.fn().mockRejectedValue(new Error('CORS'));
   });
 
   const renderCopyEvent = () =>

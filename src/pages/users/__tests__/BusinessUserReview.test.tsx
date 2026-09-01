@@ -1,3 +1,4 @@
+import type { MockedFunction } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -7,13 +8,13 @@ import { BusinessUser } from '@/models/users';
 import { toast } from 'sonner';
 
 // Mock API module
-jest.mock('@/lib/api', () => ({
-  useApi: jest.fn(() => ({
-    get: jest.fn(),
-    post: jest.fn(),
-    put: jest.fn(),
-    delete: jest.fn(),
-    patch: jest.fn(),
+vi.mock('@/lib/api', async () => ({
+  useApi: vi.fn(() => ({
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn(),
+    patch: vi.fn(),
   })),
   endpoints: {
     businesses: '/businesses',
@@ -26,29 +27,29 @@ jest.mock('@/lib/api', () => ({
 }));
 
 // Mock Auth Context
-jest.mock('@/contexts/AuthContext', () => ({
-  useAuth: jest.fn(() => ({
+vi.mock('@/contexts/AuthContext', async () => ({
+  useAuth: vi.fn(() => ({
     user: { uid: 'test-user', email: 'test@example.com' },
     loading: false,
   })),
 }));
 
 // Mock der Services
-jest.mock('@/services/userService');
-const mockUserService = useUserService as jest.MockedFunction<typeof useUserService>;
+vi.mock('@/services/userService');
+const mockUserService = useUserService as MockedFunction<typeof useUserService>;
 
 // Mock von React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock von Sonner Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
@@ -86,28 +87,28 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('BusinessUserReview', () => {
   const mockService = {
-    getBusinessUsersInReview: jest.fn(),
-    updateBusinessUserReviewStatus: jest.fn(),
-    getBusinessUsersInReviewCount: jest.fn(),
-    getUserProfile: jest.fn(),
-    updateUserProfile: jest.fn(),
-    getBusinessUsers: jest.fn(),
-    getBusinessUser: jest.fn(),
-    updateBusinessUser: jest.fn(),
-    deleteBusinessUser: jest.fn(),
-    addFavoriteBusiness: jest.fn(),
-    removeFavoriteBusiness: jest.fn(),
-    addFavoriteEvent: jest.fn(),
-    removeFavoriteEvent: jest.fn(),
-    updatePreferences: jest.fn(),
+    getBusinessUsersInReview: vi.fn(),
+    updateBusinessUserReviewStatus: vi.fn(),
+    getBusinessUsersInReviewCount: vi.fn(),
+    getUserProfile: vi.fn(),
+    updateUserProfile: vi.fn(),
+    getBusinessUsers: vi.fn(),
+    getBusinessUser: vi.fn(),
+    updateBusinessUser: vi.fn(),
+    deleteBusinessUser: vi.fn(),
+    addFavoriteBusiness: vi.fn(),
+    removeFavoriteBusiness: vi.fn(),
+    addFavoriteEvent: vi.fn(),
+    removeFavoriteEvent: vi.fn(),
+    updatePreferences: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockNavigate.mockClear();
     mockUserService.mockReturnValue(mockService);
-    (toast.success as jest.Mock).mockClear();
-    (toast.error as jest.Mock).mockClear();
+    (toast.success as Mock).mockClear();
+    (toast.error as Mock).mockClear();
   });
 
   describe('Loading State', () => {

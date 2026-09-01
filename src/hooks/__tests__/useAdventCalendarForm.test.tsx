@@ -1,22 +1,22 @@
 import React from 'react';
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { useAdventCalendarForm } from '@/hooks/useAdventCalendarForm';
 
-const mockNavigate = jest.fn();
-const mockCreate = jest.fn();
-const mockUpdate = jest.fn();
-const mockGetById = jest.fn();
-const mockUploadImage = jest.fn();
+const mockNavigate = vi.fn();
+const mockCreate = vi.fn();
+const mockUpdate = vi.fn();
+const mockGetById = vi.fn();
+const mockUploadImage = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@/services/adventCalendarService', () => ({
+vi.mock('@/services/adventCalendarService', async () => ({
   useAdventCalendarService: () => ({
     create: mockCreate,
     update: mockUpdate,
@@ -25,18 +25,18 @@ jest.mock('@/services/adventCalendarService', () => ({
   }),
 }));
 
-jest.mock('@/hooks/useValidatedImageUpload', () => ({
+vi.mock('@/hooks/useValidatedImageUpload', async () => ({
   useValidatedImageUpload: () => ({
     files: [],
     previewUrls: [],
     error: null,
-    handleFileChange: jest.fn(),
-    clearImages: jest.fn(),
+    handleFileChange: vi.fn(),
+    clearImages: vi.fn(),
   }),
 }));
 
-jest.mock('sonner', () => ({
-  toast: { success: jest.fn(), error: jest.fn() },
+vi.mock('sonner', async () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 const createWrapper = (path: string) =>
@@ -53,7 +53,7 @@ const createWrapper = (path: string) =>
 
 describe('useAdventCalendarForm', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockCreate.mockResolvedValue({ id: 'new-1' });
     mockUpdate.mockResolvedValue({ id: 'entry-1' });
     mockGetById.mockResolvedValue({
@@ -76,7 +76,7 @@ describe('useAdventCalendarForm', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
       } as unknown as React.FormEvent);
     });
 
@@ -95,7 +95,7 @@ describe('useAdventCalendarForm', () => {
 
     await act(async () => {
       await result.current.handleSubmit({
-        preventDefault: jest.fn(),
+        preventDefault: vi.fn(),
       } as unknown as React.FormEvent);
     });
 

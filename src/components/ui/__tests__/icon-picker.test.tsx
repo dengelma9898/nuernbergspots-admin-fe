@@ -1,33 +1,33 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { IconPicker } from '../icon-picker';
 
-jest.mock('@/lib/allowed-material-icons', () => ({
+vi.mock('@/lib/allowed-material-icons', () => ({
   ALLOWED_MATERIAL_ICONS: ['home', 'restaurant', 'local_cafe', 'storefront'],
 }));
 
-jest.mock('../material-icon', () => ({
+vi.mock('../material-icon', () => ({
   MaterialIcon: ({ icon }: { icon: string }) => <span data-testid={`icon-${icon}`}>{icon}</span>,
 }));
 
 const mockVirtualizer = {
-  getVirtualItems: jest.fn(() => [
+  getVirtualItems: vi.fn(() => [
     { index: 0, start: 0, size: 40, end: 40, key: '0' },
     { index: 1, start: 40, size: 40, end: 80, key: '1' },
   ]),
-  getTotalSize: jest.fn(() => 80),
-  scrollToIndex: jest.fn(),
-  scrollToOffset: jest.fn(),
+  getTotalSize: vi.fn(() => 80),
+  scrollToIndex: vi.fn(),
+  scrollToOffset: vi.fn(),
 };
 
-jest.mock('@tanstack/react-virtual', () => ({
-  useVirtualizer: jest.fn(() => mockVirtualizer),
+vi.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: vi.fn(() => mockVirtualizer),
 }));
 
-jest.mock('../input', () => ({
+vi.mock('../input', () => ({
   Input: React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
     ({ className, ...props }, ref) => (
       <input ref={ref} data-testid="search-input" className={className} {...props} />
@@ -35,7 +35,7 @@ jest.mock('../input', () => ({
   ),
 }));
 
-jest.mock('../scroll-area', () => ({
+vi.mock('../scroll-area', () => ({
   ScrollArea: React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
     ({ children, className, ...props }, ref) => (
       <div ref={ref} data-testid="scroll-area" className={className} {...props}>
@@ -46,7 +46,7 @@ jest.mock('../scroll-area', () => ({
 }));
 
 describe('IconPicker Component', () => {
-  const mockOnChange = jest.fn();
+  const mockOnChange = vi.fn();
   const defaultProps = {
     value: '',
     onChange: mockOnChange,

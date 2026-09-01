@@ -10,6 +10,7 @@
     },
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "node"],
 
     /* Bundler mode */
     "allowImportingTsExtensions": true,

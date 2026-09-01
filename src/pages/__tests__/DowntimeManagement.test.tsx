@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,14 +11,14 @@ import {
 } from '@/test-utils/sonnerAssertions';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card-header">{children}</div>
@@ -32,7 +34,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
     <button
       onClick={onClick}
@@ -46,13 +48,13 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ checked, onCheckedChange, disabled }: any) => (
     <button
       data-testid="switch"
@@ -66,7 +68,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/alert-dialog', () => ({
+vi.mock('@/components/ui/alert-dialog', async () => ({
   AlertDialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="alert-dialog" data-open={open}>
       {open && children}
@@ -112,36 +114,35 @@ jest.mock('@/components/ui/alert-dialog', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   AlertTriangle: () => <div data-testid="alert-triangle-icon">AlertTriangle</div>,
 }));
 
 // Mock Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock Downtime Service
 const mockDowntimeService = {
-  getDowntimeStatus: jest.fn(),
-  setDowntimeStatus: jest.fn(),
+  getDowntimeStatus: vi.fn(),
+  setDowntimeStatus: vi.fn(),
 };
 
-jest.mock('@/services/downtimeService', () => ({
+vi.mock('@/services/downtimeService', async () => ({
   useDowntimeService: () => mockDowntimeService,
 }));
 
 describe('DowntimeManagement Component', () => {
   const user = userEvent.setup();
-  const { toast } = require('sonner');
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockDowntimeService.getDowntimeStatus.mockResolvedValue({
       isDowntime: false,
     });

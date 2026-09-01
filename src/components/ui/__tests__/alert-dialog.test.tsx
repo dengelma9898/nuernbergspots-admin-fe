@@ -1,7 +1,8 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import {
   AlertDialog,
@@ -18,11 +19,11 @@ import {
 } from '../alert-dialog';
 
 // Mock für @radix-ui/react-alert-dialog
-const mockOnOpenChange = jest.fn();
-const mockOnAction = jest.fn();
-const mockOnCancel = jest.fn();
+const mockOnOpenChange = vi.fn();
+const mockOnAction = vi.fn();
+const mockOnCancel = vi.fn();
 
-jest.mock('@radix-ui/react-alert-dialog', () => ({
+vi.mock('@radix-ui/react-alert-dialog', () => ({
   Root: React.forwardRef<HTMLDivElement, any>(({ children, onOpenChange, open, ...props }, ref) => (
     <div
       ref={ref}
@@ -99,8 +100,8 @@ jest.mock('@radix-ui/react-alert-dialog', () => ({
 }));
 
 // Mock für button variants
-jest.mock('@/components/ui/button', () => ({
-  buttonVariants: jest.fn((props = {}) => {
+vi.mock('@/components/ui/button', () => ({
+  buttonVariants: vi.fn((props = {}) => {
     const baseClasses = 'inline-flex items-center justify-center rounded-md text-sm font-medium';
     const variantClasses = {
       default: 'bg-primary text-primary-foreground hover:bg-primary/90',
@@ -116,7 +117,7 @@ jest.mock('@/components/ui/button', () => ({
 
 describe('AlertDialog Components', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('AlertDialog (Root)', () => {
@@ -145,7 +146,7 @@ describe('AlertDialog Components', () => {
     });
 
     it('sollte onOpenChange callback unterstützen', () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(
         <AlertDialog onOpenChange={onOpenChange}>
@@ -185,7 +186,7 @@ describe('AlertDialog Components', () => {
     });
 
     it('sollte als Button funktionieren', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(<AlertDialogTrigger onClick={onClick}>Click me</AlertDialogTrigger>);
 
@@ -288,7 +289,7 @@ describe('AlertDialog Components', () => {
     });
 
     it('sollte Events unterstützen', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(<AlertDialogOverlay onClick={onClick} />);
 
@@ -589,7 +590,7 @@ describe('AlertDialog Components', () => {
     });
 
     it('sollte Click-Events handhaben', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(<AlertDialogAction onClick={onClick}>Click me</AlertDialogAction>);
 
@@ -652,7 +653,7 @@ describe('AlertDialog Components', () => {
     });
 
     it('sollte Click-Events handhaben', () => {
-      const onClick = jest.fn();
+      const onClick = vi.fn();
 
       render(<AlertDialogCancel onClick={onClick}>Cancel</AlertDialogCancel>);
 
@@ -720,8 +721,8 @@ describe('AlertDialog Components', () => {
 
     it('sollte User-Interaktionen handhaben', async () => {
       const user = userEvent.setup();
-      const onActionClick = jest.fn();
-      const onCancelClick = jest.fn();
+      const onActionClick = vi.fn();
+      const onCancelClick = vi.fn();
 
       render(
         <AlertDialog open={true}>

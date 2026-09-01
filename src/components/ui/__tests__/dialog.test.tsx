@@ -1,7 +1,8 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import {
   Dialog,
@@ -17,15 +18,15 @@ import {
 } from '../dialog';
 
 // Mock für lucide-react
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   XIcon: () => <svg data-testid="x-icon">X</svg>,
 }));
 
 // Dialog Testkomponente für bessere Testbarkeit
 const TestDialog = ({
   open = false,
-  onOpenChange = jest.fn(),
+  onOpenChange = vi.fn(),
   children,
   ...props
 }: {
@@ -105,7 +106,7 @@ describe('Dialog Components', () => {
     });
 
     it('sollte Dialog öffnen wenn geklickt', async () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(
         <Dialog onOpenChange={onOpenChange}>
@@ -154,7 +155,7 @@ describe('Dialog Components', () => {
     });
 
     it('sollte Dialog schließen wenn geklickt', async () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(
         <Dialog open onOpenChange={onOpenChange}>
@@ -251,7 +252,7 @@ describe('Dialog Components', () => {
     });
 
     it('sollte Dialog schließen wenn X-Button geklickt wird', async () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(
         <Dialog open onOpenChange={onOpenChange}>
@@ -407,7 +408,7 @@ describe('Dialog Components', () => {
 
   describe('Vollständiger Dialog Test', () => {
     it('sollte kompletten Dialog-Workflow testen', async () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(<TestDialog onOpenChange={onOpenChange} />);
 
@@ -434,7 +435,7 @@ describe('Dialog Components', () => {
     });
 
     it('sollte Escape-Taste zum Schließen unterstützen', async () => {
-      const onOpenChange = jest.fn();
+      const onOpenChange = vi.fn();
 
       render(<TestDialog open={true} onOpenChange={onOpenChange} />);
 

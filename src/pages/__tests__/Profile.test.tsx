@@ -1,3 +1,4 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -5,35 +6,35 @@ import { Profile } from '../Profile';
 import { toast } from 'sonner';
 
 // Mock Services
-const mockGetCurrentUser = jest.fn();
-const mockNavigate = jest.fn();
+const mockGetCurrentUser = vi.fn();
+const mockNavigate = vi.fn();
 
-jest.mock('../../services/userService', () => ({
+vi.mock('../../services/userService', async () => ({
   useUserService: () => ({
     getUserProfile: mockGetCurrentUser,
   }),
 }));
 
-jest.mock('react-router-dom', () => ({
+vi.mock('react-router-dom', async () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('../../contexts/AuthContext', () => ({
+vi.mock('../../contexts/AuthContext', async () => ({
   useAuth: () => ({
     user: {
       uid: 'test-user-id',
       email: 'test@example.com',
     },
-    logout: jest.fn(),
+    logout: vi.fn(),
     getUserId: () => 'test-user-id',
-    login: jest.fn(),
+    login: vi.fn(),
     loading: false,
     isAuthenticated: true,
   }),
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, className }: any) => (
     <div className={className} data-testid="card">
       {children}
@@ -44,7 +45,7 @@ jest.mock('@/components/ui/card', () => ({
   CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, variant, className }: any) => (
     <button onClick={onClick} className={className} data-variant={variant}>
       {children}
@@ -52,7 +53,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/avatar', () => ({
+vi.mock('@/components/ui/avatar', async () => ({
   Avatar: ({ children, className }: any) => (
     <div className={className} data-testid="avatar">
       {children}
@@ -62,7 +63,7 @@ jest.mock('@/components/ui/avatar', () => ({
   AvatarImage: ({ src }: any) => <img src={src} data-testid="avatar-image" />,
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, variant }: any) => (
     <span data-testid="badge" data-variant={variant}>
       {children}
@@ -71,8 +72,8 @@ jest.mock('@/components/ui/badge', () => ({
 }));
 
 // Mock Lucide Icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <span data-testid="arrow-left-icon" />,
   User: () => <span data-testid="user-icon" />,
   Calendar: () => <span data-testid="calendar-icon" />,
@@ -84,16 +85,16 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Sonner Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
 describe('Profile Component', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetCurrentUser.mockResolvedValue({
       id: 'test-user-id',
       email: 'test@example.com',

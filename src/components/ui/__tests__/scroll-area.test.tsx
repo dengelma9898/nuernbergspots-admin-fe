@@ -1,11 +1,12 @@
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 
 import { ScrollArea, ScrollBar } from '../scroll-area';
 
 // Mock für @radix-ui/react-scroll-area
-jest.mock('@radix-ui/react-scroll-area', () => ({
+vi.mock('@radix-ui/react-scroll-area', () => ({
   Root: React.forwardRef<HTMLDivElement, any>(({ children, className, ...props }, ref) => (
     <div ref={ref} data-testid="scroll-area-root" className={className} {...props}>
       {children}
@@ -289,7 +290,7 @@ describe('ScrollArea Component', () => {
 
   describe('Scroll Behavior', () => {
     it('sollte Scroll-Events unterstützen', () => {
-      const onScroll = jest.fn();
+      const onScroll = vi.fn();
 
       render(
         <ScrollArea onScroll={onScroll}>
@@ -494,7 +495,7 @@ describe('ScrollBar Component', () => {
     });
 
     it('sollte onPointerDown Events unterstützen', () => {
-      const onPointerDown = jest.fn();
+      const onPointerDown = vi.fn();
 
       render(<ScrollBar onPointerDown={onPointerDown} />);
 
@@ -556,7 +557,7 @@ describe('ScrollBar Component', () => {
           orientation="horizontal"
           className="custom-style bg-gray-200"
           style={{ minHeight: '12px' }}
-          onPointerDown={jest.fn()}
+          onPointerDown={vi.fn()}
         />
       );
 

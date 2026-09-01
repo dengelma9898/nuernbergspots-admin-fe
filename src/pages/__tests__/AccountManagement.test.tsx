@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,14 +8,14 @@ import { expectToastSuccessTitle } from '@/test-utils/sonnerAssertions';
 import { AccountManagement } from '../AccountManagement';
 
 // Mock React Router
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock UI Components
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
   CardHeader: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="card-header">{children}</div>
@@ -29,7 +31,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
     <button
       onClick={onClick}
@@ -43,13 +45,13 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/alert-dialog', () => ({
+vi.mock('@/components/ui/alert-dialog', async () => ({
   AlertDialog: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="alert-dialog">{children}</div>
   ),
@@ -88,8 +90,8 @@ jest.mock('@/components/ui/alert-dialog', () => ({
 }));
 
 // Mock Lucide React icons
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   ArrowLeft: () => <div data-testid="arrow-left-icon">ArrowLeft</div>,
   Trash2: () => <div data-testid="trash2-icon">Trash2</div>,
   Users: () => <div data-testid="users-icon">Users</div>,
@@ -98,38 +100,37 @@ jest.mock('lucide-react', () => ({
 }));
 
 // Mock Toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 // Mock Account Management Service
 const mockAccountManagementService = {
-  getAnonymousAccountStats: jest.fn(),
-  cleanupAnonymousAccounts: jest.fn(),
+  getAnonymousAccountStats: vi.fn(),
+  cleanupAnonymousAccounts: vi.fn(),
 };
 
-jest.mock('@/services/accountManagementService', () => ({
+vi.mock('@/services/accountManagementService', async () => ({
   useAccountManagementService: () => mockAccountManagementService,
 }));
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  format: jest.fn(() => '15.01.2024'),
+vi.mock('date-fns', async () => ({
+  format: vi.fn(() => '15.01.2024'),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
 describe('AccountManagement Component', () => {
   const user = userEvent.setup();
-  const { toast } = require('sonner');
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockAccountManagementService.getAnonymousAccountStats.mockResolvedValue({
       total: 150,
       oldAccounts: 25,
@@ -284,7 +285,7 @@ describe('AccountManagement Component', () => {
 
     await waitFor(() => {
       expect(mockAccountManagementService.cleanupAnonymousAccounts).toHaveBeenCalledTimes(1);
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Anonyme Accounts erfolgreich bereinigt');
+      expectToastSuccessTitle(toast.success as Mock, 'Anonyme Accounts erfolgreich bereinigt');
     });
   });
 

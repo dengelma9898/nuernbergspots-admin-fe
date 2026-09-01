@@ -1,3 +1,6 @@
+import { toast as mockToast } from 'sonner';
+import { downloadCsv } from '@/utils/csvExport';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
@@ -6,44 +9,42 @@ import { ContactRequests } from '../ContactRequests';
 import { ContactRequest, ContactRequestType } from '@/models/contact-requests';
 
 // Mock react-router-dom
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock services
 const mockContactService = {
-  getContactRequests: jest.fn(),
-  getContactRequestById: jest.fn(),
-  respondToContactRequest: jest.fn(),
-  getOpenContactRequestsCount: jest.fn(),
+  getContactRequests: vi.fn(),
+  getContactRequestById: vi.fn(),
+  respondToContactRequest: vi.fn(),
+  getOpenContactRequestsCount: vi.fn(),
 };
 
-jest.mock('@/services/contactService', () => ({
+vi.mock('@/services/contactService', async () => ({
   useContactService: () => mockContactService,
 }));
 
 // Mock toast
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    success: jest.fn(),
-    error: jest.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
   },
 }));
 
-jest.mock('@/utils/csvExport', () => ({
-  downloadCsv: jest.fn(),
+vi.mock('@/utils/csvExport', async () => ({
+  downloadCsv: vi.fn(),
 }));
-
-const { toast: mockToast } = require('sonner');
 
 // Mock date-fns
-jest.mock('date-fns', () => ({
-  format: jest.fn(() => '01.01.2024 10:30'),
+vi.mock('date-fns', async () => ({
+  format: vi.fn(() => '01.01.2024 10:30'),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
@@ -115,7 +116,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe('ContactRequests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockContactService.getContactRequests.mockResolvedValue(mockContactRequests);
   });
 
@@ -383,7 +384,7 @@ describe('ContactRequests', () => {
 
       await waitFor(() => {
         expectToastSuccessTitle(
-          mockToast.success as jest.Mock,
+          mockToast.success as Mock,
           'Kontaktanfragen erfolgreich aktualisiert'
         );
       });
@@ -434,8 +435,6 @@ describe('ContactRequests', () => {
 
   describe('CSV Export', () => {
     it('sollte Kontaktanfragen als CSV exportieren', async () => {
-      const { downloadCsv } = require('@/utils/csvExport');
-
       await act(async () => {
         renderWithRouter(<ContactRequests />);
       });

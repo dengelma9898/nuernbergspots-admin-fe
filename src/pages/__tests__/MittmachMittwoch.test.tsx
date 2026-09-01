@@ -1,3 +1,5 @@
+import { toast } from 'sonner';
+import type { Mock } from 'vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -9,26 +11,26 @@ import { UserType } from '@/models/users';
 
 import MittmachMittwoch from '../MittmachMittwoch';
 
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
-const mockGetUserProfile = jest.fn();
-jest.mock('@/services/userService', () => ({
+const mockGetUserProfile = vi.fn();
+vi.mock('@/services/userService', async () => ({
   useUserService: () => ({
     getUserProfile: mockGetUserProfile,
   }),
 }));
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', async () => ({
   useAuth: () => ({
     getUserId: () => 'test-user-id',
   }),
 }));
 
-jest.mock('@/components/ui/card', () => ({
+vi.mock('@/components/ui/card', async () => ({
   Card: ({ children, onClick, className }: any) => (
     <div data-testid="card" onClick={onClick} className={className}>
       {children}
@@ -48,7 +50,7 @@ jest.mock('@/components/ui/card', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/badge', () => ({
+vi.mock('@/components/ui/badge', async () => ({
   Badge: ({ children, className }: any) => (
     <span data-testid="badge" className={className}>
       {children}
@@ -56,7 +58,7 @@ jest.mock('@/components/ui/badge', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/button', () => ({
+vi.mock('@/components/ui/button', async () => ({
   Button: ({ children, onClick, disabled, variant, className }: any) => (
     <button
       onClick={onClick}
@@ -70,7 +72,7 @@ jest.mock('@/components/ui/button', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/dialog', () => ({
+vi.mock('@/components/ui/dialog', async () => ({
   Dialog: ({ children, open, onOpenChange }: any) => (
     <div data-testid="dialog" data-open={open} onClick={() => onOpenChange && onOpenChange(false)}>
       {children}
@@ -93,7 +95,7 @@ jest.mock('@/components/ui/dialog', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/input', () => ({
+vi.mock('@/components/ui/input', async () => ({
   Input: ({ value, onChange, placeholder, onKeyDown, disabled }: any) => (
     <input
       value={value}
@@ -106,7 +108,7 @@ jest.mock('@/components/ui/input', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/label', () => ({
+vi.mock('@/components/ui/label', async () => ({
   Label: ({ children, htmlFor, className }: any) => (
     <label htmlFor={htmlFor} className={className}>
       {children}
@@ -114,13 +116,13 @@ jest.mock('@/components/ui/label', () => ({
   ),
 }));
 
-jest.mock('@/components/ui/skeleton', () => ({
+vi.mock('@/components/ui/skeleton', async () => ({
   Skeleton: ({ className, ...props }: any) => (
     <div data-slot="skeleton" className={className} {...props} />
   ),
 }));
 
-jest.mock('@/components/ui/switch', () => ({
+vi.mock('@/components/ui/switch', async () => ({
   Switch: ({ id, checked, onCheckedChange, disabled }: any) => (
     <button
       type="button"
@@ -135,7 +137,7 @@ jest.mock('@/components/ui/switch', () => ({
   ),
 }));
 
-jest.mock('@/components/LoadingButton', () => ({
+vi.mock('@/components/LoadingButton', async () => ({
   LoadingButton: ({ children, isLoading, loadingText, ...props }: any) => (
     <button {...props} disabled={props.disabled || isLoading} type={props.type ?? 'button'}>
       {isLoading ? loadingText : children}
@@ -143,38 +145,37 @@ jest.mock('@/components/LoadingButton', () => ({
   ),
 }));
 
-jest.mock('lucide-react', () => ({
-  ...jest.requireActual('lucide-react'),
+vi.mock('lucide-react', async () => ({
+  ...(await vi.importActual('lucide-react')),
   Plus: () => <div data-testid="plus-icon">Plus</div>,
 }));
 
-jest.mock('sonner', () => ({
+vi.mock('sonner', async () => ({
   toast: {
-    error: jest.fn(),
-    success: jest.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
   },
 }));
 
 const mockSpecialPollService = {
-  getSpecialPolls: jest.fn(),
-  createSpecialPoll: jest.fn(),
+  getSpecialPolls: vi.fn(),
+  createSpecialPoll: vi.fn(),
 };
 
-jest.mock('@/services/specialPollService', () => ({
+vi.mock('@/services/specialPollService', async () => ({
   useSpecialPollService: () => mockSpecialPollService,
 }));
 
-jest.mock('date-fns', () => ({
-  format: jest.fn(() => '15.01.2024'),
+vi.mock('date-fns', async () => ({
+  format: vi.fn(() => '15.01.2024'),
 }));
 
-jest.mock('date-fns/locale', () => ({
+vi.mock('date-fns/locale', async () => ({
   de: {},
 }));
 
 describe('MittmachMittwoch Component', () => {
   const user = userEvent.setup();
-  const { toast } = require('sonner');
 
   const response = (
     over: Partial<{
@@ -229,7 +230,7 @@ describe('MittmachMittwoch Component', () => {
   ];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetUserProfile.mockResolvedValue({ userType: UserType.SUPER_ADMIN });
     mockSpecialPollService.getSpecialPolls.mockResolvedValue(mockPolls);
   });
@@ -395,7 +396,7 @@ describe('MittmachMittwoch Component', () => {
       expect(mockSpecialPollService.createSpecialPoll).toHaveBeenCalledWith({
         title: 'New Test Poll',
       });
-      expectToastSuccessTitle(toast.success as jest.Mock, 'Aktion/Poll wurde erfolgreich erstellt');
+      expectToastSuccessTitle(toast.success as Mock, 'Aktion/Poll wurde erfolgreich erstellt');
     });
   });
 

@@ -1,23 +1,23 @@
 import React from 'react';
-import { describe, expect, it, jest, beforeEach } from '@jest/globals';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { useAdventCalendarManagement } from '@/hooks/useAdventCalendarManagement';
 
-const mockNavigate = jest.fn();
-const mockGetAll = jest.fn();
-const mockGetFeatureStatus = jest.fn();
-const mockSetFeatureStatus = jest.fn();
-const mockDelete = jest.fn();
-const mockGetUserProfile = jest.fn();
+const mockNavigate = vi.fn();
+const mockGetAll = vi.fn();
+const mockGetFeatureStatus = vi.fn();
+const mockSetFeatureStatus = vi.fn();
+const mockDelete = vi.fn();
+const mockGetUserProfile = vi.fn();
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('@/services/adventCalendarService', () => ({
+vi.mock('@/services/adventCalendarService', async () => ({
   useAdventCalendarService: () => ({
     getAll: mockGetAll,
     getFeatureStatus: mockGetFeatureStatus,
@@ -26,18 +26,18 @@ jest.mock('@/services/adventCalendarService', () => ({
   }),
 }));
 
-jest.mock('@/services/userService', () => ({
+vi.mock('@/services/userService', async () => ({
   useUserService: () => ({
     getUserProfile: mockGetUserProfile,
   }),
 }));
 
-jest.mock('@/contexts/AuthContext', () => ({
+vi.mock('@/contexts/AuthContext', async () => ({
   useAuth: () => ({ getUserId: () => 'admin-1' }),
 }));
 
-jest.mock('sonner', () => ({
-  toast: { success: jest.fn(), error: jest.fn() },
+vi.mock('sonner', async () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -46,7 +46,7 @@ const wrapper = ({ children }: { children: React.ReactNode }) => (
 
 describe('useAdventCalendarManagement', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetAll.mockResolvedValue([
       {
         id: '1',
@@ -67,7 +67,7 @@ describe('useAdventCalendarManagement', () => {
     ]);
     mockGetFeatureStatus.mockResolvedValue({ isFeatureActive: true });
     mockGetUserProfile.mockResolvedValue({ userType: 'ADMIN' });
-    global.confirm = jest.fn(() => true);
+    global.confirm = vi.fn(() => true);
   });
 
   it('loads and sorts entries by number', async () => {
