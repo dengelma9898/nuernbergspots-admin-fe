@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { UserProfile } from '../models/users';
+import { UserProfile, UserType } from '../models/users';
 import { useUserService } from '../services/userService';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,6 +16,19 @@ import { fadeInUp, staggerContainer } from '@/lib/animations';
 import { defaultTransition } from '@/lib/animations';
 import { cardPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
+
+const USER_TYPE_LABELS: Record<UserType, string> = {
+  [UserType.USER]: 'Benutzer',
+  [UserType.ADMIN]: 'Administrator',
+  [UserType.SUPER_ADMIN]: 'Super-Administrator',
+  [UserType.BUSINESS]: 'Geschäft',
+  [UserType.PREMIUM_BUSINESS]: 'Premium-Geschäft',
+};
+
+function getUserTypeLabel(userType: UserType | undefined): string {
+  if (!userType) return '';
+  return USER_TYPE_LABELS[userType] ?? userType;
+}
 
 const StatCard = ({
   icon: Icon,
@@ -226,7 +239,7 @@ export function Profile() {
                       {currentUser?.name || 'Benutzer'}
                     </h2>
                     <Badge variant="secondary" className="mt-2">
-                      {currentUser?.userType}
+                      {getUserTypeLabel(currentUser?.userType)}
                     </Badge>
                   </div>
                 </div>
@@ -372,8 +385,14 @@ export function Profile() {
                     </motion.div>
                   ))}
                   {(!currentUser?.businessHistory || currentUser.businessHistory.length === 0) && (
-                    <Card className={cn(cardPreset, 'p-8 text-center')}>
-                      <p className="text-muted-foreground">Keine Aktivitäten vorhanden</p>
+                    <Card className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+                      <History className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                      <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+                        Keine Aktivitäten vorhanden
+                      </h3>
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        Hier erscheinen deine Business-Besuche und Aktivitäten.
+                      </p>
                     </Card>
                   )}
                 </motion.div>

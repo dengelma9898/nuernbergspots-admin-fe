@@ -82,28 +82,28 @@ describe('Button Component', () => {
       render(<Button size="default">Default Size</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('h-9', 'px-4', 'py-2');
+      expect(button).toHaveClass('h-11', 'px-5', 'py-2');
     });
 
     it('sollte small Größe korrekt rendern', () => {
       render(<Button size="sm">Small</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('h-8', 'px-3');
+      expect(button).toHaveClass('h-11', 'px-4');
     });
 
     it('sollte large Größe korrekt rendern', () => {
       render(<Button size="lg">Large</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('h-10', 'px-6');
+      expect(button).toHaveClass('h-12', 'px-7');
     });
 
     it('sollte icon Größe korrekt rendern', () => {
       render(<Button size="icon">🔍</Button>);
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('size-9');
+      expect(button).toHaveClass('size-11');
     });
   });
 
@@ -239,7 +239,7 @@ describe('Button Component', () => {
       );
 
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-destructive', 'h-10');
+      expect(button).toHaveClass('bg-destructive', 'h-12');
     });
 
     it('sollte asChild mit custom Props kombinieren', () => {
@@ -252,7 +252,7 @@ describe('Button Component', () => {
       );
 
       const link = screen.getByRole('link');
-      expect(link).toHaveClass('border', 'h-8', 'custom-link');
+      expect(link).toHaveClass('border', 'h-11', 'custom-link');
     });
   });
 });

@@ -76,6 +76,7 @@ describe('CuratedSpotList', () => {
     await waitFor(() => {
       expect(screen.getByText('Test-Spot')).toBeTruthy();
     });
+    expect(screen.getByText('Ausstehend')).toBeTruthy();
   });
 
   it('shows empty state when no spots', async () => {

@@ -362,7 +362,7 @@ describe('MittmachMittwoch Component', () => {
     renderComponent();
 
     await waitFor(() => {
-      expect(screen.getByText('Noch keine Aktionen vorhanden.')).toBeTruthy();
+      expect(screen.getByText('Noch keine Aktionen')).toBeTruthy();
     });
   });
 

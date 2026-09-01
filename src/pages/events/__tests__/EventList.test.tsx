@@ -409,7 +409,6 @@ describe('EventList Component', () => {
       // Warte auf das Laden der Daten
       await waitFor(() => {
         expect(screen.getAllByText('Events')[0]).toBeInTheDocument();
-        expect(screen.getAllByText('Zurück zum Dashboard')[0]).toBeInTheDocument();
         expect(screen.getByText('Konzert im Park')).toBeInTheDocument();
       });
     });
@@ -433,7 +432,6 @@ describe('EventList Component', () => {
       renderWithRouter(<EventList />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Zurück zum Dashboard')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Mehrfachauswahl')[0]).toBeInTheDocument();
         expect(screen.getAllByText('CSV Import')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Event hinzufügen')[0]).toBeInTheDocument();
@@ -469,16 +467,6 @@ describe('EventList Component', () => {
   });
 
   describe('Navigation', () => {
-    it('sollte zum Dashboard navigieren beim Klick auf Zurück', async () => {
-      renderWithRouter(<EventList />);
-
-      await waitFor(() => {
-        const backButton = screen.getAllByText('Zurück zum Dashboard')[0];
-        fireEvent.click(backButton);
-        expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
-      });
-    });
-
     it('sollte zum Event Hinzufügen navigieren', async () => {
       renderWithRouter(<EventList />);
 

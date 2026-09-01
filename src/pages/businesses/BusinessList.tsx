@@ -410,8 +410,14 @@ export const BusinessList: React.FC = () => {
           )}
 
           {filteredBusinesses.length === 0 && (
-            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-8 text-center')}>
-              <div className="text-muted-foreground text-lg">Keine Partner gefunden.</div>
+            <motion.div variants={fadeInUp} className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+              <AlertCircle className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+                Keine Partner gefunden
+              </h3>
+              <p className="text-muted-foreground text-sm md:text-base">
+                Es gibt aktuell keine Partner, die deinen Filterkriterien entsprechen.
+              </p>
             </motion.div>
           )}
         </motion.div>

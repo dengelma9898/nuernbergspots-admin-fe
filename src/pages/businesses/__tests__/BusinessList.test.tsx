@@ -476,7 +476,7 @@ describe('BusinessList Component', () => {
       renderWithRouter(<BusinessList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Keine Partner gefunden.')).toBeInTheDocument();
+        expect(screen.getByText('Keine Partner gefunden')).toBeInTheDocument();
       });
     });
   });

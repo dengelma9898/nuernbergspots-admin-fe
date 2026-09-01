@@ -8,6 +8,18 @@ import { isEventPast, matchesCategoryFilter } from '@/utils/eventFilterUtils';
 export const convertFFToHex = (ffColor: string): string =>
   `#${ffColor.replace('0x', '').slice(-6)}`;
 
+export function getContrastTextColor(backgroundColor: string): string {
+  const hex = backgroundColor.replace('#', '');
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return '#fff';
+  }
+  const luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+  return luminance > 0.5 ? '#1f2937' : '#fff';
+}
+
 export function mergeAdminEvents(activeFromApi: Event[], pendingFromApi: Event[]): Event[] {
   const activeIds = new Set(activeFromApi.map(e => e.id));
   const pendingOnly = pendingFromApi.filter(p => !activeIds.has(p.id));

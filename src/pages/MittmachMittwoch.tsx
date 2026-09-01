@@ -333,8 +333,15 @@ export default function MittmachMittwoch() {
               animate="animate"
               transition={defaultTransition}
             >
-              <Card className={cn(cardPreset, 'p-8 text-center')}>
-                <div className="text-muted-foreground text-lg">Noch keine Aktionen vorhanden.</div>
+              <Card className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+                <Star className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+                <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+                  Noch keine Aktionen
+                </h3>
+                <p className="text-muted-foreground text-sm md:text-base">
+                  Es gibt aktuell noch keine Mitmach-Aktionen. Erstelle die erste Aktion mit dem
+                  Button oben.
+                </p>
               </Card>
             </motion.div>
           ) : (

@@ -95,14 +95,16 @@
       "reference": "CONSTITUTION.md",
       "command": "npm run validate",
       "includes": ["type-check", "lint", "format:check", "test"],
-      "rules": [
-        "Vor dem Abschluss einer Aufgabe mit Dateiänderungen `npm run validate` ausführen — nicht nur einzelne Schritte",
-        "Bei format:check-Fehlern `npm run format` ausführen und validate erneut laufen lassen",
-        "Fehler beheben, bevor die Aufgabe als erledigt gemeldet wird; kein Abschluss mit rotem validate",
-        "Ergebnis kurz bestätigen (z. B. validate grün, ggf. betroffene Tests)",
-        "Entfällt nur bei reinen Lese-, Review- oder Erklär-Aufgaben ohne Dateiänderungen",
-        "Bei Änderungen an E2E-Tests oder Playwright-Flows zusätzlich `npm run test:e2e` ausführen (nicht Teil von validate)"
-      ],
+        "correspondsFor": "§8 Task Completion + §5.4 KI-Verifikation geänderter UI",
+        "rules": [
+          "Vor dem Abschluss einer Aufgabe mit Dateiänderungen `npm run validate` ausführen — nicht nur einzelne Schritte",
+          "Bei format:check-Fehlern `npm run format` ausführen und validate erneut laufen lassen",
+          "Fehler beheben, bevor die Aufgabe als erledigt gemeldet wird; kein Abschluss mit rotem validate",
+          "Ergebnis kurz bestätigen (z. B. validate grün, ggf. betroffene Tests)",
+          "Entfällt nur bei reinen Lese-, Review- oder Erklär-Aufgaben ohne Dateiänderungen",
+          "Nach UI-Änderungen die Änderung KI-verifizieren — NUR das Geänderte (siehe ux.verifyChanges); Tests für das Geänderte anpassen/hinzufügen",
+          "Playwright-Pflege: geänderte UI-Flows → E2E-Specs anpassen (neue Elemente abdecken, überholte Assertions entfernen); bei E2E-/Playwright-Änderungen `npm run test:e2e` ausführen (nicht Teil von validate)"
+        ],
       "ciParity": ".github/workflows/firebase-deploy-dev.yml — Job validate blockiert Deploy bei Fehlern"
     },
     "ux": {
@@ -149,6 +151,19 @@
           "Leere div ohne Inhalt als Page-Ergebnis",
           "Nur null/undefined return ohne Erklärung für den Nutzer",
           "Unbehandelte Exceptions, die die ganze Route weiß/schwarz lassen"
+        ]
+      },
+      "verifyChanges": {
+        "mandatory": true,
+        "description": "KI verifiziert geänderte UI selbst — NUR die tatsächlich geänderten Stellen, kein Voll-App-Audit (CONSTITUTION §5.4)",
+        "reference": "CONSTITUTION.md — §5.4 KI-Verifikation geänderter UI",
+        "rules": [
+          "Umfang = nur die diff-eigenen Komponenten/Surfaces, kein Voll-App-Audit bei kleinen Änderungen",
+          "Neue Erwartungen auf DOM-Ebene asserten (Text, aria-label, Klassen wie size-11/h-11, Empty-State, entfernte Controls) über Jest + React Testing Library",
+          "Icon-only-Buttons ohne sichtbaren Text benötigen aria-label/sr-only (Gegenprobe bei a11y)",
+          "Kontrast-/Farbänderungen sichtbar plausibilisieren; Farbtokens statt Hardcode",
+          "Geänderte UI-Flows: Playwright-Specs anpassen — neue/interaktive Elemente abdecken, überholte Assertions entfernen (Ziel: gute E2E-Abdeckung, keine veralteten Specs)",
+          "npm run validate grün; Ergebnis berichten (welche Tests für die Änderung geschrieben/geändert wurden)"
         ]
       }
     },

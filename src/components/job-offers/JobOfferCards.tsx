@@ -54,7 +54,7 @@ export function JobOfferCard({ jobOffer, onDelete, category }: JobOfferCardProps
               </Badge>
             )}
             {jobOffer.isHighlight && (
-              <Badge className="absolute top-2 left-2 bg-yellow-500 text-white border-yellow-600">
+              <Badge className="absolute top-2 left-2 bg-yellow-500 text-yellow-950 border-yellow-600">
                 ⭐ Highlight
               </Badge>
             )}
@@ -156,7 +156,7 @@ export function JobOfferMobileCard({ jobOffer, category, onDelete }: JobOfferMob
     <Card className={cn(cardPreset, 'gap-0 !py-0 !px-0 p-4')}>
       <div className="flex flex-col gap-2">
         {jobOffer.isHighlight && (
-          <Badge className="w-fit bg-yellow-500 text-white border-yellow-600 mb-2">
+          <Badge className="w-fit bg-yellow-500 text-yellow-950 border-yellow-600 mb-2">
             ⭐ Highlight
           </Badge>
         )}

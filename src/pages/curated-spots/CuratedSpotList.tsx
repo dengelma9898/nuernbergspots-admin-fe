@@ -64,6 +64,15 @@ function statusBadgeVariant(status: CuratedSpot['status']) {
   return status === 'ACTIVE' ? 'default' : 'secondary';
 }
 
+const CURATED_SPOT_STATUS_LABELS: Record<CuratedSpot['status'], string> = {
+  PENDING: 'Ausstehend',
+  ACTIVE: 'Aktiv',
+};
+
+function getStatusLabel(status: CuratedSpot['status']): string {
+  return CURATED_SPOT_STATUS_LABELS[status] ?? status;
+}
+
 function formatAdminRatedAt(iso: string | null | undefined): string | null {
   if (!iso) return null;
   try {
@@ -272,7 +281,9 @@ export function CuratedSpotList() {
                         <CardTitle className="text-lg text-foreground line-clamp-2">
                           {spot.name}
                         </CardTitle>
-                        <Badge variant={statusBadgeVariant(spot.status)}>{spot.status}</Badge>
+                        <Badge variant={statusBadgeVariant(spot.status)}>
+                          {getStatusLabel(spot.status)}
+                        </Badge>
                       </div>
                       <CardDescription className="text-muted-foreground">
                         {spot.address?.street?.trim()

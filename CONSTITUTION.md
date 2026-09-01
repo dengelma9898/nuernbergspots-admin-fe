@@ -228,6 +228,17 @@ Jede Page muss explizit rendern für:
 - Shortcuts: `g+e` Events, `g+b` Partner, `g+u` Users, `g+d` Dashboard
 - Skip-Link, Landmarks (`nav`/`banner`/`main`)
 
+### 5.4 KI-Verifikation geänderter UI (Pflicht)
+
+Nach jeder Änderung an UI-Komponenten (Copy, Labels, Klassen, A11y-Attribute, Empty-/Error-States, neue/entfernte Controls) muss eine **KI die Änderung selbst verifizieren** — beschränkt auf die **tatsächlich geänderten Stellen**:
+
+1. **Nur das Geänderte prüfen** — kein Voll-App-Audit bei einer kleinen Änderung. Umfang = die diff-eigenen Komponenten/Surfaces.
+2. **DOM-Ebene nachweisen** — die neue Erwartung asserten (Text, `aria-label`, Klassen wie `size-11`/`h-11`, Empty-State, ausgeführter Back-Arrow entfernt) über Jest + React Testing Library.
+3. **Gegenprobe bei a11y-Attributen** — Icon-only-Buttons ohne sichtbaren Text benötigen `aria-label`/`sr-only`.
+4. **Kontrast-/Farbänderungen** sichtbar (nicht nur via Unit-Test) plausibilisieren; Farbto­ken statt Hardcode.
+5. **Playwright-Pflege** — bei geänderten UI-Flows E2E-Spec (**Playwright**) anpassen: neue/interaktive Elemente abdecken, überholte Assertions entfernen. Ziel: gute E2E-Abdeckung der Kern-Flows, keine veralteten Specs.
+6. `npm run validate` green — danach Ergebnis berichten (welche Tests für die Änderung geschrieben/geändert wurden).
+
 ---
 
 ## 6. API-Integration

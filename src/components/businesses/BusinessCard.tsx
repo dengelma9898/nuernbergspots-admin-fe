@@ -108,7 +108,7 @@ export const BusinessCard: React.FC<BusinessCardProps> = ({
             </div>
           )}
           {business.isPromoted && (
-            <div className="absolute top-3 left-3 bg-yellow-500/80 border border-yellow-400/50 text-white rounded-xl px-2 py-1 text-xs font-medium flex items-center gap-1">
+            <div className="absolute top-3 left-3 bg-yellow-500/80 border border-yellow-400/50 text-yellow-950 rounded-xl px-2 py-1 text-xs font-medium flex items-center gap-1">
               <Star className="h-3 w-3 fill-current" />
               Highlight
             </div>

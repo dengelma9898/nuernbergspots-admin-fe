@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { useEditBusiness } from '@/hooks/useEditBusiness';
 
 import { LoadingButton } from '@/components/LoadingButton';
+import { Card } from '@/components/ui/card';
 import { motion } from '@/components/motion';
 import { BusinessBasicInfoForm } from '@/components/businesses/BusinessBasicInfoForm';
 import { BusinessCategoriesCard } from '@/components/businesses/BusinessCategoriesCard';
@@ -17,7 +18,7 @@ import { BusinessReviewCard } from '@/components/businesses/BusinessReviewCard';
 import { BusinessSaveConfirmDialog } from '@/components/businesses/BusinessSaveConfirmDialog';
 import { BusinessStatusHighlightCard } from '@/components/businesses/BusinessStatusHighlightCard';
 import { EditBusinessSkeleton } from '@/components/businesses/EditBusinessSkeleton';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 
 export const EditBusiness: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -69,7 +70,30 @@ export const EditBusiness: React.FC = () => {
   }
 
   if (!business) {
-    return null;
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 p-4 md:p-8">
+          <Card className={cn(cardPreset, 'p-8 md:p-12 text-center max-w-lg mx-auto')}>
+            <AlertCircle className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+              Partner nicht gefunden
+            </h3>
+            <p className="text-muted-foreground text-sm md:text-base mb-6">
+              Der angeforderte Partner konnte nicht gefunden werden.
+            </p>
+            <LoadingButton
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/businesses')}
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
+            </LoadingButton>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -125,7 +125,7 @@ describe('Profile Component', () => {
       expect(screen.getByText('Mein Profil')).toBeTruthy();
       expect(screen.getByText('John Doe')).toBeTruthy();
       expect(screen.getByText('test@example.com')).toBeTruthy();
-      expect(screen.getByText('admin')).toBeTruthy();
+      expect(screen.getByText('Administrator')).toBeTruthy();
     });
   });
 

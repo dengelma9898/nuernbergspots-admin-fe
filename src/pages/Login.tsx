@@ -198,6 +198,7 @@ export function Login() {
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}
                       transition={defaultTransition}
+                      aria-label={showPassword ? 'Passwort verbergen' : 'Passwort anzeigen'}
                       className={cn(
                         buttonPreset,
                         'absolute right-3 top-1/2 -translate-y-1/2 p-1.5'

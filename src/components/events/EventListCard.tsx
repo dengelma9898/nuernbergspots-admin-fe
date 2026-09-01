@@ -38,7 +38,7 @@ import { EventCategory } from '@/models/event-category';
 import { buttonPreset, cardPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { formatMonthYear, monthYearToDate } from '@/utils/eventFormatters';
-import { convertFFToHex } from '@/utils/eventListUtils';
+import { convertFFToHex, getContrastTextColor } from '@/utils/eventListUtils';
 import { getIconComponent } from '@/utils/iconUtils';
 
 export interface EventCardProps {
@@ -328,7 +328,7 @@ const EventCardComponent: React.FC<EventCardProps> = ({
                 className="text-xs flex items-center max-w-full truncate border-secondary"
                 style={{
                   backgroundColor: convertFFToHex(category.colorCode),
-                  color: '#fff',
+                  color: getContrastTextColor(convertFFToHex(category.colorCode)),
                 }}
                 title={category.name}
               >
@@ -425,8 +425,10 @@ const EventCardComponent: React.FC<EventCardProps> = ({
                     onClick={() => onCopy(event.id)}
                     className={cn(buttonPreset)}
                     title="Event kopieren"
+                    aria-label="Event kopieren"
                   >
                     <Copy className="h-4 w-4" />
+                    <span className="sr-only">Kopieren</span>
                   </LoadingButton>
                 )}
                 {showDeleteButton && (
@@ -483,8 +485,10 @@ const EventCardComponent: React.FC<EventCardProps> = ({
                     onClick={() => onCopy(event.id)}
                     className={cn(buttonPreset)}
                     title="Event kopieren"
+                    aria-label="Event kopieren"
                   >
                     <Copy className="h-4 w-4" />
+                    <span className="sr-only">Kopieren</span>
                   </LoadingButton>
                 )}
                 <LoadingButton variant="destructive" size="sm" onClick={() => onDelete(event.id)}>

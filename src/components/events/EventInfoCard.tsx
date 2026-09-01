@@ -19,9 +19,8 @@ import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
+import { convertFFToHex, getContrastTextColor } from '@/utils/eventListUtils';
 import { Euro, Star, Tag, AlertCircle } from 'lucide-react';
-
-const convertFFToHex = (ffColor: string): string => `#${ffColor.replace('0x', '').slice(-6)}`;
 
 interface EventInfoCardProps {
   event: Event;
@@ -78,7 +77,7 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
                 className="text-xs flex items-center border-secondary"
                 style={{
                   backgroundColor: convertFFToHex(selectedCategory.colorCode),
-                  color: '#fff',
+                  color: getContrastTextColor(convertFFToHex(selectedCategory.colorCode)),
                 }}
               >
                 <span className="mr-1 flex items-center">

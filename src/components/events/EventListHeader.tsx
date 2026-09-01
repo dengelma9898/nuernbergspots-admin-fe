@@ -1,5 +1,4 @@
 import {
-  ArrowLeft,
   CheckSquare,
   Download,
   FileSpreadsheet,
@@ -22,7 +21,6 @@ interface EventListHeaderProps {
   isAdminOrSuperAdmin: boolean;
   selectedCount: number;
   loading: boolean;
-  onNavigateDashboard: () => void;
   onSelectAll: () => void;
   onDeselectAll: () => void;
   onOpenBulkCategory: () => void;
@@ -41,7 +39,6 @@ export function EventListHeader({
   isAdminOrSuperAdmin,
   selectedCount,
   loading,
-  onNavigateDashboard,
   onSelectAll,
   onDeselectAll,
   onOpenBulkCategory,
@@ -54,15 +51,6 @@ export function EventListHeader({
 }: EventListHeaderProps) {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-4 mb-6">
-      <LoadingButton
-        variant="ghost"
-        size="icon"
-        onClick={onNavigateDashboard}
-        className={cn(buttonPreset, 'rounded-full')}
-      >
-        <ArrowLeft className="h-5 w-5" />
-        <span className="sr-only">Zurück zum Dashboard</span>
-      </LoadingButton>
       <h1 className="text-xl sm:text-2xl font-bold text-foreground">Events</h1>
       {pendingAccess && pendingModerationCount > 0 ? (
         <Badge
@@ -109,7 +97,7 @@ export function EventListHeader({
               title="Ausgewählte Events im Bild-Editor öffnen"
             >
               <ImageIcon className="h-4 w-4" />
-              Bild generieren ({selectedCount})
+              Social-Bild erstellen ({selectedCount})
             </LoadingButton>
             <LoadingButton
               variant="outline"
@@ -146,7 +134,7 @@ export function EventListHeader({
               className={cn(buttonPreset, 'w-full sm:w-auto gap-2')}
             >
               <Download className="h-4 w-4" />
-              CSV Export
+              CSV Export (gefiltert)
             </LoadingButton>
             <LoadingButton
               variant="outline"

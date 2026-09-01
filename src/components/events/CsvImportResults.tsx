@@ -36,7 +36,7 @@ const getRowBadge = (row: CsvImportRowResult) => {
   }
   if (row.skipped) {
     return (
-      <Badge variant="secondary" className="bg-yellow-600 text-white">
+      <Badge variant="secondary" className="bg-yellow-600 text-yellow-950">
         <AlertTriangle className="h-3 w-3 mr-1" />
         Duplikat
       </Badge>

@@ -259,9 +259,15 @@ export function AccountManagement() {
             </AlertDialog>
           </>
         ) : (
-          <div className="text-center py-4 text-muted-foreground text-base">
-            Keine Daten verfügbar
-          </div>
+          <Card className={cn(cardPreset, 'p-8 md:p-12 text-center')}>
+            <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+              Keine Daten verfügbar
+            </h3>
+            <p className="text-muted-foreground text-sm md:text-base">
+              Die Account-Statistiken konnten nicht geladen werden.
+            </p>
+          </Card>
         )}
       </motion.div>
     </div>

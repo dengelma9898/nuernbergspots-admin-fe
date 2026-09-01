@@ -123,7 +123,6 @@ export const EventList: React.FC = () => {
             isAdminOrSuperAdmin={isAdminOrSuperAdmin}
             selectedCount={bulk.selectedEventIds.size}
             loading={loading}
-            onNavigateDashboard={() => navigate('/dashboard')}
             onSelectAll={bulk.selectAllVisibleEvents}
             onDeselectAll={bulk.deselectAllEvents}
             onOpenBulkCategory={() => bulk.setBulkCategoryDialogOpen(true)}

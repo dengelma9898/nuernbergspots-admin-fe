@@ -180,7 +180,30 @@ export function EasterEggDetail() {
   }
 
   if (!egg) {
-    return null;
+    return (
+      <div className="min-h-screen relative overflow-hidden">
+        <div className="relative z-10 p-4 md:p-8">
+          <Card className={cn(cardPreset, 'p-8 md:p-12 text-center max-w-lg mx-auto')}>
+            <Egg className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground mb-2">
+              Osterei-Aktion nicht gefunden
+            </h3>
+            <p className="text-muted-foreground text-sm md:text-base mb-6">
+              Die angeforderte Osterei-Aktion konnte nicht gefunden werden.
+            </p>
+            <LoadingButton
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate('/easter-egg-hunt')}
+              className={cn(buttonPreset, 'rounded-full')}
+            >
+              <ArrowLeft className="h-5 w-5" />
+              <span className="sr-only">Zurück zur Übersicht</span>
+            </LoadingButton>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (

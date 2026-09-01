@@ -325,10 +325,10 @@ describe('ContactRequests', () => {
       });
 
       const refreshButton = screen.getByRole('button', { name: /aktualisieren/i });
-      expect(refreshButton).toHaveClass('size-9', 'rounded-full', 'shrink-0');
+      expect(refreshButton).toHaveClass('size-11', 'rounded-full', 'shrink-0');
 
       const dashboardButton = screen.getByRole('button', { name: /zurück zum dashboard/i });
-      expect(dashboardButton).toHaveClass('size-9', 'rounded-full', 'shrink-0');
+      expect(dashboardButton).toHaveClass('size-11', 'rounded-full', 'shrink-0');
     });
   });
 
