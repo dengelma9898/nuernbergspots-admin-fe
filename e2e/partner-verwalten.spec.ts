@@ -18,7 +18,7 @@ test('nach Login: Partner verwalten zeigt Geschäfte-Liste mit Daten', async ({ 
     timeout: 30_000,
   });
   await expect(page.getByText(/Geschäfte gefunden/)).toBeVisible();
-  const emptyState = page.getByText('Keine Partner gefunden.');
+  const emptyState = page.getByRole('heading', { name: 'Keine Partner gefunden' });
   const activeSection = page.getByRole('heading', { name: /Aktive Geschäfte/ });
   const pendingSection = page.getByRole('heading', { name: /Ausstehende Partner/ });
   const inactiveSection = page.getByRole('heading', { name: /Inaktive Partner/ });
