@@ -398,7 +398,7 @@ const EventCardComponent: React.FC<EventCardProps> = ({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
+      <CardFooter className="flex flex-col gap-2 flex-shrink-0">
         <div className="text-xs text-muted-foreground">
           Erstellt am {formatDate(event.createdAt)}
         </div>
@@ -407,7 +407,7 @@ const EventCardComponent: React.FC<EventCardProps> = ({
             {isSelected ? 'Ausgewählt' : 'Klicken zum Auswählen'}
           </div>
         ) : (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {isPreview ? (
               <>
                 <LoadingButton
