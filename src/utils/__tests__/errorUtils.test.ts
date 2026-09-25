@@ -397,6 +397,10 @@ describe('errorUtils', () => {
           label: 'Verstanden',
           onClick: expect.any(Function),
         },
+        cancel: {
+          label: 'Fehler kopieren',
+          onClick: expect.any(Function),
+        },
       });
     });
 
@@ -412,6 +416,10 @@ describe('errorUtils', () => {
         action: {
           label: 'Erneut versuchen',
           onClick: retryAction,
+        },
+        cancel: {
+          label: 'Fehler kopieren',
+          onClick: expect.any(Function),
         },
       });
     });
@@ -445,6 +453,25 @@ describe('errorUtils', () => {
           }),
         })
       );
+    });
+
+    it('sollte Quick-Copy Button bereitstellen und Handler aufrufbar sein', () => {
+      const error = new Error('Test error');
+      showUserFriendlyError(error, mockToast, undefined, 'load-event');
+
+      expect(mockToast.error).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.objectContaining({
+          cancel: expect.objectContaining({
+            label: 'Fehler kopieren',
+            onClick: expect.any(Function),
+          }),
+        })
+      );
+
+      const lastCall = mockToast.error.mock.calls[0];
+      const cancelAction = lastCall[1]?.cancel;
+      expect(() => cancelAction.onClick()).not.toThrow();
     });
 
     it('sollte Kontext-Parameter verwenden', () => {

@@ -1,8 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+
+import { initErrorTracking } from '@/utils/errorTracker';
+
 import App from './App.tsx';
+
 import './index.css';
 import '@/assets/fonts/fonts.css';
+
+// Initialisiere Fehler-Tracking für Quick-Copy Button und Console-Logs
+initErrorTracking();
 
 // Setze Titel und Favicon basierend auf Build-Modus
 const setPageTitleAndFavicon = () => {

@@ -3,6 +3,8 @@
  * Verwendet freundschaftliches "Du" in allen Meldungen
  */
 
+import { copyErrorReportToClipboard } from './errorTracker';
+
 export type ErrorContext =
   | 'load-business'
   | 'save-business'
@@ -67,7 +69,7 @@ interface ErrorWithStatus extends Error {
 /**
  * Extrahiert den HTTP-Status-Code aus einem Error-Objekt
  */
-function extractStatusCode(error: unknown): number | null {
+export function extractStatusCode(error: unknown): number | null {
   if (error && typeof error === 'object') {
     const err = error as ErrorWithStatus;
 
@@ -611,6 +613,22 @@ export function showUserFriendlyError(
     return;
   }
 
+  // Quick-Copy Action für Fehlermeldungen
+  const copyAction = {
+    label: 'Fehler kopieren',
+    onClick: () => {
+      void copyErrorReportToClipboard(
+        {
+          error,
+          title: friendlyError.title,
+          message: friendlyError.message,
+          context,
+        },
+        toast
+      );
+    },
+  };
+
   // Wenn Retry möglich ist und eine Retry-Aktion übergeben wurde
   if (friendlyError.isRetryable && retryAction) {
     toast.error(friendlyError.title, {
@@ -620,6 +638,7 @@ export function showUserFriendlyError(
         label: 'Erneut versuchen',
         onClick: retryAction,
       },
+      cancel: copyAction,
     });
   } else {
     // Standard-Verhalten
@@ -632,6 +651,7 @@ export function showUserFriendlyError(
             onClick: () => {},
           }
         : undefined,
+      cancel: copyAction,
     });
   }
 }
