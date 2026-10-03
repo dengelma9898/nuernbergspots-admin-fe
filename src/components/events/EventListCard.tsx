@@ -1,14 +1,11 @@
 import React, { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { format, isFuture, isPast, isWithinInterval } from 'date-fns';
+import { format } from 'date-fns';
 import { de } from 'date-fns/locale';
 import {
   AlertCircle,
   BadgeCheck,
-  CalendarDays,
-  CheckCircle2,
   CheckSquare,
-  Clock,
   Copy,
   Euro,
   Eye,
@@ -37,9 +34,10 @@ import { Event } from '@/models/events';
 import { EventCategory } from '@/models/event-category';
 import { buttonPreset, cardPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
-import { formatMonthYear, monthYearToDate } from '@/utils/eventFormatters';
-import { convertFFToHex, getContrastTextColor } from '@/utils/eventListUtils';
+import { formatMonthYear, getEventStatus } from '@/utils/eventFormatters';
+import { convertFFToHex, getBadgeColorStyle, getContrastTextColor } from '@/utils/eventListUtils';
 import { getIconComponent } from '@/utils/iconUtils';
+import { EventTimeStatusBadge, ModerationBadge } from '@/components/events/EventStatusBadges';
 
 export interface EventCardProps {
   event: Event;
@@ -136,80 +134,6 @@ const EventCardComponent: React.FC<EventCardProps> = ({
     }
 
     return 'Kein Datum';
-  };
-
-  const getEventStatus = (eventItem: Event) => {
-    if (eventItem.dailyTimeSlots?.length) {
-      const now = new Date();
-      const firstSlot = eventItem.dailyTimeSlots[0];
-      const lastSlot = eventItem.dailyTimeSlots[eventItem.dailyTimeSlots.length - 1];
-
-      const firstDate = new Date(firstSlot.date);
-      const lastDate = new Date(lastSlot.date);
-
-      if (isPast(lastDate)) {
-        return {
-          label: 'Beendet',
-          icon: <CheckCircle2 className="h-4 w-4" />,
-          variant: 'secondary' as const,
-        };
-      }
-
-      if (isWithinInterval(now, { start: firstDate, end: lastDate })) {
-        return {
-          label: 'Läuft jetzt',
-          icon: <Clock className="h-4 w-4" />,
-          variant: 'default' as const,
-        };
-      }
-
-      if (isFuture(firstDate)) {
-        return {
-          label: 'Kommend',
-          icon: <AlertCircle className="h-4 w-4" />,
-          variant: 'outline' as const,
-        };
-      }
-    }
-
-    if (eventItem.monthYear) {
-      const monthYearDate = monthYearToDate(eventItem.monthYear);
-      if (monthYearDate) {
-        const endOfMonthDate = new Date(
-          monthYearDate.getFullYear(),
-          monthYearDate.getMonth() + 1,
-          0
-        );
-
-        if (isPast(endOfMonthDate)) {
-          return {
-            label: 'Beendet',
-            icon: <CheckCircle2 className="h-4 w-4" />,
-            variant: 'secondary' as const,
-          };
-        }
-
-        if (isFuture(monthYearDate)) {
-          return {
-            label: 'Kommend',
-            icon: <CalendarDays className="h-4 w-4" />,
-            variant: 'outline' as const,
-          };
-        }
-
-        return {
-          label: 'Diesen Monat',
-          icon: <CalendarDays className="h-4 w-4" />,
-          variant: 'default' as const,
-        };
-      }
-    }
-
-    return {
-      label: 'Ohne Datum',
-      icon: <AlertCircle className="h-4 w-4" />,
-      variant: 'secondary' as const,
-    };
   };
 
   const status = useMemo(() => getEventStatus(event), [event]);
@@ -324,19 +248,31 @@ const EventCardComponent: React.FC<EventCardProps> = ({
           <CardDescription className="text-muted-foreground">{eventDateTime}</CardDescription>
           <div className="flex flex-wrap items-center gap-2">
             {category ? (
-              <Badge
-                className="text-xs flex items-center max-w-full truncate border-secondary"
-                style={{
-                  backgroundColor: convertFFToHex(category.colorCode),
-                  color: getContrastTextColor(convertFFToHex(category.colorCode)),
-                }}
-                title={category.name}
-              >
-                <span className="mr-1 flex items-center">
-                  {getIconComponent(category.iconName)}
-                </span>
-                <span className="truncate">{category.name}</span>
-              </Badge>
+              (() => {
+                const badgeStyle = getBadgeColorStyle(convertFFToHex(category.colorCode));
+                return (
+                  <Badge
+                    className={cn(
+                      'text-xs flex items-center max-w-full truncate',
+                      badgeStyle.className
+                    )}
+                    style={badgeStyle.style}
+                    title={category.name}
+                  >
+                    {badgeStyle.dotColor && (
+                      <span
+                        className="w-2 h-2 rounded-full mr-1 shrink-0"
+                        style={{ backgroundColor: badgeStyle.dotColor }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="mr-1 flex items-center">
+                      {getIconComponent(category.iconName)}
+                    </span>
+                    <span className="truncate">{category.name}</span>
+                  </Badge>
+                );
+              })()
             ) : (
               <Badge
                 variant="outline"
@@ -346,19 +282,8 @@ const EventCardComponent: React.FC<EventCardProps> = ({
                 Keine Kategorie
               </Badge>
             )}
-            {event.status === 'PENDING' ? (
-              <Badge
-                variant="outline"
-                className="border-amber-400/70 text-amber-100 bg-amber-500/15 border-secondary"
-              >
-                <AlertCircle className="h-3 w-3 mr-1" />
-                Ausstehend
-              </Badge>
-            ) : null}
-            <Badge variant={status.variant} className="border-secondary">
-              {status.icon}
-              <span className="ml-1">{status.label}</span>
-            </Badge>
+            {event.status === 'PENDING' ? <ModerationBadge status={event.status} /> : null}
+            <EventTimeStatusBadge status={status} />
           </div>
         </div>
       </CardHeader>

@@ -5,19 +5,212 @@ import { EventCategory } from '@/models/event-category';
 import { formatMonthYear, hasDateInfo, monthYearToDate } from '@/utils/eventFormatters';
 import { isEventPast, matchesCategoryFilter } from '@/utils/eventFilterUtils';
 
-export const convertFFToHex = (ffColor: string): string =>
-  `#${ffColor.replace('0x', '').slice(-6)}`;
+export const convertFFToHex = (ffColor?: string): string => {
+  if (!ffColor) return '#000000';
+  return `#${ffColor.replace('0x', '').slice(-6)}`;
+};
 
-export function getContrastTextColor(backgroundColor: string): string {
-  const hex = backgroundColor.replace('#', '');
+export type ActiveFilterType = 'search' | 'status' | 'approval' | 'category' | 'time' | 'date';
+
+export interface ActiveFilterChip {
+  id: ActiveFilterType;
+  label: string;
+}
+
+export interface BuildActiveFilterChipsParams {
+  searchQuery?: string;
+  statusFilter?: string;
+  approvalFilter?: string;
+  categoryFilter?: string;
+  timeFilter?: string;
+  selectedWeek?: string;
+  selectedMonth?: string;
+  dateFilter?: string;
+  categoryById?: Map<string, EventCategory | { name: string }>;
+  monthOptions?: { key: string; label: string }[];
+}
+
+export function buildActiveFilterChips(params: BuildActiveFilterChipsParams): ActiveFilterChip[] {
+  const chips: ActiveFilterChip[] = [];
+
+  if (params.searchQuery && params.searchQuery.trim().length > 0) {
+    chips.push({
+      id: 'search',
+      label: `Suche: „${params.searchQuery.trim()}“`,
+    });
+  }
+
+  if (params.statusFilter && params.statusFilter !== 'all') {
+    const statusLabels: Record<string, string> = {
+      past: 'Beendet',
+      running: 'Läuft',
+      future: 'Kommend',
+    };
+    chips.push({
+      id: 'status',
+      label: `Status: ${statusLabels[params.statusFilter] ?? params.statusFilter}`,
+    });
+  }
+
+  if (params.approvalFilter && params.approvalFilter !== 'all') {
+    const approvalLabels: Record<string, string> = {
+      pending: 'Ausstehend',
+      active: 'Freigegeben',
+    };
+    chips.push({
+      id: 'approval',
+      label: `Moderation: ${approvalLabels[params.approvalFilter] ?? params.approvalFilter}`,
+    });
+  }
+
+  if (params.categoryFilter && params.categoryFilter !== 'all') {
+    let catName = 'Ohne Kategorie';
+    if (params.categoryFilter !== 'no-category') {
+      const found = params.categoryById?.get(params.categoryFilter);
+      catName = found?.name ?? params.categoryFilter;
+    }
+    chips.push({
+      id: 'category',
+      label: `Kategorie: ${catName}`,
+    });
+  }
+
+  if (params.timeFilter && params.timeFilter !== 'all') {
+    if (params.timeFilter === 'week') {
+      chips.push({
+        id: 'time',
+        label: params.selectedWeek
+          ? `Zeitraum: KW ${params.selectedWeek}`
+          : 'Zeitraum: Kalenderwoche',
+      });
+    } else if (params.timeFilter === 'month') {
+      const monthOption = params.monthOptions?.find(m => m.key === params.selectedMonth);
+      const label = monthOption?.label ?? params.selectedMonth ?? 'Monat';
+      chips.push({
+        id: 'time',
+        label: `Zeitraum: ${label}`,
+      });
+    }
+  }
+
+  if (params.dateFilter && params.dateFilter !== 'all') {
+    const dateLabels: Record<string, string> = {
+      'with-date': 'Mit Datum',
+      'no-date': 'Ohne Datum',
+    };
+    chips.push({
+      id: 'date',
+      label: `Datum: ${dateLabels[params.dateFilter] ?? params.dateFilter}`,
+    });
+  }
+
+  return chips;
+}
+
+export interface BadgeColorStyle {
+  isFilled: boolean;
+  style: React.CSSProperties;
+  className: string;
+  dotColor?: string;
+}
+
+const DARK_TEXT_LUMINANCE = 0.021; // Relative luminance of #1f2937
+
+export function getRelativeLuminance(hexColor: string): number | null {
+  if (!hexColor) return null;
+  let hex = hexColor.trim();
+  if (hex.startsWith('0x')) hex = hex.slice(2);
+  if (hex.startsWith('#')) hex = hex.slice(1);
+  if (hex.length > 6) hex = hex.slice(-6);
+  if (hex.length === 3) {
+    hex = hex
+      .split('')
+      .map(c => c + c)
+      .join('');
+  }
+  if (hex.length !== 6) return null;
+
   const r = parseInt(hex.slice(0, 2), 16);
   const g = parseInt(hex.slice(2, 4), 16);
   const b = parseInt(hex.slice(4, 6), 16);
   if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return null;
+  }
+
+  const toLinear = (val: number) => {
+    const s = val / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+export function getContrastRatio(l1: number, l2: number): number {
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+export function getBadgeColorStyle(colorInput?: string): BadgeColorStyle {
+  if (!colorInput) {
+    return {
+      isFilled: false,
+      style: {},
+      className: 'bg-card text-card-foreground border border-secondary',
+    };
+  }
+
+  const hex = colorInput.startsWith('#')
+    ? colorInput
+    : `#${colorInput.replace('0x', '').slice(-6)}`;
+  const lum = getRelativeLuminance(hex);
+
+  if (lum === null) {
+    return {
+      isFilled: false,
+      style: {},
+      className: 'bg-card text-card-foreground border border-secondary',
+    };
+  }
+
+  const ratioWhite = getContrastRatio(1.0, lum);
+  const ratioDark = getContrastRatio(lum, DARK_TEXT_LUMINANCE);
+
+  // If contrast against white is at least 4.5:1 and better than or equal to dark
+  if (ratioWhite >= 4.5 && ratioWhite >= ratioDark) {
+    return {
+      isFilled: true,
+      style: { backgroundColor: hex, color: '#fff' },
+      className: 'border-transparent',
+    };
+  }
+
+  // If contrast against dark text is at least 4.5:1
+  if (ratioDark >= 4.5) {
+    return {
+      isFilled: true,
+      style: { backgroundColor: hex, color: '#1f2937' },
+      className: 'border-secondary/40',
+    };
+  }
+
+  // Mid-tones where neither meets 4.5:1: Fallback to high-contrast outline with category color accent
+  return {
+    isFilled: false,
+    style: { borderColor: hex },
+    className: 'bg-card text-card-foreground border',
+    dotColor: hex,
+  };
+}
+
+export function getContrastTextColor(backgroundColor: string): string {
+  const lum = getRelativeLuminance(backgroundColor);
+  if (lum === null) {
     return '#fff';
   }
-  const luminance = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-  return luminance > 0.5 ? '#1f2937' : '#fff';
+  const ratioWhite = getContrastRatio(1.0, lum);
+  const ratioDark = getContrastRatio(lum, DARK_TEXT_LUMINANCE);
+  return ratioDark > ratioWhite ? '#1f2937' : '#fff';
 }
 
 export function mergeAdminEvents(activeFromApi: Event[], pendingFromApi: Event[]): Event[] {
@@ -225,12 +418,33 @@ export function groupEventsByMonth(filteredEvents: Event[]): Record<string, Even
   );
 }
 
-export function sortMonthKeys(groupedEventsByMonth: Record<string, EventMonthGroup>): string[] {
+export function sortMonthKeys(
+  groupedEventsByMonth: Record<string, EventMonthGroup>,
+  direction: 'asc' | 'desc' = 'desc'
+): string[] {
+  const factor = direction === 'asc' ? -1 : 1;
   return Object.keys(groupedEventsByMonth).sort((a, b) => {
     if (a === 'no-date') return 1;
     if (b === 'no-date') return -1;
-    return groupedEventsByMonth[b].date.getTime() - groupedEventsByMonth[a].date.getTime();
+    return (
+      factor * (groupedEventsByMonth[b].date.getTime() - groupedEventsByMonth[a].date.getTime())
+    );
   });
+}
+
+export const UPDATED_AT_GROUP_KEY = 'updated-at';
+
+/** Flache Gruppe (ohne Monatsüberschriften) für die Sortierung nach „Zuletzt geändert“. */
+export function groupEventsFlat(
+  events: Event[],
+  label = 'Zuletzt geändert'
+): Record<string, EventMonthGroup> {
+  if (events.length === 0) {
+    return {};
+  }
+  return {
+    [UPDATED_AT_GROUP_KEY]: { label, date: new Date(), events },
+  };
 }
 
 export function buildCategoryMap(categories: EventCategory[]): Map<string, EventCategory> {
@@ -262,4 +476,154 @@ export function getMonthOptions(events: Event[]): { key: string; label: string }
         label: format(monthDate, 'MMMM yyyy', { locale: de }),
       };
     });
+}
+
+export type EventListEmptyStateVariant =
+  | 'selection-no-selectable'
+  | 'page-out-of-range'
+  | 'pending-clear'
+  | 'period'
+  | 'filtered'
+  | 'empty';
+
+export type EventListEmptyStateAction =
+  | 'reset-all-filters'
+  | 'clear-search'
+  | 'clear-time-filter'
+  | 'show-all-events'
+  | 'exit-selection-mode'
+  | 'go-to-first-page'
+  | 'create-event'
+  | 'import-csv';
+
+export interface EventListEmptyStateData {
+  variant: EventListEmptyStateVariant;
+  title: string;
+  description?: string;
+  actions: EventListEmptyStateAction[];
+}
+
+export interface GetEventListEmptyStateInput {
+  totalCount: number;
+  displayCount: number;
+  isSelectionMode?: boolean;
+  page?: number;
+  totalPages?: number;
+  hasActiveFilters: boolean;
+  searchQuery?: string;
+  statusFilter?: string;
+  approvalFilter?: string;
+  categoryFilter?: string;
+  timeFilter?: string;
+  selectedWeek?: string;
+  selectedMonth?: string;
+  dateFilter?: string;
+  monthOptions?: { key: string; label: string }[];
+  categoryById?: Map<string, EventCategory | { name: string }>;
+}
+
+export function getEventListEmptyState(
+  input: GetEventListEmptyStateInput
+): EventListEmptyStateData {
+  if (input.isSelectionMode && input.totalCount > 0 && input.displayCount === 0) {
+    return {
+      variant: 'selection-no-selectable',
+      title: 'Keine auswählbaren Events',
+      description: 'Im Auswahlmodus werden vergangene Events automatisch ausgeblendet.',
+      actions: ['exit-selection-mode'],
+    };
+  }
+
+  if (
+    typeof input.page === 'number' &&
+    typeof input.totalPages === 'number' &&
+    input.totalPages > 0 &&
+    input.page > input.totalPages
+  ) {
+    return {
+      variant: 'page-out-of-range',
+      title: 'Seite nicht gefunden',
+      description: `Die angeforderte Seite ${input.page} existiert nicht. Es sind ${input.totalPages} ${input.totalPages === 1 ? 'Seite' : 'Seiten'} verfügbar.`,
+      actions: ['go-to-first-page'],
+    };
+  }
+
+  const hasSearch = Boolean(input.searchQuery && input.searchQuery.trim().length > 0);
+  const isStatusDefault = !input.statusFilter || input.statusFilter === 'all';
+  const isCategoryDefault = !input.categoryFilter || input.categoryFilter === 'all';
+  const isTimeDefault = !input.timeFilter || input.timeFilter === 'all';
+  const isDateDefault = !input.dateFilter || input.dateFilter === 'all';
+
+  if (
+    input.approvalFilter === 'pending' &&
+    !hasSearch &&
+    isStatusDefault &&
+    isCategoryDefault &&
+    isTimeDefault &&
+    isDateDefault
+  ) {
+    return {
+      variant: 'pending-clear',
+      title: 'Keine ausstehenden Events',
+      description: 'Alles moderiert! Aktuell liegen keine Events zur Freigabe vor.',
+      actions: ['show-all-events'],
+    };
+  }
+
+  if (
+    input.timeFilter &&
+    input.timeFilter !== 'all' &&
+    !hasSearch &&
+    isStatusDefault &&
+    (!input.approvalFilter || input.approvalFilter === 'all') &&
+    isCategoryDefault &&
+    isDateDefault
+  ) {
+    let periodTitle = 'Keine Events im gewählten Zeitraum';
+    if (input.timeFilter === 'week') {
+      periodTitle = input.selectedWeek
+        ? `Keine Events in KW ${input.selectedWeek}`
+        : 'Keine Events in der gewählten Kalenderwoche';
+    } else if (input.timeFilter === 'month') {
+      const foundMonth = input.monthOptions?.find(m => m.key === input.selectedMonth);
+      const monthLabel = foundMonth?.label;
+      periodTitle = monthLabel
+        ? `Keine Events im ${monthLabel}`
+        : 'Keine Events im gewählten Monat';
+    }
+
+    return {
+      variant: 'period',
+      title: periodTitle,
+      description: 'Für diesen Zeitraum wurden bisher keine Events eingetragen.',
+      actions: ['clear-time-filter', 'create-event'],
+    };
+  }
+
+  if (input.hasActiveFilters) {
+    const chips = buildActiveFilterChips(input);
+    const filterSummary = chips.map(c => c.label).join(', ');
+    const description = filterSummary
+      ? `Aktive Filter: ${filterSummary}`
+      : 'Keine Events stimmen mit den gewählten Filterkriterien überein.';
+    const actions: EventListEmptyStateAction[] = ['reset-all-filters'];
+    if (hasSearch) {
+      actions.push('clear-search');
+    }
+    actions.push('create-event');
+
+    return {
+      variant: 'filtered',
+      title: 'Keine Events für die aktuelle Suche und Filter.',
+      description,
+      actions,
+    };
+  }
+
+  return {
+    variant: 'empty',
+    title: 'Keine Events vorhanden.',
+    description: 'Erstelle das erste Event oder importiere bestehende Termine per CSV.',
+    actions: ['create-event', 'import-csv'],
+  };
 }

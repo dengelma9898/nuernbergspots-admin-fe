@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import {
@@ -8,9 +9,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CalendarWeekSelect } from '@/components/ui/calendar-week-select';
+import { EventListActiveFilters } from '@/components/events/EventListActiveFilters';
 import { EventCategory } from '@/models/event-category';
+import { EVENT_LIST_SORT_OPTIONS, EventListSortOption } from '@/models/events-list';
 import { inputPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
+import { ActiveFilterType, buildActiveFilterChips } from '@/utils/eventListUtils';
 
 interface EventListFiltersProps {
   searchQuery: string;
@@ -31,6 +35,11 @@ interface EventListFiltersProps {
   onDateFilterChange: (value: string) => void;
   categories: EventCategory[];
   monthOptions: { key: string; label: string }[];
+  categoryById?: Map<string, EventCategory>;
+  onClearFilter?: (type: ActiveFilterType) => void;
+  onResetAllFilters?: () => void;
+  sortOption?: EventListSortOption;
+  onSortOptionChange?: (value: EventListSortOption) => void;
 }
 
 const filterTriggerClass = cn(inputPreset, 'w-full min-w-[9.5rem] sm:w-auto sm:min-w-[10.5rem]');
@@ -54,7 +63,40 @@ export function EventListFilters({
   onDateFilterChange,
   categories,
   monthOptions,
+  categoryById,
+  onClearFilter,
+  onResetAllFilters,
+  sortOption,
+  onSortOptionChange,
 }: EventListFiltersProps) {
+  const activeChips = useMemo(
+    () =>
+      buildActiveFilterChips({
+        searchQuery,
+        statusFilter,
+        approvalFilter,
+        categoryFilter,
+        timeFilter,
+        selectedWeek,
+        selectedMonth,
+        dateFilter,
+        categoryById,
+        monthOptions,
+      }),
+    [
+      searchQuery,
+      statusFilter,
+      approvalFilter,
+      categoryFilter,
+      timeFilter,
+      selectedWeek,
+      selectedMonth,
+      dateFilter,
+      categoryById,
+      monthOptions,
+    ]
+  );
+
   return (
     <div className="flex flex-col gap-3">
       <div className="relative w-full">
@@ -143,7 +185,34 @@ export function EventListFilters({
             <SelectItem value="no-date">Ohne Datum</SelectItem>
           </SelectContent>
         </Select>
+        {sortOption && onSortOptionChange ? (
+          <Select
+            value={sortOption}
+            onValueChange={value => onSortOptionChange(value as EventListSortOption)}
+          >
+            <SelectTrigger
+              className={cn(filterTriggerClass, 'sm:ml-auto')}
+              aria-label="Sortierung wählen"
+            >
+              <SelectValue placeholder="Sortieren nach" />
+            </SelectTrigger>
+            <SelectContent>
+              {EVENT_LIST_SORT_OPTIONS.map(option => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : null}
       </div>
+      {onClearFilter && onResetAllFilters && activeChips.length > 0 ? (
+        <EventListActiveFilters
+          chips={activeChips}
+          onClearFilter={onClearFilter}
+          onResetAll={onResetAllFilters}
+        />
+      ) : null}
     </div>
   );
 }

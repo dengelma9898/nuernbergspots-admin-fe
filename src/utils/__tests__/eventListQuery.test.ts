@@ -28,6 +28,29 @@ describe('eventListQuery', () => {
     });
   });
 
+  it('verwendet standardmäßig startDate desc und mappt Sortier-Optionen', () => {
+    const base = {
+      searchQuery: '',
+      statusFilter: 'all',
+      approvalFilter: 'all',
+      categoryFilter: 'all',
+      dateFilter: 'all',
+      timeFilter: 'all',
+      selectedWeek: '',
+      selectedMonth: '',
+      page: 1,
+    };
+    expect(buildEventsListQueryParams(base)).toMatchObject({ sort: 'startDate', order: 'desc' });
+    expect(buildEventsListQueryParams({ ...base, sortOption: 'startDate-asc' })).toMatchObject({
+      sort: 'startDate',
+      order: 'asc',
+    });
+    expect(buildEventsListQueryParams({ ...base, sortOption: 'updatedAt-desc' })).toMatchObject({
+      sort: 'updatedAt',
+      order: 'desc',
+    });
+  });
+
   it('serialisiert Pagination-Defaults für Listen-Requests', () => {
     const query = serializeEventsListQuery({ page: 1, limit: 50, facets: true });
     expect(query).toContain('page=1');

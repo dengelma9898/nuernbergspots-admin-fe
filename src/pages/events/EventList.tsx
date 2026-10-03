@@ -6,6 +6,7 @@ import { LoadingButton } from '@/components/LoadingButton';
 import { BulkCategoryDialog } from '@/components/events/BulkCategoryDialog';
 import { EventBulkPartialDialog } from '@/components/events/EventBulkPartialDialog';
 import { EventDeleteDialog } from '@/components/events/EventDeleteDialog';
+import { EventListEmptyState } from '@/components/events/EventListEmptyState';
 import { EventListFilters } from '@/components/events/EventListFilters';
 import { EventListHeader } from '@/components/events/EventListHeader';
 import { EventListPagination } from '@/components/events/EventListPagination';
@@ -19,7 +20,13 @@ import { fadeInUp, defaultTransition } from '@/lib/animations';
 import { cardPreset, buttonPreset, listSectionPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { showSuccessMessage, showUserFriendlyError } from '@/utils/errorUtils';
-import { buildCategoryMap, groupEventsByMonth, sortMonthKeys } from '@/utils/eventListUtils';
+import {
+  buildCategoryMap,
+  getEventListEmptyState,
+  groupEventsByMonth,
+  groupEventsFlat,
+  sortMonthKeys,
+} from '@/utils/eventListUtils';
 import { downloadCsvContent } from '@/utils/csvExport';
 
 export { EventCard } from '@/components/events/EventListCard';
@@ -64,9 +71,62 @@ export const EventList: React.FC = () => {
   });
 
   const displayEvents = bulk.visibleEvents;
-  const groupedEventsByMonth = useMemo(() => groupEventsByMonth(displayEvents), [displayEvents]);
-  const sortedMonths = useMemo(() => sortMonthKeys(groupedEventsByMonth), [groupedEventsByMonth]);
+  const isFlatSort = filters.sortOption === 'updatedAt-desc';
+  const groupedEventsByMonth = useMemo(
+    () => (isFlatSort ? groupEventsFlat(displayEvents) : groupEventsByMonth(displayEvents)),
+    [displayEvents, isFlatSort]
+  );
+  const sortedMonths = useMemo(
+    () =>
+      isFlatSort
+        ? Object.keys(groupedEventsByMonth)
+        : sortMonthKeys(
+            groupedEventsByMonth,
+            filters.sortOption === 'startDate-asc' ? 'asc' : 'desc'
+          ),
+    [groupedEventsByMonth, isFlatSort, filters.sortOption]
+  );
   const totalCount = meta?.total ?? displayEvents.length;
+
+  const emptyState = useMemo(
+    () =>
+      getEventListEmptyState({
+        totalCount,
+        displayCount: displayEvents.length,
+        isSelectionMode: bulk.isSelectionMode,
+        page: filters.page,
+        totalPages: meta?.totalPages,
+        hasActiveFilters: filters.hasActiveFilters,
+        searchQuery: filters.searchQuery,
+        statusFilter: filters.statusFilter,
+        approvalFilter: filters.approvalFilter,
+        categoryFilter: filters.categoryFilter,
+        timeFilter: filters.timeFilter,
+        selectedWeek: filters.selectedWeek,
+        selectedMonth: filters.selectedMonth,
+        dateFilter: filters.dateFilter,
+        monthOptions,
+        categoryById,
+      }),
+    [
+      totalCount,
+      displayEvents.length,
+      bulk.isSelectionMode,
+      filters.page,
+      meta?.totalPages,
+      filters.hasActiveFilters,
+      filters.searchQuery,
+      filters.statusFilter,
+      filters.approvalFilter,
+      filters.categoryFilter,
+      filters.timeFilter,
+      filters.selectedWeek,
+      filters.selectedMonth,
+      filters.dateFilter,
+      monthOptions,
+      categoryById,
+    ]
+  );
 
   const handleCopy = useCallback(
     (id: string) => {
@@ -119,6 +179,7 @@ export const EventList: React.FC = () => {
           <EventListHeader
             pendingAccess={pendingAccess}
             pendingModerationCount={pendingModerationCount}
+            onFilterPending={() => filters.setApprovalFilter('pending')}
             isSelectionMode={bulk.isSelectionMode}
             isAdminOrSuperAdmin={isAdminOrSuperAdmin}
             selectedCount={bulk.selectedEventIds.size}
@@ -160,63 +221,44 @@ export const EventList: React.FC = () => {
             onDateFilterChange={filters.handleDateFilterChange}
             categories={categories}
             monthOptions={monthOptions}
+            categoryById={categoryById}
+            onClearFilter={filters.clearFilter}
+            onResetAllFilters={filters.resetAllFilters}
+            sortOption={filters.sortOption}
+            onSortOptionChange={filters.setSortOption}
           />
         </motion.div>
 
-        {totalCount === 0 ? (
-          <div className={cn(cardPreset, 'p-8 text-center space-y-4')}>
-            <div className="text-muted-foreground text-lg">
-              {filters.hasActiveFilters
-                ? 'Keine Events für die aktuelle Suche und Filter.'
-                : 'Keine Events vorhanden.'}
-            </div>
-            {filters.searchQuery ? (
-              <p className="text-sm text-muted-foreground">Suche: „{filters.searchQuery}“</p>
-            ) : null}
-            <div className="flex flex-col sm:flex-row gap-2 justify-center">
-              {filters.hasActiveFilters ? (
-                <LoadingButton
-                  variant="outline"
-                  onClick={filters.resetAllFilters}
-                  className={cn(buttonPreset, 'w-full sm:w-auto')}
-                >
-                  Filter zurücksetzen
-                </LoadingButton>
-              ) : null}
-              <LoadingButton
-                onClick={() => navigate('/create-event')}
-                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                Event hinzufügen
-              </LoadingButton>
-            </div>
-          </div>
+        {displayEvents.length === 0 ? (
+          <EventListEmptyState
+            emptyState={emptyState}
+            onResetAllFilters={filters.resetAllFilters}
+            onClearSearch={() => filters.clearFilter('search')}
+            onClearTimeFilter={() => filters.clearFilter('time')}
+            onShowAllEvents={() => filters.clearFilter('approval')}
+            onExitSelectionMode={bulk.exitSelectionMode}
+            onGoToFirstPage={() => handlePageChange(1)}
+            onCreateEvent={() => navigate('/create-event')}
+            onImportCsv={() => navigate('/events/import/csv')}
+          />
         ) : (
           <>
             {meta ? (
               <EventListPagination meta={meta} loading={loading} onPageChange={handlePageChange} />
             ) : null}
-            {sortedMonths.length === 0 ? (
-              <div className={cn(cardPreset, 'p-8 text-center')}>
-                <div className="text-muted-foreground text-lg">
-                  Keine Gruppen gefunden auf dieser Seite.
-                </div>
-              </div>
-            ) : (
-              <EventListVirtualized
-                sortedMonths={sortedMonths}
-                groupedEventsByMonth={groupedEventsByMonth}
-                categoryById={categoryById}
-                pendingAccess={pendingAccess}
-                approvingEventId={approvingEventId}
-                isSelectionMode={bulk.isSelectionMode}
-                selectedEventIds={bulk.selectedEventIds}
-                onDelete={handleDelete}
-                onApprove={handleApproveEvent}
-                onCopy={handleCopy}
-                onToggleSelection={bulk.toggleEventSelection}
-              />
-            )}
+            <EventListVirtualized
+              sortedMonths={sortedMonths}
+              groupedEventsByMonth={groupedEventsByMonth}
+              categoryById={categoryById}
+              pendingAccess={pendingAccess}
+              approvingEventId={approvingEventId}
+              isSelectionMode={bulk.isSelectionMode}
+              selectedEventIds={bulk.selectedEventIds}
+              onDelete={handleDelete}
+              onApprove={handleApproveEvent}
+              onCopy={handleCopy}
+              onToggleSelection={bulk.toggleEventSelection}
+            />
             {meta ? (
               <EventListPagination meta={meta} loading={loading} onPageChange={handlePageChange} />
             ) : null}

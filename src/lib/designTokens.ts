@@ -51,5 +51,11 @@ export const badgePreset = cn(
   'rounded-md'
 );
 
+/** Badge für ausstehende Moderation (Token-basiert, kontrastsicher in Hell/Dunkel) */
+export const moderationPendingBadgeClass = cn(
+  badgePreset,
+  'border-tertiary text-foreground bg-tertiary/10 gap-1'
+);
+
 /** Listen-Header und Filter-Sections (kompakte Admin-Dichte) */
 export const listSectionPreset = cn(cardPreset, 'p-4 mb-6');

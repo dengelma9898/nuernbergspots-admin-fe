@@ -20,6 +20,8 @@ export function useEventListData(listQuery: EventListQueryInput) {
   const [events, setEvents] = useState<Event[]>([]);
   const [meta, setMeta] = useState<PaginationMeta | null>(null);
   const [facets, setFacets] = useState<EventsListFacets>(EMPTY_FACETS);
+  const facetsRef = useRef<EventsListFacets>(EMPTY_FACETS);
+  facetsRef.current = facets;
   const [categories, setCategories] = useState<EventCategory[]>(
     shouldUseEventCategoryCache && cachedEventCategories ? cachedEventCategories : []
   );
@@ -65,7 +67,9 @@ export function useEventListData(listQuery: EventListQueryInput) {
         }
         setEvents(response.data);
         setMeta(response.meta);
-        setFacets(response.facets ?? EMPTY_FACETS);
+        const nextFacets = response.facets ?? EMPTY_FACETS;
+        facetsRef.current = nextFacets;
+        setFacets(nextFacets);
         return true;
       } catch (error) {
         if (requestId !== listRequestIdRef.current) {
@@ -175,12 +179,20 @@ export function useEventListData(listQuery: EventListQueryInput) {
       }
       try {
         setApprovingEventId(eventId);
+        const approvedEvent = events.find(e => e.id === eventId);
         await eventService.approveEvent(eventId);
-        showSuccessMessage(toast, {
-          title: 'Event freigegeben',
-          description: 'Das Event ist jetzt aktiv und für Nutzer sichtbar.',
-        });
         await loadList({ silent: true });
+        const remainingCount = facetsRef.current.pendingCount ?? 0;
+        const titleSuffix = approvedEvent?.title ? ` „${approvedEvent.title}“` : '';
+        const description =
+          remainingCount > 0
+            ? `Das Event ist jetzt aktiv. Noch ${remainingCount} ausstehend.`
+            : 'Das Event ist jetzt aktiv. Keine weiteren Events ausstehend.';
+
+        showSuccessMessage(toast, {
+          title: `Event${titleSuffix} freigegeben`,
+          description,
+        });
       } catch (error) {
         console.error('Fehler bei der Freigabe:', error);
         showUserFriendlyError(
@@ -193,7 +205,7 @@ export function useEventListData(listQuery: EventListQueryInput) {
         setApprovingEventId(null);
       }
     },
-    [approvingEventId, eventService, loadList, loading]
+    [approvingEventId, eventService, events, loadList, loading]
   );
 
   const handleManualRefresh = async () => {

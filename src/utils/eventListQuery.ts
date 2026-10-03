@@ -1,15 +1,18 @@
 import {
+  DEFAULT_EVENT_LIST_SORT,
   EVENT_LIST_PAGE_SIZE,
   EventListQueryInput,
   EventsListQueryParams,
+  parseEventListSortOption,
 } from '@/models/events-list';
 
 export function buildEventsListQueryParams(input: EventListQueryInput): EventsListQueryParams {
+  const { sort, order } = parseEventListSortOption(input.sortOption ?? DEFAULT_EVENT_LIST_SORT);
   const params: EventsListQueryParams = {
     page: input.page,
     limit: EVENT_LIST_PAGE_SIZE,
-    sort: 'startDate',
-    order: 'desc',
+    sort,
+    order,
     facets: true,
   };
 

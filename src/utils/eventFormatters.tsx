@@ -83,7 +83,7 @@ export const getEventStatus = (event: Event): EventStatus => {
     }
 
     return {
-      label: 'Unbekannt',
+      label: 'Ohne Datum',
       icon: <AlertCircle className="h-4 w-4" />,
       variant: 'secondary' as const,
     };

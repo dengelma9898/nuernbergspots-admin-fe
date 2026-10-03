@@ -3,7 +3,7 @@ import { isFuture, isPast, isWithinInterval } from 'date-fns';
 import { toast } from 'sonner';
 import type { Mock } from 'vitest';
 import React from 'react';
-import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup, within } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { EventList, EventCard } from '../EventList';
 import * as eventFilterUtils from '@/utils/eventFilterUtils';
@@ -126,6 +126,29 @@ vi.mock('@/components/ui/calendar-week-select', async () => ({
   ),
 }));
 
+vi.mock('@/components/ui/dropdown-menu', async () => ({
+  DropdownMenu: ({ children }: any) => <div data-testid="dropdown-menu">{children}</div>,
+  DropdownMenuContent: ({ children, className }: any) => (
+    <div data-testid="dropdown-menu-content" className={className}>
+      {children}
+    </div>
+  ),
+  DropdownMenuItem: ({ children, onClick, disabled, className }: any) => (
+    <button
+      type="button"
+      data-testid="dropdown-menu-item"
+      className={className}
+      disabled={disabled}
+      onClick={disabled ? undefined : onClick}
+    >
+      {children}
+    </button>
+  ),
+  DropdownMenuTrigger: ({ children }: any) => (
+    <div data-testid="dropdown-menu-trigger">{children}</div>
+  ),
+}));
+
 vi.mock('@tanstack/react-virtual', async () => ({
   useWindowVirtualizer: ({ count }: { count: number }) => ({
     getTotalSize: () => count * 400,
@@ -178,6 +201,8 @@ vi.mock('sonner', async () => ({
   toast: {
     error: vi.fn(),
     success: vi.fn(),
+    warning: vi.fn(),
+    info: vi.fn(),
   },
 }));
 
@@ -260,6 +285,7 @@ const mockEventService = {
   getPendingEvents: vi.fn(),
   approveEvent: vi.fn(),
   deleteEvent: vi.fn(),
+  bulkUpdateCategory: vi.fn(),
 };
 const mockEventCategoryService = {
   getCategories: vi.fn(),
@@ -448,7 +474,10 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(screen.getAllByText('Mehrfachauswahl')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Mehr')[0]).toBeInTheDocument();
         expect(screen.getAllByText('CSV Import')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('CSV Export (gefiltert)')[0]).toBeInTheDocument();
+        expect(screen.getAllByText('Aktualisieren')[0]).toBeInTheDocument();
         expect(screen.getAllByText('Event hinzufügen')[0]).toBeInTheDocument();
       });
     });
@@ -492,6 +521,30 @@ describe('EventList Component', () => {
       });
     });
 
+    it('sollte zum CSV Import navigieren beim Klick im Mehr-Menü', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('CSV Import')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('CSV Import'));
+      expect(mockNavigate).toHaveBeenCalledWith('/events/import/csv');
+    });
+
+    it('sollte CSV exportieren beim Klick im Mehr-Menü', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('CSV Export (gefiltert)')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('CSV Export (gefiltert)'));
+      await waitFor(() => {
+        expect(mockEventService.exportEventsList).toHaveBeenCalled();
+      });
+    });
+
     it('sollte Auswahlmodus aktivieren beim Klick auf Mehrfachauswahl', async () => {
       renderWithRouter(<EventList />);
 
@@ -505,7 +558,7 @@ describe('EventList Component', () => {
       // Nach dem Klick sollte der Auswahlmodus aktiv sein
       await waitFor(() => {
         expect(
-          screen.getByText('Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar')
+          screen.getByText('Auswahlmodus – nur aktuelle und kommende Events')
         ).toBeInTheDocument();
         expect(screen.getByText('Alle auswählen')).toBeInTheDocument();
         expect(screen.getByText('Auswahl aufheben')).toBeInTheDocument();
@@ -573,7 +626,7 @@ describe('EventList Component', () => {
 
       await waitFor(() => {
         expect(
-          screen.queryByText('Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar')
+          screen.queryByText('Auswahlmodus – nur aktuelle und kommende Events')
         ).not.toBeInTheDocument();
       });
     });
@@ -615,6 +668,182 @@ describe('EventList Component', () => {
         // Der Kategorie-Filter sollte die Kategorie "Kultur" enthalten
         expect(screen.getAllByText('Kultur')[0]).toBeInTheDocument();
       });
+    });
+
+    it('sollte Filter-Chip anzeigen beim Suchen und per Klick entfernen', async () => {
+      const searchInput = screen.getByPlaceholderText('Nach Event-Namen suchen...');
+      fireEvent.change(searchInput, { target: { value: 'Konzert' } });
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: /Filter Suche: „Konzert“ entfernen/i })
+        ).toBeInTheDocument();
+      });
+
+      const chip = screen.getByRole('button', { name: /Filter Suche: „Konzert“ entfernen/i });
+      fireEvent.click(chip);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('button', { name: /Filter Suche: „Konzert“ entfernen/i })
+        ).not.toBeInTheDocument();
+        expect(searchInput).toHaveValue('');
+      });
+    });
+
+    it('sollte alle Filter zuruecksetzen ueber den Reset-Button der Chip-Leiste', async () => {
+      const searchInput = screen.getByPlaceholderText('Nach Event-Namen suchen...');
+      fireEvent.change(searchInput, { target: { value: 'Konzert' } });
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', { name: 'Alle Filter zurücksetzen' })
+        ).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Alle Filter zurücksetzen' }));
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('button', { name: 'Alle Filter zurücksetzen' })
+        ).not.toBeInTheDocument();
+        expect(searchInput).toHaveValue('');
+      });
+    });
+  });
+
+  describe('Pending Moderation Badge', () => {
+    it('sollte ausstehende Events filtern beim Klick auf Pending-Badge', async () => {
+      mockUserService.getUserProfile.mockResolvedValue({ userType: 'admin' });
+      mockEventService.getEventsList.mockResolvedValue({
+        ...createEventsListResponse([mockEvent]),
+        facets: {
+          pendingCount: 3,
+          monthOptions: [{ key: '2024-06', label: 'Juni 2024' }],
+        },
+      });
+
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('3 ausstehend')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByText('3 ausstehend'));
+
+      await waitFor(() => {
+        expect(mockEventService.getEventsList).toHaveBeenCalledWith(
+          expect.objectContaining({ approval: 'pending' })
+        );
+      });
+    });
+  });
+
+  describe('Sortierung', () => {
+    it('sendet Standard-Sortierung (startDate desc) und rendert das Sortier-Select', async () => {
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockEventService.getEventsList).toHaveBeenCalledWith(
+          expect.objectContaining({ sort: 'startDate', order: 'desc' })
+        );
+      });
+      expect(screen.getByLabelText('Sortierung wählen')).toBeInTheDocument();
+    });
+
+    it('übernimmt sort=startDate-asc aus der URL in den API-Aufruf', async () => {
+      window.history.pushState({}, '', '/events?sort=startDate-asc');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockEventService.getEventsList).toHaveBeenCalledWith(
+          expect.objectContaining({ sort: 'startDate', order: 'asc' })
+        );
+      });
+    });
+
+    it('übernimmt sort=updatedAt-desc und zeigt eine flache Gruppe "Zuletzt geändert"', async () => {
+      window.history.pushState({}, '', '/events?sort=updatedAt-desc');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockEventService.getEventsList).toHaveBeenCalledWith(
+          expect.objectContaining({ sort: 'updatedAt', order: 'desc' })
+        );
+        expect(screen.getAllByText('Zuletzt geändert').length).toBeGreaterThan(0);
+      });
+    });
+
+    it('fällt bei ungültigem sort-Param auf den Standard zurück', async () => {
+      window.history.pushState({}, '', '/events?sort=foo');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(mockEventService.getEventsList).toHaveBeenCalledWith(
+          expect.objectContaining({ sort: 'startDate', order: 'desc' })
+        );
+      });
+    });
+  });
+
+  describe('Bulk & Moderation Feedback', () => {
+    it('erzeugt Erfolgs-Toast mit Event-Titel und Rest-Zähler beim Freigeben', async () => {
+      mockUserService.getUserProfile.mockResolvedValue({ userType: 'admin' });
+      mockEventService.approveEvent.mockResolvedValue({});
+      mockEventService.getEventsList
+        .mockResolvedValueOnce({
+          ...createEventsListResponse([{ ...mockEvent, status: 'PENDING' }]),
+          facets: { pendingCount: 2, monthOptions: [] },
+        })
+        .mockResolvedValueOnce({
+          ...createEventsListResponse([{ ...mockEvent, status: 'ACTIVE' }]),
+          facets: { pendingCount: 1, monthOptions: [] },
+        });
+
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Freigeben/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Freigeben/i }));
+
+      await waitFor(() => {
+        expect(mockEventService.approveEvent).toHaveBeenCalledWith(mockEvent.id);
+        expect(toast.success).toHaveBeenCalledWith(
+          expect.stringContaining('Konzert im Park'),
+          expect.objectContaining({
+            description: expect.stringContaining('Noch 1 ausstehend'),
+          })
+        );
+      });
+    });
+
+    it('erzeugt Feedback-Toast beim Starten des Bild-Editors', async () => {
+      vi.mocked(eventFilterUtils.isEventPast).mockImplementation(
+        event => event.id === 'event-past'
+      );
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Mehrfachauswahl/i })).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Mehrfachauswahl/i }));
+
+      const selectAllButton = screen.getByRole('button', { name: /Alle auswählen/i });
+      fireEvent.click(selectAllButton);
+
+      const imageButton = screen.getByRole('button', { name: /Social-Bild erstellen/i });
+      fireEvent.click(imageButton);
+
+      expect(toast.success).toHaveBeenCalledWith(
+        'Bild-Editor geöffnet',
+        expect.objectContaining({
+          description: expect.stringContaining('an den Bild-Editor übergeben'),
+        })
+      );
+      expect(mockNavigate).toHaveBeenCalledWith('/events/image-editor', expect.any(Object));
     });
   });
 
@@ -662,6 +891,51 @@ describe('EventList Component', () => {
         expect(screen.getByText('Keine Events vorhanden.')).toBeInTheDocument();
       });
       expect(screen.getAllByRole('button', { name: 'Event hinzufügen' }).length).toBeGreaterThan(0);
+    });
+
+    it('sollte differenzierten Empty-State für Zeitraum (KW) anzeigen', async () => {
+      window.history.pushState({}, '', '/events?time=week&week=46');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Keine Events in KW 46')).toBeInTheDocument();
+        expect(screen.getByText(/Anderen Zeitraum wählen/i)).toBeInTheDocument();
+      });
+    });
+
+    it('sollte differenzierten Empty-State für Moderation (pending) anzeigen', async () => {
+      window.history.pushState({}, '', '/events?approval=pending');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Keine ausstehenden Events')).toBeInTheDocument();
+        expect(screen.getByText(/Alle Events anzeigen/i)).toBeInTheDocument();
+      });
+    });
+
+    it('sollte differenzierten Empty-State für aktive Filter anzeigen und zurücksetzen können', async () => {
+      window.history.pushState({}, '', '/events?status=future&q=Konzert');
+      renderWithRouter(<EventList />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Keine Events für die aktuelle Suche und Filter.')
+        ).toBeInTheDocument();
+        expect(
+          within(screen.getByRole('status')).getByRole('button', {
+            name: /Filter zurücksetzen/i,
+          })
+        ).toBeInTheDocument();
+      });
+
+      const resetButton = within(screen.getByRole('status')).getByRole('button', {
+        name: /Filter zurücksetzen/i,
+      });
+      fireEvent.click(resetButton);
+
+      await waitFor(() => {
+        expect(window.location.search).toBe('');
+      });
     });
   });
 

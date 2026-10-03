@@ -93,6 +93,12 @@ export function useEventBulkSelection({
       ? selectableEvents.filter(event => selectedEventIds.has(event.id))
       : selectableEvents;
 
+    const count = eventsForImage.length;
+    showSuccessMessage(toast, {
+      title: 'Bild-Editor geöffnet',
+      description: `${count} Event${count === 1 ? '' : 's'} an den Bild-Editor übergeben.`,
+    });
+
     navigate('/events/image-editor', {
       state: {
         events: eventsForImage,
@@ -117,6 +123,8 @@ export function useEventBulkSelection({
       return;
     }
     setBulkSubmitting(true);
+    const targetCategory = categories.find(cat => cat.id === categoryId);
+    const categoryName = targetCategory?.name ?? 'Kategorie';
     try {
       const result = await eventServiceRef.current.bulkUpdateCategory({
         eventIds: [...selectedEventIds],
@@ -126,8 +134,8 @@ export function useEventBulkSelection({
 
       if (result.failed === 0) {
         showSuccessMessage(toast, {
-          title: 'Kategorien aktualisiert',
-          description: `${result.successful} Event${result.successful === 1 ? '' : 's'} wurde${result.successful === 1 ? '' : 'n'} aktualisiert.`,
+          title: 'Kategorie zugewiesen',
+          description: `${result.successful} Event${result.successful === 1 ? '' : 's'} → Kategorie „${categoryName}“.`,
         });
         setBulkCategoryDialogOpen(false);
         exitSelectionMode();
@@ -137,7 +145,7 @@ export function useEventBulkSelection({
         setBulkPartialDialogOpen(true);
         setBulkCategoryDialogOpen(false);
         toast.warning('Teilweise erfolgreich', {
-          description: `${result.successful} von ${result.total} Events aktualisiert, ${result.failed} fehlgeschlagen.`,
+          description: `${result.successful} von ${result.total} Events auf Kategorie „${categoryName}“ aktualisiert, ${result.failed} fehlgeschlagen.`,
         });
         await reloadList();
       }
@@ -177,6 +185,7 @@ export function useEventBulkSelection({
     bulkPartialResult,
     bulkPartialDialogOpen,
     toggleSelectionMode,
+    exitSelectionMode,
     toggleEventSelection,
     selectAllVisibleEvents,
     deselectAllEvents,

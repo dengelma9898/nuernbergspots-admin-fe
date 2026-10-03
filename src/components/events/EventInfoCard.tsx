@@ -19,7 +19,8 @@ import { cardPreset, inputPreset, buttonPreset } from '@/lib/designTokens';
 import { cn } from '@/lib/utils';
 import { getIconComponent } from '@/utils/iconUtils';
 import { EventStatus } from '@/utils/eventFormatters';
-import { convertFFToHex, getContrastTextColor } from '@/utils/eventListUtils';
+import { convertFFToHex, getBadgeColorStyle, getContrastTextColor } from '@/utils/eventListUtils';
+import { ModerationBadge, EventTimeStatusBadge } from '@/components/events/EventStatusBadges';
 import { Euro, Star, Tag, AlertCircle } from 'lucide-react';
 
 interface EventInfoCardProps {
@@ -53,19 +54,8 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
         <div className="flex justify-between items-start">
           <CardTitle className="text-foreground">Event Informationen</CardTitle>
           <div className="flex items-center gap-2">
-            {event.status === 'PENDING' ? (
-              <Badge
-                variant="outline"
-                className="border-amber-400/70 text-amber-100 bg-amber-500/15 border-secondary"
-              >
-                <AlertCircle className="mr-1 h-3 w-3" />
-                Ausstehend
-              </Badge>
-            ) : null}
-            <Badge variant={status.variant} className="border-secondary">
-              {status.icon}
-              <span className="ml-1">{status.label}</span>
-            </Badge>
+            {event.status === 'PENDING' ? <ModerationBadge status={event.status} /> : null}
+            <EventTimeStatusBadge status={status} />
             {event.isPromoted && (
               <Badge className="bg-tertiary text-tertiary-foreground border-secondary">
                 <Star className="mr-1 h-4 w-4 fill-current" />
@@ -73,18 +63,30 @@ export const EventInfoCard: React.FC<EventInfoCardProps> = ({
               </Badge>
             )}
             {selectedCategory ? (
-              <Badge
-                className="text-xs flex items-center border-secondary"
-                style={{
-                  backgroundColor: convertFFToHex(selectedCategory.colorCode),
-                  color: getContrastTextColor(convertFFToHex(selectedCategory.colorCode)),
-                }}
-              >
-                <span className="mr-1 flex items-center">
-                  {getIconComponent(selectedCategory.iconName)}
-                </span>
-                {selectedCategory.name}
-              </Badge>
+              (() => {
+                const badgeStyle = getBadgeColorStyle(convertFFToHex(selectedCategory.colorCode));
+                return (
+                  <Badge
+                    className={cn(
+                      'text-xs flex items-center border-secondary',
+                      badgeStyle.className
+                    )}
+                    style={badgeStyle.style}
+                  >
+                    {badgeStyle.dotColor && (
+                      <span
+                        className="w-2 h-2 rounded-full mr-1 shrink-0"
+                        style={{ backgroundColor: badgeStyle.dotColor }}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <span className="mr-1 flex items-center">
+                      {getIconComponent(selectedCategory.iconName)}
+                    </span>
+                    {selectedCategory.name}
+                  </Badge>
+                );
+              })()
             ) : (
               <Badge variant="outline" className="text-xs flex items-center border-secondary">
                 <Tag className="mr-1 h-3 w-3" />

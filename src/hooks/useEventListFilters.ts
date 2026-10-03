@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { DEFAULT_EVENT_LIST_SORT, EventListSortOption } from '@/models/events-list';
+import { ActiveFilterType } from '@/utils/eventListUtils';
 
 function readParam(
   searchParams: URLSearchParams,
@@ -47,6 +49,15 @@ export function useEventListFilters() {
   );
   const [dateFilter, setDateFilter] = useState<string>(initialDateFilter);
   const [approvalFilter, setApprovalFilter] = useState<string>(initialApprovalFilter);
+  const [sortOption, setSortOption] = useState<EventListSortOption>(
+    () =>
+      readParam(
+        searchParams,
+        'sort',
+        ['startDate-desc', 'startDate-asc', 'updatedAt-desc'],
+        DEFAULT_EVENT_LIST_SORT
+      ) as EventListSortOption
+  );
   const [page, setPage] = useState<number>(() => readPage(searchParams));
   const isFirstFilterEffect = useRef(true);
 
@@ -74,6 +85,7 @@ export function useEventListFilters() {
     selectedMonth,
     dateFilter,
     approvalFilter,
+    sortOption,
   ]);
 
   useEffect(() => {
@@ -126,6 +138,12 @@ export function useEventListFilters() {
       nextParams.delete('approval');
     }
 
+    if (sortOption !== DEFAULT_EVENT_LIST_SORT) {
+      nextParams.set('sort', sortOption);
+    } else {
+      nextParams.delete('sort');
+    }
+
     if (page > 1) {
       nextParams.set('page', String(page));
     } else {
@@ -145,6 +163,7 @@ export function useEventListFilters() {
     selectedWeek,
     selectedMonth,
     setSearchParams,
+    sortOption,
     statusFilter,
     timeFilter,
   ]);
@@ -188,6 +207,32 @@ export function useEventListFilters() {
     setPage(1);
   };
 
+  const clearFilter = (type: ActiveFilterType) => {
+    switch (type) {
+      case 'search':
+        setSearchQuery('');
+        break;
+      case 'status':
+        setStatusFilter('all');
+        break;
+      case 'approval':
+        setApprovalFilter('all');
+        break;
+      case 'category':
+        setCategoryFilter('all');
+        break;
+      case 'time':
+        setTimeFilter('all');
+        setSelectedWeek('');
+        setSelectedMonth('');
+        break;
+      case 'date':
+        setDateFilter('all');
+        break;
+    }
+    setPage(1);
+  };
+
   const hasActiveFilters =
     searchQuery !== '' ||
     statusFilter !== 'all' ||
@@ -209,6 +254,7 @@ export function useEventListFilters() {
       selectedWeek,
       selectedMonth,
       page,
+      sortOption,
     }),
     [
       searchQuery,
@@ -220,6 +266,7 @@ export function useEventListFilters() {
       selectedWeek,
       selectedMonth,
       page,
+      sortOption,
     ]
   );
 
@@ -240,11 +287,14 @@ export function useEventListFilters() {
     setDateFilter,
     approvalFilter,
     setApprovalFilter,
+    sortOption,
+    setSortOption,
     page,
     setPage,
     handleTimeFilterChange,
     handleDateFilterChange,
     resetAllFilters,
+    clearFilter,
     hasActiveFilters,
     listQuery,
   };

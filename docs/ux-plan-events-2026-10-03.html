@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UX-Plan Events-Admin — Nürnbergspots (2026-10-03)</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --fg: #0a0a0a;
+        --muted: #666666;
+        --border: #0a0a0a;
+        --card: #ffffff;
+        --accent: #ef4444;
+        --accent-fg: #ffffff;
+        --ok: #16a34a;
+        --warn: #d97706;
+        --soft: #f5f5f5;
+      }
+      [data-theme='dark'] {
+        --bg: #0a0a0a;
+        --fg: #fafafa;
+        --muted: #a3a3a3;
+        --border: #fafafa;
+        --card: #0a0a0a;
+        --accent: #ef4444;
+        --accent-fg: #ffffff;
+        --ok: #4ade80;
+        --warn: #fbbf24;
+        --soft: #171717;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.6;
+        padding: 1rem;
+        font-size: 14px;
+      }
+      .wrap {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+      header {
+        border: 2px solid var(--border);
+        border-radius: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      h1 {
+        font-size: 1.15rem;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.35rem;
+      }
+      .meta {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        margin: 1rem 0;
+      }
+      .tab {
+        font-family: inherit;
+        font-size: 0.8rem;
+        cursor: pointer;
+        background: var(--card);
+        color: var(--fg);
+        border: 1px solid var(--border);
+        border-radius: 0.5rem;
+        padding: 0.45rem 0.85rem;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .tab:hover {
+        background: var(--soft);
+      }
+      .tab.active {
+        background: var(--border);
+        color: var(--bg);
+      }
+      .toolbar .spacer {
+        flex: 1;
+      }
+      .progress-label {
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      progress {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 10px;
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        background: var(--soft);
+        margin: 0.35rem 0 0;
+        display: block;
+      }
+      progress::-webkit-progress-bar {
+        background: var(--soft);
+        border-radius: 99px;
+      }
+      progress::-webkit-progress-value {
+        background: var(--accent);
+        border-radius: 99px;
+      }
+      progress::-moz-progress-bar {
+        background: var(--accent);
+        border-radius: 99px;
+      }
+      section {
+        margin-bottom: 1.75rem;
+      }
+      h2 {
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      h2 .count {
+        color: var(--muted);
+        font-weight: 400;
+        font-size: 0.78rem;
+      }
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 0.65rem;
+        background: var(--card);
+        margin-bottom: 0.65rem;
+        overflow: hidden;
+      }
+      .card.done {
+        opacity: 0.55;
+      }
+      .card.done .title {
+        text-decoration: line-through;
+      }
+      .row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.8rem 1rem;
+        cursor: pointer;
+      }
+      .row:hover {
+        background: var(--soft);
+      }
+      .row input[type='checkbox'] {
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-top: 0.2rem;
+        accent-color: var(--accent);
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .title {
+        font-weight: 700;
+        font-size: 0.88rem;
+      }
+      .badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.3rem;
+      }
+      .badge {
+        font-size: 0.66rem;
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        padding: 0.1rem 0.55rem;
+        white-space: nowrap;
+      }
+      .badge.prio-critical {
+        background: var(--accent);
+        color: var(--accent-fg);
+        border-color: var(--accent);
+      }
+      .badge.prio-hoch {
+        background: var(--soft);
+      }
+      .badge.prio-mittel {
+        background: var(--soft);
+        color: var(--muted);
+      }
+      .badge.aufwand {
+        color: var(--muted);
+      }
+      .badge.neu {
+        border-style: dashed;
+      }
+      .chev {
+        margin-left: auto;
+        color: var(--muted);
+        transition: transform 0.15s;
+        flex-shrink: 0;
+      }
+      .card.open .chev {
+        transform: rotate(90deg);
+      }
+      .details {
+        display: none;
+        border-top: 1px solid var(--border);
+        padding: 0.9rem 1rem 0.9rem 2.85rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .card.open .details {
+        display: block;
+      }
+      .details code {
+        background: var(--soft);
+        border: 1px solid var(--border);
+        border-radius: 0.3rem;
+        padding: 0.05rem 0.35rem;
+        font-size: 0.75rem;
+        color: var(--fg);
+      }
+      .details ul {
+        margin: 0.4rem 0 0 1.1rem;
+      }
+      .details li {
+        margin-bottom: 0.2rem;
+      }
+      .status-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+      }
+      .status-table th,
+      .status-table td {
+        border: 1px solid var(--border);
+        padding: 0.5rem 0.7rem;
+        text-align: left;
+      }
+      .status-table th {
+        background: var(--soft);
+      }
+      .s {
+        color: var(--ok);
+        font-weight: 700;
+      }
+      .o {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .note {
+        border: 1px dashed var(--border);
+        border-radius: 0.65rem;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      .hidden {
+        display: none;
+      }
+      #themeBtn {
+        font-size: 0.8rem;
+      }
+      @media (max-width: 640px) {
+        .row {
+          padding: 0.7rem 0.75rem;
+        }
+        .details {
+          padding-left: 0.75rem;
+        }
+        h1 {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>UX-Plan: Events-Admin &amp; Global</h1>
+        <div class="meta">
+          Nürnbergspots Admin-FE · Stand 03.10.2026 · Basis: ux-audit-events-page-2026-08-30.md +
+          offene Plans
+        </div>
+        <div style="margin-top: 0.9rem">
+          <div class="progress-label">
+            <span id="doneCount">0</span> von <span id="totalCount">0</span> Maßnahmen erledigt —
+            <span id="donePct">0</span>%
+          </div>
+          <progress id="progressBar" value="0" max="100"></progress>
+        </div>
+      </header>
+
+      <div class="toolbar">
+        <button class="tab active" data-filter="all">Alle</button>
+        <button class="tab" data-filter="a">Sprint A · Quick Wins</button>
+        <button class="tab" data-filter="b">Sprint B · Struktur</button>
+        <button class="tab" data-filter="c">Sprint C · Suche &amp; Hilfe</button>
+        <button class="tab" data-filter="status">Status-Check</button>
+        <span class="spacer"></span>
+        <button class="tab" id="resetBtn" title="Alle Haken zurücksetzen (localStorage)">
+          ↺ Reset
+        </button>
+        <button class="tab" id="themeBtn" title="Hell/Dunkel umschalten">◐ Theme</button>
+      </div>
+
+      <div class="note">
+        Interaktiver Plan: <strong>Häkchen setzen</strong> für erledigte Maßnahmen (wird lokal
+        gespeichert), <strong>Karte anklicken</strong> für Details (Datei-Pfade,
+        Umsetzungshinweise). Sprint-Zuordnung: A = Quick Wins (~2 Tage), B = Struktur (~2–3 Tage), C
+        = optional (~2–3 Tage).
+      </div>
+
+      <section id="sec-status" data-group="status">
+        <h2>Status-Check: Bisherige offene Ideen <span class="count"></span></h2>
+        <table class="status-table">
+          <thead>
+            <tr>
+              <th>Idee</th>
+              <th>Status</th>
+              <th>Evidenz</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Quick Wins F-H1, F-H3, F-C1, F-H5, F-M1, F-M5</td>
+              <td class="s">✓ Erledigt</td>
+              <td>Audit-Doku, Re-Verifikation (validate grün)</td>
+            </tr>
+            <tr>
+              <td>Footer-Overlap-Fix (Event-Card)</td>
+              <td class="s">✓ Umgesetzt</td>
+              <td><code>EventListCard.tsx:401</code> — flex-col</td>
+            </tr>
+            <tr>
+              <td>F-M9: aria-label bei Icon-Aktionen</td>
+              <td class="s">✓ Erledigt</td>
+              <td><code>EventListCard.tsx:428</code></td>
+            </tr>
+            <tr>
+              <td>F-C2: Virtualisierung / Pagination</td>
+              <td class="s">✓ Erledigt</td>
+              <td>
+                <code>EventListPagination</code> + <code>EventListVirtualized</code> in
+                <code>EventList.tsx</code>
+              </td>
+            </tr>
+            <tr>
+              <td>F-H4: Kontrast Kategorie-Badge (axe Serious)</td>
+              <td class="o">✗ Offen</td>
+              <td><code>colorCode</code> als Vollfläche mit hellem Text</td>
+            </tr>
+            <tr>
+              <td>F-M6: Filter-Chips + „Alle zurücksetzen“</td>
+              <td class="o">✗ Offen</td>
+              <td>Keine Chips in <code>EventListFilters.tsx</code></td>
+            </tr>
+            <tr>
+              <td>F-M7: Mobile Header-Overflow-Menü</td>
+              <td class="o">✗ Offen</td>
+              <td>Alle Buttons volle Breite in <code>EventListHeader.tsx</code></td>
+            </tr>
+            <tr>
+              <td>F-M8: „X ausstehend“-Badge klickbar</td>
+              <td class="o">✗ Offen</td>
+              <td>Badge ohne <code>onClick</code> in <code>EventListHeader.tsx:55-60</code></td>
+            </tr>
+            <tr>
+              <td>F-L1 / F-L2 (Low)</td>
+              <td class="o">✗ Offen</td>
+              <td>Audit-Doku</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sec-1" data-group="a b">
+        <h2>1 · Events-Seite: Audit-Findings abschließen <span class="count"></span></h2>
+        <div class="card" data-id="1.1" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.1" />
+            <div style="flex: 1">
+              <div class="title">1.1 Badge-Kontrast Kategorie (F-H4) — Hard-Gate</div>
+              <div class="badges">
+                <span class="badge prio-critical">Kritisch</span
+                ><span class="badge aufwand">S · 2–3 h</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Textfarbe aus <code>category.colorCode</code> berechnen (Luminanz-Check → heller/dunkler
+            Text) oder Badge mit <code>border</code> + dunklem Text statt Vollfläche. Farbtokens
+            statt Hardcode <code>#fff</code>.
+            <ul>
+              <li>Ort: <code>EventListCard.tsx</code> (Badge-Rendering)</li>
+              <li>Ziel: axe <code>color-contrast</code> Serious → 0 Violations</li>
+              <li>Verifikation: axe-Re-Check + Vitest-Kontrasttest</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" data-id="1.2" data-sprints="b">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.2" />
+            <div style="flex: 1">
+              <div class="title">1.2 Aktive Filter-Chips + „Alle Filter zurücksetzen“ (F-M6)</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">M · 1 Tag</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Chip-Leiste unter der Filterzeile (<code>Status: Zukünftig ✕</code>), Reset setzt
+            URL-Params + <code>q</code> zurück.
+            <ul>
+              <li>Ort: <code>EventListFilters.tsx</code>, <code>useEventListFilters.ts</code></li>
+              <li>Self-Service ohne Rätselraten, wichtig bei geteilten URLs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" data-id="1.3" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.3" />
+            <div style="flex: 1">
+              <div class="title">1.3 „X ausstehend“-Badge klickbar (F-M8)</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">S · 1 h</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Badge als Button mit <code>onClick={() => setApprovalFilter('pending')}</code>.
+            <ul>
+              <li>
+                Ort: <code>EventListHeader.tsx:55-60</code>, <code>EventList.tsx:132-149</code>
+              </li>
+              <li>Wichtigster Workflow: Moderation in einem Klick statt Dropdown</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" data-id="1.4" data-sprints="b">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.4" />
+            <div style="flex: 1">
+              <div class="title">1.4 Mobile Header-Overflow-Menü (F-M7)</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span
+                ><span class="badge aufwand">M · 0,5–1 Tag</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Primary CTA „Event hinzufügen“ bleibt sichtbar; CSV Import/Export, Aktualisieren,
+            Mehrfachauswahl in <code>DropdownMenu</code> „Mehr“.
+            <ul>
+              <li>Ort: <code>EventListHeader.tsx</code></li>
+              <li>
+                Mobile-first-Regel aus <code>.cursorrules</code>; Header frisst aktuell den
+                375px-Viewport
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" data-id="1.5" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.5" />
+            <div style="flex: 1">
+              <div class="title">1.5 Auswahl-Banner: flex-wrap + kürzerer Text (F-L2)</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Niedrig</span
+                ><span class="badge aufwand">XS · 30 min</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Ort: <code>EventListSelectionBanner.tsx:20-28</code>. Kleiner Fix, nebenbei erledigt.
+          </div>
+        </div>
+        <div class="card" data-id="1.6" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 1.6" />
+            <div style="flex: 1">
+              <div class="title">1.6 Doppelte Zurück-Navigation konsolidieren (F-L1)</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Niedrig</span
+                ><span class="badge aufwand">XS · 30 min</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Pfeil entfernen oder auf <code>navigate(-1)</code> / letzte Filter-URL zeigen statt
+            statischem Dashboard-Link.
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-2" data-group="a b">
+        <h2>2 · Events-Seite: Neue Verbesserungen <span class="count"></span></h2>
+        <div class="card" data-id="2.1" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 2.1" />
+            <div style="flex: 1">
+              <div class="title">2.1 Bulk-Aktionen: Ergebnis-Feedback prüfen</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Nach „Freigeben / Bild generieren“ Toast mit konkreter Zahl (+ ggf. Undo-Hinweis).
+            Mental Model: „Was ist gerade passiert?“
+          </div>
+        </div>
+        <div class="card" data-id="2.2" data-sprints="b">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 2.2" />
+            <div style="flex: 1">
+              <div class="title">2.2 Empty-States differenzieren</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            „Keine Events in KW 46“ vs. „Filter ohne Treffer“ unterscheiden — unterschiedliche
+            Handlungsempfehlungen (Filter zurücksetzen vs. anderen Zeitraum wählen). Gemäß
+            <code>.cursorrules</code> pageFallbacks.
+          </div>
+        </div>
+        <div class="card" data-id="2.3" data-sprints="b">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 2.3" />
+            <div style="flex: 1">
+              <div class="title">2.3 Status-Badges mit badgePreset vereinheitlichen</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Mittel</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Farblogik (freigegeben / ausstehend / gelaufen) über <code>badgePreset</code> aus
+            <code>designTokens.ts</code> statt Einzel-Styles. Design-System-Konsistenz
+            (CONSTITUTION).
+          </div>
+        </div>
+        <div class="card" data-id="2.4" data-sprints="c">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 2.4" />
+            <div style="flex: 1">
+              <div class="title">2.4 Sortierung sichtbar machen (optional)</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Niedrig</span><span class="badge aufwand">M</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Dropdown „Sortieren nach: Datum ↑↓ / Erstellt am“ mit URL-Param. Erst nach Punkt 1.x
+            angehen.
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-3" data-group="c">
+        <h2>3 · Schnelle Suche (global + Events) <span class="count"></span></h2>
+        <div class="card" data-id="3.1" data-sprints="c">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 3.1" />
+            <div style="flex: 1">
+              <div class="title">3.1 Event-Suche in die Command Palette (⌘K)</div>
+              <div class="badges">
+                <span class="badge prio-critical">Größter UX-Gewinn</span
+                ><span class="badge aufwand">M</span><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Bei Eingabe „Weihnachtsmarkt…“ Live-Treffer aus <code>/events/admin?q=…</code> direkt in
+            der Palette (debounced, loading guard gemäß API-Regeln), Sprung zu
+            <code>/events/:id</code>.
+            <ul>
+              <li>Ort: <code>useCommandPalette.ts</code>, <code>commandPaletteConfig.ts</code></li>
+              <li>Suche + Navigation in einem Surface statt neuem Suchkonzept</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card" data-id="3.2" data-sprints="c">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 3.2" />
+            <div style="flex: 1">
+              <div class="title">3.2 Palette-Sichtbarkeit: „⌘K Suche“-Hints</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Mittel</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Hint im Sidebar-Header und Events-Header; Palette-Items mit Tastatur-Hints
+            (Recent-Pinning existiert bereits via localStorage).
+          </div>
+        </div>
+        <div class="card" data-id="3.3" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 3.3" />
+            <div style="flex: 1">
+              <div class="title">3.3 Suchfeld-Polish auf der Events-Seite</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Mittel</span><span class="badge aufwand">XS</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Clear-Button (✕) im Suchfeld, Fokus-Shortcut <code>/</code>, ggf. Trefferzahl anzeigen.
+          </div>
+        </div>
+      </section>
+
+      <section id="sec-4" data-group="b c">
+        <h2>4 · Hilfe auf den jeweiligen Seiten <span class="count"></span></h2>
+        <div class="card" data-id="4.1" data-sprints="b">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 4.1" />
+            <div style="flex: 1">
+              <div class="title">4.1 Collapsible „Was bedeuten die Filter?“</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            3–5 Zeilen Erklärung unter der Filterzeile: Event-Status vs. Moderation vs. Zeitraum.
+            Trifft die First-Time-User-Linse aus dem Audit direkt („Advanced Polish“ Punkt 2).
+          </div>
+        </div>
+        <div class="card" data-id="4.2" data-sprints="c">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 4.2" />
+            <div style="flex: 1">
+              <div class="title">4.2 PageHelp-Komponente (?-Icon pro Seite)</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Mittel</span><span class="badge aufwand">M</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Wiederverwendbare <code>PageHelp</code> (Icon „?“ im Header → Sheet/Popover mit
+            Kurzbeschreibung + Doku-Link). Ein Muster für alle ~25 Pages statt Einzellösungen.
+          </div>
+        </div>
+        <div class="card" data-id="4.3" data-sprints="a">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 4.3" />
+            <div style="flex: 1">
+              <div class="title">4.3 Tooltips an undeklarierten Aktionen (F-M2, F-M4)</div>
+              <div class="badges">
+                <span class="badge prio-hoch">Hoch</span><span class="badge aufwand">S</span
+                ><span class="badge neu">Audit-Offen</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            <ul>
+              <li>
+                „Bild generieren“ → „Social-Bild erstellen“ + Tooltip (Ort:
+                <code>EventListHeader.tsx:105-112</code>)
+              </li>
+              <li>
+                CSV-Export-Label „(gefiltert)“ + Subtext (Ort: <code>EventList.tsx:98-116</code>)
+              </li>
+            </ul>
+            Beide Findings waren Medium im Audit und wurden nie umgesetzt.
+          </div>
+        </div>
+        <div class="card" data-id="4.4" data-sprints="c">
+          <div class="row">
+            <input type="checkbox" aria-label="Erledigt-Markierung 4.4" />
+            <div style="flex: 1">
+              <div class="title">4.4 First-Run-Hinweis Events-Seite (optional)</div>
+              <div class="badges">
+                <span class="badge prio-mittel">Niedrig</span><span class="badge aufwand">S</span
+                ><span class="badge">Neu</span>
+              </div>
+            </div>
+            <span class="chev">›</span>
+          </div>
+          <div class="details">
+            Dismissible Hinweis-Banner beim ersten Besuch (localStorage-Flag). Nur wenn 4.1 nicht
+            ausreicht.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Prozess für jede Phase</h2>
+        <div class="note" style="margin-bottom: 0">
+          <code>npm run validate</code> grün · KI-Verifikation der geänderten UI (<code
+            >.cursorrules</code
+          >
+          §5.4/§8, nur die Diffs) · axe-Re-Check (Ziel: 0 Serious/Critical) · Playwright-Specs für
+          Filter-URL-Sync und Empty-States anpassen · Tests für neue Erwartungen (Chips, Reset,
+          klickbares Badge, Overflow-Menü) schreiben.
+        </div>
+      </section>
+    </div>
+
+    <script>
+      (function () {
+        var KEY_DONE = 'uxplan-2026-10-03-done';
+        var KEY_THEME = 'uxplan-2026-10-03-theme';
+
+        var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+        var sections = Array.prototype.slice.call(document.querySelectorAll('section[data-group]'));
+        var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab[data-filter]'));
+        var activeFilter = 'all';
+
+        function loadDone() {
+          try {
+            return JSON.parse(localStorage.getItem(KEY_DONE)) || {};
+          } catch (e) {
+            return {};
+          }
+        }
+        function saveDone(d) {
+          localStorage.setItem(KEY_DONE, JSON.stringify(d));
+        }
+
+        function updateCardState(card, done) {
+          card.classList.toggle('done', done);
+          card.querySelector('input[type="checkbox"]').checked = done;
+        }
+
+        function updateProgress() {
+          var done = loadDone();
+          var total = cards.length,
+            count = 0;
+          cards.forEach(function (c) {
+            if (done[c.dataset.id]) count++;
+          });
+          document.getElementById('doneCount').textContent = count;
+          document.getElementById('totalCount').textContent = total;
+          var pct = total ? Math.round((count / total) * 100) : 0;
+          document.getElementById('donePct').textContent = pct;
+          document.getElementById('progressBar').value = pct;
+          sections.forEach(function (s) {
+            var scards = s.querySelectorAll('.card');
+            var sdone = 0;
+            scards.forEach(function (c) {
+              if (done[c.dataset.id]) sdone++;
+            });
+            var el = s.querySelector('.count');
+            if (el && scards.length)
+              el.textContent = '· ' + sdone + '/' + scards.length + ' erledigt';
+          });
+        }
+
+        function applyFilter() {
+          tabs.forEach(function (t) {
+            t.classList.toggle('active', t.dataset.filter === activeFilter);
+          });
+          sections.forEach(function (s) {
+            var groups = (s.dataset.group || '').split(' ');
+            var visible = activeFilter === 'all' || groups.indexOf(activeFilter) !== -1;
+            s.classList.toggle('hidden', !visible);
+          });
+          // Einzelne Karten im Sprint-B-Modus von Abschnitt 2: nur Karten mit passendem Sprint
+          cards.forEach(function (c) {
+            var inSprint =
+              activeFilter === 'all' ||
+              (c.dataset.sprints || '').split(' ').indexOf(activeFilter) !== -1;
+            if (activeFilter !== 'all') {
+              c.classList.toggle('hidden', !inSprint);
+            } else {
+              c.classList.remove('hidden');
+            }
+          });
+        }
+
+        cards.forEach(function (card) {
+          var cb = card.querySelector('input[type="checkbox"]');
+          cb.addEventListener('click', function (e) {
+            e.stopPropagation();
+          });
+          cb.addEventListener('change', function () {
+            var done = loadDone();
+            if (cb.checked) {
+              done[card.dataset.id] = true;
+            } else {
+              delete done[card.dataset.id];
+            }
+            saveDone(done);
+            updateCardState(card, cb.checked);
+            updateProgress();
+          });
+          var row = card.querySelector('.row');
+          row.addEventListener('click', function (e) {
+            if (e.target === cb) return;
+            card.classList.toggle('open');
+          });
+        });
+
+        tabs.forEach(function (t) {
+          t.addEventListener('click', function () {
+            activeFilter = t.dataset.filter;
+            applyFilter();
+          });
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function () {
+          if (!confirm('Alle Häkchen zurücksetzen?')) return;
+          localStorage.removeItem(KEY_DONE);
+          cards.forEach(function (c) {
+            updateCardState(c, false);
+          });
+          updateProgress();
+        });
+
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem(KEY_THEME, theme);
+        }
+        document.getElementById('themeBtn').addEventListener('click', function () {
+          var cur =
+            document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+          applyTheme(cur);
+        });
+        var savedTheme = localStorage.getItem(KEY_THEME);
+        if (savedTheme) applyTheme(savedTheme);
+
+        var done = loadDone();
+        cards.forEach(function (c) {
+          updateCardState(c, !!done[c.dataset.id]);
+        });
+        updateProgress();
+        applyFilter();
+      })();
+    </script>
+  </body>
+</html>

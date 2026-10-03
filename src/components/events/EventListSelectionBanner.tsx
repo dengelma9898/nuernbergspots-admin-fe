@@ -20,7 +20,7 @@ export function EventListSelectionBanner({
       <div className="flex flex-wrap items-center gap-3 text-foreground">
         <CheckSquare className="h-5 w-5 text-primary shrink-0" />
         <span className="font-medium text-left">
-          Auswahlmodus aktiv – Nur aktuelle und zukünftige Events auswählbar
+          Auswahlmodus – nur aktuelle und kommende Events
         </span>
         <span className="sm:ml-auto text-sm opacity-80 w-full sm:w-auto text-left sm:text-right">
           {selectedCount} von {totalCount} ausgewählt
